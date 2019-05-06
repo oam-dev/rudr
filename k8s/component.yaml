@@ -1,0 +1,53 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: components.hydra.microsoft.com
+spec:
+  group: hydra.microsoft.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: components
+    singular: component
+    kind: Component
+    shortNames:
+    - comp
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: applications.hydra.microsoft.com
+spec:
+  group: hydra.microsoft.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: applications
+    singular: application
+    kind: Application
+    shortNames:
+    - app
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: opconfigs.hydra.microsoft.com
+spec:
+  group: hydra.microsoft.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: opconfigs
+    singular: opconfig
+    kind: OpConfig
+    shortNames:
+    - ocfg

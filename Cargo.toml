@@ -1,0 +1,11 @@
+[package]
+name = "scylla"
+version = "0.1.0"
+authors = ["Matt Butcher <matt.butcher@microsoft.com>"]
+edition = "2018"
+
+[dependencies]
+kube = "0.2.0"
+serde = "1.0"
+serde_derive = "1.0"
+failure = "0.1.5"

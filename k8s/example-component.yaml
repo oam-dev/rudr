@@ -1,0 +1,8 @@
+apiVersion: hydra.microsoft.com/v1
+kind: Component
+metadata:
+  name: test-component
+spec:
+  name: test-component
+  workloadType: singleton
+  os: linux
