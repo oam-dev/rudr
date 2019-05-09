@@ -4,7 +4,6 @@ extern crate failure;
 
 use kube::api::{
     Reflector,
-    Named,
     ApiResource,
 };
 use kube::{
@@ -45,16 +44,16 @@ pub struct HydraConfigResource {
     os: Option<String>,
 }
 
-impl Named for HydraConfigResource {
-    fn name(&self) -> String {
-        self.name.clone()
-    }
-}
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HydraConfigStatus {
+    phase: Option<String>,
+}
 
 #[derive(Clone)]
 pub struct State {
-    hydra_configs: Reflector<HydraConfigResource>,
+    hydra_configs: Reflector<HydraConfigResource, Option<HydraConfigStatus>>,
 }
 
 impl State {
@@ -62,8 +61,10 @@ impl State {
         let src = ApiResource {
             group: "hydra.microsoft.com".into(),
             resource: "components".into(),
-            namespace: ns.into(),
+            namespace: Some(ns.into()),
             //version: "v1alpha1".into(),
+            version: "v1".into(),
+            prefix: "apis".into(),
         };
         let hydra_configs = Reflector::new(client, src)?;
         Ok(State {hydra_configs})
@@ -73,7 +74,7 @@ impl State {
         let res = self.hydra_configs.poll();
         let btree = self.hydra_configs.read().unwrap();
         for (k, v) in btree.iter() {
-            println!("{}: {}", k, v.workload_type);
+            println!("{}: {:?}", k, v.metadata.annotations);
         }
         res
     }
