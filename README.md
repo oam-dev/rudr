@@ -9,8 +9,11 @@ To build:
 - Make sure you have Rust 2018 Edition or newer
 - Clone this repository
 - Go into the main directory: `cd scylla`
+- Install the CRDs in `example/crds.yaml`: `kubectl apply examples/crds.yaml`
 - Run `cargo build`
 - To run the server: `cargo run`
+
+At this point, you can create, update, and destroy components using `kubectl apply`. There are two example components in `examples/`
 
 ## License
 
