@@ -1,0 +1,8 @@
+apiVersion: hydra.microsoft.com/v1
+kind: Component
+metadata:
+  name: another-component
+spec:
+  name: another-component
+  workloadType: replicatedService
+  os: linux

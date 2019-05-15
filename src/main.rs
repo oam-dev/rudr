@@ -3,37 +3,59 @@ extern crate serde_derive;
 extern crate failure;
 
 use kube::api::{
-    Reflector,
     ApiResource,
+    Informer,
+    Reflector,
+    WatchEvent,
 };
 use kube::{
     client::APIClient,
     config::load_kube_config,
 };
 
-use std::time::Duration;
-
-fn main() {
-    let cfg = load_kube_config().expect("Load default kubeconfig");
-    let cli = APIClient::new(cfg);
-    let ns = "default";
-    let state = State::new(ns, cli).expect("Create new state manager");
-
-    let state_clone = state.clone(); // Allow it to be moved.
+fn main() -> Result<(), failure::Error> {
     let handle = std::thread::spawn(move || {
+        let ns = "default";
+        let cfg = load_kube_config().expect("Load default kubeconfig");
+        let client = APIClient::new(cfg);
+        let resource = ApiResource {
+            group: "hydra.microsoft.com".into(),
+            resource: "components".into(),
+            namespace: Some(ns.into()),
+            version: "v1".into(), //"v1alpha1".into(),
+            ..Default::default()
+        };
+        // This lists all the stuff that is there already
+        let reflector: Reflector<HydraConfigResource, Option<HydraConfigStatus>> = Reflector::new(client.clone(), resource.clone().into())?;
+        reflector.poll()?;
+        reflector.read()?.into_iter().for_each(|(name, crd)| {
+            println!("Existing {}: {:?}", name, crd.spec)
+        });
+
+        // This listens for new items, and then processes them as they come in.
+        let informer: Informer<HydraConfigResource, Option<HydraConfigStatus>> = Informer::new(client.clone(), resource.clone().into())?;
         loop {
-            std::thread::sleep(Duration::from_secs(10));
-            match state_clone.poll() {
-                Ok(_) => println!("Refreshed"),
-                Err(e) => {
-                    println!("{}", e);
-                    std::process::exit(1);
-                }
+            informer.poll()?;
+
+            // Clear out the event queue
+            while let Some(event) = informer.pop() {
+                handle_event(&client, event)?;
             }
+            
         }
     });
     println!("Watcher is running");
     handle.join().unwrap()
+}
+
+fn handle_event(_cli: &APIClient, event: WatchEvent<HydraConfigResource, Option<HydraConfigStatus>>) -> Result<(), failure::Error> {
+    match event {
+        WatchEvent::Added(o) => println!("Added {}", o.metadata.name),
+        WatchEvent::Modified(o) => println!("Updated {}", o.metadata.name),
+        WatchEvent::Deleted(o) => println!("Deleted {}", o.metadata.name),
+        WatchEvent::Error(e) => println!("Error: {:?}", e),
+    }
+    Ok(())
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -44,42 +66,8 @@ pub struct HydraConfigResource {
     os: Option<String>,
 }
 
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HydraConfigStatus {
     phase: Option<String>,
-}
-
-#[derive(Clone)]
-pub struct State {
-    hydra_configs: Reflector<HydraConfigResource, Option<HydraConfigStatus>>,
-}
-
-impl State {
-    fn new(ns: &str, client: APIClient) -> Result<Self, failure::Error>{
-        let src = ApiResource {
-            group: "hydra.microsoft.com".into(),
-            resource: "components".into(),
-            namespace: Some(ns.into()),
-            //version: "v1alpha1".into(),
-            version: "v1".into(),
-            prefix: "apis".into(),
-        };
-        let hydra_configs = Reflector::new(client, src)?;
-        Ok(State {hydra_configs})
-    }
-
-    fn poll(&self) -> Result<(), failure::Error> {
-        let res = self.hydra_configs.poll();
-        let btree = self.hydra_configs.read().unwrap();
-        for (k, v) in btree.iter() {
-            println!("{}: {:?}", k, v.metadata.annotations);
-        }
-        res
-    }
-
-    pub fn refresh(&self) -> Result<(), failure::Error> {
-        self.hydra_configs.refresh()
-    }
 }

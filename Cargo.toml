@@ -5,8 +5,8 @@ authors = ["Matt Butcher <matt.butcher@microsoft.com>"]
 edition = "2018"
 
 [dependencies]
-#kube = "0.2.0"
-kube = { git = "https://github.com/clux/kube-rs", rev = "2624341b8abc7b6cfaa3c9cb31db716db44d10e8" }
+kube = "0.6.0"
+#kube = { git = "https://github.com/clux/kube-rs", rev = "2624341b8abc7b6cfaa3c9cb31db716db44d10e8" }
 serde = "1.0"
 serde_derive = "1.0"
 failure = "0.1.5"
