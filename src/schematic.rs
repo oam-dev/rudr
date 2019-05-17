@@ -1,13 +1,26 @@
 
+/// Component describes the "spec" of a Hydra component schematic.
+/// 
+/// The wrapper of the schematic is provided by the Kubernetes library natively.
+/// 
+/// In addition to directly deserializing into a component, the from_string() helper
+/// can be used for testing and prototyping.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Component {
-    workload_type: String,
-    os_type: String,
-    arch: String,
-    parameters: Vec<Parameter>,
-    containers: Vec<Container>,
-    workload_settings: Vec<WorkloadSetting>,
+    pub workload_type: String,
+    pub os_type: String,
+    pub arch: String,
+    pub parameters: Vec<Parameter>,
+    pub containers: Vec<Container>,
+    pub workload_settings: Vec<WorkloadSetting>,
+}
+
+impl Component {
+    pub fn from_str(json_data: &str) -> Result<Component, failure::Error> {
+        let res: Component = serde_json::from_str(json_data)?;
+        Ok(res)
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -178,4 +191,42 @@ pub struct HydraStatus {
     phase: Option<String>,
 }
 
-pub type Status = Option<HydraStatus>; 
+pub type Status = Option<HydraStatus>;
+
+pub struct GroupVersionKind {
+    pub group: String,
+    pub version: String,
+    pub kind: String,
+}
+
+/// GroupVersionKind represents a canonical name, composed of group, version, and (you guessed it) kind.
+/// 
+/// Group is a dotted name. While the specification requires at least one dot in the group, we do not enforce.
+/// Version is an API version
+/// Kind the name of the type
+impl GroupVersionKind {
+    pub fn new(group: &str, version: &str, kind: &str) -> GroupVersionKind {
+        GroupVersionKind{
+            group: group.into(),
+            version: version.into(),
+            kind: kind.into(),
+        }
+    }
+    pub fn from_str(gvp: &str) -> Result<GroupVersionKind, failure::Error> {
+        let parts: Vec<&str> = gvp.splitn(2, "/").collect();
+        if parts.len() != 2 {
+            return Err(failure::err_msg("missing version and kind"))
+        }
+
+        let vk: Vec<&str> = parts.get(1).unwrap().splitn(2, ".").collect();
+        if vk.len() != 2 {
+            return Err(failure::err_msg("missing kind"))
+        }
+
+        Ok(GroupVersionKind{
+            group: parts.get(0).unwrap().to_string(),
+            version: vk.get(0).unwrap().to_string(),
+            kind: vk.get(1).unwrap().to_string(),
+        })
+    }
+}

@@ -4,3 +4,6 @@ extern crate serde_json;
 extern crate failure;
 
 pub mod schematic;
+
+#[cfg(test)]
+mod tests;
