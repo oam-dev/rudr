@@ -17,6 +17,7 @@ pub struct Component {
 }
 
 impl Component {
+    /// Parse JSON data into a Component.
     pub fn from_str(json_data: &str) -> Result<Component, failure::Error> {
         let res: Component = serde_json::from_str(json_data)?;
         Ok(res)
@@ -205,6 +206,9 @@ pub struct GroupVersionKind {
 /// Version is an API version
 /// Kind the name of the type
 impl GroupVersionKind {
+    /// Create a new GroupVersionKind from each component.
+    /// 
+    /// This does not check the formatting of each part.
     pub fn new(group: &str, version: &str, kind: &str) -> GroupVersionKind {
         GroupVersionKind{
             group: group.into(),
@@ -212,7 +216,9 @@ impl GroupVersionKind {
             kind: kind.into(),
         }
     }
+    /// Parse a string into a GroupVersionKind.
     pub fn from_str(gvp: &str) -> Result<GroupVersionKind, failure::Error> {
+        // I suspect that this function could be made much more elegant.
         let parts: Vec<&str> = gvp.splitn(2, "/").collect();
         if parts.len() != 2 {
             return Err(failure::err_msg("missing version and kind"))
