@@ -1,6 +1,4 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate failure;
+
 
 use kube::api::{
     ApiResource,
@@ -12,6 +10,8 @@ use kube::{
     client::APIClient,
     config::load_kube_config,
 };
+
+use scylla::schematic::{Component, Status};
 
 fn main() -> Result<(), failure::Error> {
     let handle = std::thread::spawn(move || {
@@ -26,14 +26,14 @@ fn main() -> Result<(), failure::Error> {
             ..Default::default()
         };
         // This lists all the stuff that is there already
-        let reflector: Reflector<HydraConfigResource, Option<HydraConfigStatus>> = Reflector::new(client.clone(), resource.clone().into())?;
+        let reflector: Reflector<Component, Status> = Reflector::new(client.clone(), resource.clone().into())?;
         reflector.poll()?;
         reflector.read()?.into_iter().for_each(|(name, crd)| {
             println!("Existing {}: {:?}", name, crd.spec)
         });
 
         // This listens for new items, and then processes them as they come in.
-        let informer: Informer<HydraConfigResource, Option<HydraConfigStatus>> = Informer::new(client.clone(), resource.clone().into())?;
+        let informer: Informer<Component, Status> = Informer::new(client.clone(), resource.clone().into())?;
         loop {
             informer.poll()?;
 
@@ -48,7 +48,7 @@ fn main() -> Result<(), failure::Error> {
     handle.join().unwrap()
 }
 
-fn handle_event(_cli: &APIClient, event: WatchEvent<HydraConfigResource, Option<HydraConfigStatus>>) -> Result<(), failure::Error> {
+fn handle_event(_cli: &APIClient, event: WatchEvent<Component, Status>) -> Result<(), failure::Error> {
     match event {
         WatchEvent::Added(o) => println!("Added {}", o.metadata.name),
         WatchEvent::Modified(o) => println!("Updated {}", o.metadata.name),
@@ -56,18 +56,4 @@ fn handle_event(_cli: &APIClient, event: WatchEvent<HydraConfigResource, Option<
         WatchEvent::Error(e) => println!("Error: {:?}", e),
     }
     Ok(())
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct HydraConfigResource {
-    name: String, // temporary until 0.3
-    workload_type: String,
-    os: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct HydraConfigStatus {
-    phase: Option<String>,
 }
