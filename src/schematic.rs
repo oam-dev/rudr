@@ -56,11 +56,20 @@ pub struct Trait {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameter {
-    name: String,
-    description: Option<String>,
-    parameter_type: ParameterType,
-    required: bool,
-    default: serde_json::Value,
+    pub name: String,
+    pub description: Option<String>,
+
+    #[serde(rename(serialize = "type", deserialize = "type"))]
+    pub parameter_type: ParameterType,
+
+    #[serde(default = "default_required")]
+    pub required: bool,
+
+    pub default: Option<serde_json::Value>,
+}
+
+fn default_required() -> bool {
+    false
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -209,7 +218,7 @@ pub struct Path{
     pub sharing_policy: SharingPolicy,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum ParameterType {
     Boolean,

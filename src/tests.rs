@@ -167,6 +167,52 @@ fn test_health_probe_deserialize() {
     let probe = container.unwrap().clone().liveness_probe.unwrap();
     
     assert_eq!(10, probe.period_seconds);
-    assert_eq!(1, probe.http_get.as_ref().unwrap().http_headers.len());
+
+    let headers = &probe.http_get.as_ref().unwrap().http_headers;
+    assert_eq!(1, headers.len());
+    assert_eq!("HOSTNAME", headers.get(0).unwrap().name);
+    assert_eq!("example.com", headers.get(0).unwrap().value);
     assert_eq!(9000, probe.http_get.as_ref().unwrap().port);
+}
+
+#[test]
+fn test_parameter_deserialize() {
+   let data = Component::from_str(
+        r#"{
+            "parameters": [
+                {
+                    "name": "param1",
+                    "description": "a parameter",
+                    "type": "string",
+                    "required": true,
+                    "default": "things fall apart, the center cannot hold"
+                },
+                {
+                    "name": "param2",
+                    "type": "boolean"
+                }
+            ]
+        }"#
+    );
+
+    assert!(data.is_ok(), "Not okay: {}", data.unwrap_err());
+
+    let params = data.unwrap().parameters;
+
+    assert_eq!(2, params.len());
+
+    let p1 = params.get(0).unwrap();
+    let p2 = params.get(1).unwrap();
+
+    assert_eq!("param1", p1.name);
+    assert_eq!(Some("a parameter".into()), p1.description);
+    assert_eq!(ParameterType::String, p1.parameter_type);
+    assert!(p1.required);
+    assert_eq!(Some("things fall apart, the center cannot hold".into()), p1.default);
+
+    assert_eq!("param2", p2.name);
+    assert_eq!(None, p2.description);
+    assert_eq!(ParameterType::Boolean, p2.parameter_type);
+    assert!(!p2.required);
+    assert_eq!(None, p2.default);
 }
