@@ -106,15 +106,30 @@ fn test_container_deserialize() {
                             "fromParam": "param2"
                         }
                     ],
-                    "livenessProbe": {
-
+                    "livenessProbe": {},
+                    "resources": {
+                        "memory": {
+                            "required": "2G"
+                        },
+                        "paths": [
+                            {
+                                "name": "first",
+                                "path": "/path/to/first"
+                            },
+                            {
+                                "name": "second",
+                                "path": "/path/to/second",
+                                "accessMode": "RO",
+                                "sharingPolicy": "Shared"
+                            }
+                        ]
                     }
                 }
             ]
         }"#
     );
 
-    assert!(data.is_ok());
+    assert!(data.is_ok(), "{}", data.unwrap_err());
 
     let container = data.as_ref().unwrap().containers.get(0).unwrap();
     assert_eq!("my_container", container.name);
@@ -135,6 +150,24 @@ fn test_container_deserialize() {
 
     assert!(container.liveness_probe.is_some());
     assert!(container.readiness_probe.is_none());
+
+    let res = &container.resources;
+
+    assert_eq!("2G", res.memory.required);
+    assert_eq!("1", res.cpu.required);
+
+    let path1 = res.paths.get(0).unwrap();
+    let path2 = res.paths.get(1).unwrap();
+
+    assert_eq!("first", path1.name);
+    assert_eq!("/path/to/first", path1.path);
+    assert_eq!(SharingPolicy::Exclusive, path1.sharing_policy);
+    assert_eq!(AccessMode::RW, path1.access_mode);
+
+    assert_eq!("second", path2.name);
+    assert_eq!("/path/to/second", path2.path);
+    assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
+    assert_eq!(AccessMode::RO, path2.access_mode);
 }
 #[test]
 fn test_health_probe_deserialize() {
@@ -215,4 +248,48 @@ fn test_parameter_deserialize() {
     assert_eq!(ParameterType::Boolean, p2.parameter_type);
     assert!(!p2.required);
     assert_eq!(None, p2.default);
+}
+
+#[test]
+fn test_workload_settings_deserialize() {
+   let data = Component::from_str(
+        r#"{
+            "workloadSettings": [
+                {
+                    "name": "setting1",
+                    "description": "a workload setting",
+                    "type": "string",
+                    "required": true,
+                    "default": "things fall apart, the center cannot hold"
+                },
+                {
+                    "name": "setting2",
+                    "type": "boolean",
+                    "fromParam": "param1"
+                }
+            ]
+        }"#
+    );
+
+    assert!(data.is_ok(), "Not okay: {}", data.unwrap_err());
+
+    let settings = data.unwrap().workload_settings;
+
+    assert_eq!(2, settings.len());
+
+    let s1 = settings.get(0).unwrap();
+    let s2 = settings.get(1).unwrap();
+
+    assert_eq!("setting1", s1.name);
+    assert_eq!(Some("a workload setting".into()), s1.description);
+    assert_eq!(ParameterType::String, s1.parameter_type);
+    assert!(s1.required);
+    assert_eq!(Some("things fall apart, the center cannot hold".into()), s1.default);
+
+    assert_eq!("setting2", s2.name);
+    assert_eq!(None, s2.description);
+    assert_eq!(ParameterType::Boolean, s2.parameter_type);
+    assert!(!s2.required);
+    assert_eq!(None, s2.default);
+    assert_eq!(Some("param1".into()), s2.from_param);
 }

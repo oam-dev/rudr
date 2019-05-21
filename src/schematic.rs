@@ -1,4 +1,8 @@
 
+
+/// The default workload type if none is present.
+pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
+
 /// Component describes the "spec" of a Hydra component schematic.
 /// 
 /// The wrapper of the schematic is provided by the Kubernetes library natively.
@@ -25,9 +29,6 @@ impl Component {
     }
 }
 
-/// The default workload type if none is present.
-pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
-
 impl Default for Component {
     fn default() -> Self {
         Component{
@@ -41,18 +42,28 @@ impl Default for Component {
     }
 }
 
+/// Application defines a Hydra application
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Application {
 
 }
 
+/// Trait describes Hydra traits.
+/// 
+/// Hydra traits are ops-oriented "add-ons" that can be attached to Components of the appropriate workloadType.
+/// For example, an autoscaler trait can attach to a workloadType (such as ReplicableService) that can be
+/// scaled up and down.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Trait {
 
 }
 
+/// Parameter describes a configurable unit on a Component or Application.
+/// 
+/// Parameters have primitive types, and may be marked as required. Default values
+/// may be provided as well.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameter {
@@ -68,10 +79,12 @@ pub struct Parameter {
     pub default: Option<serde_json::Value>,
 }
 
+/// Supplies the default value for all required fields.
 fn default_required() -> bool {
     false
 }
 
+/// Container describes the container configuration for a Component.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Container {
@@ -91,15 +104,26 @@ pub struct Container {
     pub readiness_probe: Option<HealthProbe>,
 }
 
+/// Workload settings describe the configuration for a workload.
+/// 
+/// This information is passed to the underlying workload defined by Component::worload_type.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkloadSetting{
-    name: String,
-    parameter_type: ParameterType,
-    value: Option<serde_json::Value>,
-    from_param: Option<String>,
+    pub name: String,
+    pub description: Option<String>,
+
+    #[serde(rename(serialize = "type", deserialize = "type"))]
+    pub parameter_type: ParameterType,
+
+    #[serde(default = "default_required")]
+    pub required: bool,
+    
+    pub default: Option<serde_json::Value>,
+    pub from_param: Option<String>,
 }
 
+/// Env describes an environment variable for a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Env{
@@ -108,6 +132,7 @@ pub struct Env{
     pub from_param: Option<String>,
 }
 
+/// Port describes a port on a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Port{
@@ -118,6 +143,7 @@ pub struct Port{
     pub protocol: PortProtocol,
 }
 
+// HealthProbe describes a probe used to check on the health of a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
@@ -147,12 +173,14 @@ impl Default for HealthProbe {
     }
 }
 
+/// Exec describes a shell command, as an array, for execution in a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Exec {
     pub command: Vec<String>,
 }
 
+/// HttpGet describes an HTTP GET request used to probe a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpGet{
@@ -161,6 +189,10 @@ pub struct HttpGet{
     pub http_headers: Vec<HttpHeader>,
 }
 
+/// HttpHeader describes an HTTP header.
+///
+/// Headers are not stored as a map of name/value because the same header is allowed
+/// multiple times.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpHeader{
@@ -168,19 +200,22 @@ pub struct HttpHeader{
     pub value: String,
 }
 
+/// TcpSocket defines a socket used for health probing.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TcpSocket{
     pub port: i64,
 }
 
+/// Resources defines the resources required by a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
+#[serde(default)]
 pub struct Resources{
     pub cpu: CPU,
     pub memory: Memory,
     pub gpu: GPU,
-    pub path: Vec<Path>,
+    pub paths: Vec<Path>,
 }
 
 impl Default for Resources {
@@ -189,35 +224,57 @@ impl Default for Resources {
             cpu: CPU{required: "1".into()},
             memory: Memory{required: "1G".into()},
             gpu: GPU{required: "0".into()},
-            path: Vec::new(),
+            paths: Vec::new(),
         }
     }
 }
 
+/// CPU describes a CPU resource allocation for a container.
+/// 
+/// It indicates how much CPU (core count) is required for this container to operate.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CPU{
     pub required: String,
 }
+
+/// Memory describes the memory allocation for a container.
+/// 
+/// It indicates the required amount of memory for a container to operate.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Memory{
     pub required: String,
 }
+
+/// GPU describes a Container's need for a GPU.
+/// 
+/// It indicates how many (if any) GPU cores a container needs to operate.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GPU{
     pub required: String,
 }
+
+/// Path describes a path that is attached to a Container.
+/// 
+/// It specifies not only the location, but also the requirements.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Path{
     pub name: String,
     pub path: String,
+
+    #[serde(default)]
     pub access_mode: AccessMode,
+    
+    #[serde(default)]
     pub sharing_policy: SharingPolicy,
 }
 
+/// ParameterType defines the types of parameters for a Parameters object.
+///
+/// These roughly correlate with JSON Schema primitive types.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum ParameterType {
@@ -227,19 +284,38 @@ pub enum ParameterType {
     Null,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+/// AccessMode defines the access modes for file systems.
+/// 
+/// Currently, only read/write and read-only are supported.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum AccessMode{
     RW,
     RO,
 }
+impl Default for AccessMode {
+    fn default() -> Self {
+        AccessMode::RW
+    }
+}
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+/// SharingPolicy defines whether a filesystem can be shared across containers.
+/// 
+/// An Exclusive filesystem can only be attached to one container.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum SharingPolicy{
     Shared,
     Exclusive,
 }
+impl Default for SharingPolicy {
+    fn default() -> Self {
+        SharingPolicy::Exclusive
+    }
+}
 
+/// PortProtocol is a protocol used when attaching to ports.
+/// 
+/// Currently, only TCP and UDP are supported by Kubernetes.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum PortProtocol{
@@ -252,10 +328,14 @@ impl Default for PortProtocol {
     }
 }
 
+// TODO: This part is not specified in the spec b/c it is considered a runtime
+// detail of Kubernetes. Need to fill this in as we go.
+
+/// HydraStatus is the status of a Hydra object, per Kubernetes.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HydraStatus {
-    phase: Option<String>,
+    pub phase: Option<String>,
 }
 
 impl Default for HydraStatus {
@@ -266,8 +346,15 @@ impl Default for HydraStatus {
     }
 }
 
+/// Status is a convenience for an optional HydraStatus.
 pub type Status = Option<HydraStatus>;
 
+/// GroupVersionKind represents a fully qualified identifier for a resource type.
+/// 
+/// It is, as the name suggests, composed of three pieces of information:
+/// - Group is a namespace
+/// - Version is an API version
+/// - Kind is the actual type marker
 pub struct GroupVersionKind {
     pub group: String,
     pub version: String,
