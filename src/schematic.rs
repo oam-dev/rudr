@@ -7,6 +7,7 @@
 /// can be used for testing and prototyping.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
+#[serde(default)]
 pub struct Component {
     pub workload_type: String,
     pub os_type: String,
@@ -21,6 +22,22 @@ impl Component {
     pub fn from_str(json_data: &str) -> Result<Component, failure::Error> {
         let res: Component = serde_json::from_str(json_data)?;
         Ok(res)
+    }
+}
+
+/// The default workload type if none is present.
+pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
+
+impl Default for Component {
+    fn default() -> Self {
+        Component{
+            workload_type: DEFAULT_WORKLOAD_TYPE.into(),
+            os_type: "linux".into(),
+            arch: "amd64".into(),
+            parameters: Vec::new(),
+            containers: Vec::new(),
+            workload_settings: Vec::new(),
+        }
     }
 }
 
@@ -49,13 +66,20 @@ pub struct Parameter {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Container {
-    name: String,
-    image: String,
-    resources: Resources,
-    env: Vec<Env>,
-    ports: Vec<Port>,
-    liveness_probe: HealthProbe,
-    readiness_probe: HealthProbe,
+    pub name: String,
+    pub image: String,
+
+    #[serde(default)]
+    pub resources: Resources,
+    
+    #[serde(default)]
+    pub env: Vec<Env>,
+    
+    #[serde(default)]
+    pub ports: Vec<Port>,
+    
+    pub liveness_probe: Option<HealthProbe>,
+    pub readiness_probe: Option<HealthProbe>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -70,90 +94,119 @@ pub struct WorkloadSetting{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Env{
-    name: String,
-    value: Option<String>,
-    from_param: Option<String>,
+    pub name: String,
+    pub value: Option<String>,
+    pub from_param: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Port{
-    name: String,
-    container_port: i32,
-    protocol: PortProtocol,
+    pub name: String,
+    pub container_port: i32,
+
+    #[serde(default)]
+    pub protocol: PortProtocol,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
+#[serde(default)]
 pub struct HealthProbe{
-    exec: Option<Exec>,
-    http_get: Option<HttpGet>,
-    tcp_socket: Option<TcpSocket>,
-    initial_delay_seconds: i64,
-    period_seconds: i64,
-    timeout_seconds: i64,
-    success_threshold: i64,
-    failure_threshold: i64,
+    pub exec: Option<Exec>,
+    pub http_get: Option<HttpGet>,
+    pub tcp_socket: Option<TcpSocket>,
+    pub initial_delay_seconds: i64,
+    pub period_seconds: i64,
+    pub timeout_seconds: i64,
+    pub success_threshold: i64,
+    pub failure_threshold: i64,
+}
+
+impl Default for HealthProbe {
+    fn default() -> Self {
+        HealthProbe{
+            exec: None,
+            http_get: None,
+            tcp_socket: None,
+            initial_delay_seconds: 0,
+            period_seconds: 10,
+            timeout_seconds: 1,
+            success_threshold: 1,
+            failure_threshold: 3,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Exec {
-    command: Vec<String>,
+    pub command: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpGet{
-    path: String,
-    port: i64,
-    http_headers: Vec<HttpHeader>,
+    pub path: String,
+    pub port: i64,
+    pub http_headers: Vec<HttpHeader>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpHeader{
-    name: String,
-    value: String,
+    pub name: String,
+    pub value: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TcpSocket{
-    port: i64,
+    pub port: i64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Resources{
-    cpu: CPU,
-    memory: Memory,
-    gpu: GPU,
-    path: Vec<Path>,
+    pub cpu: CPU,
+    pub memory: Memory,
+    pub gpu: GPU,
+    pub path: Vec<Path>,
+}
+
+impl Default for Resources {
+    fn default() -> Self {
+        Resources {
+            cpu: CPU{required: "1".into()},
+            memory: Memory{required: "1G".into()},
+            gpu: GPU{required: "0".into()},
+            path: Vec::new(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CPU{
-    required: String,
+    pub required: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Memory{
-    required: String,
+    pub required: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GPU{
-    required: String,
+    pub required: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Path{
-    name: String,
-    path: String,
-    access_mode: AccessMode,
-    sharing_policy: SharingPolicy,
+    pub name: String,
+    pub path: String,
+    pub access_mode: AccessMode,
+    pub sharing_policy: SharingPolicy,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -166,30 +219,42 @@ pub enum ParameterType {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "UPPERCASE")]
 pub enum AccessMode{
     RW,
     RO,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
 pub enum SharingPolicy{
     Shared,
     Exclusive,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum PortProtocol{
     TCP,
     UDP,
+}
+impl Default for PortProtocol {
+    fn default() -> Self {
+        PortProtocol::TCP
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HydraStatus {
     phase: Option<String>,
+}
+
+impl Default for HydraStatus {
+    fn default() -> Self {
+        HydraStatus {
+            phase: None,
+        }
+    }
 }
 
 pub type Status = Option<HydraStatus>;
