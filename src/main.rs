@@ -12,6 +12,7 @@ use kube::{
 };
 
 use scylla::schematic::{Component, Status};
+use scylla::instigator::Instigator;
 
 fn main() -> Result<(), failure::Error> {
     let handle = std::thread::spawn(move || {
@@ -48,9 +49,15 @@ fn main() -> Result<(), failure::Error> {
     handle.join().unwrap()
 }
 
-fn handle_event(_cli: &APIClient, event: WatchEvent<Component, Status>) -> Result<(), failure::Error> {
+fn handle_event(cli: &APIClient, event: WatchEvent<Component, Status>) -> Result<(), failure::Error> {
+    let inst = Instigator::new(cli.clone());
     match event {
-        WatchEvent::Added(o) => println!("Added {}", o.metadata.name),
+        WatchEvent::Added(o) => {
+            let res = inst.add(o);
+            if res.is_err() {
+                println!("{}", res.unwrap_err());
+            }
+        },
         WatchEvent::Modified(o) => println!("Updated {}", o.metadata.name),
         WatchEvent::Deleted(o) => println!("Deleted {}", o.metadata.name),
         WatchEvent::Error(e) => println!("Error: {:?}", e),

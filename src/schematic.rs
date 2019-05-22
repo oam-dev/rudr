@@ -1,5 +1,3 @@
-
-
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
 
@@ -337,7 +335,6 @@ impl Default for PortProtocol {
 pub struct HydraStatus {
     pub phase: Option<String>,
 }
-
 impl Default for HydraStatus {
     fn default() -> Self {
         HydraStatus {

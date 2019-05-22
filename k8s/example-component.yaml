@@ -4,5 +4,5 @@ metadata:
   name: test-component
 spec:
   name: test-component
-  workloadType: singleton
+  workloadType: core.hydra.io/v1alpha1.Singleton
   os: linux

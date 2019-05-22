@@ -4,5 +4,8 @@ metadata:
   name: another-component
 spec:
   name: another-component
-  workloadType: replicatedService
+  workloadType: core.hydra.io/v1alpha1.Singleton
   os: linux
+  containers:
+    - name: foo
+      image: nginx:latest
