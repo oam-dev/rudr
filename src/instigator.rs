@@ -71,30 +71,21 @@ impl Singleton {
         }
     }
     fn add(&self, client: APIClient) -> InstigatorResult {
-        let containers = self.definition.containers.iter().map( |c| {
-            api::Container {
-                image: Some(c.image.clone()),
-                name: c.name.clone(),
-                ..Default::default()
-            }
-        }).collect();
-        
-        let pod = api::Pod{
-            metadata: Some(meta::ObjectMeta{
-                name: Some(self.name.clone()),
-                ..Default::default()
-            }),
-            spec: Some(api::PodSpec {
-                containers: containers,
-                ..Default::default()                
-            }),
-            ..Default::default()
-        };
-
+        let pod = self.to_pod();
         let (req, _) = api::Pod::create_namespaced_pod(self.namespace.as_str(), &pod, Default::default())?;
         let res = client.request(req);
         println!("{:?}", res);
         res
+    }
+    fn to_pod(&self) -> api::Pod {
+        api::Pod{
+            metadata: Some(meta::ObjectMeta{
+                name: Some(self.name.clone()),
+                ..Default::default()
+            }),
+            spec: Some(self.definition.to_pod_spec()),
+            ..Default::default()
+        }
     }
 }
 

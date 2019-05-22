@@ -1,3 +1,11 @@
+use k8s_openapi::api::core::v1 as core;
+use k8s_openapi::apimachinery::pkg::{
+    api::resource::Quantity,
+    util::intstr::IntOrString,
+};
+
+use std::collections::BTreeMap;
+
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
 
@@ -25,7 +33,35 @@ impl Component {
         let res: Component = serde_json::from_str(json_data)?;
         Ok(res)
     }
+
+    /// to_pod_spec generates a pod specification.
+    pub fn to_pod_spec(&self) -> core::PodSpec {
+        let containers = self.containers.iter().map(|c| {
+            core::Container {
+                name: c.name.clone(),
+                image:     Some(c.image.clone()),
+                resources: Some(c.resources.to_resource_requirements()),
+                ports:     Some(c.ports.iter().map(|p| { p.to_container_port() }).collect()),
+                env:       Some(c.env.iter().map(|e| { e.to_env_var() }).collect()),
+                liveness_probe:  c.liveness_probe.clone().and_then( |p| Some(p.to_probe())),
+                readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
+                ..Default::default()
+            }
+        }).collect();
+        core::PodSpec {
+            containers: containers,
+            ..Default::default()
+        }
+    }
 }
+
+impl Into<core::PodSpec> for Component {
+    fn into(self) -> core::PodSpec {
+        self.to_pod_spec()
+    }
+}
+
+
 
 impl Default for Component {
     fn default() -> Self {
@@ -129,6 +165,16 @@ pub struct Env{
     pub value: Option<String>,
     pub from_param: Option<String>,
 }
+impl Env {
+    fn to_env_var(&self) -> core::EnvVar {
+        // FIXME: This needs to support fromParam
+        core::EnvVar {
+            name: self.name.clone(),
+            value: self.value.clone(),
+            value_from: None,
+        }
+    }
+}
 
 /// Port describes a port on a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -140,6 +186,16 @@ pub struct Port{
     #[serde(default)]
     pub protocol: PortProtocol,
 }
+impl Port {
+    fn to_container_port(&self) -> core::ContainerPort {
+        core::ContainerPort {
+            container_port: self.container_port,
+            name: Some(self.name.clone()),
+            protocol: Some(self.protocol.to_string()),
+            ..Default::default()
+        }
+    }
+}
 
 // HealthProbe describes a probe used to check on the health of a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -149,13 +205,26 @@ pub struct HealthProbe{
     pub exec: Option<Exec>,
     pub http_get: Option<HttpGet>,
     pub tcp_socket: Option<TcpSocket>,
-    pub initial_delay_seconds: i64,
-    pub period_seconds: i64,
-    pub timeout_seconds: i64,
-    pub success_threshold: i64,
-    pub failure_threshold: i64,
+    pub initial_delay_seconds: i32,
+    pub period_seconds: i32,
+    pub timeout_seconds: i32,
+    pub success_threshold: i32,
+    pub failure_threshold: i32,
 }
-
+impl HealthProbe {
+    fn to_probe(&self) -> core::Probe {
+        core::Probe {
+            failure_threshold:     Some(self.failure_threshold),
+            period_seconds:        Some(self.period_seconds),
+            timeout_seconds:       Some(self.timeout_seconds),
+            success_threshold:     Some(self.success_threshold),
+            initial_delay_seconds: Some(self.initial_delay_seconds),
+            exec:       self.exec.clone().and_then(      |c| { Some(core::ExecAction{command: Some(c.command)}) }),
+            http_get:   self.http_get.clone().and_then(  |a| { Some(a.to_http_get_action()) }),
+            tcp_socket: self.tcp_socket.clone().and_then(|t| { Some(t.to_tcp_socket_action()) }),
+        }
+    }
+}
 impl Default for HealthProbe {
     fn default() -> Self {
         HealthProbe{
@@ -183,8 +252,18 @@ pub struct Exec {
 #[serde(rename_all = "camelCase")]
 pub struct HttpGet{
     pub path: String,
-    pub port: i64,
+    pub port: i32,
     pub http_headers: Vec<HttpHeader>,
+}
+impl HttpGet {
+    fn to_http_get_action(&self) -> core::HTTPGetAction {
+        core::HTTPGetAction {
+            http_headers: Some(self.http_headers.iter().map(|h|{h.to_kube_header()}).collect()),
+            path: Some(self.path.clone()),
+            port: IntOrString::Int(self.port),
+            ..Default::default()
+        }
+    }
 }
 
 /// HttpHeader describes an HTTP header.
@@ -194,15 +273,31 @@ pub struct HttpGet{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HttpHeader{
-    pub name: String,
+    pub name:  String,
     pub value: String,
+}
+impl HttpHeader {
+    fn to_kube_header(&self) -> core::HTTPHeader {
+        core::HTTPHeader{
+            name:  self.name.clone(),
+            value: self.value.clone(),
+        }
+    }
 }
 
 /// TcpSocket defines a socket used for health probing.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TcpSocket{
-    pub port: i64,
+    pub port: i32,
+}
+impl TcpSocket {
+    fn to_tcp_socket_action(&self) -> core::TCPSocketAction {
+        core::TCPSocketAction {
+            port: IntOrString::Int(self.port),
+            ..Default::default()
+        }
+    }
 }
 
 /// Resources defines the resources required by a container.
@@ -214,6 +309,19 @@ pub struct Resources{
     pub memory: Memory,
     pub gpu: GPU,
     pub paths: Vec<Path>,
+}
+impl Resources {
+    fn to_resource_requirements(&self) -> core::ResourceRequirements {
+            let mut requests = BTreeMap::new();
+            requests.insert("cpu".to_string(), Quantity(self.cpu.required.clone()));
+            requests.insert("memory".to_string(), Quantity(self.memory.required.clone()));
+
+            // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
+            core::ResourceRequirements{
+                requests: Some(requests),
+                limits: None,
+            }
+    }
 }
 
 impl Default for Resources {
@@ -319,11 +427,27 @@ impl Default for SharingPolicy {
 pub enum PortProtocol{
     TCP,
     UDP,
+    SCTP,
+}
+impl PortProtocol {
+    fn as_str(&self) -> &str {
+        match self {
+            PortProtocol::UDP => "UDP",
+            PortProtocol::SCTP => "SCTP",
+            PortProtocol::TCP => "TCP",
+        }
+    }
 }
 impl Default for PortProtocol {
     fn default() -> Self {
         PortProtocol::TCP
     }
+}
+impl ToString for PortProtocol {
+    fn to_string(&self) -> String {
+        self.as_str().to_string()
+    }
+    
 }
 
 // TODO: This part is not specified in the spec b/c it is considered a runtime
