@@ -1,6 +1,10 @@
 extern crate spectral;
 
-use crate::schematic::*;
+use crate::schematic::{
+    component::*,
+    parameter::ParameterType,
+    GroupVersionKind,
+};
 
 #[test]
 fn test_group_version_kind() {

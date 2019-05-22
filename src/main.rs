@@ -11,7 +11,7 @@ use kube::{
     config::load_kube_config,
 };
 
-use scylla::schematic::{Component, Status};
+use scylla::schematic::{component::Component, Status};
 use scylla::instigator::Instigator;
 
 fn main() -> Result<(), failure::Error> {

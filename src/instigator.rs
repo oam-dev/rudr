@@ -6,7 +6,7 @@ use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
 use crate::schematic::{
-    Component,
+    component::Component,
     Status,
 };
 
@@ -79,6 +79,7 @@ impl Singleton {
     }
     fn to_pod(&self) -> api::Pod {
         api::Pod{
+            // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta{
                 name: Some(self.name.clone()),
                 ..Default::default()

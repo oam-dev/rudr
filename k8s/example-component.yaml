@@ -6,3 +6,6 @@ spec:
   name: test-component
   workloadType: core.hydra.io/v1alpha1.Singleton
   os: linux
+  containers:
+    - name: foo
+      image: nginx:latest

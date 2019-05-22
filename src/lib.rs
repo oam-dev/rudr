@@ -5,6 +5,3 @@ extern crate k8s_openapi;
 
 pub mod schematic;
 pub mod instigator;
-
-#[cfg(test)]
-mod tests;
