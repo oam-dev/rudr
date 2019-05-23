@@ -1,3 +1,5 @@
+#[macro_use] extern crate failure;
+
 use kube::api::{
     ApiResource,
     Informer,
@@ -15,9 +17,6 @@ use scylla::schematic::{
     Status,
 };
 use scylla::instigator::Instigator;
-
-// Cache is a reference counted locking BTree map for caching components.
-//type ComponentCache = std::sync::Arc<std::sync::RwLock<std::collections::BTreeMap<String, Component>>>;
 
 fn main() -> Result<(), failure::Error> {
     let top_ns = "default";
@@ -41,7 +40,6 @@ fn main() -> Result<(), failure::Error> {
     // Watch for configuration objects to be added, and react to those. 
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns;
-        
         let client = APIClient::new(cfg_watch);
         let resource = ApiResource {
             group: "core.hydra.io".into(),
@@ -58,20 +56,22 @@ fn main() -> Result<(), failure::Error> {
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {
-                handle_event(&client, event, component_cache.clone())?;
-            }
-            
+                if let Err(res) = handle_event(&client, event, component_cache.clone()) {
+                    // Log the error and continue. In the future, should probably
+                    // re-queue data in some cases.
+                    println!("Error processing event: {:?}", res)
+                };
+                println!("Handled event");
+            } 
         }
     });
 
     // Cache all of the components.
     let component_watch = std::thread::spawn(move || {
         loop {
-            let res = reflector.poll();
-            if res.is_err() {
-                println!("Component polling error: {}", res.unwrap_err());
-                continue;
-            }
+            if let Err(res) = reflector.poll() {
+                println!("Component polling error: {}", res);
+            };
         }
     });
     println!("Watcher is running");
@@ -82,15 +82,9 @@ fn main() -> Result<(), failure::Error> {
 fn handle_event(cli: &APIClient, event: WatchEvent<Configuration, Status>, cache: Reflector<Component, Status>) -> Result<(), failure::Error> {
     let inst = Instigator::new(cli.clone(), cache);
     match event {
-        WatchEvent::Added(o) => {
-            let res = inst.add(o);
-            if res.is_err() {
-                println!("{}", res.unwrap_err());
-            }
-        },
-        WatchEvent::Modified(o) => println!("Updated {}", o.metadata.name),
-        WatchEvent::Deleted(o) => println!("Deleted {}", o.metadata.name),
-        WatchEvent::Error(e) => println!("Error: {:?}", e),
+        WatchEvent::Added(o) => inst.add(o),
+        WatchEvent::Modified(o) => { println!("Updated {}", o.metadata.name); Ok(())},
+        WatchEvent::Deleted(o) => inst.delete(o),
+        WatchEvent::Error(e) => Err(format_err!("APIError: {:?}", e)),
     }
-    Ok(())
 }

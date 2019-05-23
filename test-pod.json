@@ -1,0 +1,26 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "labels": {
+      "app": "first-app"
+    },
+    "name": "first-app"
+  },
+  "spec": {
+    "containers": [
+      {
+        "env": [],
+        "image": "nginx:latest",
+        "name": "foo",
+        "ports": [],
+        "resources": {
+          "requests": {
+            "cpu": "1",
+            "memory": "1G"
+          }
+        }
+      }
+    ]
+  }
+}

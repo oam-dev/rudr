@@ -3,7 +3,7 @@ kind: Configuration
 metadata:
   name: first-app
 spec:
-  component: another-component
+  component: nginx-component
   parameterValues:
     - name: poet
       value: Eliot

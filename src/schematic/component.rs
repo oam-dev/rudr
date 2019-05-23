@@ -35,6 +35,16 @@ impl Component {
         Ok(res)
     }
 
+    /// listening_port returns the first container port listed.
+    pub fn listening_port(&self) -> Option<&Port> {
+        for e in self.containers.iter() {
+            if let Some(first) = e.ports.iter().find_map(|p| Some(p)) {
+                return Some(first)
+            }
+        }
+        None
+    }
+
     /// to_pod_spec generates a pod specification.
     pub fn to_pod_spec(&self) -> core::PodSpec {
         let containers = self.containers.iter().map(|c| {
@@ -146,6 +156,15 @@ impl Port {
         core::ContainerPort {
             container_port: self.container_port,
             name: Some(self.name.clone()),
+            protocol: Some(self.protocol.to_string()),
+            ..Default::default()
+        }
+    }
+    pub fn to_service_port(&self) -> core::ServicePort {
+        core::ServicePort {
+            target_port: Some(IntOrString::Int(self.container_port)),
+            name: Some(self.name.clone()),
+            port: 80,
             protocol: Some(self.protocol.to_string()),
             ..Default::default()
         }

@@ -1,14 +1,24 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: Component
 metadata:
-  name: another-component
+  name: nginx-component
 spec:
-  name: another-component
+  name: nginx-component
   workloadType: core.hydra.io/v1alpha1.Singleton
   os: linux
   containers:
     - name: foo
       image: nginx:latest
+      env:
+      - name: TEST
+        value: FOO
+      ports:
+      - type: tcp
+        containerPort: 8080
+        name: main
+      - type: tcp
+        containerPort: 80
+        name: http
   parameters:
     - name: poet
       type: string
