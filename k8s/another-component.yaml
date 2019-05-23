@@ -1,4 +1,4 @@
-apiVersion: hydra.microsoft.com/v1
+apiVersion: core.hydra.io/v1alpha1
 kind: Component
 metadata:
   name: another-component
@@ -9,3 +9,10 @@ spec:
   containers:
     - name: foo
       image: nginx:latest
+  parameters:
+    - name: poet
+      type: string
+      default: Keats
+    - name: poem
+      type: string
+      default: The Second Coming

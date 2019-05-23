@@ -1,11 +1,11 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: components.hydra.microsoft.com
+  name: components.core.hydra.io
 spec:
-  group: hydra.microsoft.com
+  group: core.hydra.io
   versions:
-    - name: v1
+    - name: v1alpha1
       served: true
       storage: true
   scope: Namespaced
@@ -19,11 +19,11 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: applications.hydra.microsoft.com
+  name: applications.core.hydra.io
 spec:
-  group: hydra.microsoft.com
+  group: core.hydra.io
   versions:
-    - name: v1
+    - name: v1alpha1
       served: true
       storage: true
   scope: Namespaced
@@ -37,17 +37,35 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: opconfigs.hydra.microsoft.com
+  name: configurations.core.hydra.io
 spec:
-  group: hydra.microsoft.com
+  group: core.hydra.io
   versions:
-    - name: v1
+    - name: v1alpha1
       served: true
       storage: true
   scope: Namespaced
   names:
-    plural: opconfigs
-    singular: opconfig
-    kind: OpConfig
+    plural: configurations
+    singular: configuration
+    kind: Configuration
     shortNames:
-    - ocfg
+    - cfg
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: traits.core.hydra.io
+spec:
+  group: core.hydra.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: traits
+    singular: trait
+    kind: Trait
+    shortNames:
+    - trait

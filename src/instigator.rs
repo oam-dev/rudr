@@ -1,11 +1,13 @@
 use kube::{
     api::Resource,
+    api::Reflector,
     client::APIClient,
 };
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
 use crate::schematic::{
+    configuration::Configuration,
     component::Component,
     Status,
 };
@@ -19,6 +21,7 @@ use crate::schematic::{
 #[derive(Clone)]
 pub struct Instigator {
     client: APIClient,
+    cache: Reflector<Component, Status>
 }
 
 pub type InstigatorResult = Result<(), failure::Error>;
@@ -26,25 +29,26 @@ pub type InstigatorResult = Result<(), failure::Error>;
 
 
 impl Instigator {
-    pub fn new(client: kube::client::APIClient) -> Self {
+    pub fn new(client: kube::client::APIClient, cache: Reflector<Component, Status>) -> Self {
         Instigator {
             client: client,
+            cache: cache,
         }
     }
-    pub fn add(&self, event: Resource<Component, Status>) -> InstigatorResult {
-        println!("Adding {}", event.metadata.name);
-        match event.spec.workload_type.as_str() {
-            "core.hydra.io/v1alpha1.Singleton" => {
-                let single = Singleton::new(event.metadata.name, "default".into(), event.spec.clone());
-                return single.add(self.client.clone())
-            },
-            "core.hydra.io/v1alpha1.ReplicableService" => {},
-            "core.hydra.io/v1alpha1.Task" => {},
-            "core.hydra.io/v1alpha1.ReplicableTask" => {},
-            _ => {
-                return Err(format_err!("workloadType {} is unknown", event.spec.workload_type));
-            }
+    pub fn add(&self, event: Resource<Configuration, Status>) -> InstigatorResult {
+        // Find components
+        let cache = self.cache.read().unwrap();
+        let comp_def = cache.get(event.spec.component.as_str());
+
+        if comp_def.is_none() {
+            return Err(format_err!("Component {} not found", event.spec.component))
         }
+        println!("Found component {}", event.spec.component);
+
+        // Resolve parameters
+        // Instantiate components
+        self.instantiate_components(event.metadata.name, comp_def.unwrap())?;
+        // Attach traits
         Ok(())
     }
     pub fn modify(&self) -> InstigatorResult {
@@ -52,6 +56,22 @@ impl Instigator {
     }
     pub fn delete(&self) -> InstigatorResult {
         Ok(())
+    }
+
+    fn instantiate_components(&self, name: String, comp: &Resource<Component, Status>) -> InstigatorResult {
+        println!("Adding {}", name);
+        match comp.spec.workload_type.as_str() {
+            "core.hydra.io/v1alpha1.Singleton" => {
+                let single = Singleton::new(name, "default".into(), comp.spec.clone());
+                single.add(self.client.clone())
+            },
+            //"core.hydra.io/v1alpha1.ReplicableService" => {},
+            //"core.hydra.io/v1alpha1.Task" => {},
+            //"core.hydra.io/v1alpha1.ReplicableTask" => {},
+            _ => {
+                Err(format_err!("workloadType {} is unknown", comp.spec.workload_type))
+            }
+        }
     }
 }
 

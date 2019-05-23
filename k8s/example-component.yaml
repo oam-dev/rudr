@@ -1,4 +1,4 @@
-apiVersion: hydra.microsoft.com/v1
+apiVersion: core.hydra.io/v1alpha1
 kind: Component
 metadata:
   name: test-component

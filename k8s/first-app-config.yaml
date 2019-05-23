@@ -1,0 +1,16 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: first-app
+spec:
+  component: another-component
+  parameterValues:
+    - name: poet
+      value: Eliot
+    - name: poem
+      value: The Wasteland
+  traits:
+    - name: ingress
+      parameterValues:
+        - name: hostname
+          value: example.com
