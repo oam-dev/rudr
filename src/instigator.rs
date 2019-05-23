@@ -9,6 +9,11 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use crate::schematic::{
     configuration::Configuration,
     component::Component,
+    traits::{
+        Ingress,
+        TraitBinding,
+        TraitImplementation,
+    },
     Status,
 };
 
@@ -24,6 +29,8 @@ pub type InstigatorResult = Result<(), failure::Error>;
 pub struct ComponentNotFoundError {
     component: String,
 }
+
+const DEFAULT_NAMESPACE: &'static str = "default";
 
 /// An Instigator takes an inbound object and manages the reconcilliation with the desired objects.
 /// 
@@ -43,7 +50,26 @@ impl Instigator {
             cache: cache,
         }
     }
+    /// Create new Kubernetes objects based on this config.
     pub fn add(&self, event: Resource<Configuration, Status>) -> InstigatorResult {
+        let name = event.metadata.name.clone();
+        // Find components
+        let cache = self.cache.read().unwrap();
+        let comp_def = cache.get(event.spec.component.as_str()).ok_or(ComponentNotFoundError{component: event.spec.component})?;
+
+        // Resolve parameters
+        // Instantiate components
+        let workload = self.load_workload_type(name.clone(), comp_def)?;
+        workload.add()?;
+        // Attach traits
+        for t in event.spec.traits.iter() {
+            let imp = self.load_trait(name.clone(), t)?;
+            imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
+        }
+        Ok(())
+    }
+    /// Modify existing Kubernetes objects based on config and workload type.
+    pub fn modify(&self, event: Resource<Configuration, Status>) -> InstigatorResult {
         // Find components
         let cache = self.cache.read().unwrap();
         let comp_def = cache.get(event.spec.component.as_str()).ok_or(ComponentNotFoundError{component: event.spec.component})?;
@@ -51,12 +77,9 @@ impl Instigator {
         // Resolve parameters
         // Instantiate components
         let workload = self.load_workload_type(event.metadata.name, comp_def)?;
-        workload.add()
-        // Attach traits
+        workload.modify()
     }
-    pub fn modify(&self) -> InstigatorResult {
-        Ok(())
-    }
+    /// Delete the Kubernetes objects associated with this config.
     pub fn delete(&self, event: Resource<Configuration, Status>) -> InstigatorResult {
         // Find component
         let cache = self.cache.read().unwrap();
@@ -70,13 +93,22 @@ impl Instigator {
     fn load_workload_type(&self, name: String, comp: &Resource<Component, Status>) -> Result<impl WorkloadType, failure::Error> {
         println!("Looking up {}", name);
         match comp.spec.workload_type.as_str() {
-            "core.hydra.io/v1alpha1.Singleton" => Ok(Singleton::new(name, "default".into(), comp.spec.clone(), self.client.clone())),
+            "core.hydra.io/v1alpha1.Singleton" => Ok(Singleton::new(name, DEFAULT_NAMESPACE.into(), comp.spec.clone(), self.client.clone())),
             //"core.hydra.io/v1alpha1.ReplicableService" => {},
             //"core.hydra.io/v1alpha1.Task" => {},
             //"core.hydra.io/v1alpha1.ReplicableTask" => {},
             _ => {
                 Err(format_err!("workloadType {} is unknown", comp.spec.workload_type))
             }
+        }
+    }
+
+    fn load_trait(&self, name: String, binding: &TraitBinding) -> Result<impl TraitImplementation, failure::Error> {
+        match binding.name.as_str() {
+            "ingress" => {
+                Ok(Ingress::new(80, name, None, None))
+            }
+            _ => Err(format_err!("unknown trait {}", binding.name))
         }
     }
 }
@@ -165,7 +197,7 @@ impl WorkloadType for Singleton {
         }
     }
     fn modify(&self) -> InstigatorResult {
-        Ok(())
+        Err(format_err!("Not implemented"))
     }
     fn delete(&self) -> InstigatorResult {
         // What is the proper error handling here? Should we delete all, and return aggregated results, or fail fast?

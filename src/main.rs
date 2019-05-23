@@ -83,7 +83,7 @@ fn handle_event(cli: &APIClient, event: WatchEvent<Configuration, Status>, cache
     let inst = Instigator::new(cli.clone(), cache);
     match event {
         WatchEvent::Added(o) => inst.add(o),
-        WatchEvent::Modified(o) => { println!("Updated {}", o.metadata.name); Ok(())},
+        WatchEvent::Modified(o) => inst.modify(o),
         WatchEvent::Deleted(o) => inst.delete(o),
         WatchEvent::Error(e) => Err(format_err!("APIError: {:?}", e)),
     }

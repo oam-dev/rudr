@@ -14,3 +14,5 @@ spec:
       parameterValues:
         - name: hostname
           value: example.com
+        - name: path
+          value: /

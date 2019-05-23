@@ -1,4 +1,11 @@
 use crate::schematic::parameter::ParameterValue;
+use kube::client::APIClient;
+use k8s_openapi::api::extensions::v1beta1 as ext;
+use k8s_openapi::apimachinery::pkg::{
+    apis::meta::v1 as meta,
+    util::intstr::IntOrString,
+};
+
 
 /// Trait describes Hydra traits.
 /// 
@@ -15,6 +22,74 @@ pub struct Trait {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TraitBinding {
+    pub name: String,
+    pub parameter_values: Option<Vec<ParameterValue>>,
+}
+
+/// Alias for trait results.
+type TraitResult = Result<(), failure::Error>;
+
+pub trait TraitImplementation {
+    fn add(&self, ns: &str, client: APIClient) -> TraitResult;
+    fn modify(&self) -> TraitResult;
+    fn delete(&self, ns: &str, client: APIClient) -> TraitResult;
+}
+
+pub struct Ingress {
     name: String,
-    parameter_values: Option<Vec<ParameterValue>>,
+    svc_port: i32,
+    hostname: Option<String>,
+    path: Option<String>,
+}
+impl Ingress {
+    pub fn new(port: i32, name: String, hostname: Option<String>, path: Option<String>) -> Self {
+        Ingress{
+            name: name,
+            hostname: hostname,
+            path: path,
+            svc_port: port,
+        }
+    }
+
+    pub fn to_ext_ingress(&self) -> ext::Ingress {
+        ext::Ingress {
+            metadata: Some(meta::ObjectMeta{
+                //name: Some(format!("{}-trait-ingress", self.name.clone())),
+                name: Some(self.name.clone()),
+                ..Default::default()
+            }),
+            spec: Some(ext::IngressSpec{
+                rules: Some(vec![
+                    ext::IngressRule{
+                        host: self.hostname.clone().or(Some("*".to_string())),
+                        http: Some(ext::HTTPIngressRuleValue{
+                            paths: vec![ext::HTTPIngressPath{
+                                backend: ext::IngressBackend{
+                                    service_name: self.name.clone(),
+                                    service_port: IntOrString::Int(self.svc_port),
+                                },
+                                path: self.path.clone().or(Some("/".to_string())),
+                            }]
+                        }),
+                    }
+                ]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+impl TraitImplementation for Ingress {
+    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+        let ingress = self.to_ext_ingress();
+        let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
+        client.request(req)
+    }
+    fn modify(&self) -> TraitResult {
+        Err(format_err!("Trait updates not implemented for Ingress"))
+    }
+    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+        let (req, _) = ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
+        client.request(req)
+    }
 }
