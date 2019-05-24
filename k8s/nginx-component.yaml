@@ -22,7 +22,7 @@ spec:
   parameters:
     - name: poet
       type: string
-      default: Keats
+      default: Yeats
     - name: poem
       type: string
       default: The Second Coming
