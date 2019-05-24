@@ -203,18 +203,28 @@ impl WorkloadType for Singleton {
     fn add(&self) -> InstigatorResult {
         let pod = self.to_pod();
         let (req, _) = api::Pod::create_namespaced_pod(self.namespace.as_str(), &pod, Default::default())?;
-        let res: Result<(), failure::Error> = self.client.request(req);
+
+        // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
+        // malformed body. We just want the response code validated by APIClient.
+        let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
+        if res.is_err() {
+            return Err(res.unwrap_err())
+        }
+
+        /*
         if res.is_err() {
             // FIXME: We seem to be getting a formatting error for the response, but I don't know what is causing it
             println!("Pod: {}", to_json(&pod).unwrap());
             println!("Warning: {:?}", res);
         }
+        */
 
         match self.to_service() {
             Some(svc) => {
                 println!("Service:\n{}", to_json(&svc).unwrap());
                 let (sreq, _) = api::Service::create_namespaced_service(self.namespace.as_str(), &svc, Default::default())?;
-                self.client.request(sreq)
+                let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
+                sres.and_then(|_o| Ok(()))
             }
             // No service to create
             None => {
@@ -231,17 +241,14 @@ impl WorkloadType for Singleton {
         let (sreq, _) = api::Service::delete_namespaced_service(self.name.as_str(), self.namespace.as_str(), Default::default())?;
         let (req, _) = api::Pod::delete_namespaced_pod(self.name.as_str(), self.namespace.as_str(), Default::default())?;
 
-        // So we want to try all deletes, then return any errors. This might be a bad long-term strategy, but it is
-        // helpful when debugging.
-
-        let sres = self.client.request(sreq);
-        let pres = self.client.request(req);
-
-        // Something is not right with the deserialization of the result... can't figure out what, though.
-        if sres.is_err() {
-            return sres
-        }
-        pres
+        // By decoding into serde_json::Value, we are bypassing all checks on the return data, which 
+        // is fine. We don't actually need any of it, and the APIClient checks for status and error
+        // on our behalf.
+        let pres: Result<serde_json::Value, failure::Error> = self.client.request(req);
+        let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
+        
+        // If either op fails, return the error. Otherwise, just return Ok(()).
+        pres.and(sres).and_then(|_o| Ok(()))
     }
 }
 

@@ -51,6 +51,7 @@ To delete this, just do a `kubectl delete configuration first-app` and it will c
 This is the _brief_ version of high level TODOs. There are plenty more things that actually need to be done.
 
 - [ ] Handle parameters!!!
+- [ ] Switch to logger (death to `println!`)
 - [ ] Fix namespacing as soon as scopes make it into the spec
 - [ ] clone() is a crutch (90% of the time)
 - [ ] Refactor main()
