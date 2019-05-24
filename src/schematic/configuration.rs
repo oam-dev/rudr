@@ -4,6 +4,10 @@ use crate::schematic::{
 };
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
+/// 
+/// In Hydra, an instance is a Component definition plus a Configuration. Practically speaking, a
+/// Configuration says "Create a component of type X in scopes A, B, and C, set the following 
+/// parameters, and attach these traits"
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Configuration {

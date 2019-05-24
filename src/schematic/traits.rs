@@ -19,6 +19,8 @@ pub struct Trait {
 }
 
 /// A TraitBinding attaches a trait to a component.
+/// 
+/// Trait bindings appear in configuration stanzas for traits.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TraitBinding {
@@ -29,12 +31,19 @@ pub struct TraitBinding {
 /// Alias for trait results.
 type TraitResult = Result<(), failure::Error>;
 
+/// A TraitImplementation is an implementation of a Hydra Trait.
+/// 
+/// For example, Ingress is an implementation of a Hydra Trait.
 pub trait TraitImplementation {
     fn add(&self, ns: &str, client: APIClient) -> TraitResult;
     fn modify(&self) -> TraitResult;
     fn delete(&self, ns: &str, client: APIClient) -> TraitResult;
 }
 
+/// An Ingress trait creates an ingress point to the workload type to which it is attached.
+/// 
+/// In Kubernetes, this will create an Ingress and attach it to the Service of a particular
+/// component instance.
 pub struct Ingress {
     name: String,
     svc_port: i32,

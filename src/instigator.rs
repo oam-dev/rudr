@@ -24,6 +24,7 @@ use serde_json::to_string_pretty as to_json;
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), failure::Error>;
 
+/// This error is returned when a component cannot be found.
 #[derive(Fail, Debug)]
 #[fail(display = "Component {} not found", component)]
 pub struct ComponentNotFoundError {
@@ -33,6 +34,20 @@ pub struct ComponentNotFoundError {
 const DEFAULT_NAMESPACE: &'static str = "default";
 
 /// An Instigator takes an inbound object and manages the reconcilliation with the desired objects.
+/// 
+/// Any given Component may, underneath the hood, be composed of multiple Kubernetes objects.
+/// For example, a ReplicableService will create (at least) a Deployment and a Service
+/// (and probably a Secret or ConfigMap as well as some RBACs). The individual pieces are
+/// managed by their respective WorkloadType. The Instigator's job is to read a component,
+/// and then delegate to the correct WorkloadType.
+/// 
+/// Traits and Scopes are operational configuration. As such, it is not the responsibility of
+/// the WorkloadType to manage those. Thus, after delegating work to the WorkloadType, the
+/// Instigator will examine the Traits and Scopes requirements, and delegate those
+/// processes to the appropriate Scope or TraitImpl.
+/// 
+/// (Terminological note: Hydra Traits are distinct from Rust traits. TraitImpl is the
+/// Rust trait that represents a Hydra Trait)
 /// 
 /// Instigators know how to deal with the following operations:
 /// - Add
@@ -44,6 +59,10 @@ pub struct Instigator {
     cache: Reflector<Component, Status>
 }
 impl Instigator {
+    /// Create a new instigator
+    /// 
+    /// An instigator uses the reflector as a cache of Components, and will use the API client
+    /// for creating and managing the component implementation.
     pub fn new(client: kube::client::APIClient, cache: Reflector<Component, Status>) -> Self {
         Instigator {
             client: client,
@@ -62,7 +81,10 @@ impl Instigator {
         let workload = self.load_workload_type(name.clone(), comp_def)?;
         workload.add()?;
         // Attach traits
+        // FIXME: This is currently not working because workload.add is returning an error having to do with the
+        // formatting of the response object. :angry-eyes:
         for t in event.spec.traits.iter() {
+            println!("Searching for trait {}", t.name.as_str());
             let imp = self.load_trait(name.clone(), t)?;
             imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
         }
@@ -121,6 +143,9 @@ pub trait WorkloadType {
     fn delete(&self)->InstigatorResult;
 }
 
+/// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
+/// 
+/// It is currently implemented as a Kubernetes Pod with a Service in front of it.
 struct Singleton {
     name: String,
     namespace: String,
@@ -128,6 +153,7 @@ struct Singleton {
     client: APIClient,
 }
 impl Singleton {
+    /// Create a new Singleton destined for a particular namespace
     fn new(name: String, namespace: String, definition: Component, client: APIClient) -> Self {
         Singleton {
             name: name,
@@ -136,6 +162,7 @@ impl Singleton {
             client: client,
         }
     }
+    /// Create a Pod definition that describes this Singleton
     fn to_pod(&self) -> api::Pod {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.name.clone());

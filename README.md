@@ -9,11 +9,54 @@ To build:
 - Make sure you have Rust 2018 Edition or newer
 - Clone this repository
 - Go into the main directory: `cd scylla`
-- Install the CRDs in `example/crds.yaml`: `kubectl apply examples/crds.yaml`
+- Install the CRDs in `example/crds.yaml`: `kubectl create -f examples/crds.yaml`
 - Run `cargo build`
 - To run the server: `cargo run`
 
-At this point, you can create, update, and destroy components using `kubectl apply`. There are two example components in `examples/`
+At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
+
+To get started, create some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
+
+```console
+$ kubectl create -f k8s/nginx-component.yaml
+$ kubectl get components
+NAME              AGE
+nginx-component   17s
+```
+
+Next, create a new application that uses the component. In Hydra, as in 12-factor, an app is code (component) plus config. So you need to write a configuration. An example is provided in the `k8s/` directory:
+
+```console
+$ kubectl create -f k8s/first-app-config.yaml
+```
+
+Now you may wish to explore your cluster to see what was created:
+
+```console
+$ kubectl get configuration,pod,svc,ingress
+NAME        AGE
+first-app   13m
+
+NAME        READY     STATUS    RESTARTS   AGE
+first-app   1/1       Running   0          13m
+
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+first-app    ClusterIP   10.0.213.123   <none>        80/TCP    13m
+```
+
+To delete this, just do a `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
+
+## TODO
+
+This is the _brief_ version of high level TODOs. There are plenty more things that actually need to be done.
+
+- [ ] Handle parameters!!!
+- [ ] Fix namespacing as soon as scopes make it into the spec
+- [ ] clone() is a crutch (90% of the time)
+- [ ] Refactor main()
+- [ ] How do we make the trait system more flexible?
+- [ ] Under what conditions is a deployment error a failure, a rollback, or a "keep going"?
+- [ ] Can we use ownership references to cascade deletes without the controller?
 
 ## License
 

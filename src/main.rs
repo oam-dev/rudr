@@ -79,6 +79,7 @@ fn main() -> Result<(), failure::Error> {
     configuration_watch.join().unwrap()
 }
 
+/// This takes an event off teh stream and delegates it to the instagator, calling the correct verb.
 fn handle_event(cli: &APIClient, event: WatchEvent<Configuration, Status>, cache: Reflector<Component, Status>) -> Result<(), failure::Error> {
     let inst = Instigator::new(cli.clone(), cache);
     match event {
