@@ -45,10 +45,10 @@ pub trait TraitImplementation {
 /// In Kubernetes, this will create an Ingress and attach it to the Service of a particular
 /// component instance.
 pub struct Ingress {
-    name: String,
-    svc_port: i32,
-    hostname: Option<String>,
-    path: Option<String>,
+    pub name: String,
+    pub svc_port: i32,
+    pub hostname: Option<String>,
+    pub path: Option<String>,
 }
 impl Ingress {
     pub fn new(port: i32, name: String, hostname: Option<String>, path: Option<String>) -> Self {

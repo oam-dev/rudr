@@ -4,8 +4,8 @@ pub mod component;
 pub mod configuration;
 pub mod parameter;
 
-#[cfg(test)]
-mod component_test;
+#[cfg(test)] mod component_test;
+#[cfg(test)] mod traits_test;
 
 /// Application defines a Hydra application
 #[derive(Serialize, Deserialize, Clone, Debug)]
