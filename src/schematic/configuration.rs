@@ -14,7 +14,7 @@ pub struct Configuration {
     /// The name of the component to instantiate
     pub component: String,
     /// Values to substitute into the component
-    pub parameter_values: Vec<ParameterValue>,
+    pub parameter_values: Option<Vec<ParameterValue>>,
     /// Traits to attach to the component
-    pub traits: Vec<TraitBinding>,
+    pub traits: Option<Vec<TraitBinding>>,
 }

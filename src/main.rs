@@ -53,6 +53,7 @@ fn main() -> Result<(), failure::Error> {
         let informer: Informer<Configuration, Status> = Informer::new(client.clone(), resource.clone().into())?;
         loop {
             informer.poll()?;
+            println!("loop");
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {

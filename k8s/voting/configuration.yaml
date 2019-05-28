@@ -1,0 +1,50 @@
+# This is a single-shot configuration that creates the entire Docker Voting app
+# all in one go.
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: voter-db-cfg
+spec:
+  component: postgres
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: voter-cache-cfg
+spec:
+  component: redis
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: voter-worker-cfg
+spec:
+  component: voting-worker
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: voter-frontend-cfg
+spec:
+  component: voting-frontend
+  traits:
+  - name: ingress
+    parameterValues:
+    - name: hostname
+      value: voting.example.com
+    - name: path
+      value: /
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: voter-admin-cfg
+spec:
+  component: voting-admin
+  traits:
+  - name: ingress
+    parameterValues:
+    - name: hostname
+      value: admin.example.com
+    - name: path
+      value: /

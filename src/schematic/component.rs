@@ -1,8 +1,11 @@
 use k8s_openapi::api::core::v1 as core;
+use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::apimachinery::pkg::{
     api::resource::Quantity,
     util::intstr::IntOrString,
+    apis::meta::v1 as meta,
 };
+
 
 use std::collections::BTreeMap;
 
@@ -47,7 +50,15 @@ impl Component {
 
     /// to_pod_spec generates a pod specification.
     pub fn to_pod_spec(&self) -> core::PodSpec {
-        let containers = self.containers.iter().map(|c| {
+        let containers = self.to_containers();
+        core::PodSpec {
+            containers: containers,
+            ..Default::default()
+        }
+    }
+
+    pub fn to_containers(&self) -> Vec<core::Container> {
+        self.containers.iter().map(|c| {
             core::Container {
                 name: c.name.clone(),
                 image:     Some(c.image.clone()),
@@ -58,9 +69,25 @@ impl Component {
                 readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
                 ..Default::default()
             }
-        }).collect();
-        core::PodSpec {
-            containers: containers,
+        }).collect()
+    }
+
+    pub fn to_deployment_spec(&self, name: String) -> apps::DeploymentSpec {
+        let mut matching_labels = BTreeMap::new();
+        matching_labels.insert("component".to_string(), name.clone());
+        apps::DeploymentSpec{
+            replicas: Some(1),
+            selector: meta::LabelSelector{
+                match_labels: Some(matching_labels.clone()),
+                ..Default::default()
+            },
+            template: core::PodTemplateSpec {
+                metadata: Some(meta::ObjectMeta{
+                    labels: Some(matching_labels),
+                    ..Default::default()
+                }),
+                spec: Some(self.to_pod_spec()),
+            },
             ..Default::default()
         }
     }

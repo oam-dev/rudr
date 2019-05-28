@@ -1,0 +1,72 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: voting-admin
+  version: "1.0.0"
+  description: Voting results interface
+spec:
+  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  containers:
+    - name: server
+      ports:
+        - containerPort: 5001
+          name: http
+      image: dockersamples/examplevotingapp_result:before
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: postgres
+  version: "1.0.0"
+  description: PostgreSQL Database
+spec:
+  workloadType: core.hydra.io/v1alpha1.Singleton
+  containers:
+    - name: db
+      ports:
+        - containerPort: 5432
+          name: pgsql
+      image: postgres:9.4
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: redis
+  version: "1.0.0"
+  description: Redis single-node
+spec:
+  workloadType: core.hydra.io/v1alpha1.Singleton
+  containers:
+    - name: cache
+      ports:
+        - containerPort: 6379
+          name: redis
+      image: redis:alpine
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: voting-frontend
+  version: "1.0.0"
+  description: Voting front-end webserver
+spec:
+  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  containers:
+    - name: server
+      ports:
+        - containerPort: 5000
+          name: http
+      image: dockersamples/examplevotingapp_vote:before
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: voting-worker
+  version: "1.0.0"
+  description: Worker for tallying voting results
+spec:
+  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  containers:
+    - name: server
+      image: dockersamples/examplevotingapp_worker
+---
