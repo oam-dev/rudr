@@ -104,11 +104,24 @@ impl Instigator {
     }
     /// Delete the Kubernetes objects associated with this config.
     pub fn delete(&self, event: Resource<Configuration, Status>) -> InstigatorResult {
+        let name = event.metadata.name.clone();
         // Find component
         let cache = self.cache.read().unwrap();
         let cname = event.spec.component.clone();
         let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError{component: cname})?;
+        
         // Delete traits
+        // Right now, a failed deletion on a trait is just logged, and is not
+        // a fatail error.
+        for t in event.spec.traits.unwrap_or(vec![]).iter() {
+            println!("Deleting trait {}", t.name.as_str());
+            let imp = self.load_trait(name.clone(), t)?;
+            let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
+            if res.is_err() {
+                println!("Error deleting trait for {}: {}", t.name.as_str(), res.unwrap_err());
+            }
+        }
+
         // Delete component
         self.load_workload_type(event.metadata.name, comp_def)?.delete()
     }
