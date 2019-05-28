@@ -25,3 +25,21 @@ fn test_ingress() {
     assert_eq!("my-ingress", path.backend.service_name.as_str());
     assert_eq!(IntOrString::Int(8080), path.backend.service_port);
 }
+
+#[test]
+fn test_ingress_defaults() {
+    let ig = traits::Ingress{
+        name: "my-ingress".into(),
+        svc_port: 8080,
+        hostname: None,
+        path: None,
+    };
+
+    let king = ig.to_ext_ingress();
+    let rule = king
+        .spec.as_ref().expect("spec required")
+        .rules.as_ref().expect("rules required")
+        .get(0).expect("one rule required");
+    assert_eq!(Some("example.com".into()), rule.host);
+    assert_eq!(Some("/".into()), rule.http.as_ref().expect("http required").paths.get(0).expect("path required").path);
+}

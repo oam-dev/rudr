@@ -70,7 +70,7 @@ impl Ingress {
             spec: Some(ext::IngressSpec{
                 rules: Some(vec![
                     ext::IngressRule{
-                        host: self.hostname.clone().or(Some("*".to_string())),
+                        host: self.hostname.clone().or(Some("example.com".to_string())),
                         http: Some(ext::HTTPIngressRuleValue{
                             paths: vec![ext::HTTPIngressPath{
                                 backend: ext::IngressBackend{
@@ -92,13 +92,20 @@ impl TraitImplementation for Ingress {
     fn add(&self, ns: &str, client: APIClient) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
-        client.request(req)
+        let res: Result<serde_json::Value, failure::Error> = client.request(req);
+        if res.is_err() {
+            let err = res.unwrap_err();
+            println!("Ingress error: {}", serde_json::to_string_pretty(&ingress).expect("debug"));
+            return Err(err)
+        }
+        Ok(())
     }
     fn modify(&self) -> TraitResult {
         Err(format_err!("Trait updates not implemented for Ingress"))
     }
     fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) = ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
-        client.request(req)
+        let res: Result<serde_json::Value, failure::Error> = client.request(req);
+        res.and_then(|_| Ok(()))
     }
 }
