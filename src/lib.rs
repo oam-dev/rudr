@@ -5,3 +5,4 @@ extern crate k8s_openapi;
 
 pub mod schematic;
 pub mod instigator;
+pub mod workload_type;
