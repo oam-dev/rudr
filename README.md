@@ -2,6 +2,8 @@
 
 This project implements the [Hydra specification](https://github.com/microsoft/hydra-spec) for Kubernetes.
 
+**This is unstable, experimental, and subject to massively breaking changes. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
+
 ## Building
 
 To build:
