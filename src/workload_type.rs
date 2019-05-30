@@ -1,28 +1,22 @@
-use kube::{
-    client::APIClient,
-};
-use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::api::apps::v1 as apps;
+use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
+use kube::client::APIClient;
 
-use crate::{
-    schematic::{
-        component::Component,
-    },
-};
+use crate::schematic::component::Component;
 
-use std::collections::BTreeMap;
 use serde_json::to_string_pretty as to_json;
+use std::collections::BTreeMap;
 
 type InstigatorResult = Result<(), failure::Error>;
 
 /// WorkloadType describes one of the available workload types.
-/// 
+///
 /// An implementation of a workload type must be able to add, modify, and delete itself.
 pub trait WorkloadType {
-    fn add(&self)->InstigatorResult;
-    fn modify(&self)->InstigatorResult;
-    fn delete(&self)->InstigatorResult;
+    fn add(&self) -> InstigatorResult;
+    fn modify(&self) -> InstigatorResult;
+    fn delete(&self) -> InstigatorResult;
 }
 
 pub enum CoreWorkloadType {
@@ -49,7 +43,7 @@ impl CoreWorkloadType {
 }
 
 /// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
-/// 
+///
 /// It is currently implemented as a Kubernetes Pod with a Service in front of it.
 pub struct Singleton {
     pub name: String,
@@ -60,7 +54,13 @@ pub struct Singleton {
 }
 impl Singleton {
     /// Create a new Singleton destined for a particular namespace
-    pub fn new(name: String, namespace: String, component_name: String, definition: Component, client: APIClient) -> Self {
+    pub fn new(
+        name: String,
+        namespace: String,
+        component_name: String,
+        definition: Component,
+        client: APIClient,
+    ) -> Self {
         Singleton {
             name: name,
             component_name: component_name,
@@ -77,9 +77,9 @@ impl Singleton {
         let mut labels = BTreeMap::new();
         let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
-        api::Pod{
+        api::Pod {
             // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta{
+            metadata: Some(meta::ObjectMeta {
                 name: Some(podname),
                 labels: Some(labels),
                 ..Default::default()
@@ -93,13 +93,13 @@ impl Singleton {
         self.definition.listening_port().and_then(|port| {
             let mut labels = BTreeMap::new();
             labels.insert("app".to_string(), self.name.clone());
-            Some(api::Service{
-                metadata: Some(meta::ObjectMeta{
+            Some(api::Service {
+                metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
                     ..Default::default()
                 }),
-                spec: Some(api::ServiceSpec{
+                spec: Some(api::ServiceSpec {
                     selector: Some(labels),
                     ports: Some(vec![port.to_service_port()]),
                     ..Default::default()
@@ -107,19 +107,19 @@ impl Singleton {
                 ..Default::default()
             })
         })
-        
     }
 }
 impl WorkloadType for Singleton {
     fn add(&self) -> InstigatorResult {
         let pod = self.to_pod();
-        let (req, _) = api::Pod::create_namespaced_pod(self.namespace.as_str(), &pod, Default::default())?;
+        let (req, _) =
+            api::Pod::create_namespaced_pod(self.namespace.as_str(), &pod, Default::default())?;
 
         // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
         // malformed body. We just want the response code validated by APIClient.
         let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
         if res.is_err() {
-            return Err(res.unwrap_err())
+            return Err(res.unwrap_err());
         }
 
         /*
@@ -133,7 +133,11 @@ impl WorkloadType for Singleton {
         match self.to_service() {
             Some(svc) => {
                 println!("Service:\n{}", to_json(&svc).unwrap());
-                let (sreq, _) = api::Service::create_namespaced_service(self.namespace.as_str(), &svc, Default::default())?;
+                let (sreq, _) = api::Service::create_namespaced_service(
+                    self.namespace.as_str(),
+                    &svc,
+                    Default::default(),
+                )?;
                 let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
                 sres.and_then(|_o| Ok(()))
             }
@@ -148,27 +152,32 @@ impl WorkloadType for Singleton {
         Err(format_err!("Not implemented"))
     }
     fn delete(&self) -> InstigatorResult {
-        let (req, _) = api::Pod::delete_namespaced_pod(self.name.as_str(), self.namespace.as_str(), Default::default())?;
+        let (req, _) = api::Pod::delete_namespaced_pod(
+            self.name.as_str(),
+            self.namespace.as_str(),
+            Default::default(),
+        )?;
 
-        // By decoding into serde_json::Value, we are bypassing all checks on the return data, which 
+        // By decoding into serde_json::Value, we are bypassing all checks on the return data, which
         // is fine. We don't actually need any of it, and the APIClient checks for status and error
         // on our behalf.
         let pres: Result<serde_json::Value, failure::Error> = self.client.request(req);
 
         match self.to_service() {
             Some(_) => {
-                let (sreq, _) = api::Service::delete_namespaced_service(self.name.as_str(), self.namespace.as_str(), Default::default())?;
+                let (sreq, _) = api::Service::delete_namespaced_service(
+                    self.name.as_str(),
+                    self.namespace.as_str(),
+                    Default::default(),
+                )?;
                 let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
                 // If either op fails, return the error. Otherwise, just return Ok(()).
                 pres.and(sres).and_then(|_o| Ok(()))
             }
-            None => {
-                pres.and_then(|_| Ok(()))
-            }
+            None => pres.and_then(|_| Ok(())),
         }
     }
 }
-
 
 /// A Replicated Service can take one component and scale it up or down.
 pub struct ReplicatedService {
@@ -184,9 +193,9 @@ impl ReplicatedService {
     fn to_deployment(&self) -> apps::Deployment {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.name.clone());
-        apps::Deployment{
+        apps::Deployment {
             // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta{
+            metadata: Some(meta::ObjectMeta {
                 name: Some(self.kube_name()),
                 labels: Some(labels),
                 ..Default::default()
@@ -200,13 +209,13 @@ impl ReplicatedService {
         self.definition.listening_port().and_then(|port| {
             let mut labels = BTreeMap::new();
             labels.insert("app".to_string(), self.name.clone());
-            Some(api::Service{
-                metadata: Some(meta::ObjectMeta{
+            Some(api::Service {
+                metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
                     ..Default::default()
                 }),
-                spec: Some(api::ServiceSpec{
+                spec: Some(api::ServiceSpec {
                     selector: Some(labels),
                     ports: Some(vec![port.to_service_port()]),
                     ..Default::default()
@@ -223,18 +232,26 @@ impl ReplicatedService {
 impl WorkloadType for ReplicatedService {
     fn add(&self) -> InstigatorResult {
         let deployment = self.to_deployment();
-        let (req, _) = apps::Deployment::create_namespaced_deployment(self.namespace.as_str(), &deployment, Default::default())?;
+        let (req, _) = apps::Deployment::create_namespaced_deployment(
+            self.namespace.as_str(),
+            &deployment,
+            Default::default(),
+        )?;
 
         // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
         // malformed body. We just want the response code validated by APIClient.
         let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
         if res.is_err() {
-            return Err(res.unwrap_err())
+            return Err(res.unwrap_err());
         }
         match self.to_service() {
             Some(svc) => {
                 println!("Service:\n{}", to_json(&svc).unwrap());
-                let (sreq, _) = api::Service::create_namespaced_service(self.namespace.as_str(), &svc, Default::default())?;
+                let (sreq, _) = api::Service::create_namespaced_service(
+                    self.namespace.as_str(),
+                    &svc,
+                    Default::default(),
+                )?;
                 let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
                 res.and(sres).and_then(|_o| Ok(()))
             }
@@ -249,18 +266,25 @@ impl WorkloadType for ReplicatedService {
         Err(format_err!("Not implemented"))
     }
     fn delete(&self) -> InstigatorResult {
-        
-        let (req, _) = apps::Deployment::delete_namespaced_deployment(self.name.as_str(), self.namespace.as_str(), Default::default())?;
+        let (req, _) = apps::Deployment::delete_namespaced_deployment(
+            self.name.as_str(),
+            self.namespace.as_str(),
+            Default::default(),
+        )?;
 
         let dres: Result<serde_json::Value, failure::Error> = self.client.request(req);
 
         match self.to_service() {
             Some(_) => {
-                let (sreq, _) = api::Service::delete_namespaced_service(self.name.as_str(), self.namespace.as_str(), Default::default())?;
+                let (sreq, _) = api::Service::delete_namespaced_service(
+                    self.name.as_str(),
+                    self.namespace.as_str(),
+                    Default::default(),
+                )?;
                 let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
                 sres.and_then(|_| Ok(()))
             }
-            None => dres.and_then(|_| Ok(()))
+            None => dres.and_then(|_| Ok(())),
         }
     }
 }

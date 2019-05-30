@@ -1,12 +1,9 @@
-use crate::schematic::{
-    traits::TraitBinding,
-    parameter::ParameterValue,
-};
+use crate::schematic::{parameter::ParameterValue, traits::TraitBinding};
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
-/// 
+///
 /// In Hydra, an instance is a Component definition plus a Configuration. Practically speaking, a
-/// Configuration says "Create a component of type X in scopes A, B, and C, set the following 
+/// Configuration says "Create a component of type X in scopes A, B, and C, set the following
 /// parameters, and attach these traits"
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -20,7 +17,7 @@ pub struct ComponentConfiguration {
 }
 
 /// OperationalConfiguration is the top-level configuration object in Hydra.
-/// 
+///
 /// An OperationalConfiguration can describe one or more components, a collection
 /// of related parameters, and the associated traits and scopes.
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -33,7 +30,7 @@ pub struct OperationalConfiguration {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct ScopeBinding{
+pub struct ScopeBinding {
     pub name: String,
 
     #[serde(rename(serialize = "type", deserialize = "type"))]

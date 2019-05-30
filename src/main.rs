@@ -1,22 +1,11 @@
-#[macro_use] extern crate failure;
+#[macro_use]
+extern crate failure;
 
-use kube::api::{
-    ApiResource,
-    Informer,
-    Reflector,
-    WatchEvent,
-};
-use kube::{
-    client::APIClient,
-    config::load_kube_config,
-};
+use kube::api::{ApiResource, Informer, Reflector, WatchEvent};
+use kube::{client::APIClient, config::load_kube_config};
 
-use scylla::schematic::{
-    configuration::OperationalConfiguration,
-    component::Component,
-    Status,
-};
 use scylla::instigator::Instigator;
+use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
 fn main() -> Result<(), failure::Error> {
     let top_ns = "default";
@@ -34,10 +23,12 @@ fn main() -> Result<(), failure::Error> {
         version: "v1alpha1".into(),
         ..Default::default()
     };
-    let component_cache: Reflector<Component, Status> = Reflector::new(client.clone(), component_resource.clone().into()).expect("component reflector cannot be created");
+    let component_cache: Reflector<Component, Status> =
+        Reflector::new(client.clone(), component_resource.clone().into())
+            .expect("component reflector cannot be created");
     let reflector = component_cache.clone();
 
-    // Watch for configuration objects to be added, and react to those. 
+    // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns;
         let client = APIClient::new(cfg_watch);
@@ -50,7 +41,8 @@ fn main() -> Result<(), failure::Error> {
         };
 
         // This listens for new items, and then processes them as they come in.
-        let informer: Informer<OperationalConfiguration, Status> = Informer::new(client.clone(), resource.clone().into())?;
+        let informer: Informer<OperationalConfiguration, Status> =
+            Informer::new(client.clone(), resource.clone().into())?;
         loop {
             informer.poll()?;
             println!("loop");
@@ -63,17 +55,15 @@ fn main() -> Result<(), failure::Error> {
                     println!("Error processing event: {:?}", res)
                 };
                 println!("Handled event");
-            } 
+            }
         }
     });
 
     // Cache all of the components.
-    let component_watch = std::thread::spawn(move || {
-        loop {
-            if let Err(res) = reflector.poll() {
-                println!("Component polling error: {}", res);
-            };
-        }
+    let component_watch = std::thread::spawn(move || loop {
+        if let Err(res) = reflector.poll() {
+            println!("Component polling error: {}", res);
+        };
     });
     println!("Watcher is running");
     component_watch.join().expect("component watcher crashed");
@@ -81,7 +71,11 @@ fn main() -> Result<(), failure::Error> {
 }
 
 /// This takes an event off teh stream and delegates it to the instagator, calling the correct verb.
-fn handle_event(cli: &APIClient, event: WatchEvent<OperationalConfiguration, Status>, cache: Reflector<Component, Status>) -> Result<(), failure::Error> {
+fn handle_event(
+    cli: &APIClient,
+    event: WatchEvent<OperationalConfiguration, Status>,
+    cache: Reflector<Component, Status>,
+) -> Result<(), failure::Error> {
     let inst = Instigator::new(cli.clone(), cache);
     match event {
         WatchEvent::Added(o) => inst.add(o),

@@ -1,10 +1,6 @@
 extern crate spectral;
 
-use crate::schematic::{
-    component::*,
-    parameter::ParameterType,
-    GroupVersionKind,
-};
+use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
 
 #[test]
 fn test_group_version_kind() {
@@ -29,7 +25,7 @@ fn test_component_deserialize() {
             "parameters": [],
             "containers": [],
             "workloadSettings": []
-        }"#
+        }"#,
     );
 
     assert!(data.is_ok());
@@ -66,7 +62,7 @@ fn test_container_deserialize_defaults() {
                     "image": "nginx:latest"
                 }
             ]
-        }"#
+        }"#,
     );
 
     assert!(data.is_ok());
@@ -130,7 +126,7 @@ fn test_container_deserialize() {
                     }
                 }
             ]
-        }"#
+        }"#,
     );
 
     assert!(data.is_ok(), "{}", data.unwrap_err());
@@ -145,7 +141,7 @@ fn test_container_deserialize() {
     assert_eq!("http", http_port.name);
     assert_eq!(8080, http_port.container_port);
     assert_eq!(PortProtocol::TCP, http_port.protocol);
-    
+
     assert_eq!(2, container.env.len());
     let env1 = container.env.get(0).unwrap();
     assert_eq!("key1", env1.name);
@@ -195,14 +191,14 @@ fn test_health_probe_deserialize() {
                     }
                 }
             ]
-        }"#
+        }"#,
     );
-    
+
     assert!(data.is_ok());
 
     let container = data.as_ref().unwrap().containers.get(0);
     let probe = container.unwrap().clone().liveness_probe.unwrap();
-    
+
     assert_eq!(10, probe.period_seconds);
 
     let headers = &probe.http_get.as_ref().unwrap().http_headers;
@@ -214,7 +210,7 @@ fn test_health_probe_deserialize() {
 
 #[test]
 fn test_parameter_deserialize() {
-   let data = Component::from_str(
+    let data = Component::from_str(
         r#"{
             "parameters": [
                 {
@@ -229,7 +225,7 @@ fn test_parameter_deserialize() {
                     "type": "boolean"
                 }
             ]
-        }"#
+        }"#,
     );
 
     assert!(data.is_ok(), "Not okay: {}", data.unwrap_err());
@@ -245,7 +241,10 @@ fn test_parameter_deserialize() {
     assert_eq!(Some("a parameter".into()), p1.description);
     assert_eq!(ParameterType::String, p1.parameter_type);
     assert!(p1.required);
-    assert_eq!(Some("things fall apart, the center cannot hold".into()), p1.default);
+    assert_eq!(
+        Some("things fall apart, the center cannot hold".into()),
+        p1.default
+    );
 
     assert_eq!("param2", p2.name);
     assert_eq!(None, p2.description);
@@ -256,7 +255,7 @@ fn test_parameter_deserialize() {
 
 #[test]
 fn test_workload_settings_deserialize() {
-   let data = Component::from_str(
+    let data = Component::from_str(
         r#"{
             "workloadSettings": [
                 {
@@ -272,7 +271,7 @@ fn test_workload_settings_deserialize() {
                     "fromParam": "param1"
                 }
             ]
-        }"#
+        }"#,
     );
 
     assert!(data.is_ok(), "Not okay: {}", data.unwrap_err());
@@ -288,7 +287,10 @@ fn test_workload_settings_deserialize() {
     assert_eq!(Some("a workload setting".into()), s1.description);
     assert_eq!(ParameterType::String, s1.parameter_type);
     assert!(s1.required);
-    assert_eq!(Some("things fall apart, the center cannot hold".into()), s1.default);
+    assert_eq!(
+        Some("things fall apart, the center cannot hold".into()),
+        s1.default
+    );
 
     assert_eq!("setting2", s2.name);
     assert_eq!(None, s2.description);

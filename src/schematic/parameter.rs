@@ -1,5 +1,5 @@
 /// Parameter describes a configurable unit on a Component or Application.
-/// 
+///
 /// Parameters have primitive types, and may be marked as required. Default values
 /// may be provided as well.
 #[derive(Serialize, Deserialize, Clone, Debug)]
