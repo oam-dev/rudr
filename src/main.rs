@@ -12,7 +12,7 @@ use kube::{
 };
 
 use scylla::schematic::{
-    configuration::Configuration,
+    configuration::OperationalConfiguration,
     component::Component,
     Status,
 };
@@ -50,7 +50,7 @@ fn main() -> Result<(), failure::Error> {
         };
 
         // This listens for new items, and then processes them as they come in.
-        let informer: Informer<Configuration, Status> = Informer::new(client.clone(), resource.clone().into())?;
+        let informer: Informer<OperationalConfiguration, Status> = Informer::new(client.clone(), resource.clone().into())?;
         loop {
             informer.poll()?;
             println!("loop");
@@ -81,7 +81,7 @@ fn main() -> Result<(), failure::Error> {
 }
 
 /// This takes an event off teh stream and delegates it to the instagator, calling the correct verb.
-fn handle_event(cli: &APIClient, event: WatchEvent<Configuration, Status>, cache: Reflector<Component, Status>) -> Result<(), failure::Error> {
+fn handle_event(cli: &APIClient, event: WatchEvent<OperationalConfiguration, Status>, cache: Reflector<Component, Status>) -> Result<(), failure::Error> {
     let inst = Instigator::new(cli.clone(), cache);
     match event {
         WatchEvent::Added(o) => inst.add(o),
