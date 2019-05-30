@@ -3,48 +3,25 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: Configuration
 metadata:
-  name: voter-db-cfg
+  name: voter-app
 spec:
-  component: postgres
----
-apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
-metadata:
-  name: voter-cache-cfg
-spec:
-  component: redis
----
-apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
-metadata:
-  name: voter-worker-cfg
-spec:
-  component: voting-worker
----
-apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
-metadata:
-  name: voter-frontend-cfg
-spec:
-  component: voting-frontend
-  traits:
-  - name: ingress
-    parameterValues:
-    - name: hostname
-      value: voting.example.com
-    - name: path
-      value: /
----
-apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
-metadata:
-  name: voter-admin-cfg
-spec:
-  component: voting-admin
-  traits:
-  - name: ingress
-    parameterValues:
-    - name: hostname
-      value: admin.example.com
-    - name: path
-      value: /
+  components:
+    - name: postgres
+    - name: redis
+    - name: voting-worker
+    - name: voting-frontend
+      traits:
+      - name: ingress
+        parameterValues:
+        - name: hostname
+          value: voting.example.com
+        - name: path
+          value: /
+    - name: voting-admin
+      traits:
+      - name: ingress
+        parameterValues:
+        - name: hostname
+          value: admin.example.com
+        - name: path
+          value: /

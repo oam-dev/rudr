@@ -82,7 +82,7 @@ impl Instigator {
         // - Resolve scope bindings
 
         for component in event.spec.components.unwrap_or(vec![]) {
-            let comp_def = cache.get(component.name.as_str()).ok_or(ComponentNotFoundError{name: component.name})?;    
+            let comp_def = cache.get(component.name.as_str()).ok_or(ComponentNotFoundError{name: component.name.clone()})?;    
             // Instantiate components
             let workload = self.load_workload_type(name.clone(), comp_def)?;
             workload.add()?;
@@ -91,7 +91,8 @@ impl Instigator {
             // formatting of the response object. :angry-eyes:
             for t in component.traits.unwrap_or(vec![]).iter() {
                 println!("Searching for trait {}", t.name.as_str());
-                let imp = self.load_trait(name.clone(), t)?;
+                let cname = component.name.clone();
+                let imp = self.load_trait(name.clone(), cname, t)?;
                 imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
             }
         }
@@ -101,13 +102,15 @@ impl Instigator {
     pub fn modify(&self, event: Resource<OperationalConfiguration, Status>) -> InstigatorResult {
         // Find components
         let cache = self.cache.read().unwrap();
+
         // TODO:
         // Resolve parameters
         // Resolve scopes
 
         // Modify components
         for component in event.spec.components.unwrap_or(vec![]) {
-            let comp_def = cache.get(component.name.as_str()).ok_or(ComponentNotFoundError{name: component.name})?;            
+            let cname = component.name.clone();
+            let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError{name: component.name})?;            
             let workload = self.load_workload_type(event.metadata.name.clone(), comp_def)?;
             workload.modify()?;
         }
@@ -125,14 +128,14 @@ impl Instigator {
         for component in event.spec.components.unwrap_or(vec![]) {
             // Find component
             let cname = component.name.clone();
-            let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError{name: cname})?;
+            let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError{name: cname.clone()})?;
             
             // Delete traits
             // Right now, a failed deletion on a trait is just logged, and is not
             // a fatail error.
             for t in component.traits.unwrap_or(vec![]).iter() {
                 println!("Deleting trait {}", t.name.as_str());
-                let imp = self.load_trait(name.clone(), t)?;
+                let imp = self.load_trait(name.clone(), cname.clone(), t)?;
                 let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
                 if res.is_err() {
                     println!("Error deleting trait for {}: {}", t.name.as_str(), res.unwrap_err());
@@ -140,7 +143,7 @@ impl Instigator {
             }
 
             // Delete component
-            self.load_workload_type(event.metadata.name.clone(), comp_def)?.delete();
+            self.load_workload_type(event.metadata.name.clone(), comp_def)?.delete()?;
         }
         Ok(())
     }
@@ -151,6 +154,7 @@ impl Instigator {
             "core.hydra.io/v1alpha1.ReplicatedService" => {
                 let rs = ReplicatedService{
                     name: name, 
+                    component_name: comp.metadata.name.clone(),
                     namespace: DEFAULT_NAMESPACE.into(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
@@ -158,7 +162,13 @@ impl Instigator {
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             },
             "core.hydra.io/v1alpha1.Singleton" => {
-                let sing = Singleton::new(name, DEFAULT_NAMESPACE.into(), comp.spec.clone(), self.client.clone());
+                let sing = Singleton {
+                    name: name,
+                    namespace: DEFAULT_NAMESPACE.into(),
+                    component_name: comp.metadata.name.clone(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                };
                 Ok(CoreWorkloadType::SingletonType(sing))
             },
             //"core.hydra.io/v1alpha1.Task" => {},
@@ -169,10 +179,10 @@ impl Instigator {
         }
     }
 
-    fn load_trait(&self, name: String, binding: &TraitBinding) -> Result<impl TraitImplementation, failure::Error> {
+    fn load_trait(&self, name: String, component_name: String, binding: &TraitBinding) -> Result<impl TraitImplementation, failure::Error> {
         match binding.name.as_str() {
             "ingress" => {
-                Ok(Ingress::new(80, name, None, None))
+                Ok(Ingress::new(80, name, component_name, None, None))
             }
             _ => Err(format_err!("unknown trait {}", binding.name))
         }

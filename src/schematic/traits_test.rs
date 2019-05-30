@@ -6,6 +6,7 @@ use crate::schematic::traits;
 fn test_ingress() {
     let ig = traits::Ingress{
         name: "my-ingress".into(),
+        component_name: "patsy".into(),
         svc_port: 8080,
         hostname: Some("in.example.com".to_string()),
         path: Some("/path".to_string())
@@ -30,6 +31,7 @@ fn test_ingress() {
 fn test_ingress_defaults() {
     let ig = traits::Ingress{
         name: "my-ingress".into(),
+        component_name: "patsy".into(),
         svc_port: 8080,
         hostname: None,
         path: None,

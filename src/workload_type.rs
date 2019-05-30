@@ -52,29 +52,35 @@ impl CoreWorkloadType {
 /// 
 /// It is currently implemented as a Kubernetes Pod with a Service in front of it.
 pub struct Singleton {
-    name: String,
-    namespace: String,
-    definition: Component,
-    client: APIClient,
+    pub name: String,
+    pub component_name: String,
+    pub namespace: String,
+    pub definition: Component,
+    pub client: APIClient,
 }
 impl Singleton {
     /// Create a new Singleton destined for a particular namespace
-    pub fn new(name: String, namespace: String, definition: Component, client: APIClient) -> Self {
+    pub fn new(name: String, namespace: String, component_name: String, definition: Component, client: APIClient) -> Self {
         Singleton {
             name: name,
+            component_name: component_name,
             namespace: namespace,
             definition: definition,
             client: client,
         }
     }
+    fn kube_name(&self) -> String {
+        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
+    }
     /// Create a Pod definition that describes this Singleton
     fn to_pod(&self) -> api::Pod {
         let mut labels = BTreeMap::new();
+        let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
         api::Pod{
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta{
-                name: Some(self.name.clone()),
+                name: Some(podname),
                 labels: Some(labels),
                 ..Default::default()
             }),
@@ -89,7 +95,7 @@ impl Singleton {
             labels.insert("app".to_string(), self.name.clone());
             Some(api::Service{
                 metadata: Some(meta::ObjectMeta{
-                    name: Some(self.name.clone()),
+                    name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
                     ..Default::default()
                 }),
@@ -168,6 +174,7 @@ impl WorkloadType for Singleton {
 pub struct ReplicatedService {
     pub name: String,
     pub namespace: String,
+    pub component_name: String,
     pub definition: Component,
     pub client: APIClient,
 }
@@ -180,7 +187,7 @@ impl ReplicatedService {
         apps::Deployment{
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta{
-                name: Some(self.name.clone()),
+                name: Some(self.kube_name()),
                 labels: Some(labels),
                 ..Default::default()
             }),
@@ -195,7 +202,7 @@ impl ReplicatedService {
             labels.insert("app".to_string(), self.name.clone());
             Some(api::Service{
                 metadata: Some(meta::ObjectMeta{
-                    name: Some(self.name.clone()),
+                    name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
                     ..Default::default()
                 }),
@@ -207,7 +214,9 @@ impl ReplicatedService {
                 ..Default::default()
             })
         })
-        
+    }
+    fn kube_name(&self) -> String {
+        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
     }
 }
 

@@ -46,14 +46,16 @@ pub trait TraitImplementation {
 /// component instance.
 pub struct Ingress {
     pub name: String,
+    pub component_name: String,
     pub svc_port: i32,
     pub hostname: Option<String>,
     pub path: Option<String>,
 }
 impl Ingress {
-    pub fn new(port: i32, name: String, hostname: Option<String>, path: Option<String>) -> Self {
+    pub fn new(port: i32, name: String, component_name: String,  hostname: Option<String>, path: Option<String>) -> Self {
         Ingress{
             name: name,
+            component_name: component_name,
             hostname: hostname,
             path: path,
             svc_port: port,
@@ -64,7 +66,7 @@ impl Ingress {
         ext::Ingress {
             metadata: Some(meta::ObjectMeta{
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
-                name: Some(self.name.clone()),
+                name: Some(self.kube_name("-trait-ingress")),
                 ..Default::default()
             }),
             spec: Some(ext::IngressSpec{
@@ -86,6 +88,9 @@ impl Ingress {
             }),
             ..Default::default()
         }
+    }
+    fn kube_name(&self, suffix: &str) -> String {
+        format!("{}-{}-{}", self.name.as_str(), self.component_name.as_str(), suffix)
     }
 }
 impl TraitImplementation for Ingress {
