@@ -77,6 +77,7 @@ impl Instigator {
                 })?;
             // Instantiate components
             let workload = self.load_workload_type(name.clone(), comp_def)?;
+            println!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
             // FIXME: This is currently not working because workload.add is returning an error having to do with the

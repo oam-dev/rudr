@@ -17,6 +17,10 @@ pub struct Parameter {
     pub default: Option<serde_json::Value>,
 }
 
+impl Parameter {
+    
+}
+
 /// Supplies the default value for all required fields.
 fn default_required() -> bool {
     false

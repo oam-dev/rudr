@@ -70,7 +70,7 @@ fn main() -> Result<(), failure::Error> {
     configuration_watch.join().unwrap()
 }
 
-/// This takes an event off teh stream and delegates it to the instagator, calling the correct verb.
+/// This takes an event off the stream and delegates it to the instagator, calling the correct verb.
 fn handle_event(
     cli: &APIClient,
     event: WatchEvent<OperationalConfiguration, Status>,
