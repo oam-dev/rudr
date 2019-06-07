@@ -6,10 +6,11 @@ use k8s_openapi::apimachinery::pkg::{
 
 use std::collections::BTreeMap;
 
-use crate::schematic::parameter::{Parameter, ParameterType};
+use crate::schematic::parameter::{ParameterType, ParameterList};
 
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
+
 
 /// Component describes the "spec" of a Hydra component schematic.
 ///
@@ -24,7 +25,7 @@ pub struct Component {
     pub workload_type: String,
     pub os_type: String,
     pub arch: String,
-    pub parameters: Vec<Parameter>,
+    pub parameters: ParameterList,
     pub containers: Vec<Container>,
     pub workload_settings: Vec<WorkloadSetting>,
 }
