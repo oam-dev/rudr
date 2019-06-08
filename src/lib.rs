@@ -2,8 +2,9 @@
 extern crate failure;
 #[macro_use]
 extern crate serde_derive;
-extern crate k8s_openapi;
+#[macro_use]
 extern crate serde_json;
+extern crate k8s_openapi;
 
 pub mod instigator;
 pub mod schematic;

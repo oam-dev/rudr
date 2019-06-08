@@ -78,7 +78,7 @@ pub struct ValidationErrors {
     errs: Vec<failure::Error>,
 }
 
-pub fn resolve_params(
+pub fn resolve_parameters(
     definition: Vec<Parameter>,
     values: Vec<ParameterValue>,
 ) -> Result<ResolvedVals, ValidationErrors> {
@@ -134,6 +134,6 @@ pub enum ParameterType {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ParameterValue {
-    name: String,
-    value: serde_json::Value,
+    pub name: String,
+    pub value: serde_json::Value,
 }
