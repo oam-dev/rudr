@@ -131,7 +131,7 @@ pub enum ParameterType {
 }
 
 /// A value that is substituted into a parameter.
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ParameterValue {
     pub name: String,
