@@ -2,12 +2,9 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
-variables:
-  PROJECTNAME:  'scylla'
-  
 steps:
 - script: |
     cargo version
     rustc --version
     cargo test
-  displayName: 'Run tests for $PROJECTNAME'
+  displayName: 'Run unit tests'
