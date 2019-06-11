@@ -6,9 +6,11 @@ pub mod traits;
 #[cfg(test)]
 mod component_test;
 #[cfg(test)]
-mod traits_test;
+mod configuration_test;
 #[cfg(test)]
 mod parameter_test;
+#[cfg(test)]
+mod traits_test;
 
 /// Application defines a Hydra application
 #[derive(Serialize, Deserialize, Clone, Debug)]
