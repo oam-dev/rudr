@@ -4,6 +4,7 @@ use crate::{
     schematic::{
         component::Component,
         configuration::OperationalConfiguration,
+        parameter::resolve_parameters,
         traits::{Ingress, TraitBinding, TraitImplementation},
         Status,
     },
@@ -66,7 +67,7 @@ impl Instigator {
         let cache = self.cache.read().unwrap();
 
         // TODO:
-        // - Resolve parameters
+
         // - Resolve scope bindings
 
         for component in event.spec.components.unwrap_or(vec![]) {
@@ -75,6 +76,21 @@ impl Instigator {
                 .ok_or(ComponentNotFoundError {
                     name: component.name.clone(),
                 })?;
+
+            // - Resolve parameters
+            /*
+            let param_defs = comp_def.spec.parameters.clone();
+            let mut param_vals = event.spec.parameter_values.clone().or(Some(vec![])).unwrap();
+            // We need to merge over the top level params
+            //let mut top_params = component.parameter_values.clone().or(Some(vec![])).as_mut().unwrap();
+            param_vals.append(component.parameter_values.clone().or(Some(vec![])).as_mut().unwrap());
+            //param_vals.dedup_by(|a, b| {
+            param_vals.filter()
+                a.name == b.name
+            });
+
+            let params = resolve_parameters(param_defs, param_vals)?;
+            */
             // Instantiate components
             let workload = self.load_workload_type(name.clone(), comp_def)?;
             println!("Adding component {}", component.name.clone());

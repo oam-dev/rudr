@@ -55,7 +55,7 @@ impl Parameter {
     fn get_value(&self, val: Option<&ParameterValue>) -> Result<serde_json::Value, failure::Error> {
         match val {
             Some(pval) => {
-                let value = pval.value.clone();
+                let value = pval.value.clone().unwrap().clone();
                 self.validate(&value).and(Ok(value))
             }
             None => {
@@ -92,25 +92,100 @@ pub fn resolve_parameters(
             match d.get_value(val) {
                 Ok(resolved_val) => ParameterValue {
                     name: d.name.clone(),
-                    value: resolved_val,
+                    value: Some(resolved_val),
+                    from_param: None,
                 },
                 Err(e) => {
                     errors.push(e);
                     ParameterValue {
                         name: d.name.clone(),
-                        value: serde_json::Value::Null,
+                        value: Some(serde_json::Value::Null),
+                        from_param: None,
                     }
                 }
             }
         })
         .for_each(|p| {
-            resolved.insert(p.name, p.value);
+            resolved.insert(p.name, p.value.unwrap());
             ()
         });
     if errors.len() > 0 {
         return Err(ValidationErrors { errs: errors });
     }
     Ok(resolved)
+}
+
+pub fn resolve_parameters_2(
+    definition: Vec<Parameter>,
+    values: ResolvedVals,
+) -> Result<ResolvedVals, ValidationErrors> {
+    let mut errors: Vec<failure::Error> = Vec::new();
+    let mut resolved: ResolvedVals = BTreeMap::new();
+
+    definition
+        .iter()
+        .map(|d| {
+            let resolved = match values.get(d.name.as_str()) {
+                Some(val) => ParameterValue {
+                    name: d.name.clone(),
+                    value: Some(val.clone()),
+                    from_param: None,
+                },
+                None => ParameterValue {
+                        name: d.name.clone(),
+                        value: Some(serde_json::Value::Null),
+                        from_param: None,
+                    },
+            };
+            // Validation:
+            if d.required && (resolved.value.is_none() || resolved.value.as_ref().unwrap().is_null()) {
+                errors.push(format_err!("parameter {} is required", d.name.clone()));
+            }
+            match d.validate(resolved.value.as_ref().unwrap()) {
+                Err(e) => errors.push(e),
+                _ => {},
+            };
+
+            resolved
+        })
+        .for_each(|p| {
+            resolved.insert(p.name, p.value.unwrap());
+        });
+    if errors.len() > 0 {
+        return Err(ValidationErrors { errs: errors });
+    }
+    Ok(resolved)
+}
+
+/// Resolve current values with material from parent values and return a map of name/value pairs.
+///
+/// If the current values have a `from` directive, the `from will be looked up in parent.
+///
+/// If a `from` fails to resolve, this will return
+/// an error.
+pub fn resolve_values(
+    current: Vec<ParameterValue>,
+    parent: Vec<ParameterValue>,
+) -> Result<ResolvedVals, failure::Error> {
+    let mut merged: ResolvedVals = BTreeMap::new();
+    current.iter().for_each(|p| {
+        // If a `from_param` exists, get the value out of the parent. Otherwise, just use
+        // this parameter's value.
+        let new_val = p
+            .from_param
+            .clone()
+            .and_then(|from_name| {
+                let parent_override = parent.iter().find(|item| item.name == from_name);
+                parent_override.and_then(|s| s.value.clone())
+            })
+            .or(p.value.clone());
+
+        // If a parameter has neither a from nor a value, we just ignore it.
+        if new_val.is_some() {
+            merged.insert(p.name.clone(), new_val.unwrap());
+        }
+    });
+    Ok(merged)
 }
 
 /// Supplies the default value for all required fields.
@@ -135,5 +210,6 @@ pub enum ParameterType {
 #[serde(rename_all = "camelCase")]
 pub struct ParameterValue {
     pub name: String,
-    pub value: serde_json::Value,
+    pub value: Option<serde_json::Value>,
+    pub from_param: Option<String>,
 }
