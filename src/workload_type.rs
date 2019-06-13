@@ -8,6 +8,11 @@ use crate::schematic::component::Component;
 use serde_json::to_string_pretty as to_json;
 use std::collections::BTreeMap;
 
+/// The fully qualified name of a replicated service.
+pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedService";
+/// The fully qualified name of a singleton.
+pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
+
 type InstigatorResult = Result<(), failure::Error>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 

@@ -82,3 +82,51 @@ fn test_ingress_defaults() {
             .path
     );
 }
+
+#[test]
+fn test_autoscaler_defaults() {
+    let autoscaler = traits::Autoscaler {
+        name: "release".into(),
+        component_name: "component".into(),
+        cpu: None,
+        minimum: None,
+        maximum: None,
+    };
+    let kauto = autoscaler.to_horizontal_pod_autoscaler();
+    assert_eq!(
+        Some("release-component-trait-autoscaler".to_string()),
+        kauto.metadata.expect("metadata").name
+    );
+    let spec = kauto.spec.expect("spec");
+    assert_eq!(10, spec.max_replicas);
+}
+
+#[test]
+fn test_autoscaler() {
+    let autoscaler = traits::Autoscaler {
+        name: "release".into(),
+        component_name: "component".into(),
+        cpu: Some(42),
+        minimum: Some(6),
+        maximum: Some(7),
+    };
+    let kauto = autoscaler.to_horizontal_pod_autoscaler();
+    assert_eq!(
+        Some("release-component-trait-autoscaler".to_string()),
+        kauto.metadata.expect("metadata").name
+    );
+    let spec = kauto.spec.expect("spec");
+    assert_eq!(7, spec.max_replicas);
+    assert_eq!(Some(6), spec.min_replicas);
+
+    assert_eq!(Some(42), spec.metrics.expect("metrics")[0].clone().resource.expect("a resource").target_average_utilization);
+}
+
+#[test]
+fn test_trait_labels() {
+    let labels = traits::trait_labels();
+    assert_eq!(
+        "trait".to_string(),
+        *labels.get("hydra.io/role").expect("must be a string")
+    );
+}
