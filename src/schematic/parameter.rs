@@ -114,7 +114,6 @@ pub fn resolve_values(
         // If a `from_param` exists, get the value out of the parent. Otherwise, just use
         // this parameter's value.
 
-        
         let new_val = p
             .from_param
             .clone()
@@ -127,14 +126,18 @@ pub fn resolve_values(
         // If a from_param was not found, and no default value was supplied, then this is
         // an error.
         if p.from_param.is_some() && new_val.is_none() {
-            return Err(format_err!("could not resolve fromParam:{} for {}", p.from_param.clone().unwrap(), p.name.clone()))
+            return Err(format_err!(
+                "could not resolve fromParam:{} for {}",
+                p.from_param.clone().unwrap(),
+                p.name.clone()
+            ));
         }
 
         // If a parameter has neither a from nor a value, we just ignore it.
         if new_val.is_some() {
             merged.insert(p.name.clone(), new_val.unwrap());
         }
-    };
+    }
     Ok(merged)
 }
 

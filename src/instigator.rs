@@ -1,9 +1,11 @@
 use kube::{api::Reflector, api::Resource, client::APIClient};
+use std::collections::BTreeMap;
 
 use crate::{
     schematic::{
         component::Component,
         configuration::OperationalConfiguration,
+        parameter::{resolve_parameters, resolve_values},
         traits::{Ingress, TraitBinding, TraitImplementation},
         Status,
     },
@@ -47,6 +49,13 @@ pub struct Instigator {
     client: APIClient,
     cache: Reflector<Component, Status>,
 }
+
+type OpResource = Resource<OperationalConfiguration, Status>;
+type ParamMap = BTreeMap<String, serde_json::Value>;
+
+// The implementation of Instegator can probably be cleaned up quite a bit.
+// My bad Go habits of recklessly duplicating code may not be justified here.
+
 impl Instigator {
     /// Create a new instigator
     ///
@@ -58,8 +67,9 @@ impl Instigator {
             cache: cache,
         }
     }
+
     /// Create new Kubernetes objects based on this config.
-    pub fn add(&self, event: Resource<OperationalConfiguration, Status>) -> InstigatorResult {
+    pub fn add(&self, event: OpResource) -> InstigatorResult {
         let name = event.metadata.name.clone();
 
         // component cache
@@ -77,21 +87,18 @@ impl Instigator {
                 })?;
 
             // - Resolve parameters
-            /*
-            let param_defs = comp_def.spec.parameters.clone();
-            let mut param_vals = event.spec.parameter_values.clone().or(Some(vec![])).unwrap();
-            // We need to merge over the top level params
-            //let mut top_params = component.parameter_values.clone().or(Some(vec![])).as_mut().unwrap();
-            param_vals.append(component.parameter_values.clone().or(Some(vec![])).as_mut().unwrap());
-            //param_vals.dedup_by(|a, b| {
-            param_vals.filter()
-                a.name == b.name
-            });
+            let parent = event
+                .spec
+                .parameter_values
+                .clone()
+                .or(Some(vec![]))
+                .unwrap();
+            let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
+            let merged_vals = resolve_values(child, parent)?;
+            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
-            let params = resolve_parameters(param_defs, param_vals)?;
-            */
             // Instantiate components
-            let workload = self.load_workload_type(name.clone(), comp_def)?;
+            let workload = self.load_workload_type(name.clone(), comp_def, &params)?;
             println!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
@@ -107,7 +114,7 @@ impl Instigator {
         Ok(())
     }
     /// Modify existing Kubernetes objects based on config and workload type.
-    pub fn modify(&self, event: Resource<OperationalConfiguration, Status>) -> InstigatorResult {
+    pub fn modify(&self, event: OpResource) -> InstigatorResult {
         // Find components
         let cache = self.cache.read().unwrap();
 
@@ -121,13 +128,26 @@ impl Instigator {
             let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError {
                 name: component.name,
             })?;
-            let workload = self.load_workload_type(event.metadata.name.clone(), comp_def)?;
+
+            // - Resolve parameters
+            let parent = event
+                .spec
+                .parameter_values
+                .clone()
+                .or(Some(vec![]))
+                .unwrap();
+            let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
+            let merged_vals = resolve_values(child, parent)?;
+            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+
+            let workload =
+                self.load_workload_type(event.metadata.name.clone(), comp_def, &params)?;
             workload.modify()?;
         }
         Ok(())
     }
     /// Delete the Kubernetes objects associated with this config.
-    pub fn delete(&self, event: Resource<OperationalConfiguration, Status>) -> InstigatorResult {
+    pub fn delete(&self, event: OpResource) -> InstigatorResult {
         let name = event.metadata.name.clone();
         let cache = self.cache.read().unwrap();
 
@@ -141,6 +161,17 @@ impl Instigator {
             let comp_def = cache.get(cname.as_str()).ok_or(ComponentNotFoundError {
                 name: cname.clone(),
             })?;
+
+            // - Resolve parameters
+            let parent = event
+                .spec
+                .parameter_values
+                .clone()
+                .or(Some(vec![]))
+                .unwrap();
+            let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
+            let merged_vals = resolve_values(child, parent)?;
+            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
             // Delete traits
             // Right now, a failed deletion on a trait is just logged, and is not
@@ -159,7 +190,7 @@ impl Instigator {
             }
 
             // Delete component
-            self.load_workload_type(event.metadata.name.clone(), comp_def)?
+            self.load_workload_type(event.metadata.name.clone(), comp_def, &params)?
                 .delete()?;
         }
         Ok(())
@@ -169,6 +200,7 @@ impl Instigator {
         &self,
         name: String,
         comp: &Resource<Component, Status>,
+        params: &ParamMap,
     ) -> Result<CoreWorkloadType, failure::Error> {
         println!("Looking up {}", name);
         match comp.spec.workload_type.as_str() {
@@ -179,6 +211,7 @@ impl Instigator {
                     namespace: DEFAULT_NAMESPACE.into(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
+                    params: params.clone(),
                 };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
@@ -189,6 +222,7 @@ impl Instigator {
                     component_name: comp.metadata.name.clone(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
+                    params: params.clone(),
                 };
                 Ok(CoreWorkloadType::SingletonType(sing))
             }

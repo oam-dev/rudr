@@ -65,24 +65,24 @@ fn test_resolve_parameters() {
 #[test]
 fn test_resolve_values() {
     let parent = vec![
-        ParameterValue{
+        ParameterValue {
             name: "pet".into(),
             value: Some(json!("dog")),
             from_param: None,
         },
-        ParameterValue{
+        ParameterValue {
             name: "home".into(),
             value: Some(json!("house")),
             from_param: None,
         },
     ];
     let child = vec![
-        ParameterValue{
+        ParameterValue {
             name: "favorite_animal".into(),
             value: None,
             from_param: Some("pet".to_string()),
         },
-        ParameterValue{
+        ParameterValue {
             name: "abode".into(),
             value: None,
             from_param: Some("home".to_string()),
@@ -90,47 +90,57 @@ fn test_resolve_values() {
     ];
 
     let merged = resolve_values(child, parent).expect("resolve parent values into child");
-    assert_eq!(Some("house"), merged.get("abode".into()).expect("abode is home").as_str());
-    assert_eq!(Some("dog"), merged.get("favorite_animal".into()).expect("abode is home").as_str());
+    assert_eq!(
+        Some("house"),
+        merged.get("abode".into()).expect("abode is home").as_str()
+    );
+    assert_eq!(
+        Some("dog"),
+        merged
+            .get("favorite_animal".into())
+            .expect("abode is home")
+            .as_str()
+    );
 
     // Failed `from`
-    let parent = vec![
-        ParameterValue{
-            name: "home".into(),
-            value: Some(json!("house")),
-            from_param: None,
-        },
-    ];
+    let parent = vec![ParameterValue {
+        name: "home".into(),
+        value: Some(json!("house")),
+        from_param: None,
+    }];
     let child = vec![
-        ParameterValue{
+        ParameterValue {
             name: "favorite_animal".into(),
             value: None,
             from_param: Some("pet".to_string()),
         },
-        ParameterValue{
+        ParameterValue {
             name: "abode".into(),
             value: None,
             from_param: Some("home".to_string()),
         },
     ];
 
-    assert_eq!("could not resolve fromParam:pet for favorite_animal", resolve_values(child, parent).expect_err("expected failure").to_string());
+    assert_eq!(
+        "could not resolve fromParam:pet for favorite_animal",
+        resolve_values(child, parent)
+            .expect_err("expected failure")
+            .to_string()
+    );
 
     // No from, but with a default value.
-    let parent = vec![
-        ParameterValue{
-            name: "home".into(),
-            value: Some(json!("house")),
-            from_param: None,
-        },
-    ];
+    let parent = vec![ParameterValue {
+        name: "home".into(),
+        value: Some(json!("house")),
+        from_param: None,
+    }];
     let child = vec![
-        ParameterValue{
+        ParameterValue {
             name: "favorite_animal".into(),
             value: Some(json!("cat")),
             from_param: Some("pet".to_string()),
         },
-        ParameterValue{
+        ParameterValue {
             name: "abode".into(),
             value: Some(json!("condo")),
             from_param: Some("home".to_string()),
@@ -138,6 +148,12 @@ fn test_resolve_values() {
     ];
 
     let merged = resolve_values(child, parent).expect("should parse fine");
-    assert_eq!(Some("cat"), merged.get("favorite_animal").expect("favorite animal").as_str());
+    assert_eq!(
+        Some("cat"),
+        merged
+            .get("favorite_animal")
+            .expect("favorite animal")
+            .as_str()
+    );
     assert_eq!(Some("house"), merged.get("abode").expect("abode").as_str());
 }
