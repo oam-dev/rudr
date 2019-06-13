@@ -4,7 +4,6 @@ use crate::{
     schematic::{
         component::Component,
         configuration::OperationalConfiguration,
-        parameter::resolve_parameters,
         traits::{Ingress, TraitBinding, TraitImplementation},
         Status,
     },
