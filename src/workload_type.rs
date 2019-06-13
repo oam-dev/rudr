@@ -9,6 +9,7 @@ use serde_json::to_string_pretty as to_json;
 use std::collections::BTreeMap;
 
 type InstigatorResult = Result<(), failure::Error>;
+type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// WorkloadType describes one of the available workload types.
 ///
@@ -51,24 +52,9 @@ pub struct Singleton {
     pub namespace: String,
     pub definition: Component,
     pub client: APIClient,
+    pub params: ParamMap,
 }
 impl Singleton {
-    /// Create a new Singleton destined for a particular namespace
-    pub fn new(
-        name: String,
-        namespace: String,
-        component_name: String,
-        definition: Component,
-        client: APIClient,
-    ) -> Self {
-        Singleton {
-            name: name,
-            component_name: component_name,
-            namespace: namespace,
-            definition: definition,
-            client: client,
-        }
-    }
     fn kube_name(&self) -> String {
         format!("{}-{}", self.name.as_str(), self.component_name.as_str())
     }
@@ -186,6 +172,7 @@ pub struct ReplicatedService {
     pub component_name: String,
     pub definition: Component,
     pub client: APIClient,
+    pub params: ParamMap,
 }
 
 impl ReplicatedService {

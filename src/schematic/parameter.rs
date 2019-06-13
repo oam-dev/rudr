@@ -45,29 +45,6 @@ impl Parameter {
             }
         }
     }
-
-    /// Get the value for this parameter.
-    ///
-    /// If the Option is empty, this will attempt to find a default value in the Parameter
-    /// definition. Otherwise, it will validate the given value against the definition.
-    ///
-    /// Any successful value will be returned. Any failure (validation or no found value) will result in an error.
-    fn get_value(&self, val: Option<&ParameterValue>) -> Result<serde_json::Value, failure::Error> {
-        match val {
-            Some(pval) => {
-                let value = pval.value.clone();
-                self.validate(&value).and(Ok(value))
-            }
-            None => {
-                if self.required {
-                    return Err(format_err!("value for {} is required", self.name.as_str()));
-                }
-                self.default
-                    .clone()
-                    .ok_or(format_err!("No value specified for {}", self.name.as_str()))
-            }
-        }
-    }
 }
 
 type ResolvedVals = BTreeMap<String, serde_json::Value>;
@@ -80,7 +57,7 @@ pub struct ValidationErrors {
 
 pub fn resolve_parameters(
     definition: Vec<Parameter>,
-    values: Vec<ParameterValue>,
+    values: ResolvedVals,
 ) -> Result<ResolvedVals, ValidationErrors> {
     let mut errors: Vec<failure::Error> = Vec::new();
     let mut resolved: ResolvedVals = BTreeMap::new();
@@ -88,29 +65,80 @@ pub fn resolve_parameters(
     definition
         .iter()
         .map(|d| {
-            let val = values.iter().find(|e| e.name == d.name);
-            match d.get_value(val) {
-                Ok(resolved_val) => ParameterValue {
+            let resolved = match values.get(d.name.as_str()) {
+                Some(val) => ParameterValue {
                     name: d.name.clone(),
-                    value: resolved_val,
+                    value: Some(val.clone()),
+                    from_param: None,
                 },
-                Err(e) => {
-                    errors.push(e);
-                    ParameterValue {
-                        name: d.name.clone(),
-                        value: serde_json::Value::Null,
-                    }
-                }
+                None => ParameterValue {
+                    name: d.name.clone(),
+                    value: d.default.clone().or(Some(serde_json::Value::Null)),
+                    from_param: None,
+                },
+            };
+            // Validation:
+            if d.required
+                && (resolved.value.is_none() || resolved.value.as_ref().unwrap().is_null())
+            {
+                errors.push(format_err!("parameter {} is required", d.name.clone()));
             }
+            match d.validate(resolved.value.as_ref().unwrap()) {
+                Err(e) => errors.push(e),
+                _ => {}
+            };
+            resolved
         })
         .for_each(|p| {
-            resolved.insert(p.name, p.value);
-            ()
+            resolved.insert(p.name, p.value.unwrap());
         });
     if errors.len() > 0 {
         return Err(ValidationErrors { errs: errors });
     }
     Ok(resolved)
+}
+
+/// Resolve current values with material from parent values and return a map of name/value pairs.
+///
+/// If the current values have a `from` directive, the `from will be looked up in parent.
+///
+/// If a `from` fails to resolve, this will return
+/// an error.
+pub fn resolve_values(
+    current: Vec<ParameterValue>,
+    parent: Vec<ParameterValue>,
+) -> Result<ResolvedVals, failure::Error> {
+    let mut merged: ResolvedVals = BTreeMap::new();
+
+    for p in current.iter() {
+        // If a `from_param` exists, get the value out of the parent. Otherwise, just use
+        // this parameter's value.
+
+        let new_val = p
+            .from_param
+            .clone()
+            .and_then(|from_name| {
+                let parent_override = parent.iter().find(|item| item.name == from_name);
+                parent_override.and_then(|s| s.value.clone())
+            })
+            .or(p.value.clone());
+
+        // If a from_param was not found, and no default value was supplied, then this is
+        // an error.
+        if p.from_param.is_some() && new_val.is_none() {
+            return Err(format_err!(
+                "could not resolve fromParam:{} for {}",
+                p.from_param.clone().unwrap(),
+                p.name.clone()
+            ));
+        }
+
+        // If a parameter has neither a from nor a value, we just ignore it.
+        if new_val.is_some() {
+            merged.insert(p.name.clone(), new_val.unwrap());
+        }
+    }
+    Ok(merged)
 }
 
 /// Supplies the default value for all required fields.
@@ -135,5 +163,6 @@ pub enum ParameterType {
 #[serde(rename_all = "camelCase")]
 pub struct ParameterValue {
     pub name: String,
-    pub value: serde_json::Value,
+    pub value: Option<serde_json::Value>,
+    pub from_param: Option<String>,
 }
