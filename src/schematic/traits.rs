@@ -116,7 +116,7 @@ impl TraitImplementation for Ingress {
     }
     fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) =
-            ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
+            ext::Ingress::delete_namespaced_ingress(self.kube_name("trait-ingress").as_str(), ns, Default::default())?;
         let res: Result<serde_json::Value, failure::Error> = client.request(req);
         res.and_then(|_| Ok(()))
     }
