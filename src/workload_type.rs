@@ -139,7 +139,7 @@ impl WorkloadType for Singleton {
     }
     fn delete(&self) -> InstigatorResult {
         let (req, _) = api::Pod::delete_namespaced_pod(
-            self.name.as_str(),
+            self.kube_name().as_str(),
             self.namespace.as_str(),
             Default::default(),
         )?;
@@ -152,7 +152,7 @@ impl WorkloadType for Singleton {
         match self.to_service() {
             Some(_) => {
                 let (sreq, _) = api::Service::delete_namespaced_service(
-                    self.name.as_str(),
+                    self.kube_name().as_str(),
                     self.namespace.as_str(),
                     Default::default(),
                 )?;
