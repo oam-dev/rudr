@@ -1,0 +1,22 @@
+
+# This will create a Horizontal Pod Autoscaler, but your cluster must have
+# an implementation of an HPA before this will actually cause autoscaling.
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: autoscaler-example
+spec:
+  components:
+  - name: replicated-svc
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    traits:
+      - name: autoscaler
+        parameterValues:
+          - name: maximum
+            value: 6
+          - name: minimum
+            value: 2
