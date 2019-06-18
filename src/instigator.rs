@@ -6,7 +6,7 @@ use crate::{
         component::Component,
         configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values},
-        traits::{Ingress, TraitBinding, TraitImplementation},
+        traits::{Autoscaler, HydraTrait, Ingress, TraitBinding},
         Status,
     },
     workload_type::{CoreWorkloadType, ReplicatedService, Singleton},
@@ -240,9 +240,19 @@ impl Instigator {
         name: String,
         component_name: String,
         binding: &TraitBinding,
-    ) -> Result<impl TraitImplementation, failure::Error> {
+    ) -> Result<HydraTrait, failure::Error> {
         match binding.name.as_str() {
-            "ingress" => Ok(Ingress::new(80, name, component_name, None, None)),
+            "ingress" => {
+                let ing = Ingress::new(80, name, component_name, None, None);
+                Ok(HydraTrait::Ingress(ing))
+            }
+            "autoscaler" => Ok(HydraTrait::Autoscaler(Autoscaler {
+                name: name,
+                component_name: component_name,
+                minimum: Some(1),
+                maximum: Some(5),
+                cpu: Some(60),
+            })),
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }
