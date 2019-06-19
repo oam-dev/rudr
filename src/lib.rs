@@ -9,3 +9,6 @@ extern crate k8s_openapi;
 pub mod instigator;
 pub mod schematic;
 pub mod workload_type;
+
+#[cfg(test)]
+mod workload_type_test;

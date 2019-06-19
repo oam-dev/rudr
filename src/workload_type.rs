@@ -16,6 +16,19 @@ pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
 type InstigatorResult = Result<(), failure::Error>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
+/// KubeName describes anything that can produce its own Kubernetes name.
+///
+/// Most Kubernetes objects have their own name, and workload types, traits, and
+/// other Hydra objects are capable of autogenerating their own names in a
+/// repeatable fashion. This trait describes the ability to repeatably create
+/// a name.
+/// 
+/// KubeNames implementations should produce the same name for a given release. That
+/// is, names are not random.
+pub trait KubeName {
+    fn kube_name(&self) -> String;
+}
+
 /// WorkloadType describes one of the available workload types.
 ///
 /// An implementation of a workload type must be able to add, modify, and delete itself.
@@ -60,9 +73,7 @@ pub struct Singleton {
     pub params: ParamMap,
 }
 impl Singleton {
-    fn kube_name(&self) -> String {
-        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
-    }
+    
     /// Create a Pod definition that describes this Singleton
     fn to_pod(&self) -> api::Pod {
         let mut labels = BTreeMap::new();
@@ -98,6 +109,12 @@ impl Singleton {
                 ..Default::default()
             })
         })
+    }
+}
+
+impl KubeName for Singleton {
+    fn kube_name(&self) -> String {
+        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
     }
 }
 impl WorkloadType for Singleton {
@@ -216,6 +233,9 @@ impl ReplicatedService {
             })
         })
     }
+}
+
+impl KubeName for ReplicatedService {
     fn kube_name(&self) -> String {
         format!("{}-{}", self.name.as_str(), self.component_name.as_str())
     }
