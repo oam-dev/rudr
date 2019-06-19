@@ -120,9 +120,15 @@ fn test_autoscaler() {
     assert_eq!(7, spec.max_replicas);
     assert_eq!(Some(6), spec.min_replicas);
 
-    assert_eq!(Some(42), spec.metrics.expect("metrics")[0].clone().resource.expect("a resource").target_average_utilization);
+    assert_eq!(
+        Some(42),
+        spec.metrics.expect("metrics")[0]
+            .clone()
+            .resource
+            .expect("a resource")
+            .target_average_utilization
+    );
 }
-
 
 #[test]
 fn test_ingress_workload_types() {
