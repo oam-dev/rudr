@@ -99,13 +99,13 @@ impl Instigator {
 
             // Instantiate components
             let workload = self.load_workload_type(name.clone(), comp_def, &params)?;
-            println!("Adding component {}", component.name.clone());
+            info!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
             // FIXME: This is currently not working because workload.add is returning an error having to do with the
             // formatting of the response object. :angry-eyes:
             for t in component.traits.unwrap_or(vec![]).iter() {
-                println!("Searching for trait {}", t.name.as_str());
+                info!("Searching for trait {}", t.name.as_str());
                 let cname = component.name.clone();
                 let imp = self.load_trait(name.clone(), cname, t)?;
                 imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
@@ -177,11 +177,11 @@ impl Instigator {
             // Right now, a failed deletion on a trait is just logged, and is not
             // a fatail error.
             for t in component.traits.unwrap_or(vec![]).iter() {
-                println!("Deleting trait {}", t.name.as_str());
+                info!("Deleting trait {}", t.name.as_str());
                 let imp = self.load_trait(name.clone(), cname.clone(), t)?;
                 let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
                 if res.is_err() {
-                    println!(
+                    error!(
                         "Error deleting trait for {}: {}",
                         t.name.as_str(),
                         res.unwrap_err()
@@ -202,7 +202,7 @@ impl Instigator {
         comp: &Resource<Component, Status>,
         params: &ParamMap,
     ) -> Result<CoreWorkloadType, failure::Error> {
-        println!("Looking up {}", name);
+        info!("Looking up {}", name);
         match comp.spec.workload_type.as_str() {
             "core.hydra.io/v1alpha1.ReplicatedService" => {
                 let rs = ReplicatedService {

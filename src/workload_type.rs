@@ -133,14 +133,14 @@ impl WorkloadType for Singleton {
         /*
         if res.is_err() {
             // FIXME: We seem to be getting a formatting error for the response, but I don't know what is causing it
-            println!("Pod: {}", to_json(&pod).unwrap());
-            println!("Warning: {:?}", res);
+            info!("Pod: {}", to_json(&pod).unwrap());
+            warn!("Warning: {:?}", res);
         }
         */
 
         match self.to_service() {
             Some(svc) => {
-                println!("Service:\n{}", to_json(&svc).unwrap());
+                info!("Service:\n{}", to_json(&svc).unwrap());
                 let (sreq, _) = api::Service::create_namespaced_service(
                     self.namespace.as_str(),
                     &svc,
@@ -151,7 +151,7 @@ impl WorkloadType for Singleton {
             }
             // No service to create
             None => {
-                println!("Not attaching service to pod with no container ports.");
+                info!("Not attaching service to pod with no container ports.");
                 Ok(())
             }
         }
@@ -258,7 +258,7 @@ impl WorkloadType for ReplicatedService {
         }
         match self.to_service() {
             Some(svc) => {
-                println!("Service:\n{}", to_json(&svc).unwrap());
+                info!("Service:\n{}", to_json(&svc).unwrap());
                 let (sreq, _) = api::Service::create_namespaced_service(
                     self.namespace.as_str(),
                     &svc,
@@ -269,7 +269,7 @@ impl WorkloadType for ReplicatedService {
             }
             // No service to create
             None => {
-                println!("Not attaching service to pod with no container ports.");
+                info!("Not attaching service to pod with no container ports.");
                 Ok(())
             }
         }

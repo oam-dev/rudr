@@ -7,7 +7,11 @@ use kube::{client::APIClient, config::load_kube_config};
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
+use log::{info, error};
+
 fn main() -> Result<(), failure::Error> {
+	env_logger::init();
+
     let top_ns = "default";
     let top_cfg = load_kube_config().expect("Load default kubeconfig");
 
@@ -45,16 +49,16 @@ fn main() -> Result<(), failure::Error> {
             Informer::new(client.clone(), resource.clone().into())?;
         loop {
             informer.poll()?;
-            println!("loop");
+            info!("loop");
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {
                 if let Err(res) = handle_event(&client, event, component_cache.clone()) {
                     // Log the error and continue. In the future, should probably
                     // re-queue data in some cases.
-                    println!("Error processing event: {:?}", res)
+                    error!("Error processing event: {:?}", res)
                 };
-                println!("Handled event");
+                info!("Handled event");
             }
         }
     });
@@ -62,10 +66,10 @@ fn main() -> Result<(), failure::Error> {
     // Cache all of the components.
     let component_watch = std::thread::spawn(move || loop {
         if let Err(res) = reflector.poll() {
-            println!("Component polling error: {}", res);
+            error!("Component polling error: {}", res);
         };
     });
-    println!("Watcher is running");
+    info!("Watcher is running");
     component_watch.join().expect("component watcher crashed");
     configuration_watch.join().unwrap()
 }
