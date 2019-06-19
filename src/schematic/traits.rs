@@ -170,6 +170,7 @@ impl TraitImplementation for Ingress {
     }
 }
 
+#[derive(Clone,Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
 pub struct Autoscaler {
     pub name: String,
@@ -180,6 +181,21 @@ pub struct Autoscaler {
 }
 
 impl Autoscaler {
+    pub fn from_params(name: String, component_name: String, params: ParamMap) -> Self {
+        Autoscaler {
+            name: name,
+            component_name: component_name,
+            minimum: params
+                .get("minimum".into())
+                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
+            maximum: params
+                .get("maximum")
+                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+            cpu: params
+                .get("cpu")
+                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+        }
+    }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
         // TODO: fix this to make it configurable
         let metrics = Some(vec![hpa::MetricSpec {

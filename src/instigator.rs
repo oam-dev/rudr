@@ -256,13 +256,10 @@ impl Instigator {
                 let ing = Ingress::from_params(name, component_name, parent_params);
                 Ok(HydraTrait::Ingress(ing))
             }
-            "autoscaler" => Ok(HydraTrait::Autoscaler(Autoscaler {
-                name: name,
-                component_name: component_name,
-                minimum: Some(1),
-                maximum: Some(5),
-                cpu: Some(60),
-            })),
+            "autoscaler" => {
+                let auto = Autoscaler::from_params(name, component_name, parent_params);
+                Ok(HydraTrait::Autoscaler(auto))
+            }
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }
