@@ -1,17 +1,20 @@
 use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 
 use crate::schematic::traits::*;
-use crate::workload_type::{REPLICATED_SERVICE_NAME, SINGLETON_NAME};
+use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, SINGLETON_NAME};
+use std::collections::BTreeMap;
 
 #[test]
 fn test_ingress() {
-    let ig = Ingress {
-        name: "my-ingress".into(),
-        component_name: "patsy".into(),
-        svc_port: 8080,
-        hostname: Some("in.example.com".to_string()),
-        path: Some("/path".to_string()),
-    };
+    let mut params: ParamMap = BTreeMap::new();
+    params.insert("service_port".into(), json!(8080));
+    params.insert(
+        "hostname".into(),
+        serde_json::Value::String("in.example.com".into()),
+    );
+    params.insert("path".into(), json!("/path"));
+
+    let ig = Ingress::from_params("my-ingress".into(), "patsy".into(), params);
 
     let king = ig.to_ext_ingress();
     assert_eq!(
@@ -32,8 +35,8 @@ fn test_ingress() {
         .get(0)
         .expect("a rule is required");
     assert_eq!(
-        "in.example.com",
-        rule.host.as_ref().expect("host is required").as_str()
+        "\"in.example.com\"",
+        rule.host.as_ref().expect("host is required").to_string()
     );
 
     let path = rule
@@ -44,7 +47,7 @@ fn test_ingress() {
         .get(0)
         .expect("at least one path is required");
     assert_eq!(
-        "/path",
+        "\"/path\"",
         path.clone().path.expect("must be a path.path").as_str()
     );
     assert_eq!("my-ingress", path.backend.service_name.as_str());
@@ -104,13 +107,12 @@ fn test_autoscaler_defaults() {
 
 #[test]
 fn test_autoscaler() {
-    let autoscaler = Autoscaler {
-        name: "release".into(),
-        component_name: "component".into(),
-        cpu: Some(42),
-        minimum: Some(6),
-        maximum: Some(7),
-    };
+    let mut params: ParamMap = BTreeMap::new();
+    params.insert("cpu".into(), json!(42));
+    params.insert("minimum".into(), json!(6));
+    params.insert("maximum".into(), json!(7));
+
+    let autoscaler = Autoscaler::from_params("release".into(), "component".into(), params);
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
         Some("release-component-trait-autoscaler".to_string()),
@@ -120,9 +122,15 @@ fn test_autoscaler() {
     assert_eq!(7, spec.max_replicas);
     assert_eq!(Some(6), spec.min_replicas);
 
-    assert_eq!(Some(42), spec.metrics.expect("metrics")[0].clone().resource.expect("a resource").target_average_utilization);
+    assert_eq!(
+        Some(42),
+        spec.metrics.expect("metrics")[0]
+            .clone()
+            .resource
+            .expect("a resource")
+            .target_average_utilization
+    );
 }
-
 
 #[test]
 fn test_ingress_workload_types() {

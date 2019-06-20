@@ -7,10 +7,10 @@ use kube::{client::APIClient, config::load_kube_config};
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
-use log::{info, error};
+use log::{error, info};
 
 fn main() -> Result<(), failure::Error> {
-	env_logger::init();
+    env_logger::init();
 
     let top_ns = "default";
     let top_cfg = load_kube_config().expect("Load default kubeconfig");

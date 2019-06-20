@@ -1,5 +1,5 @@
 use crate::schematic::parameter::ParameterValue;
-use crate::workload_type::REPLICATED_SERVICE_NAME;
+use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME};
 use k8s_openapi::api::{autoscaling::v2beta1 as hpa, extensions::v1beta1 as ext};
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
@@ -88,22 +88,21 @@ pub struct Ingress {
     pub path: Option<String>,
 }
 impl Ingress {
-    pub fn new(
-        port: i32,
-        name: String,
-        component_name: String,
-        hostname: Option<String>,
-        path: Option<String>,
-    ) -> Self {
+    pub fn from_params(name: String, component_name: String, params: ParamMap) -> Self {
+        // Right now, we're relying on the higher level validation logic to validate types.
         Ingress {
             name: name,
             component_name: component_name,
-            hostname: hostname,
-            path: path,
-            svc_port: port,
+            svc_port: params
+                .get("service_port".into())
+                .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
+                .unwrap_or(80),
+            hostname: params
+                .get("hostname".into())
+                .and_then(|p| Some(p.to_string())),
+            path: params.get("path".into()).and_then(|p| Some(p.to_string())),
         }
     }
-
     pub fn to_ext_ingress(&self) -> ext::Ingress {
         ext::Ingress {
             metadata: Some(meta::ObjectMeta {
@@ -171,6 +170,7 @@ impl TraitImplementation for Ingress {
     }
 }
 
+#[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
 pub struct Autoscaler {
     pub name: String,
@@ -181,6 +181,21 @@ pub struct Autoscaler {
 }
 
 impl Autoscaler {
+    pub fn from_params(name: String, component_name: String, params: ParamMap) -> Self {
+        Autoscaler {
+            name: name,
+            component_name: component_name,
+            minimum: params
+                .get("minimum".into())
+                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
+            maximum: params
+                .get("maximum")
+                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+            cpu: params
+                .get("cpu")
+                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+        }
+    }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
         // TODO: fix this to make it configurable
         let metrics = Some(vec![hpa::MetricSpec {

@@ -1,7 +1,7 @@
 use kube::{client::APIClient, config::Configuration};
 
-use crate::workload_type::*;
 use crate::schematic::component::Component;
+use crate::workload_type::*;
 
 use std::collections::BTreeMap;
 
@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 fn test_singleton_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
-    let sing = Singleton{
+    let sing = Singleton {
         name: "de".into(),
         component_name: "hydrate".into(),
         namespace: "tests".into(),
@@ -18,7 +18,6 @@ fn test_singleton_kube_name() {
         },
         params: BTreeMap::new(),
         client: cli,
-    
     };
 
     assert_eq!("de-hydrate", sing.kube_name().as_str());
@@ -28,7 +27,7 @@ fn test_singleton_kube_name() {
 fn test_replicated_service_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
-    let rs = ReplicatedService{
+    let rs = ReplicatedService {
         name: "de".into(),
         component_name: "hydrate".into(),
         namespace: "tests".into(),
@@ -39,7 +38,7 @@ fn test_replicated_service_kube_name() {
         client: cli,
     };
 
-    assert_eq!("de-hydrate", rs.kube_name().as_str());  
+    assert_eq!("de-hydrate", rs.kube_name().as_str());
 }
 
 /// This mock builds a KubeConfig that will not be able to make any requests.

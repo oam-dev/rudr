@@ -94,7 +94,7 @@ impl Instigator {
                 .or(Some(vec![]))
                 .unwrap();
             let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
-            let merged_vals = resolve_values(child, parent)?;
+            let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
             // Instantiate components
@@ -105,9 +105,13 @@ impl Instigator {
             // FIXME: This is currently not working because workload.add is returning an error having to do with the
             // formatting of the response object. :angry-eyes:
             for t in component.traits.unwrap_or(vec![]).iter() {
+                // Merge values from parent and trait binding.
+                let trait_values =
+                    resolve_values(parent.clone(), t.parameter_values.clone().unwrap_or(vec![]))?;
+
                 info!("Searching for trait {}", t.name.as_str());
                 let cname = component.name.clone();
-                let imp = self.load_trait(name.clone(), cname, t)?;
+                let imp = self.load_trait(name.clone(), cname, t, trait_values)?;
                 imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
             }
         }
@@ -146,6 +150,7 @@ impl Instigator {
         }
         Ok(())
     }
+
     /// Delete the Kubernetes objects associated with this config.
     pub fn delete(&self, event: OpResource) -> InstigatorResult {
         let name = event.metadata.name.clone();
@@ -170,7 +175,7 @@ impl Instigator {
                 .or(Some(vec![]))
                 .unwrap();
             let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
-            let merged_vals = resolve_values(child, parent)?;
+            let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
             // Delete traits
@@ -178,7 +183,11 @@ impl Instigator {
             // a fatail error.
             for t in component.traits.unwrap_or(vec![]).iter() {
                 info!("Deleting trait {}", t.name.as_str());
-                let imp = self.load_trait(name.clone(), cname.clone(), t)?;
+                let trait_values =
+                    resolve_values(parent.clone(), t.parameter_values.clone().unwrap_or(vec![]))?;
+
+                // Need to get all of the param values and then test against the trait params.
+                let imp = self.load_trait(name.clone(), cname.clone(), t, trait_values)?;
                 let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
                 if res.is_err() {
                     error!(
@@ -240,19 +249,17 @@ impl Instigator {
         name: String,
         component_name: String,
         binding: &TraitBinding,
+        parent_params: ParamMap,
     ) -> Result<HydraTrait, failure::Error> {
         match binding.name.as_str() {
             "ingress" => {
-                let ing = Ingress::new(80, name, component_name, None, None);
+                let ing = Ingress::from_params(name, component_name, parent_params);
                 Ok(HydraTrait::Ingress(ing))
             }
-            "autoscaler" => Ok(HydraTrait::Autoscaler(Autoscaler {
-                name: name,
-                component_name: component_name,
-                minimum: Some(1),
-                maximum: Some(5),
-                cpu: Some(60),
-            })),
+            "autoscaler" => {
+                let auto = Autoscaler::from_params(name, component_name, parent_params);
+                Ok(HydraTrait::Autoscaler(auto))
+            }
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }

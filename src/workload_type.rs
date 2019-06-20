@@ -14,7 +14,7 @@ pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.Replic
 pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
 
 type InstigatorResult = Result<(), failure::Error>;
-type ParamMap = BTreeMap<String, serde_json::Value>;
+pub type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// KubeName describes anything that can produce its own Kubernetes name.
 ///
@@ -22,7 +22,7 @@ type ParamMap = BTreeMap<String, serde_json::Value>;
 /// other Hydra objects are capable of autogenerating their own names in a
 /// repeatable fashion. This trait describes the ability to repeatably create
 /// a name.
-/// 
+///
 /// KubeNames implementations should produce the same name for a given release. That
 /// is, names are not random.
 pub trait KubeName {
@@ -73,7 +73,6 @@ pub struct Singleton {
     pub params: ParamMap,
 }
 impl Singleton {
-    
     /// Create a Pod definition that describes this Singleton
     fn to_pod(&self) -> api::Pod {
         let mut labels = BTreeMap::new();
