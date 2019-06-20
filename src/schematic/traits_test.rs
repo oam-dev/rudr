@@ -8,7 +8,10 @@ use std::collections::BTreeMap;
 fn test_ingress() {
     let mut params: ParamMap = BTreeMap::new();
     params.insert("service_port".into(), json!(8080));
-    params.insert("hostname".into(), serde_json::Value::String("in.example.com".into()));
+    params.insert(
+        "hostname".into(),
+        serde_json::Value::String("in.example.com".into()),
+    );
     params.insert("path".into(), json!("/path"));
 
     let ig = Ingress::from_params("my-ingress".into(), "patsy".into(), params);

@@ -170,7 +170,7 @@ impl TraitImplementation for Ingress {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
 pub struct Autoscaler {
     pub name: String,
