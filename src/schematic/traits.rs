@@ -146,7 +146,7 @@ impl TraitImplementation for Ingress {
         let res: Result<serde_json::Value, failure::Error> = client.request(req);
         if res.is_err() {
             let err = res.unwrap_err();
-            println!(
+            error!(
                 "Ingress error: {}",
                 serde_json::to_string_pretty(&ingress).expect("debug")
             );
@@ -235,7 +235,7 @@ impl TraitImplementation for Autoscaler {
         let res: Result<serde_json::Value, failure::Error> = client.request(req);
         if res.is_err() {
             let err = res.unwrap_err();
-            println!(
+            error!(
                 "Ingress error: {}",
                 serde_json::to_string_pretty(&scaler).expect("debug")
             );
