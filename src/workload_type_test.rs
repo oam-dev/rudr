@@ -12,6 +12,7 @@ fn test_singleton_kube_name() {
     let sing = Singleton {
         name: "de".into(),
         component_name: "hydrate".into(),
+        instance_name: "squidgy".into(),
         namespace: "tests".into(),
         definition: Component {
             ..Default::default()
@@ -20,7 +21,7 @@ fn test_singleton_kube_name() {
         client: cli,
     };
 
-    assert_eq!("de-hydrate", sing.kube_name().as_str());
+    assert_eq!("squidgy", sing.kube_name().as_str());
 }
 
 #[test]
@@ -30,6 +31,7 @@ fn test_replicated_service_kube_name() {
     let rs = ReplicatedService {
         name: "de".into(),
         component_name: "hydrate".into(),
+        instance_name: "dehydrate".into(),
         namespace: "tests".into(),
         definition: Component {
             ..Default::default()
@@ -38,7 +40,7 @@ fn test_replicated_service_kube_name() {
         client: cli,
     };
 
-    assert_eq!("de-hydrate", rs.kube_name().as_str());
+    assert_eq!("dehydrate", rs.kube_name().as_str());  
 }
 
 /// This mock builds a KubeConfig that will not be able to make any requests.

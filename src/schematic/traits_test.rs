@@ -14,11 +14,11 @@ fn test_ingress() {
     );
     params.insert("path".into(), json!("/path"));
 
-    let ig = Ingress::from_params("my-ingress".into(), "patsy".into(), params);
+    let ig = Ingress::from_params("my-ingress".into(), "squid".into(), "patsy".into(), params);
 
     let king = ig.to_ext_ingress();
     assert_eq!(
-        "my-ingress-patsy-trait-ingress",
+        "squid-trait-ingress",
         king.metadata
             .expect("md must exits")
             .name
@@ -58,6 +58,7 @@ fn test_ingress() {
 fn test_ingress_defaults() {
     let ig = Ingress {
         name: "my-ingress".into(),
+        instance_name: "squid".into(),
         component_name: "patsy".into(),
         svc_port: 8080,
         hostname: None,
@@ -91,6 +92,7 @@ fn test_ingress_defaults() {
 fn test_autoscaler_defaults() {
     let autoscaler = Autoscaler {
         name: "release".into(),
+        instance_name: "instance".into(),
         component_name: "component".into(),
         cpu: None,
         minimum: None,
@@ -98,7 +100,7 @@ fn test_autoscaler_defaults() {
     };
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
-        Some("release-component-trait-autoscaler".to_string()),
+        Some("instance-trait-autoscaler".to_string()),
         kauto.metadata.expect("metadata").name
     );
     let spec = kauto.spec.expect("spec");
@@ -112,10 +114,10 @@ fn test_autoscaler() {
     params.insert("minimum".into(), json!(6));
     params.insert("maximum".into(), json!(7));
 
-    let autoscaler = Autoscaler::from_params("release".into(), "component".into(), params);
+    let autoscaler = Autoscaler::from_params("release".into(), "instance".into(), "component".into(), params);
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
-        Some("release-component-trait-autoscaler".to_string()),
+        Some("instance-trait-autoscaler".to_string()),
         kauto.metadata.expect("metadata").name
     );
     let spec = kauto.spec.expect("spec");

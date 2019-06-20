@@ -82,16 +82,18 @@ pub fn trait_labels() -> Labels {
 /// component instance.
 pub struct Ingress {
     pub name: String,
+    pub instance_name: String,
     pub component_name: String,
     pub svc_port: i32,
     pub hostname: Option<String>,
     pub path: Option<String>,
 }
 impl Ingress {
-    pub fn from_params(name: String, component_name: String, params: ParamMap) -> Self {
+    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap) -> Self {
         // Right now, we're relying on the higher level validation logic to validate types.
         Ingress {
             name: name,
+            instance_name: instance_name,
             component_name: component_name,
             svc_port: params
                 .get("service_port".into())
@@ -107,7 +109,7 @@ impl Ingress {
         ext::Ingress {
             metadata: Some(meta::ObjectMeta {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
-                name: Some(self.kube_name("trait-ingress")),
+                name: Some(self.kube_name()),
                 labels: Some(trait_labels()),
                 ..Default::default()
             }),
@@ -129,13 +131,8 @@ impl Ingress {
             ..Default::default()
         }
     }
-    fn kube_name(&self, suffix: &str) -> String {
-        format!(
-            "{}-{}-{}",
-            self.name.as_str(),
-            self.component_name.as_str(),
-            suffix
-        )
+    fn kube_name(&self) -> String {
+        format!("{}-trait-ingress", self.instance_name)
     }
 }
 impl TraitImplementation for Ingress {
@@ -158,7 +155,7 @@ impl TraitImplementation for Ingress {
     }
     fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) = ext::Ingress::delete_namespaced_ingress(
-            self.kube_name("trait-ingress").as_str(),
+            self.kube_name().as_str(),
             ns,
             Default::default(),
         )?;
@@ -174,6 +171,7 @@ impl TraitImplementation for Ingress {
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
 pub struct Autoscaler {
     pub name: String,
+    pub instance_name: String,
     pub component_name: String,
     pub minimum: Option<i32>,
     pub maximum: Option<i32>,
@@ -181,10 +179,11 @@ pub struct Autoscaler {
 }
 
 impl Autoscaler {
-    pub fn from_params(name: String, component_name: String, params: ParamMap) -> Self {
+    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap) -> Self {
         Autoscaler {
             name: name,
             component_name: component_name,
+            instance_name: instance_name,
             minimum: params
                 .get("minimum".into())
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
@@ -231,11 +230,7 @@ impl Autoscaler {
     }
 
     fn kube_name(&self) -> String {
-        format!(
-            "{}-{}-trait-autoscaler",
-            self.name.as_str(),
-            self.component_name.as_str()
-        )
+        format!("{}-trait-autoscaler", self.instance_name.as_str())
     }
 }
 

@@ -10,6 +10,8 @@ use crate::schematic::{parameter::ParameterValue, traits::TraitBinding};
 pub struct ComponentConfiguration {
     /// The name of the component to instantiate
     pub name: String,
+    // The name of the instance that is to be created
+    pub instance_name: String,
     /// Values to substitute into the component
     pub parameter_values: Option<Vec<ParameterValue>>,
     /// Traits to attach to the component

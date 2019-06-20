@@ -98,7 +98,8 @@ impl Instigator {
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
             // Instantiate components
-            let workload = self.load_workload_type(name.clone(), comp_def, &params)?;
+            let inst_name = component.instance_name.clone();
+            let workload = self.load_workload_type(name.clone(), inst_name.clone(), comp_def, &params)?;
             info!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
@@ -111,7 +112,7 @@ impl Instigator {
 
                 info!("Searching for trait {}", t.name.as_str());
                 let cname = component.name.clone();
-                let imp = self.load_trait(name.clone(), cname, t, trait_values)?;
+                let imp = self.load_trait(name.clone(), inst_name.clone(),  cname, t, trait_values)?;
                 imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
             }
         }
@@ -144,8 +145,9 @@ impl Instigator {
             let merged_vals = resolve_values(child, parent)?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
-            let workload =
-                self.load_workload_type(event.metadata.name.clone(), comp_def, &params)?;
+            let conf_name = event.metadata.name.clone();
+            let inst_name = component.instance_name.clone();
+            let workload = self.load_workload_type(conf_name, inst_name, comp_def, &params)?;
             workload.modify()?;
         }
         Ok(())
@@ -177,6 +179,7 @@ impl Instigator {
             let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+            let inst_name = component.instance_name;
 
             // Delete traits
             // Right now, a failed deletion on a trait is just logged, and is not
@@ -187,7 +190,7 @@ impl Instigator {
                     resolve_values(parent.clone(), t.parameter_values.clone().unwrap_or(vec![]))?;
 
                 // Need to get all of the param values and then test against the trait params.
-                let imp = self.load_trait(name.clone(), cname.clone(), t, trait_values)?;
+                let imp = self.load_trait(name.clone(), inst_name.clone(), cname.clone(), t, trait_values)?;
                 let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
                 if res.is_err() {
                     error!(
@@ -199,7 +202,7 @@ impl Instigator {
             }
 
             // Delete component
-            self.load_workload_type(event.metadata.name.clone(), comp_def, &params)?
+            self.load_workload_type(event.metadata.name.clone(), inst_name.clone(), comp_def, &params)?
                 .delete()?;
         }
         Ok(())
@@ -207,15 +210,17 @@ impl Instigator {
 
     fn load_workload_type(
         &self,
-        name: String,
+        config_name: String,
+        instance_name: String,
         comp: &Resource<Component, Status>,
         params: &ParamMap,
     ) -> Result<CoreWorkloadType, failure::Error> {
-        info!("Looking up {}", name);
+        info!("Looking up {}", config_name);
         match comp.spec.workload_type.as_str() {
             "core.hydra.io/v1alpha1.ReplicatedService" => {
                 let rs = ReplicatedService {
-                    name: name,
+                    name: config_name,
+                    instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
                     namespace: DEFAULT_NAMESPACE.into(),
                     definition: comp.spec.clone(),
@@ -226,9 +231,10 @@ impl Instigator {
             }
             "core.hydra.io/v1alpha1.Singleton" => {
                 let sing = Singleton {
-                    name: name,
-                    namespace: DEFAULT_NAMESPACE.into(),
+                    name: config_name,
+                    instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
+                    namespace: DEFAULT_NAMESPACE.into(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
@@ -247,17 +253,18 @@ impl Instigator {
     fn load_trait(
         &self,
         name: String,
+        instance_name: String,
         component_name: String,
         binding: &TraitBinding,
         parent_params: ParamMap,
     ) -> Result<HydraTrait, failure::Error> {
         match binding.name.as_str() {
             "ingress" => {
-                let ing = Ingress::from_params(name, component_name, parent_params);
+                let ing = Ingress::from_params(name, instance_name, component_name, parent_params);
                 Ok(HydraTrait::Ingress(ing))
             }
             "autoscaler" => {
-                let auto = Autoscaler::from_params(name, component_name, parent_params);
+                let auto = Autoscaler::from_params(name, instance_name, component_name, parent_params);
                 Ok(HydraTrait::Autoscaler(auto))
             }
             _ => Err(format_err!("unknown trait {}", binding.name)),
