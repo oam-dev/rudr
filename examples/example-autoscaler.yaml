@@ -7,7 +7,7 @@ metadata:
   name: autoscaler-example
 spec:
   components:
-  - name: replicated-svc
+  - name: nginx-replicated
     instanceName: autoscaled-repsvc
     parameterValues:
       - name: poet

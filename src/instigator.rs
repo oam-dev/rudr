@@ -1,4 +1,5 @@
 use kube::{api::Reflector, api::Resource, client::APIClient};
+use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use std::collections::BTreeMap;
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
         traits::{Autoscaler, HydraTrait, Ingress, TraitBinding},
         Status,
     },
-    workload_type::{CoreWorkloadType, ReplicatedService, Singleton},
+    workload_type::{CoreWorkloadType, ReplicatedService, Singleton, HYDRA_API_VERSION},
 };
 
 /// Type alias for the results that all instantiation operations return
@@ -76,8 +77,9 @@ impl Instigator {
         let cache = self.cache.read().unwrap();
 
         // TODO:
-
         // - Resolve scope bindings
+
+        let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone());
 
         for component in event.spec.components.unwrap_or(vec![]) {
             let comp_def = cache
@@ -99,7 +101,7 @@ impl Instigator {
 
             // Instantiate components
             let inst_name = component.instance_name.clone();
-            let workload = self.load_workload_type(name.clone(), inst_name.clone(), comp_def, &params)?;
+            let workload = self.load_workload_type(name.clone(), inst_name, comp_def, &params, owner_ref.clone())?;
             info!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
@@ -112,7 +114,7 @@ impl Instigator {
 
                 info!("Searching for trait {}", t.name.as_str());
                 let cname = component.name.clone();
-                let imp = self.load_trait(name.clone(), inst_name.clone(),  cname, t, trait_values)?;
+                let imp = self.load_trait(name.clone(), inst_name.clone(), cname, t, trait_values, owner_ref.clone())?;
                 imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
             }
         }
@@ -122,6 +124,8 @@ impl Instigator {
     pub fn modify(&self, event: OpResource) -> InstigatorResult {
         // Find components
         let cache = self.cache.read().unwrap();
+        let owner_ref = config_owner_reference(event.metadata.name.clone(), event.metadata.uid.clone());
+
 
         // TODO:
         // Resolve parameters
@@ -147,7 +151,8 @@ impl Instigator {
 
             let conf_name = event.metadata.name.clone();
             let inst_name = component.instance_name.clone();
-            let workload = self.load_workload_type(conf_name, inst_name, comp_def, &params)?;
+            let workload =
+                self.load_workload_type(conf_name, inst_name, comp_def, &params, owner_ref.clone())?;
             workload.modify()?;
         }
         Ok(())
@@ -190,7 +195,7 @@ impl Instigator {
                     resolve_values(parent.clone(), t.parameter_values.clone().unwrap_or(vec![]))?;
 
                 // Need to get all of the param values and then test against the trait params.
-                let imp = self.load_trait(name.clone(), inst_name.clone(), cname.clone(), t, trait_values)?;
+                let imp = self.load_trait(name.clone(), inst_name.clone(), cname.clone(), t, trait_values, None)?;
                 let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
                 if res.is_err() {
                     error!(
@@ -202,7 +207,7 @@ impl Instigator {
             }
 
             // Delete component
-            self.load_workload_type(event.metadata.name.clone(), inst_name.clone(), comp_def, &params)?
+            self.load_workload_type(event.metadata.name.clone(), inst_name.clone(), comp_def, &params, None)?
                 .delete()?;
         }
         Ok(())
@@ -214,6 +219,7 @@ impl Instigator {
         instance_name: String,
         comp: &Resource<Component, Status>,
         params: &ParamMap,
+        owner: Option<Vec<meta::OwnerReference>>,
     ) -> Result<CoreWorkloadType, failure::Error> {
         info!("Looking up {}", config_name);
         match comp.spec.workload_type.as_str() {
@@ -226,6 +232,7 @@ impl Instigator {
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
+                    owner_ref: owner,
                 };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
@@ -238,6 +245,7 @@ impl Instigator {
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
+                    owner_ref: owner,
                 };
                 Ok(CoreWorkloadType::SingletonType(sing))
             }
@@ -257,17 +265,39 @@ impl Instigator {
         component_name: String,
         binding: &TraitBinding,
         parent_params: ParamMap,
+        owner_ref: Option<Vec<meta::OwnerReference>>,
     ) -> Result<HydraTrait, failure::Error> {
         match binding.name.as_str() {
             "ingress" => {
-                let ing = Ingress::from_params(name, instance_name, component_name, parent_params);
+                let ing = Ingress::from_params(name, instance_name, component_name, parent_params, owner_ref);
                 Ok(HydraTrait::Ingress(ing))
             }
             "autoscaler" => {
-                let auto = Autoscaler::from_params(name, instance_name, component_name, parent_params);
+                let auto = Autoscaler::from_params(name, instance_name, component_name, parent_params, owner_ref);
                 Ok(HydraTrait::Autoscaler(auto))
             }
             _ => Err(format_err!("unknown trait {}", binding.name)),
+        }
+    }
+}
+
+/// Build an owner reference for the given parent UID of kind Configuration.
+pub fn config_owner_reference(parent_name: String, parent_uid: Option<String>) -> Option<Vec<meta::OwnerReference>> {
+    match parent_uid {
+        Some(uid) => {
+            let owner_ref = meta::OwnerReference {
+                api_version: HYDRA_API_VERSION.into(),
+                kind: "Configuration".into(),
+                uid: uid,
+                controller: Some(true),
+                block_owner_deletion: Some(true),
+                name: parent_name.clone(),
+            };
+            Some(vec![owner_ref])
+        },
+        None => {
+            info!("Mysteriously, no UID was created. Ancient version of Kubernetes?");
+            None
         }
     }
 }

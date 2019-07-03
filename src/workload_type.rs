@@ -8,6 +8,7 @@ use crate::schematic::component::Component;
 use serde_json::to_string_pretty as to_json;
 use std::collections::BTreeMap;
 
+pub const HYDRA_API_VERSION: &'static str = "core.hydra.io/v1alpha1";
 /// The fully qualified name of a replicated service.
 pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedService";
 /// The fully qualified name of a singleton.
@@ -34,8 +35,13 @@ pub trait KubeName {
 /// An implementation of a workload type must be able to add, modify, and delete itself.
 pub trait WorkloadType {
     fn add(&self) -> InstigatorResult;
-    fn modify(&self) -> InstigatorResult;
-    fn delete(&self) -> InstigatorResult;
+    fn modify(&self) -> InstigatorResult {
+        Err(format_err!("Not implemented"))
+    }
+    fn delete(&self) -> InstigatorResult {
+        info!("Workload deleted");
+        Ok(())
+    }
 }
 
 pub enum CoreWorkloadType {
@@ -72,6 +78,7 @@ pub struct Singleton {
     pub definition: Component,
     pub client: APIClient,
     pub params: ParamMap,
+    pub owner_ref: Option<Vec<meta::OwnerReference>>,
 }
 impl Singleton {
     /// Create a Pod definition that describes this Singleton
@@ -84,6 +91,7 @@ impl Singleton {
             metadata: Some(meta::ObjectMeta {
                 name: Some(podname),
                 labels: Some(labels),
+                owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
             spec: Some(self.definition.to_pod_spec()),
@@ -99,6 +107,7 @@ impl Singleton {
                 metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
+                    owner_references: self.owner_ref.clone(),
                     ..Default::default()
                 }),
                 spec: Some(api::ServiceSpec {
@@ -156,35 +165,6 @@ impl WorkloadType for Singleton {
             }
         }
     }
-    fn modify(&self) -> InstigatorResult {
-        Err(format_err!("Not implemented"))
-    }
-    fn delete(&self) -> InstigatorResult {
-        let (req, _) = api::Pod::delete_namespaced_pod(
-            self.kube_name().as_str(),
-            self.namespace.as_str(),
-            Default::default(),
-        )?;
-
-        // By decoding into serde_json::Value, we are bypassing all checks on the return data, which
-        // is fine. We don't actually need any of it, and the APIClient checks for status and error
-        // on our behalf.
-        let pres: Result<serde_json::Value, failure::Error> = self.client.request(req);
-
-        match self.to_service() {
-            Some(_) => {
-                let (sreq, _) = api::Service::delete_namespaced_service(
-                    self.kube_name().as_str(),
-                    self.namespace.as_str(),
-                    Default::default(),
-                )?;
-                let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
-                // If either op fails, return the error. Otherwise, just return Ok(()).
-                pres.and(sres).and_then(|_o| Ok(()))
-            }
-            None => pres.and_then(|_| Ok(())),
-        }
-    }
 }
 
 /// A Replicated Service can take one component and scale it up or down.
@@ -196,6 +176,7 @@ pub struct ReplicatedService {
     pub definition: Component,
     pub client: APIClient,
     pub params: ParamMap,
+    pub owner_ref: Option<Vec<meta::OwnerReference>>,
 }
 
 impl ReplicatedService {
@@ -208,6 +189,7 @@ impl ReplicatedService {
             metadata: Some(meta::ObjectMeta {
                 name: Some(self.kube_name()),
                 labels: Some(labels),
+                owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
             spec: Some(self.definition.to_deployment_spec(self.name.clone())),
@@ -223,6 +205,7 @@ impl ReplicatedService {
                 metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),
                     labels: Some(labels.clone()),
+                    owner_references: self.owner_ref.clone(),
                     ..Default::default()
                 }),
                 spec: Some(api::ServiceSpec {
@@ -273,31 +256,6 @@ impl WorkloadType for ReplicatedService {
                 info!("Not attaching service to pod with no container ports.");
                 Ok(())
             }
-        }
-    }
-    fn modify(&self) -> InstigatorResult {
-        Err(format_err!("Not implemented"))
-    }
-    fn delete(&self) -> InstigatorResult {
-        let (req, _) = apps::Deployment::delete_namespaced_deployment(
-            self.name.as_str(),
-            self.namespace.as_str(),
-            Default::default(),
-        )?;
-
-        let dres: Result<serde_json::Value, failure::Error> = self.client.request(req);
-
-        match self.to_service() {
-            Some(_) => {
-                let (sreq, _) = api::Service::delete_namespaced_service(
-                    self.name.as_str(),
-                    self.namespace.as_str(),
-                    Default::default(),
-                )?;
-                let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
-                sres.and_then(|_| Ok(()))
-            }
-            None => dres.and_then(|_| Ok(())),
         }
     }
 }
