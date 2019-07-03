@@ -8,6 +8,7 @@ metadata:
 spec:
   components:
   - name: replicated-svc
+    instanceName: autoscaled-repsvc
     parameterValues:
       - name: poet
         value: Eliot

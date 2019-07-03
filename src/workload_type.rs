@@ -67,6 +67,7 @@ impl CoreWorkloadType {
 pub struct Singleton {
     pub name: String,
     pub component_name: String,
+    pub instance_name: String,
     pub namespace: String,
     pub definition: Component,
     pub client: APIClient,
@@ -113,7 +114,7 @@ impl Singleton {
 
 impl KubeName for Singleton {
     fn kube_name(&self) -> String {
-        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
+        self.instance_name.to_string()
     }
 }
 impl WorkloadType for Singleton {
@@ -191,6 +192,7 @@ pub struct ReplicatedService {
     pub name: String,
     pub namespace: String,
     pub component_name: String,
+    pub instance_name: String,
     pub definition: Component,
     pub client: APIClient,
     pub params: ParamMap,
@@ -236,7 +238,7 @@ impl ReplicatedService {
 
 impl KubeName for ReplicatedService {
     fn kube_name(&self) -> String {
-        format!("{}-{}", self.name.as_str(), self.component_name.as_str())
+        self.instance_name.to_string()
     }
 }
 

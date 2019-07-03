@@ -5,6 +5,7 @@ metadata:
 spec:
   components:
   - name: nginx-singleton
+    instanceName: first-app-nginx
     parameterValues:
       - name: poet
         value: Eliot
