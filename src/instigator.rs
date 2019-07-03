@@ -101,7 +101,7 @@ impl Instigator {
 
             // Instantiate components
             let inst_name = component.instance_name.clone();
-            let workload = self.load_workload_type(name.clone(), inst_name, comp_def, &params, owner_ref.clone())?;
+            let workload = self.load_workload_type(name.clone(), inst_name.clone(), comp_def, &params, owner_ref.clone())?;
             info!("Adding component {}", component.name.clone());
             workload.add()?;
             // Attach traits
