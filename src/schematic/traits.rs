@@ -1,11 +1,20 @@
 use crate::schematic::parameter::ParameterValue;
-use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME};
-use k8s_openapi::api::{autoscaling::v2beta1 as hpa, extensions::v1beta1 as ext};
-use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
-use std::collections::BTreeMap;
 
-type Labels = BTreeMap<String, String>;
+// Re-exports
+mod autoscaler;
+pub use crate::schematic::traits::autoscaler::Autoscaler;
+mod ingress;
+pub use crate::schematic::traits::ingress::Ingress;
+mod util;
+use crate::schematic::traits::util::*;
+
+#[cfg(test)]
+mod util_test;
+#[cfg(test)]
+mod autoscaler_test;
+#[cfg(test)]
+mod ingress_test;
 
 /// Trait describes Hydra traits.
 ///
@@ -56,10 +65,6 @@ impl HydraTrait {
     }
 }
 
-/// Alias for trait results.
-type TraitResult = Result<(), failure::Error>;
-type OwnerRefs = Option<Vec<meta::OwnerReference>>;
-
 /// A TraitImplementation is an implementation of a Hydra Trait.
 ///
 /// For example, Ingress is an implementation of a Hydra Trait.
@@ -78,183 +83,6 @@ pub trait TraitImplementation {
     }
 }
 
-/// Generate the common labels for a trait.
-pub fn trait_labels() -> Labels {
-    let mut labels: Labels = BTreeMap::new();
-    labels.insert("hydra.io/role".into(), "trait".into());
-    labels
-}
 
-/// An Ingress trait creates an ingress point to the workload type to which it is attached.
-///
-/// In Kubernetes, this will create an Ingress and attach it to the Service of a particular
-/// component instance.
-pub struct Ingress {
-    pub name: String,
-    pub instance_name: String,
-    pub component_name: String,
-    pub svc_port: i32,
-    pub hostname: Option<String>,
-    pub path: Option<String>,
-    pub owner_ref: OwnerRefs,
-}
-impl Ingress {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
-        // Right now, we're relying on the higher level validation logic to validate types.
-        Ingress {
-            name: name,
-            instance_name: instance_name,
-            component_name: component_name,
-            svc_port: params
-                .get("service_port".into())
-                .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
-                .unwrap_or(80),
-            hostname: params
-                .get("hostname".into())
-                .and_then(|p| Some(p.to_string())),
-            path: params.get("path".into()).and_then(|p| Some(p.to_string())),
-            owner_ref: owner_ref,
-        }
-    }
-    pub fn to_ext_ingress(&self) -> ext::Ingress {
-        ext::Ingress {
-            metadata: Some(meta::ObjectMeta {
-                //name: Some(format!("{}-trait-ingress", self.name.clone())),
-                name: Some(self.kube_name()),
-                labels: Some(trait_labels()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
-            spec: Some(ext::IngressSpec {
-                rules: Some(vec![ext::IngressRule {
-                    host: self.hostname.clone().or(Some("example.com".to_string())),
-                    http: Some(ext::HTTPIngressRuleValue {
-                        paths: vec![ext::HTTPIngressPath {
-                            backend: ext::IngressBackend {
-                                service_name: self.name.clone(),
-                                service_port: IntOrString::Int(self.svc_port),
-                            },
-                            path: self.path.clone().or(Some("/".to_string())),
-                        }],
-                    }),
-                }]),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-    fn kube_name(&self) -> String {
-        format!("{}-trait-ingress", self.instance_name)
-    }
-}
-impl TraitImplementation for Ingress {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
-        let ingress = self.to_ext_ingress();
-        let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        if res.is_err() {
-            let err = res.unwrap_err();
-            error!(
-                "Ingress error: {}",
-                serde_json::to_string_pretty(&ingress).expect("debug")
-            );
-            return Err(err);
-        }
-        Ok(())
-    }
-}
 
-#[derive(Clone, Debug)]
-/// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
-pub struct Autoscaler {
-    pub name: String,
-    pub instance_name: String,
-    pub component_name: String,
-    pub minimum: Option<i32>,
-    pub maximum: Option<i32>,
-    pub cpu: Option<i32>,
-    pub owner_ref: OwnerRefs,
-}
 
-impl Autoscaler {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
-        Autoscaler {
-            name: name,
-            component_name: component_name,
-            instance_name: instance_name,
-            minimum: params
-                .get("minimum".into())
-                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
-            maximum: params
-                .get("maximum")
-                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
-            cpu: params
-                .get("cpu")
-                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
-            owner_ref: owner_ref,
-        }
-    }
-    pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
-        // TODO: fix this to make it configurable
-        let metrics = Some(vec![hpa::MetricSpec {
-            type_: "Resource".into(),
-            resource: Some(hpa::ResourceMetricSource {
-                name: "cpu".to_string(),
-                target_average_utilization: self.cpu.or(Some(80)),
-                target_average_value: None,
-            }),
-            pods: None,
-            object: None,
-            external: None,
-        }]);
-        hpa::HorizontalPodAutoscaler {
-            metadata: Some(meta::ObjectMeta {
-                //name: Some(format!("{}-trait-ingress", self.name.clone())),
-                name: Some(self.kube_name()),
-                labels: Some(trait_labels()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
-            spec: Some(hpa::HorizontalPodAutoscalerSpec {
-                min_replicas: self.minimum,
-                max_replicas: self.maximum.unwrap_or(10),
-                metrics: metrics,
-                scale_target_ref: hpa::CrossVersionObjectReference {
-                    api_version: Some("apps/v1".to_string()),
-                    kind: "Deployment".to_string(),
-                    name: format!("{}-{}", self.name.as_str(), self.component_name.as_str()),
-                },
-            }),
-            ..Default::default()
-        }
-    }
-
-    fn kube_name(&self) -> String {
-        format!("{}-trait-autoscaler", self.instance_name.as_str())
-    }
-}
-
-impl TraitImplementation for Autoscaler {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
-        let scaler = self.to_horizontal_pod_autoscaler();
-        let (req, _) = hpa::HorizontalPodAutoscaler::create_namespaced_horizontal_pod_autoscaler(
-            ns,
-            &scaler,
-            Default::default(),
-        )?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        if res.is_err() {
-            let err = res.unwrap_err();
-            error!(
-                "Ingress error: {}",
-                serde_json::to_string_pretty(&scaler).expect("debug")
-            );
-            return Err(err);
-        }
-        Ok(())
-    }
-    fn supports_workload_type(name: &str) -> bool {
-        // Only support replicated service right now.
-        name == REPLICATED_SERVICE_NAME
-    }
-}
