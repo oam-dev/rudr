@@ -19,6 +19,7 @@ fn test_singleton_kube_name() {
         },
         params: BTreeMap::new(),
         client: cli,
+        owner_ref: None,
     };
 
     assert_eq!("squidgy", sing.kube_name().as_str());
@@ -38,6 +39,7 @@ fn test_replicated_service_kube_name() {
         },
         params: BTreeMap::new(),
         client: cli,
+        owner_ref: None,
     };
 
     assert_eq!("dehydrate", rs.kube_name().as_str());  

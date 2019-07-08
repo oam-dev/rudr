@@ -14,7 +14,7 @@ fn test_ingress() {
     );
     params.insert("path".into(), json!("/path"));
 
-    let ig = Ingress::from_params("my-ingress".into(), "squid".into(), "patsy".into(), params);
+    let ig = Ingress::from_params("my-ingress".into(), "squid".into(), "patsy".into(), params, None);
 
     let king = ig.to_ext_ingress();
     assert_eq!(
@@ -63,6 +63,7 @@ fn test_ingress_defaults() {
         svc_port: 8080,
         hostname: None,
         path: None,
+        owner_ref: None,
     };
 
     let king = ig.to_ext_ingress();
@@ -97,6 +98,7 @@ fn test_autoscaler_defaults() {
         cpu: None,
         minimum: None,
         maximum: None,
+        owner_ref: None,
     };
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
@@ -114,7 +116,7 @@ fn test_autoscaler() {
     params.insert("minimum".into(), json!(6));
     params.insert("maximum".into(), json!(7));
 
-    let autoscaler = Autoscaler::from_params("release".into(), "instance".into(), "component".into(), params);
+    let autoscaler = Autoscaler::from_params("release".into(), "instance".into(), "component".into(), params, None);
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
         Some("instance-trait-autoscaler".to_string()),

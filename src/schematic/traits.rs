@@ -58,15 +58,24 @@ impl HydraTrait {
 
 /// Alias for trait results.
 type TraitResult = Result<(), failure::Error>;
+type OwnerRefs = Option<Vec<meta::OwnerReference>>;
 
 /// A TraitImplementation is an implementation of a Hydra Trait.
 ///
 /// For example, Ingress is an implementation of a Hydra Trait.
 pub trait TraitImplementation {
     fn add(&self, ns: &str, client: APIClient) -> TraitResult;
-    fn modify(&self) -> TraitResult;
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult;
-    fn supports_workload_type(name: &str) -> bool;
+    fn modify(&self) -> TraitResult {
+        Err(format_err!("Trait updates not implemented for this type"))
+    }
+    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        info!("Trait deleted");
+        Ok(())
+    }
+    fn supports_workload_type(name: &str) -> bool {
+        info!("Support {} by default", name);
+        true
+    }
 }
 
 /// Generate the common labels for a trait.
@@ -87,9 +96,10 @@ pub struct Ingress {
     pub svc_port: i32,
     pub hostname: Option<String>,
     pub path: Option<String>,
+    pub owner_ref: OwnerRefs,
 }
 impl Ingress {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap) -> Self {
+    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
         // Right now, we're relying on the higher level validation logic to validate types.
         Ingress {
             name: name,
@@ -103,6 +113,7 @@ impl Ingress {
                 .get("hostname".into())
                 .and_then(|p| Some(p.to_string())),
             path: params.get("path".into()).and_then(|p| Some(p.to_string())),
+            owner_ref: owner_ref,
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {
@@ -111,6 +122,7 @@ impl Ingress {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
                 name: Some(self.kube_name()),
                 labels: Some(trait_labels()),
+                owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
             spec: Some(ext::IngressSpec {
@@ -150,21 +162,6 @@ impl TraitImplementation for Ingress {
         }
         Ok(())
     }
-    fn modify(&self) -> TraitResult {
-        Err(format_err!("Trait updates not implemented for Ingress"))
-    }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
-        let (req, _) = ext::Ingress::delete_namespaced_ingress(
-            self.kube_name().as_str(),
-            ns,
-            Default::default(),
-        )?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        res.and_then(|_| Ok(()))
-    }
-    fn supports_workload_type(_name: &str) -> bool {
-        true
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -176,10 +173,11 @@ pub struct Autoscaler {
     pub minimum: Option<i32>,
     pub maximum: Option<i32>,
     pub cpu: Option<i32>,
+    pub owner_ref: OwnerRefs,
 }
 
 impl Autoscaler {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap) -> Self {
+    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
         Autoscaler {
             name: name,
             component_name: component_name,
@@ -193,6 +191,7 @@ impl Autoscaler {
             cpu: params
                 .get("cpu")
                 .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+            owner_ref: owner_ref,
         }
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
@@ -213,6 +212,7 @@ impl Autoscaler {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
                 name: Some(self.kube_name()),
                 labels: Some(trait_labels()),
+                owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
             spec: Some(hpa::HorizontalPodAutoscalerSpec {
@@ -252,18 +252,6 @@ impl TraitImplementation for Autoscaler {
             return Err(err);
         }
         Ok(())
-    }
-    fn modify(&self) -> TraitResult {
-        Err(format_err!("Trait updates not implemented for Autoscaler"))
-    }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
-        let (req, _) = hpa::HorizontalPodAutoscaler::delete_namespaced_horizontal_pod_autoscaler(
-            self.kube_name().as_str(),
-            ns,
-            Default::default(),
-        )?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        res.and_then(|_| Ok(()))
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service right now.
