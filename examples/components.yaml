@@ -27,3 +27,14 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: alpine-task
+spec:
+  workloadType: core.hydra.io/v1alpha1.Task
+  os: linux
+  containers:
+    - name: runner
+      image: alpine:latest
