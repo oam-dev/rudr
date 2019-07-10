@@ -54,6 +54,15 @@ impl Component {
         }
     }
 
+    pub fn to_pod_spec_with_policy(&self, restart_policy: String) -> core::PodSpec {
+        let containers = self.to_containers();
+        core::PodSpec {
+            containers: containers,
+            restart_policy: Some(restart_policy),
+            ..Default::default()
+        }
+    }
+
     pub fn to_containers(&self) -> Vec<core::Container> {
         self.containers
             .iter()

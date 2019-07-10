@@ -1,0 +1,11 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: example-task
+spec:
+  components:
+  - name: alpine-task
+    instanceName: one-alpine-task
+    parameterValues:
+      - name: message
+        value: Hello World

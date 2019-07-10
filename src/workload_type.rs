@@ -5,6 +5,11 @@ pub use crate::workload_type::singleton::Singleton;
 #[cfg(test)]
 mod singleton_test;
 
+mod task;
+pub use crate::workload_type::task::Task;
+#[cfg(test)]
+mod task_test;
+
 mod replicated_service;
 pub use crate::workload_type::replicated_service::ReplicatedService;
 #[cfg(test)]
@@ -49,6 +54,7 @@ pub trait WorkloadType {
 pub enum CoreWorkloadType {
     SingletonType(Singleton),
     ReplicatedServiceType(ReplicatedService),
+    TaskType(Task),
 }
 
 impl CoreWorkloadType {
@@ -56,12 +62,14 @@ impl CoreWorkloadType {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.delete(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.delete(),
+            CoreWorkloadType::TaskType(task) => task.delete(),
         }
     }
     pub fn add(&self) -> InstigatorResult {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.add(),
+            CoreWorkloadType::TaskType(task) => task.add(),
         }
     }
     pub fn modify(&self) -> InstigatorResult {
