@@ -38,3 +38,14 @@ spec:
   containers:
     - name: runner
       image: alpine:latest
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  name: alpine-replicable-task
+spec:
+  workloadType: core.hydra.io/v1alpha1.ReplicableTask
+  os: linux
+  containers:
+    - name: runner
+      image: alpine:latest

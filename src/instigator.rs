@@ -10,7 +10,7 @@ use crate::{
         traits::{Autoscaler, HydraTrait, Ingress, TraitBinding},
         Status,
     },
-    workload_type::{CoreWorkloadType, ReplicatedService, Singleton, Task, HYDRA_API_VERSION},
+    workload_type::{CoreWorkloadType, ReplicatedService, Singleton, Task, ReplicatedTask, HYDRA_API_VERSION},
 };
 
 /// Type alias for the results that all instantiation operations return
@@ -262,7 +262,20 @@ impl Instigator {
                 };
                 Ok(CoreWorkloadType::TaskType(task))
             },
-            //"core.hydra.io/v1alpha1.ReplicableTask" => {},
+            "core.hydra.io/v1alpha1.ReplicableTask" => {
+                let task = ReplicatedTask {
+                    name: config_name,
+                    instance_name: instance_name,
+                    component_name: comp.metadata.name.clone(),
+                    namespace: DEFAULT_NAMESPACE.into(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                    params: params.clone(),
+                    owner_ref: owner,
+                    replica_count: Some(1), // Every(1) needs Some(1) to love.
+                };
+                Ok(CoreWorkloadType::ReplicatedTaskType(task))
+            },
             _ => Err(format_err!(
                 "workloadType {} is unknown",
                 comp.spec.workload_type
