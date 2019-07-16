@@ -15,6 +15,11 @@ pub use crate::workload_type::replicated_service::ReplicatedService;
 #[cfg(test)]
 mod replicated_service_test;
 
+mod replicated_task;
+pub use crate::workload_type::replicated_task::ReplicatedTask;
+#[cfg(test)]
+mod replicated_task_test;
+
 pub const HYDRA_API_VERSION: &'static str = "core.hydra.io/v1alpha1";
 /// The fully qualified name of a replicated service.
 pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedService";
@@ -55,6 +60,7 @@ pub enum CoreWorkloadType {
     SingletonType(Singleton),
     ReplicatedServiceType(ReplicatedService),
     TaskType(Task),
+    ReplicatedTaskType(ReplicatedTask),
 }
 
 impl CoreWorkloadType {
@@ -63,6 +69,7 @@ impl CoreWorkloadType {
             CoreWorkloadType::SingletonType(sing) => sing.delete(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.delete(),
             CoreWorkloadType::TaskType(task) => task.delete(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
         }
     }
     pub fn add(&self) -> InstigatorResult {
@@ -70,6 +77,7 @@ impl CoreWorkloadType {
             CoreWorkloadType::SingletonType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.add(),
             CoreWorkloadType::TaskType(task) => task.add(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.add(),
         }
     }
     pub fn modify(&self) -> InstigatorResult {

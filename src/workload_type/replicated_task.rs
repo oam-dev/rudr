@@ -8,10 +8,10 @@ use crate::workload_type::{ParamMap, InstigatorResult, WorkloadType, KubeName};
 
 use std::collections::BTreeMap;
 
-/// Task represents a non-daemon process.
+/// ReplicatedTask represents a non-daemon process that can be parallelized.
 ///
 /// It is currently implemented as a Kubernetes Job.
-pub struct Task {
+pub struct ReplicatedTask {
     pub name: String,
     pub component_name: String,
     pub instance_name: String,
@@ -20,8 +20,9 @@ pub struct Task {
     pub client: APIClient,
     pub params: ParamMap,
     pub owner_ref: Option<Vec<meta::OwnerReference>>,
+    pub replica_count: Option<i32>,
 }
-impl Task {
+impl ReplicatedTask {
     /// Create a Job
     pub fn to_job(&self) -> batchapi::Job {
         let mut labels = BTreeMap::new();
@@ -37,6 +38,7 @@ impl Task {
             }),
             spec: Some(batchapi::JobSpec {
                 backoff_limit: Some(4),
+                parallelism: self.replica_count,
                 template: api::PodTemplateSpec {
                     metadata: Some(meta::ObjectMeta{
                         name: Some(podname),
@@ -53,12 +55,12 @@ impl Task {
     }
 }
 
-impl KubeName for Task {
+impl KubeName for ReplicatedTask {
     fn kube_name(&self) -> String {
         self.instance_name.to_string()
     }
 }
-impl WorkloadType for Task {
+impl WorkloadType for ReplicatedTask {
     fn add(&self) -> InstigatorResult {
         let job = self.to_job();
         let (req, _) =
