@@ -1,0 +1,11 @@
+use crate::schematic::traits::{TraitImplementation, util::*};
+use kube::client::APIClient;
+
+pub struct Empty {}
+
+impl TraitImplementation for Empty {
+    fn supports_workload_type(_name: &str) -> bool {
+        true
+    }
+    fn add(&self, _ns: &str, _client: APIClient) -> TraitResult { Ok(()) }
+}

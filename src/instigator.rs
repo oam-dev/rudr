@@ -7,7 +7,7 @@ use crate::{
         component::Component,
         configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values},
-        traits::{Autoscaler, HydraTrait, Ingress, TraitBinding},
+        traits::{Autoscaler, HydraTrait, Ingress, TraitBinding, Empty, Phase},
         Status,
     },
     workload_type::{CoreWorkloadType, ReplicatedService, Singleton, Task, ReplicatedTask, HYDRA_API_VERSION},
@@ -115,7 +115,7 @@ impl Instigator {
                 info!("Searching for trait {}", t.name.as_str());
                 let cname = component.name.clone();
                 let imp = self.load_trait(name.clone(), inst_name.clone(), cname, t, trait_values, owner_ref.clone())?;
-                imp.add(DEFAULT_NAMESPACE.into(), self.client.clone())?;
+                imp.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::Add)?;
             }
         }
         Ok(())
@@ -196,7 +196,7 @@ impl Instigator {
 
                 // Need to get all of the param values and then test against the trait params.
                 let imp = self.load_trait(name.clone(), inst_name.clone(), cname.clone(), t, trait_values, None)?;
-                let res = imp.delete(DEFAULT_NAMESPACE.into(), self.client.clone());
+                let res = imp.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::Delete);
                 if res.is_err() {
                     error!(
                         "Error deleting trait for {}: {}",
@@ -300,6 +300,12 @@ impl Instigator {
             "autoscaler" => {
                 let auto = Autoscaler::from_params(name, instance_name, component_name, parent_params, owner_ref);
                 Ok(HydraTrait::Autoscaler(auto))
+            },
+            // Empty is a debugging tool for checking whether the traits system is functioning independently of
+            // its environment.
+            "empty" => {
+                let empty = Empty{};
+                Ok(HydraTrait::Empty(empty))
             }
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }

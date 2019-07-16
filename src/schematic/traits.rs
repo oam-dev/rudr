@@ -6,6 +6,8 @@ mod autoscaler;
 pub use crate::schematic::traits::autoscaler::Autoscaler;
 mod ingress;
 pub use crate::schematic::traits::ingress::Ingress;
+mod empty;
+pub use crate::schematic::traits::empty::Empty;
 mod util;
 use crate::schematic::traits::util::*;
 
@@ -35,6 +37,15 @@ pub struct TraitBinding {
     pub parameter_values: Option<Vec<ParameterValue>>,
 }
 
+pub enum Phase {
+    PreAdd,
+    Add,
+    PreModify,
+    Modify,
+    PreDelete,
+    Delete,
+}
+
 /// HydraTrait is an enumeration of the known traits.
 ///
 /// This is a temporary solution. In the future, we really want to be able to proxy
@@ -43,24 +54,14 @@ pub struct TraitBinding {
 pub enum HydraTrait {
     Autoscaler(Autoscaler),
     Ingress(Ingress),
+    Empty(Empty),
 }
 impl HydraTrait {
-    pub fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match self {
-            HydraTrait::Autoscaler(a) => a.add(ns, client),
-            HydraTrait::Ingress(i) => i.add(ns, client),
-        }
-    }
-    pub fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
-        match self {
-            HydraTrait::Autoscaler(a) => a.delete(ns, client),
-            HydraTrait::Ingress(i) => i.delete(ns, client),
-        }
-    }
-    pub fn modify(&self) -> TraitResult {
-        match self {
-            HydraTrait::Autoscaler(a) => a.modify(),
-            HydraTrait::Ingress(i) => i.modify(),
+            HydraTrait::Autoscaler(a) => a.exec(ns, client, phase),
+            HydraTrait::Ingress(i) => i.exec(ns, client, phase),
+            HydraTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
 }
@@ -69,17 +70,37 @@ impl HydraTrait {
 ///
 /// For example, Ingress is an implementation of a Hydra Trait.
 pub trait TraitImplementation {
+    fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+        match phase {
+            Phase::Add => self.add(ns, client),
+            Phase::Modify => self.modify(ns, client),
+            Phase::Delete => self.delete(ns, client),
+            Phase::PreAdd => self.pre_add(ns, client),
+            Phase::PreModify => self.pre_modify(ns, client),
+            Phase::PreDelete => self.pre_delete(ns, client),
+        }
+    }
     fn add(&self, ns: &str, client: APIClient) -> TraitResult;
-    fn modify(&self) -> TraitResult {
+    fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Err(format_err!("Trait updates not implemented for this type"))
     }
     fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        // Often, owner references mean you don't need to do anythign here.
         info!("Trait deleted");
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
         info!("Support {} by default", name);
         true
+    }
+    fn pre_add(&self, _ns: &str, _client: APIClient)  -> TraitResult {
+        Ok(())
+    }
+    fn pre_modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        Ok(())
+    }
+    fn pre_delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        Ok(())
     }
 }
 
