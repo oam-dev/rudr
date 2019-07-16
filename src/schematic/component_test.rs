@@ -111,14 +111,14 @@ fn test_container_deserialize() {
                         "memory": {
                             "required": "2G"
                         },
-                        "paths": [
+                        "volumes": [
                             {
                                 "name": "first",
-                                "path": "/path/to/first"
+                                "mountPath": "/path/to/first"
                             },
                             {
                                 "name": "second",
-                                "path": "/path/to/second",
+                                "mountPath": "/path/to/second",
                                 "accessMode": "RO",
                                 "sharingPolicy": "Shared"
                             }
@@ -156,16 +156,16 @@ fn test_container_deserialize() {
     assert_eq!("2G", res.memory.required);
     assert_eq!("1", res.cpu.required);
 
-    let path1 = res.paths.get(0).unwrap();
-    let path2 = res.paths.get(1).unwrap();
+    let path1 = res.volumes.get(0).unwrap();
+    let path2 = res.volumes.get(1).unwrap();
 
     assert_eq!("first", path1.name);
-    assert_eq!("/path/to/first", path1.path);
+    assert_eq!("/path/to/first", path1.mount_path);
     assert_eq!(SharingPolicy::Exclusive, path1.sharing_policy);
     assert_eq!(AccessMode::RW, path1.access_mode);
 
     assert_eq!("second", path2.name);
-    assert_eq!("/path/to/second", path2.path);
+    assert_eq!("/path/to/second", path2.mount_path);
     assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
     assert_eq!(AccessMode::RO, path2.access_mode);
 }
