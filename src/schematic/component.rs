@@ -331,7 +331,7 @@ pub struct Resources {
     pub cpu: CPU,
     pub memory: Memory,
     pub gpu: GPU,
-    pub paths: Vec<Path>,
+    pub volumes: Vec<Volume>,
 }
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
@@ -359,7 +359,7 @@ impl Default for Resources {
             gpu: GPU {
                 required: "0".into(),
             },
-            paths: Vec::new(),
+            volumes: Vec::new(),
         }
     }
 }
@@ -391,20 +391,37 @@ pub struct GPU {
     pub required: String,
 }
 
-/// Path describes a path that is attached to a Container.
+/// Volume describes a path that is attached to a Container.
 ///
 /// It specifies not only the location, but also the requirements.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct Path {
+pub struct Volume {
     pub name: String,
-    pub path: String,
+    pub mount_path: String,
 
     #[serde(default)]
     pub access_mode: AccessMode,
 
     #[serde(default)]
     pub sharing_policy: SharingPolicy,
+    pub disk: Option<Disk>,
+}
+
+// Disk describes the disk requirements for backing a Volume.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Disk {
+    required: String,
+    ephemeral: bool,
+}
+impl Default for Disk {
+    fn default() -> Disk {
+        Disk {
+            required: "1G".into(),
+            ephemeral: false,
+        }
+    }
 }
 
 /// AccessMode defines the access modes for file systems.
