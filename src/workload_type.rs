@@ -26,6 +26,9 @@ pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.Replic
 /// The fully qualified name of a singleton.
 pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
 
+pub const TASK_NAME: &'static str = "core.hydra.io/v1alpha1.Task";
+pub const REPLICATED_TASK_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedTask";
+
 type InstigatorResult = Result<(), failure::Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;
 

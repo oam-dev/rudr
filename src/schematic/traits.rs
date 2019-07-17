@@ -1,4 +1,5 @@
 use crate::schematic::parameter::ParameterValue;
+use crate::lifecycle::Phase;
 use kube::client::APIClient;
 
 // Re-exports
@@ -8,6 +9,8 @@ mod ingress;
 pub use crate::schematic::traits::ingress::Ingress;
 mod empty;
 pub use crate::schematic::traits::empty::Empty;
+mod manual_scaler;
+pub use crate::schematic::traits::manual_scaler::ManualScaler;
 mod util;
 use crate::schematic::traits::util::*;
 
@@ -37,15 +40,6 @@ pub struct TraitBinding {
     pub parameter_values: Option<Vec<ParameterValue>>,
 }
 
-pub enum Phase {
-    PreAdd,
-    Add,
-    PreModify,
-    Modify,
-    PreDelete,
-    Delete,
-}
-
 /// HydraTrait is an enumeration of the known traits.
 ///
 /// This is a temporary solution. In the future, we really want to be able to proxy
@@ -53,6 +47,7 @@ pub enum Phase {
 /// fulfill the contract.
 pub enum HydraTrait {
     Autoscaler(Autoscaler),
+    ManualScaler(ManualScaler),
     Ingress(Ingress),
     Empty(Empty),
 }
@@ -61,6 +56,7 @@ impl HydraTrait {
         match self {
             HydraTrait::Autoscaler(a) => a.exec(ns, client, phase),
             HydraTrait::Ingress(i) => i.exec(ns, client, phase),
+            HydraTrait::ManualScaler(m) => m.exec(ns, client, phase),
             HydraTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
