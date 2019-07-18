@@ -20,6 +20,8 @@ mod util_test;
 mod autoscaler_test;
 #[cfg(test)]
 mod ingress_test;
+#[cfg(test)]
+mod manual_scaler_test;
 
 /// Trait describes Hydra traits.
 ///

@@ -9,7 +9,7 @@ use crate::{
         configuration::OperationalConfiguration,
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
-        traits::{Autoscaler, HydraTrait, Ingress, TraitBinding, Empty},
+        traits::{Autoscaler, HydraTrait, Ingress, ManualScaler, TraitBinding, Empty},
         Status,
     },
     workload_type::{CoreWorkloadType, ReplicatedService, Singleton, Task, ReplicatedTask, HYDRA_API_VERSION},
@@ -110,6 +110,7 @@ impl Instigator {
                 component: component.clone(),
                 parent_params: parent.clone(),
                 owner_ref: owner_ref.clone(),
+                workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
             };
             trait_manager.load_traits()?;
@@ -259,6 +260,7 @@ struct TraitManager {
     component: ComponentConfiguration,
     parent_params: Vec<ParameterValue>,
     owner_ref: Option<Vec<meta::OwnerReference>>,
+    workload_type: String,
 
     traits: Vec<HydraTrait>,
 }
@@ -268,17 +270,18 @@ impl TraitManager {
         let mut traits: Vec<HydraTrait> = vec![];
         for t in self.component.traits.as_ref().unwrap_or(&vec![]).iter() {
             // Load all of the traits into the manager.
-            let imp = self.load_trait(self.config_name.clone(), &t)?;
+            let imp = self.load_trait(&t)?;
             traits.push(imp);
         }
         self.traits = traits;
         Ok(())
     }
-    fn load_trait(&self, name: String, binding: &TraitBinding) -> Result<HydraTrait, failure::Error> {
+    fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, failure::Error> {
         let trait_values = resolve_values(
-            self.parent_params.clone(),
-            binding.parameter_values.clone().unwrap_or(vec![])
+            binding.parameter_values.clone().unwrap_or(vec![]),
+            self.parent_params.clone()
         )?;
+        debug!("Trait binding params: {:?}", &binding.parameter_values);
         match binding.name.as_str() {
             "ingress" => {
                 let ing = Ingress::from_params(
@@ -300,6 +303,17 @@ impl TraitManager {
                 );
                 Ok(HydraTrait::Autoscaler(auto))
             },
+            "manual-scaler" => {
+                let scaler = ManualScaler::from_params(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.name.clone(),
+                    trait_values,
+                    self.owner_ref.clone(),
+                    self.workload_type.clone(),
+                );
+                Ok(HydraTrait::ManualScaler(scaler))
+            }
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
             "empty" => {
@@ -315,7 +329,8 @@ impl TraitManager {
             let res = imp.exec(ns, client.clone(), phase.clone());
             if res.is_err() {
                 error!(
-                    "Error deleting trait for {}: {}",
+                    "Trait phase {:?} failed for {}: {}",
+                    phase,
                     self.config_name.as_str(),
                     res.unwrap_err()
                 );

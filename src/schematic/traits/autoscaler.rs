@@ -86,7 +86,7 @@ impl TraitImplementation for Autoscaler {
         if res.is_err() {
             let err = res.unwrap_err();
             error!(
-                "Ingress error: {}",
+                "Autoscaler error: {}",
                 serde_json::to_string_pretty(&scaler).expect("debug")
             );
             return Err(err);
