@@ -10,6 +10,7 @@ extern crate log;
 extern crate env_logger;
 
 pub mod instigator;
+pub mod lifecycle;
 pub mod schematic;
 pub mod workload_type;
 

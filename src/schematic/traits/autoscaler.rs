@@ -1,5 +1,5 @@
 use crate::schematic::traits::{TraitImplementation, util::*};
-use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME};
+use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
@@ -86,7 +86,7 @@ impl TraitImplementation for Autoscaler {
         if res.is_err() {
             let err = res.unwrap_err();
             error!(
-                "Ingress error: {}",
+                "Autoscaler error: {}",
                 serde_json::to_string_pretty(&scaler).expect("debug")
             );
             return Err(err);
@@ -94,7 +94,7 @@ impl TraitImplementation for Autoscaler {
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
-        // Only support replicated service right now.
-        name == REPLICATED_SERVICE_NAME
+        // Only support replicated service and task right now.
+        name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME
     }
 }

@@ -1,4 +1,5 @@
 use crate::schematic::traits::*;
+use crate::lifecycle::Phase;
 use crate::workload_type::{REPLICATED_SERVICE_NAME, SINGLETON_NAME};
 use kube::{client::APIClient, config::Configuration};
 

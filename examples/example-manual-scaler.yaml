@@ -1,0 +1,21 @@
+
+# Manual scaling is enabled by trait.
+# This example shows how to apply a manual scaler to a replicatable service.
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: manual-scaler-example
+spec:
+  components:
+  - name: nginx-replicated
+    instanceName: scaled-repsvc
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    traits:
+      - name: manual-scaler
+        parameterValues:
+          - name: replicaCount
+            value: 3
