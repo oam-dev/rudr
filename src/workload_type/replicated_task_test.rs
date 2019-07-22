@@ -1,7 +1,7 @@
 use kube::{client::APIClient, config::Configuration};
 
 use crate::schematic::component::Component;
-use crate::workload_type::{KubeName, replicated_task::*};
+use crate::workload_type::{replicated_task::*, KubeName};
 
 use std::collections::BTreeMap;
 
@@ -45,7 +45,7 @@ fn test_replicated_task_replica_count() {
     };
 
     let job = task.to_job();
-    
+
     assert_eq!(Some(5), job.spec.unwrap().parallelism);
 }
 

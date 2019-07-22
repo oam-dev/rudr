@@ -22,7 +22,7 @@ fn test_replicated_service_kube_name() {
         owner_ref: None,
     };
 
-    assert_eq!("dehydrate", rs.kube_name().as_str());  
+    assert_eq!("dehydrate", rs.kube_name().as_str());
 }
 
 /// This mock builds a KubeConfig that will not be able to make any requests.

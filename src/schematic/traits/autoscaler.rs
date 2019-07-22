@@ -1,4 +1,4 @@
-use crate::schematic::traits::{TraitImplementation, util::*};
+use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
@@ -17,7 +17,13 @@ pub struct Autoscaler {
 }
 
 impl Autoscaler {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
+    pub fn from_params(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        params: ParamMap,
+        owner_ref: OwnerRefs,
+    ) -> Self {
         Autoscaler {
             name: name,
             component_name: component_name,

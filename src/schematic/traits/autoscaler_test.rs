@@ -29,7 +29,13 @@ fn test_autoscaler() {
     params.insert("minimum".into(), json!(6));
     params.insert("maximum".into(), json!(7));
 
-    let autoscaler = Autoscaler::from_params("release".into(), "instance".into(), "component".into(), params, None);
+    let autoscaler = Autoscaler::from_params(
+        "release".into(),
+        "instance".into(),
+        "component".into(),
+        params,
+        None,
+    );
     let kauto = autoscaler.to_horizontal_pod_autoscaler();
     assert_eq!(
         Some("instance-trait-autoscaler".to_string()),

@@ -1,5 +1,5 @@
-use crate::schematic::parameter::ParameterValue;
 use crate::lifecycle::Phase;
+use crate::schematic::parameter::ParameterValue;
 use kube::client::APIClient;
 
 // Re-exports
@@ -15,13 +15,13 @@ mod util;
 use crate::schematic::traits::util::*;
 
 #[cfg(test)]
-mod util_test;
-#[cfg(test)]
 mod autoscaler_test;
 #[cfg(test)]
 mod ingress_test;
 #[cfg(test)]
 mod manual_scaler_test;
+#[cfg(test)]
+mod util_test;
 
 /// Trait describes Hydra traits.
 ///
@@ -91,7 +91,7 @@ pub trait TraitImplementation {
         info!("Support {} by default", name);
         true
     }
-    fn pre_add(&self, _ns: &str, _client: APIClient)  -> TraitResult {
+    fn pre_add(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
     fn pre_modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
@@ -101,7 +101,3 @@ pub trait TraitImplementation {
         Ok(())
     }
 }
-
-
-
-

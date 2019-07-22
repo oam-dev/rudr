@@ -1,18 +1,20 @@
-use kube::{api::Reflector, api::Resource, client::APIClient};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
+use kube::{api::Reflector, api::Resource, client::APIClient};
 use std::collections::BTreeMap;
 
 use crate::{
     lifecycle::Phase,
     schematic::{
         component::Component,
-        configuration::OperationalConfiguration,
         configuration::ComponentConfiguration,
+        configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
-        traits::{Autoscaler, HydraTrait, Ingress, ManualScaler, TraitBinding, Empty},
+        traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
         Status,
     },
-    workload_type::{CoreWorkloadType, ReplicatedService, Singleton, Task, ReplicatedTask, HYDRA_API_VERSION},
+    workload_type::{
+        CoreWorkloadType, ReplicatedService, ReplicatedTask, Singleton, Task, HYDRA_API_VERSION,
+    },
 };
 
 /// Type alias for the results that all instantiation operations return
@@ -102,9 +104,15 @@ impl Instigator {
 
             // Instantiate components
             let inst_name = component.instance_name.clone();
-            let workload = self.load_workload_type(name.clone(), inst_name.clone(), comp_def, &params, owner_ref.clone())?;
+            let workload = self.load_workload_type(
+                name.clone(),
+                inst_name.clone(),
+                comp_def,
+                &params,
+                owner_ref.clone(),
+            )?;
             // Load all of the traits related to this component.
-            let mut trait_manager = TraitManager{
+            let mut trait_manager = TraitManager {
                 config_name: name.clone(),
                 instance_name: inst_name.clone(),
                 component: component.clone(),
@@ -118,24 +126,50 @@ impl Instigator {
             match phase {
                 Phase::Add => {
                     info!("Adding component {}", component.name.clone());
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::PreAdd)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::PreAdd,
+                    )?;
                     workload.add()?;
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::Add)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::Add,
+                    )?;
                 }
                 Phase::Modify => {
                     info!("Modifying component {}", component.name.clone());
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::PreModify)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::PreModify,
+                    )?;
                     workload.modify()?;
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::Modify)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::Modify,
+                    )?;
                 }
                 Phase::Delete => {
                     info!("Deleting component {}", component.name.clone());
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::PreDelete)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::PreDelete,
+                    )?;
                     workload.delete()?;
-                    trait_manager.exec(DEFAULT_NAMESPACE.into(), self.client.clone(), Phase::Delete)?;
+                    trait_manager.exec(
+                        DEFAULT_NAMESPACE.into(),
+                        self.client.clone(),
+                        Phase::Delete,
+                    )?;
                 }
                 _ => {
-                    return Err(format_err!("Illegal phase: only Add, Modify, and Delete are supported here"))
+                    return Err(format_err!(
+                        "Illegal phase: only Add, Modify, and Delete are supported here"
+                    ))
                 }
             }
         }
@@ -203,7 +237,7 @@ impl Instigator {
                     owner_ref: owner,
                 };
                 Ok(CoreWorkloadType::TaskType(task))
-            },
+            }
             "core.hydra.io/v1alpha1.ReplicableTask" => {
                 let task = ReplicatedTask {
                     name: config_name,
@@ -217,19 +251,20 @@ impl Instigator {
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedTaskType(task))
-            },
+            }
             _ => Err(format_err!(
                 "workloadType {} is unknown",
                 comp.spec.workload_type
             )),
         }
     }
-
-    
 }
 
 /// Build an owner reference for the given parent UID of kind Configuration.
-pub fn config_owner_reference(parent_name: String, parent_uid: Option<String>) -> Option<Vec<meta::OwnerReference>> {
+pub fn config_owner_reference(
+    parent_name: String,
+    parent_uid: Option<String>,
+) -> Option<Vec<meta::OwnerReference>> {
     match parent_uid {
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
@@ -241,7 +276,7 @@ pub fn config_owner_reference(parent_name: String, parent_uid: Option<String>) -
                 name: parent_name.clone(),
             };
             Some(vec![owner_ref])
-        },
+        }
         None => {
             info!("Mysteriously, no UID was created. Ancient version of Kubernetes?");
             None
@@ -279,7 +314,7 @@ impl TraitManager {
     fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, failure::Error> {
         let trait_values = resolve_values(
             binding.parameter_values.clone().unwrap_or(vec![]),
-            self.parent_params.clone()
+            self.parent_params.clone(),
         )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);
         match binding.name.as_str() {
@@ -289,7 +324,7 @@ impl TraitManager {
                     self.instance_name.clone(),
                     self.component.name.clone(),
                     trait_values,
-                    self.owner_ref.clone()
+                    self.owner_ref.clone(),
                 );
                 Ok(HydraTrait::Ingress(ing))
             }
@@ -299,10 +334,10 @@ impl TraitManager {
                     self.instance_name.clone(),
                     self.component.name.clone(),
                     trait_values,
-                    self.owner_ref.clone()
+                    self.owner_ref.clone(),
                 );
                 Ok(HydraTrait::Autoscaler(auto))
-            },
+            }
             "manual-scaler" => {
                 let scaler = ManualScaler::from_params(
                     self.config_name.clone(),
@@ -317,7 +352,7 @@ impl TraitManager {
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
             "empty" => {
-                let empty = Empty{};
+                let empty = Empty {};
                 Ok(HydraTrait::Empty(empty))
             }
             _ => Err(format_err!("unknown trait {}", binding.name)),
@@ -337,5 +372,5 @@ impl TraitManager {
             }
         }
         Ok(())
-    } 
+    }
 }

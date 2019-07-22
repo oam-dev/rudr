@@ -4,11 +4,10 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{ParamMap, InstigatorResult, WorkloadType, KubeName};
+use crate::workload_type::{InstigatorResult, KubeName, ParamMap, WorkloadType};
 
 use serde_json::to_string_pretty as to_json;
 use std::collections::BTreeMap;
-
 
 /// A Replicated Service can take one component and scale it up or down.
 pub struct ReplicatedService {
