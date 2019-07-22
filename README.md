@@ -4,6 +4,18 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 
 **This is unstable, experimental, and subject to massively breaking changes. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
 
+## Installing Using Helm
+
+A relatively recent version of Scylla can be installed using [Helm 3](helm.sh).
+
+```console
+$ helm install ./charts/scylla --generate-name
+```
+
+This will install the CRDs and the controller into your Kubernetes cluster.
+
+If you have already installed Scylla or are installing multiple copies of Scylla, you may need to add the `--no-hooks` flag.
+
 ## Building
 
 To build:
