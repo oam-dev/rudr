@@ -1,7 +1,7 @@
 use kube::{client::APIClient, config::Configuration};
 
 use crate::schematic::component::Component;
-use crate::workload_type::{KubeName, singleton::*};
+use crate::workload_type::{singleton::*, KubeName};
 
 use std::collections::BTreeMap;
 

@@ -15,6 +15,6 @@ pub mod schematic;
 pub mod workload_type;
 
 #[cfg(test)]
-mod workload_type_test;
-#[cfg(test)]
 mod instigator_test;
+#[cfg(test)]
+mod workload_type_test;

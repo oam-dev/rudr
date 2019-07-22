@@ -1,4 +1,4 @@
-use crate::schematic::traits::{TraitImplementation, util::*};
+use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::ParamMap;
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
@@ -18,7 +18,13 @@ pub struct Ingress {
     pub owner_ref: OwnerRefs,
 }
 impl Ingress {
-    pub fn from_params(name: String, instance_name: String, component_name: String, params: ParamMap, owner_ref: OwnerRefs) -> Self {
+    pub fn from_params(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        params: ParamMap,
+        owner_ref: OwnerRefs,
+    ) -> Self {
         // Right now, we're relying on the higher level validation logic to validate types.
         Ingress {
             name: name,

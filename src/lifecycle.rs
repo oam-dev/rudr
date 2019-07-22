@@ -3,7 +3,7 @@
 /// The order of operations is this:
 ///
 /// ADD
-/// - Kubernetes Add 
+/// - Kubernetes Add
 ///   - Configuration
 /// - PreAdd (traits only): Before components are added
 ///   - Component Configuration
@@ -11,7 +11,7 @@
 /// - Add: Resources added and initialized
 ///   - Components
 ///   - Traits
-/// 
+///
 /// MODIFY
 /// - Kubernetes Update
 ///   - Configuration
@@ -20,7 +20,7 @@
 /// - Modify: Resources are modified
 ///   - Components
 ///   - Traits
-/// 
+///
 /// DELETE
 /// - Kubernetes Delete
 ///   - Configuration
@@ -29,7 +29,7 @@
 /// - Delete:
 ///   - Components
 ///   - Traits
-/// 
+///
 /// Note that in deletion operations, Kubernetes will delete by owner reference before PreDelete. This means
 /// that the components will likely be unavailable by the time PreDelete fires. It is only guaranteed to fire
 /// before the component's Delete operation is fired.

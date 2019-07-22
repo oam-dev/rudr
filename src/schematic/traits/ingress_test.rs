@@ -1,6 +1,6 @@
-use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use crate::schematic::traits::*;
 use crate::workload_type::ParamMap;
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use std::collections::BTreeMap;
 
 #[test]
@@ -13,7 +13,13 @@ fn test_ingress() {
     );
     params.insert("path".into(), json!("/path"));
 
-    let ig = Ingress::from_params("my-ingress".into(), "squid".into(), "patsy".into(), params, None);
+    let ig = Ingress::from_params(
+        "my-ingress".into(),
+        "squid".into(),
+        "patsy".into(),
+        params,
+        None,
+    );
 
     let king = ig.to_ext_ingress();
     assert_eq!(

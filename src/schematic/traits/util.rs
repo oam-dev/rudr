@@ -1,7 +1,6 @@
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use std::collections::BTreeMap;
 
-
 /// Alias for trait results.
 pub type TraitResult = Result<(), failure::Error>;
 /// Alias for a vector of owner references.

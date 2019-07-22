@@ -11,7 +11,7 @@ impl WorkloadType for MockWorkloadType {
 /// This is a canary test to make sure that modify and delete have default implementations.
 #[test]
 fn test_workload_type() {
-    let mwlt = MockWorkloadType{};
+    let mwlt = MockWorkloadType {};
 
     assert!(mwlt.modify().is_err());
     assert!(mwlt.delete().is_ok());

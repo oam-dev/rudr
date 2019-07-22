@@ -1,14 +1,8 @@
-use k8s_openapi::api::{
-    apps::v1 as apps,
-    batch::v1 as batch,
-};
+use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 
 use crate::{
-    schematic::traits::{
-        TraitImplementation,
-        manual_scaler::ManualScaler,
-    },
-    workload_type::{REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME, TASK_NAME, SINGLETON_NAME},
+    schematic::traits::{manual_scaler::ManualScaler, TraitImplementation},
+    workload_type::{REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME, SINGLETON_NAME, TASK_NAME},
 };
 
 #[test]
@@ -32,7 +26,7 @@ fn test_scale_deployment() {
         }),
         ..Default::default()
     };
-    let ms = ManualScaler{
+    let ms = ManualScaler {
         name: "name".into(),
         instance_name: "inst_name".into(),
         component_name: "comp_name".into(),
@@ -53,7 +47,7 @@ fn test_scale_job() {
         }),
         ..Default::default()
     };
-    let ms = ManualScaler{
+    let ms = ManualScaler {
         name: "name".into(),
         instance_name: "inst_name".into(),
         component_name: "comp_name".into(),
