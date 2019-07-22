@@ -1,5 +1,10 @@
 #[macro_use]
 extern crate failure;
+extern crate hyper;
+
+use hyper::rt::Future;
+use hyper::service::service_fn_ok;
+use hyper::{Body, Method, Response, Server, StatusCode};
 
 use kube::api::{ApiResource, Informer, Reflector, WatchEvent};
 use kube::{client::APIClient, config::load_kube_config};
@@ -70,6 +75,29 @@ fn main() -> Result<(), failure::Error> {
         };
     });
     info!("Watcher is running");
+
+    std::thread::spawn(|| {
+        let addr = "127.0.0.1:8080".parse().unwrap();
+        hyper::rt::run(
+            Server::bind(&addr)
+                .serve(|| {
+                    service_fn_ok(|_req| match (_req.method(), _req.uri().path()) {
+                        (&Method::GET, "/health") => {
+                            info!("health check");
+                            Response::new(Body::from("OK"))
+                        }
+                        _ => Response::builder()
+                            .status(StatusCode::NOT_FOUND)
+                            .body(Body::from(""))
+                            .unwrap(),
+                    })
+                })
+                .map_err(|e| eprintln!("health server error: {}", e)),
+        );
+    })
+    .join()
+    .unwrap();
+
     component_watch.join().expect("component watcher crashed");
     configuration_watch.join().unwrap()
 }
