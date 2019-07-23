@@ -7,18 +7,27 @@ use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
 
 use kube::api::{ApiResource, Informer, Reflector, WatchEvent};
-use kube::{client::APIClient, config::load_kube_config};
+use kube::{client::APIClient, config::load_kube_config, config::incluster_config};
 
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
 use log::{error, info};
 
+fn kubeconfig() -> Result<kube::config::Configuration, failure::Error> {
+    // If env var is set, use in cluster config
+    if std::env::var("KUBERNETES_PORT").is_ok() {
+        return incluster_config()
+    }
+    load_kube_config()
+    
+}
+
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
 
     let top_ns = "default";
-    let top_cfg = load_kube_config().expect("Load default kubeconfig");
+    let top_cfg = kubeconfig().expect("Load default kubeconfig");
 
     // There is probably a better way to do this than to create two clones, but there is a potential
     // thread safety issue here.
