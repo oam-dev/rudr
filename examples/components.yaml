@@ -1,6 +1,26 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: Component
 metadata:
+  name: hpa-example-replicated
+spec:
+  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  os: linux
+  containers:
+    - name: server
+      image: k8s.gcr.io/hpa-example:latest
+      ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+      resources:
+          cpu:
+            required: "0.5"
+          memory:
+            required: 100M
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
   name: nginx-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService

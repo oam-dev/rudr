@@ -13,6 +13,7 @@ pub struct Autoscaler {
     pub minimum: Option<i32>,
     pub maximum: Option<i32>,
     pub cpu: Option<i32>,
+    pub memory: Option<i32>,
     pub owner_ref: OwnerRefs,
 }
 
@@ -37,6 +38,9 @@ impl Autoscaler {
             cpu: params
                 .get("cpu")
                 .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+            memory: params
+                .get("memory")
+                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
             owner_ref: owner_ref,
         }
     }
@@ -44,15 +48,33 @@ impl Autoscaler {
         // TODO: fix this to make it configurable
         let metrics = Some(vec![hpa::MetricSpec {
             type_: "Resource".into(),
-            resource: Some(hpa::ResourceMetricSource {
-                name: "cpu".to_string(),
-                target_average_utilization: self.cpu.or(Some(80)),
-                target_average_value: None,
-            }),
+            resource: 
+                Some(
+                    hpa::ResourceMetricSource {
+                        name: "cpu".to_string(),
+                        target_average_utilization: self.cpu.or(Some(80)),
+                        target_average_value: None,
+                    }
+            ),
+            pods: None,
+            object: None,
+            external: None,
+        },
+        hpa::MetricSpec {
+            type_: "Resource".into(),
+            resource: 
+                Some(
+                    hpa::ResourceMetricSource {
+                        name: "memory".to_string(),
+                        target_average_utilization: self.memory.or(Some(80)),
+                        target_average_value: None,
+                    }
+            ),
             pods: None,
             object: None,
             external: None,
         }]);
+
         hpa::HorizontalPodAutoscaler {
             metadata: Some(meta::ObjectMeta {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
@@ -68,7 +90,8 @@ impl Autoscaler {
                 scale_target_ref: hpa::CrossVersionObjectReference {
                     api_version: Some("apps/v1".to_string()),
                     kind: "Deployment".to_string(),
-                    name: format!("{}-{}", self.name.as_str(), self.component_name.as_str()),
+                    //name: format!("{}-{}", self.name.as_str(), self.component_name.as_str()),
+                    name: format!("{}", self.instance_name.as_str()),
                 },
             }),
             ..Default::default()

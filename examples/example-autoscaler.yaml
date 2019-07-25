@@ -7,7 +7,7 @@ metadata:
   name: autoscaler-example
 spec:
   components:
-  - name: nginx-replicated
+  - name: hpa-example-replicated
     instanceName: autoscaled-repsvc
     parameterValues:
       - name: poet
@@ -21,3 +21,7 @@ spec:
             value: 6
           - name: minimum
             value: 2
+          - name: cpu
+            value: 50
+          - name: memory
+            value: 50
