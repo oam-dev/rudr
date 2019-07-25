@@ -46,6 +46,7 @@ fn test_autoscaler_cpu() {
     assert_eq!(7, spec.max_replicas);
     assert_eq!(Some(6), spec.min_replicas);
 
+    // cpu is added first so index for cpu is 0
     let metrics = spec.metrics.expect("metrics").clone();
     assert_eq!(
         Some(42),
@@ -80,16 +81,8 @@ fn test_autoscaler_memory() {
     assert_eq!(7, spec.max_replicas);
     assert_eq!(Some(6), spec.min_replicas);
 
+    // cpu is added first so index for memory is 1
     let metrics = spec.metrics.expect("metrics").clone();
-    assert_eq!(
-        Some(50),
-        metrics[0]
-            .clone()
-            .resource
-            .expect("a resource")
-            .target_average_utilization
-    );
-
     assert_eq!(
         Some(50),
         metrics[1]
@@ -124,6 +117,7 @@ fn test_autoscaler_multi_metrics_resource() {
     assert_eq!(7, spec.max_replicas);
     assert_eq!(Some(6), spec.min_replicas);
 
+    // cpu is added first so index for cpu is 0
     let metrics = spec.metrics.expect("metrics").clone();
     assert_eq!(
         Some(42),
@@ -134,6 +128,7 @@ fn test_autoscaler_multi_metrics_resource() {
             .target_average_utilization
     );
 
+    // cpu is added first so index for memory is 1
     assert_eq!(
         Some(50),
         metrics[1]
