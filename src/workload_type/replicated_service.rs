@@ -42,7 +42,7 @@ impl ReplicatedService {
     fn to_service(&self) -> Option<api::Service> {
         self.definition.listening_port().and_then(|port| {
             let mut labels = BTreeMap::new();
-            labels.insert("app".to_string(), self.name.clone());
+            labels.insert("component".to_string(), self.name.clone());
             Some(api::Service {
                 metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),
