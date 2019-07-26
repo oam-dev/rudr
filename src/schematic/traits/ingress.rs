@@ -36,8 +36,8 @@ impl Ingress {
                 .unwrap_or(80),
             hostname: params
                 .get("hostname".into())
-                .and_then(|p| Some(p.to_string())),
-            path: params.get("path".into()).and_then(|p| Some(p.to_string())),
+                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+            path: params.get("path".into()).and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
             owner_ref: owner_ref,
         }
     }

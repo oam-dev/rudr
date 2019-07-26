@@ -40,7 +40,7 @@ fn test_ingress() {
         .get(0)
         .expect("a rule is required");
     assert_eq!(
-        "\"in.example.com\"",
+        "in.example.com",
         rule.host.as_ref().expect("host is required").to_string()
     );
 
@@ -52,7 +52,7 @@ fn test_ingress() {
         .get(0)
         .expect("at least one path is required");
     assert_eq!(
-        "\"/path\"",
+        "/path",
         path.clone().path.expect("must be a path.path").as_str()
     );
     assert_eq!("my-ingress", path.backend.service_name.as_str());
