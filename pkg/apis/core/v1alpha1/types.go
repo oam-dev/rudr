@@ -1,11 +1,12 @@
-package schematic
+package v1alpha1
 
 import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OperationalConfigurationVersion is the current supported version.
-const OperationalConfigurationVersion = "core.hydra.io/v1alpha1"
+// +genclient
+// +genclient:noStatus
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // OperationalConfiguration is the main resource type for a Hydra application.
 type OperationalConfiguration struct {
@@ -26,6 +27,8 @@ type OperationalConfigurationSpec struct {
 type OperationalConfigurationStatus struct {
 	Name string `json:"name,omitempty"`
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // OperationalConfigurationList describes a list of operational configurations.
 type OperationalConfigurationList struct {
