@@ -84,7 +84,7 @@ fn main() -> Result<(), failure::Error> {
     info!("Watcher is running");
 
     std::thread::spawn(|| {
-        let addr = "127.0.0.1:8080".parse().unwrap();
+        let addr = "0.0.0.0:8080".parse().unwrap();
         hyper::rt::run(
             Server::bind(&addr)
                 .serve(|| {
