@@ -85,7 +85,7 @@ fn test_autoscaler_memory() {
     let metrics = spec.metrics.expect("metrics").clone();
     assert_eq!(
         Some(50),
-        metrics[1]
+        metrics[0]
             .clone()
             .resource
             .expect("a resource")
