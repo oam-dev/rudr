@@ -6,6 +6,7 @@ metadata:
   labels:
 {{ include "scylla.labels" . | indent 4 }}
 
+{{ if .Values.enableRBAC }}
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -34,3 +35,4 @@ subjects:
 roleRef:
   kind: Role
   name: {{ template "scylla.fullname" . }}
+{{ end }}
