@@ -46,30 +46,39 @@ impl Autoscaler {
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
         // TODO: fix this to make it configurable
-        let metrics = Some(vec![
-            hpa::MetricSpec {
+        let mut metrics = Vec::new();
+
+        // Add CPU metrics if set
+        self.cpu.and_then(|cpu| {
+            metrics.push(hpa::MetricSpec {
                 type_: "Resource".into(),
                 resource: Some(hpa::ResourceMetricSource {
                     name: "cpu".to_string(),
-                    target_average_utilization: self.cpu.or(Some(80)),
+                    target_average_utilization: Some(cpu),
                     target_average_value: None,
                 }),
                 pods: None,
                 object: None,
                 external: None,
-            },
-            hpa::MetricSpec {
+            });
+            Some(())
+        });
+
+        // Add memory metrics if set
+        self.memory.and_then(|mem| {
+            metrics.push(hpa::MetricSpec {
                 type_: "Resource".into(),
                 resource: Some(hpa::ResourceMetricSource {
                     name: "memory".to_string(),
-                    target_average_utilization: self.memory.or(Some(80)),
+                    target_average_utilization: Some(mem),
                     target_average_value: None,
                 }),
                 pods: None,
                 object: None,
                 external: None,
-            },
-        ]);
+            });
+            Some(())
+        });
 
         hpa::HorizontalPodAutoscaler {
             metadata: Some(meta::ObjectMeta {
@@ -81,8 +90,8 @@ impl Autoscaler {
             }),
             spec: Some(hpa::HorizontalPodAutoscalerSpec {
                 min_replicas: self.minimum,
-                max_replicas: self.maximum.unwrap_or(10),
-                metrics: metrics,
+                max_replicas: self.maximum.unwrap_or(10 + self.minimum.unwrap_or(0)),
+                metrics: Some(metrics),
                 scale_target_ref: hpa::CrossVersionObjectReference {
                     api_version: Some("apps/v1".to_string()),
                     kind: "Deployment".to_string(),
@@ -107,8 +116,11 @@ impl TraitImplementation for Autoscaler {
             &scaler,
             Default::default(),
         )?;
-        let res = client.request(req)?;
-        println!("{:?}", res);
+
+        // Deserialize into a Value b/c the response from Kubernetes is not
+        // deserializing into an hpa::HorizontalPodAutoscaler correctly.
+        let res = client.request::<serde_json::Value>(req)?;
+        println!("Autoscaler: {}", serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string()));
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
