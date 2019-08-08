@@ -1,0 +1,74 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  name: autoscaler
+spec:
+  appliesTo:
+    - replicableService
+    - replicableTask
+  parameters:
+    - name: minimum
+      description: Minumum number of replicas to start. Default 1
+      type: int
+      required: false
+    - name: maximum
+      description: Maximum number of replicas to start. Default 10.
+      type: int
+      required: false 
+    - name: memory
+      description: The memory consumption threshold (as percent) that will cause a scale event
+      type: int
+      required: false
+    - name: cpu
+      description: The CPU consumption threshold (as percent) that will cause a scale event
+      type: int
+      required: false
+---
+
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  name: manual-scaler
+spec:
+  appliesTo:
+    - replicableService
+    - replicableTask
+  parameters:
+    - name: replicaCount
+      description: Number of replicas to start
+      type: int
+      required: true
+
+---
+
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  name: ingress
+spec:
+  appliesTo:
+    - replicableService
+    - singleton
+  parameters:
+    - name: hostname
+      description: Host name for the ingress
+      type: string
+      required: true
+    - name: service_port
+      description: Port number on the service
+      type: int
+      required: true
+    - name: path
+      description: Path to expose. Default is '/'
+      type: string
+      required: false
+
+---
+
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  name: empty
+spec:
+  appliesTo:
+    - "*"
