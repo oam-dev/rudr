@@ -9,6 +9,9 @@ image:
   tag: latest # We're in pre-release
   pullPolicy: Always
 
+# Turning this off will omit the Role and RoleBinding declarations.
+enableRBAC: true
+
 nameOverride: ""
 fullnameOverride: ""
 
