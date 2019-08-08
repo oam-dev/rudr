@@ -10,4 +10,5 @@ FROM debian:stretch-slim
 WORKDIR /usr/app
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/scylla/target/release/scylla .
+ENV RUST_LOG scylla=info
 CMD ["./scylla"]
