@@ -63,15 +63,7 @@ impl ManualScaler {
                         &dep,
                         Default::default(),
                     )?;
-                    let res2: Result<serde_json::Value, failure::Error> = client.request(req2);
-                    if res2.is_err() {
-                        let err = res2.unwrap_err();
-                        error!(
-                            "Scaling error: {}",
-                            serde_json::to_string_pretty(&dep).expect("debug")
-                        );
-                        return Err(err);
-                    }
+                    client.request::<apps::Deployment>(req2)?;
                 }
                 Ok(())
             }
@@ -93,15 +85,7 @@ impl ManualScaler {
                         &new_job,
                         Default::default(),
                     )?;
-                    let res2: Result<serde_json::Value, failure::Error> = client.request(req2);
-                    if res2.is_err() {
-                        let err = res2.unwrap_err();
-                        error!(
-                            "Scaling error: {}",
-                            serde_json::to_string_pretty(&new_job).expect("debug")
-                        );
-                        return Err(err);
-                    }
+                    client.request::<batch::Job>(req2)?;
                 }
                 Ok(())
             }

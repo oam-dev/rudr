@@ -1,6 +1,7 @@
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
+use kube::api::PostParams;
 use kube::client::APIClient;
 
 use crate::schematic::component::Component;
@@ -70,28 +71,19 @@ impl KubeName for ReplicatedService {
 impl WorkloadType for ReplicatedService {
     fn add(&self) -> InstigatorResult {
         let deployment = self.to_deployment();
-        let (req, _) = apps::Deployment::create_namespaced_deployment(
-            self.namespace.as_str(),
-            &deployment,
-            Default::default(),
-        )?;
+        let deployments =
+            kube::api::Api::v1Deployment(self.client.clone()).within(self.namespace.as_str());
+        let pp = PostParams::default();
+        deployments.create(&pp, serde_json::to_vec(&deployment)?)?;
 
-        // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
-        // malformed body. We just want the response code validated by APIClient.
-        let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
-        if res.is_err() {
-            return Err(res.unwrap_err());
-        }
         match self.to_service() {
             Some(svc) => {
                 info!("Service:\n{}", to_json(&svc).unwrap());
-                let (sreq, _) = api::Service::create_namespaced_service(
-                    self.namespace.as_str(),
-                    &svc,
-                    Default::default(),
-                )?;
-                let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
-                res.and(sres).and_then(|_o| Ok(()))
+                let pp = PostParams::default();
+                kube::api::Api::v1Service(self.client.clone())
+                    .within(self.namespace.as_str())
+                    .create(&pp, serde_json::to_vec(&svc)?)?;
+                Ok(())
             }
             // No service to create
             None => {

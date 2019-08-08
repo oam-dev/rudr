@@ -70,34 +70,18 @@ impl KubeName for Singleton {
 impl WorkloadType for Singleton {
     fn add(&self) -> InstigatorResult {
         let pod = self.to_pod();
-        let (req, _) =
-            api::Pod::create_namespaced_pod(self.namespace.as_str(), &pod, Default::default())?;
-
-        // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
-        // malformed body. We just want the response code validated by APIClient.
-        let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
-        if res.is_err() {
-            return Err(res.unwrap_err());
-        }
-
-        /*
-        if res.is_err() {
-            // FIXME: We seem to be getting a formatting error for the response, but I don't know what is causing it
-            info!("Pod: {}", to_json(&pod).unwrap());
-            warn!("Warning: {:?}", res);
-        }
-        */
-
+        let pp = kube::api::PostParams::default();
+        kube::api::Api::v1Pod(self.client.clone())
+            .within(self.namespace.as_str())
+            .create(&pp, serde_json::to_vec(&pod)?)?;
         match self.to_service() {
             Some(svc) => {
                 info!("Service:\n{}", to_json(&svc).unwrap());
-                let (sreq, _) = api::Service::create_namespaced_service(
-                    self.namespace.as_str(),
-                    &svc,
-                    Default::default(),
-                )?;
-                let sres: Result<serde_json::Value, failure::Error> = self.client.request(sreq);
-                sres.and_then(|_o| Ok(()))
+                let pp = kube::api::PostParams::default();
+                kube::api::Api::v1Service(self.client.clone())
+                    .within(self.namespace.as_str())
+                    .create(&pp, serde_json::to_vec(&svc)?)?;
+                Ok(())
             }
             // No service to create
             None => {

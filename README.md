@@ -6,15 +6,35 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 
 ## Installing Using Helm
 
-A relatively recent version of Scylla can be installed using [Helm 3](helm.sh).
+> Note: In its current version, Scylla will only run in the namespace `default`. This will change in the near future.
+
+A relatively recent version of Scylla can be installed using [Helm 3](helm.sh). While Helm 3 sorts out a few CRD issues, we are temporarily advising users to manually install CRDs before running the install:
 
 ```console
-$ helm install ./charts/scylla --generate-name
+$ kubectl create -f k8s/crds.yaml
+$ helm install scylla ./charts/scylla
+NAME: scylla
+LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
+NAMESPACE: default
+STATUS: deployed
+
+NOTES:
+Scylla is a Kubernetes controller to manage Configuration CRDs.
+
+It has been successfully installed.
 ```
 
 This will install the CRDs and the controller into your Kubernetes cluster.
 
-If you have already installed Scylla or are installing multiple copies of Scylla, you may need to add the `--no-hooks` flag.
+### Uninstalling
+
+```console
+$ helm delete scylla
+```
+
+This will leave the CRDs intact.
+
+NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.
 
 ## Building
 

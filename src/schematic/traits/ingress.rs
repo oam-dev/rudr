@@ -37,7 +37,9 @@ impl Ingress {
             hostname: params
                 .get("hostname".into())
                 .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
-            path: params.get("path".into()).and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+            path: params
+                .get("path".into())
+                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
             owner_ref: owner_ref,
         }
     }
@@ -76,15 +78,7 @@ impl TraitImplementation for Ingress {
     fn add(&self, ns: &str, client: APIClient) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        if res.is_err() {
-            let err = res.unwrap_err();
-            error!(
-                "Ingress error: {}",
-                serde_json::to_string_pretty(&ingress).expect("debug")
-            );
-            return Err(err);
-        }
+        client.request::<ext::Ingress>(req)?;
         Ok(())
     }
 }
