@@ -138,5 +138,3 @@ fn test_autoscaler_multi_metrics_resource() {
             .target_average_utilization
     );
 }
-
-

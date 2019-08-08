@@ -1,5 +1,5 @@
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::Reflector, api::Resource, client::APIClient};
+use kube::{api::Object, api::RawApi, api::Void, client::APIClient};
 use std::collections::BTreeMap;
 
 use crate::{
@@ -19,7 +19,7 @@ use crate::{
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), failure::Error>;
-type OpResource = Resource<OperationalConfiguration, Status>;
+type OpResource = Object<OperationalConfiguration, Status>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -54,8 +54,12 @@ const DEFAULT_NAMESPACE: &'static str = "default";
 #[derive(Clone)]
 pub struct Instigator {
     client: APIClient,
-    cache: Reflector<Component, Status>,
+    //cache: Reflector<Component, Status>,
+    namespace: String,
 }
+
+/// Alias for a Kubernetes wrapper on a component.
+type KubeComponent = Object<Component, Void>;
 
 // The implementation of Instegator can probably be cleaned up quite a bit.
 // My bad Go habits of recklessly duplicating code may not be justified here.
@@ -65,10 +69,11 @@ impl Instigator {
     ///
     /// An instigator uses the reflector as a cache of Components, and will use the API client
     /// for creating and managing the component implementation.
-    pub fn new(client: kube::client::APIClient, cache: Reflector<Component, Status>) -> Self {
+    pub fn new(client: kube::client::APIClient, ns: String) -> Self {
         Instigator {
             client: client,
-            cache: cache,
+            //cache: cache,
+            namespace: ns,
         }
     }
 
@@ -76,7 +81,7 @@ impl Instigator {
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, phase: Phase) -> InstigatorResult {
         // component cache
-        let cache = self.cache.read().unwrap();
+        //let cache = self.cache.read().unwrap();
         let name = event.metadata.name.clone();
 
         // TODO:
@@ -85,13 +90,14 @@ impl Instigator {
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone());
 
         for component in event.spec.components.unwrap_or(vec![]) {
-            let comp_def = cache
-                .get(component.name.as_str())
-                .ok_or(ComponentNotFoundError {
-                    name: component.name.clone(),
-                })?;
+            let component_resource = RawApi::customResource("components")
+                .version("v1alpha1")
+                .group("core.hydra.io")
+                .within(&self.namespace);
+            let comp_def_req = component_resource.get(component.name.as_str())?;
+            let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
 
-            // - Resolve parameters
+            // Resolve parameters
             let parent = event
                 .spec
                 .parameter_values
@@ -107,7 +113,7 @@ impl Instigator {
             let workload = self.load_workload_type(
                 name.clone(),
                 inst_name.clone(),
-                comp_def,
+                &comp_def,
                 &params,
                 owner_ref.clone(),
             )?;
@@ -193,7 +199,7 @@ impl Instigator {
         &self,
         config_name: String,
         instance_name: String,
-        comp: &Resource<Component, Status>,
+        comp: &KubeComponent,
         params: &ParamMap,
         owner: Option<Vec<meta::OwnerReference>>,
     ) -> Result<CoreWorkloadType, failure::Error> {

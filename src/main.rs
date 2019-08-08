@@ -6,8 +6,8 @@ use hyper::rt::Future;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
 
-use kube::api::{ApiResource, Informer, Reflector, WatchEvent};
-use kube::{client::APIClient, config::load_kube_config, config::incluster_config};
+use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
+use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
 
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
@@ -17,11 +17,13 @@ use log::{error, info};
 fn kubeconfig() -> Result<kube::config::Configuration, failure::Error> {
     // If env var is set, use in cluster config
     if std::env::var("KUBERNETES_PORT").is_ok() {
-        return incluster_config()
+        return incluster_config();
     }
     load_kube_config()
-    
 }
+
+type KubeComponent = Object<Component, Status>;
+type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
@@ -34,40 +36,36 @@ fn main() -> Result<(), failure::Error> {
     let cfg_watch = top_cfg.clone();
     let client = APIClient::new(top_cfg);
 
-    let component_resource = ApiResource {
-        group: "core.hydra.io".into(),
-        resource: "components".into(),
-        namespace: Some(top_ns.into()),
-        version: "v1alpha1".into(),
-        ..Default::default()
-    };
-    let component_cache: Reflector<Component, Status> =
-        Reflector::new(client.clone(), component_resource.clone().into())
-            .expect("component reflector cannot be created");
+    let component_resource = RawApi::customResource("components")
+        .within(top_ns.into())
+        .group("core.hydra.io".into())
+        .version("v1alpha1");
+
+    let component_cache: Reflector<KubeComponent> =
+        Reflector::raw(client.clone(), component_resource.clone())
+            .timeout(10)
+            .init()?;
     let reflector = component_cache.clone();
 
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns;
         let client = APIClient::new(cfg_watch);
-        let resource = ApiResource {
-            group: "core.hydra.io".into(),
-            resource: "configurations".into(),
-            namespace: Some(ns.into()),
-            version: "v1alpha1".into(),
-            ..Default::default()
-        };
+        let resource = RawApi::customResource("configurations")
+            .within(top_ns.into())
+            .group("core.hydra.io".into())
+            .version("v1alpha1");
 
         // This listens for new items, and then processes them as they come in.
-        let informer: Informer<OperationalConfiguration, Status> =
-            Informer::new(client.clone(), resource.clone().into())?;
+        let informer: Informer<KubeOpsConfig> =
+            Informer::raw(client.clone(), resource.clone().into()).init()?;
         loop {
             informer.poll()?;
             info!("loop");
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {
-                if let Err(res) = handle_event(&client, event, component_cache.clone()) {
+                if let Err(res) = handle_event(&client, event, ns.into()) {
                     // Log the error and continue. In the future, should probably
                     // re-queue data in some cases.
                     error!("Error processing event: {:?}", res)
@@ -114,10 +112,10 @@ fn main() -> Result<(), failure::Error> {
 /// This takes an event off the stream and delegates it to the instagator, calling the correct verb.
 fn handle_event(
     cli: &APIClient,
-    event: WatchEvent<OperationalConfiguration, Status>,
-    cache: Reflector<Component, Status>,
+    event: WatchEvent<KubeOpsConfig>,
+    namespace: String,
 ) -> Result<(), failure::Error> {
-    let inst = Instigator::new(cli.clone(), cache);
+    let inst = Instigator::new(cli.clone(), namespace);
     match event {
         WatchEvent::Added(o) => inst.add(o),
         WatchEvent::Modified(o) => inst.modify(o),

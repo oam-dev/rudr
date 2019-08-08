@@ -46,34 +46,30 @@ impl Autoscaler {
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
         // TODO: fix this to make it configurable
-        let metrics = Some(vec![hpa::MetricSpec {
-            type_: "Resource".into(),
-            resource: 
-                Some(
-                    hpa::ResourceMetricSource {
-                        name: "cpu".to_string(),
-                        target_average_utilization: self.cpu.or(Some(80)),
-                        target_average_value: None,
-                    }
-            ),
-            pods: None,
-            object: None,
-            external: None,
-        },
-        hpa::MetricSpec {
-            type_: "Resource".into(),
-            resource: 
-                Some(
-                    hpa::ResourceMetricSource {
-                        name: "memory".to_string(),
-                        target_average_utilization: self.memory.or(Some(80)),
-                        target_average_value: None,
-                    }
-            ),
-            pods: None,
-            object: None,
-            external: None,
-        }]);
+        let metrics = Some(vec![
+            hpa::MetricSpec {
+                type_: "Resource".into(),
+                resource: Some(hpa::ResourceMetricSource {
+                    name: "cpu".to_string(),
+                    target_average_utilization: self.cpu.or(Some(80)),
+                    target_average_value: None,
+                }),
+                pods: None,
+                object: None,
+                external: None,
+            },
+            hpa::MetricSpec {
+                type_: "Resource".into(),
+                resource: Some(hpa::ResourceMetricSource {
+                    name: "memory".to_string(),
+                    target_average_utilization: self.memory.or(Some(80)),
+                    target_average_value: None,
+                }),
+                pods: None,
+                object: None,
+                external: None,
+            },
+        ]);
 
         hpa::HorizontalPodAutoscaler {
             metadata: Some(meta::ObjectMeta {
@@ -111,15 +107,8 @@ impl TraitImplementation for Autoscaler {
             &scaler,
             Default::default(),
         )?;
-        let res: Result<serde_json::Value, failure::Error> = client.request(req);
-        if res.is_err() {
-            let err = res.unwrap_err();
-            error!(
-                "Autoscaler error: {}",
-                serde_json::to_string_pretty(&scaler).expect("debug")
-            );
-            return Err(err);
-        }
+        let res = client.request(req)?;
+        println!("{:?}", res);
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {

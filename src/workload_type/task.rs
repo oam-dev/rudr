@@ -61,15 +61,20 @@ impl KubeName for Task {
 impl WorkloadType for Task {
     fn add(&self) -> InstigatorResult {
         let job = self.to_job();
-        let (req, _) = batchapi::Job::create_namespaced_job(
-            self.namespace.as_str(),
-            &job,
-            Default::default(),
-        )?;
+        let pp = kube::api::PostParams::default();
 
-        // We force the decoded value into a serde_json::Value because we don't care if Kubernetes returns a
-        // malformed body. We just want the response code validated by APIClient.
-        let res: Result<serde_json::Value, failure::Error> = self.client.request(req);
-        res.and(Ok(()))
+        // Right now, the Batch API is not transparent through Kube.
+        // TODO: Commit upstream
+        let batch = kube::api::RawApi {
+            group: "batch".into(),
+            resource: "jobs".into(),
+            prefix: "apis".into(),
+            namespace: Some(self.namespace.to_string()),
+            version: "v1".into(),
+        };
+
+        let req = batch.create(&pp, serde_json::to_vec(&job)?)?;
+        self.client.request::<batchapi::Job>(req)?;
+        Ok(())
     }
 }
