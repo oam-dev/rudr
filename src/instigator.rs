@@ -6,6 +6,7 @@ use crate::{
     lifecycle::Phase,
     schematic::{
         component::Component,
+        component_instance::KubeComponentInstance,
         configuration::ComponentConfiguration,
         configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
@@ -61,9 +62,6 @@ pub struct Instigator {
 /// Alias for a Kubernetes wrapper on a component.
 type KubeComponent = Object<Component, Void>;
 
-// The implementation of Instegator can probably be cleaned up quite a bit.
-// My bad Go habits of recklessly duplicating code may not be justified here.
-
 impl Instigator {
     /// Create a new instigator
     ///
@@ -72,7 +70,6 @@ impl Instigator {
     pub fn new(client: kube::client::APIClient, ns: String) -> Self {
         Instigator {
             client: client,
-            //cache: cache,
             namespace: ns,
         }
     }
@@ -80,14 +77,10 @@ impl Instigator {
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, phase: Phase) -> InstigatorResult {
-        // component cache
-        //let cache = self.cache.read().unwrap();
-        let name = event.metadata.name.clone();
-
         // TODO:
         // - Resolve scope bindings
-
-        let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone());
+        let name = event.metadata.name.clone();
+        let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
         for component in event.spec.components.unwrap_or(vec![]) {
             let component_resource = RawApi::customResource("components")
@@ -108,14 +101,35 @@ impl Instigator {
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
-            // Instantiate components
             let inst_name = component.instance_name.clone();
+            let new_owner_ref = match phase {
+                Phase::Add => {
+                    self.create_component_instance(inst_name.clone(), owner_ref.clone())?
+                }
+                _ => {
+                    let ownref = self.component_instance_owner_reference(inst_name.as_str());
+                    if ownref.is_err() {
+                        // Wrap the error to make it clear where we failed
+                        // During deletion, this might indicate that something else
+                        // remove the component instance.
+                        return Err(format_err!(
+                            "{:?} on {}: {}",
+                            phase.clone(),
+                            inst_name.clone(),
+                            ownref.unwrap_err()
+                        ));
+                    }
+                    ownref.unwrap()
+                }
+            };
+
+            // Instantiate components
             let workload = self.load_workload_type(
                 name.clone(),
                 inst_name.clone(),
                 &comp_def,
                 &params,
-                owner_ref.clone(),
+                Some(new_owner_ref.clone()),
             )?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
@@ -123,7 +137,7 @@ impl Instigator {
                 instance_name: inst_name.clone(),
                 component: component.clone(),
                 parent_params: parent.clone(),
-                owner_ref: owner_ref.clone(),
+                owner_ref: Some(new_owner_ref.clone()),
                 workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
             };
@@ -264,13 +278,83 @@ impl Instigator {
             )),
         }
     }
+
+    fn create_component_instance(
+        &self,
+        name: String,
+        owner: meta::OwnerReference,
+    ) -> Result<Vec<meta::OwnerReference>, failure::Error> {
+        let pp = kube::api::PostParams::default();
+        let crd_req = RawApi::customResource("componentinstances")
+            .group("core.hydra.io")
+            .version("v1alpha1")
+            .within(self.namespace.as_str());
+        let comp_inst = json!({
+            "apiVersion": "core.hydra.io/v1alpha1",
+            "kind": "ComponentInstance",
+            "metadata": {
+                "name": name.clone(),
+                "ownerReferences": [{
+                    "apiVersion": HYDRA_API_VERSION,
+                    "kind": "Configuration",
+                    "controller": true,
+                    "blockOwnerDeletion": true,
+                    "name": owner.name.clone(),
+                    "uid": owner.uid.clone(),
+                }]
+            },
+            "spec": {
+                "traits": []
+            }
+        });
+
+        let req = crd_req.create(&pp, serde_json::to_vec(&comp_inst)?)?;
+        let res: KubeComponentInstance = self.client.request(req)?;
+
+        if res.metadata.uid.is_none() {
+            return Err(format_err!("UID was not set on component instance"));
+        }
+        info!("UID: {}", res.metadata.uid.clone().unwrap());
+
+        let new_owner = meta::OwnerReference {
+            api_version: HYDRA_API_VERSION.into(),
+            kind: "ComponentInstance".into(),
+            uid: res.metadata.uid.unwrap(),
+            controller: Some(true),
+            block_owner_deletion: Some(true),
+            name: name,
+        };
+        Ok(vec![new_owner])
+    }
+
+    fn component_instance_owner_reference(
+        &self,
+        name: &str,
+    ) -> Result<Vec<meta::OwnerReference>, failure::Error> {
+        let crd_req = RawApi::customResource("componentinstances")
+            .group("core.hydra.io")
+            .version("v1alpha1")
+            .within(self.namespace.as_str());
+        let req = crd_req.get(name)?;
+        let res: KubeComponentInstance = self.client.request(req)?;
+
+        let owner = meta::OwnerReference {
+            api_version: HYDRA_API_VERSION.into(),
+            kind: "ComponentInstance".into(),
+            uid: res.metadata.uid.unwrap(),
+            controller: Some(true),
+            block_owner_deletion: Some(true),
+            name: res.metadata.name,
+        };
+        Ok(vec![owner])
+    }
 }
 
 /// Build an owner reference for the given parent UID of kind Configuration.
 pub fn config_owner_reference(
     parent_name: String,
     parent_uid: Option<String>,
-) -> Option<Vec<meta::OwnerReference>> {
+) -> Result<meta::OwnerReference, failure::Error> {
     match parent_uid {
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
@@ -281,12 +365,11 @@ pub fn config_owner_reference(
                 block_owner_deletion: Some(true),
                 name: parent_name.clone(),
             };
-            Some(vec![owner_ref])
+            Ok(owner_ref)
         }
-        None => {
-            info!("Mysteriously, no UID was created. Ancient version of Kubernetes?");
-            None
-        }
+        None => Err(format_err!(
+            "Mysteriously, no UID was created. Ancient version of Kubernetes?"
+        )),
     }
 }
 
