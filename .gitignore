@@ -1,4 +1,9 @@
 /target
 **/*.rs.bk
-/.vscode
+
 /vendor
+
+# editor
+/.vscode
+/.idea/
+*.iml

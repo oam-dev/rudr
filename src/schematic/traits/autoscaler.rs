@@ -120,7 +120,10 @@ impl TraitImplementation for Autoscaler {
         // Deserialize into a Value b/c the response from Kubernetes is not
         // deserializing into an hpa::HorizontalPodAutoscaler correctly.
         let res = client.request::<serde_json::Value>(req)?;
-        println!("Autoscaler: {}", serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string()));
+        println!(
+            "Autoscaler: {}",
+            serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string())
+        );
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
