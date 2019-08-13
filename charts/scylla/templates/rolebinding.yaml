@@ -31,7 +31,6 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ template "scylla.fullname" . }}
-  namespace: "default"  # FIXME
 roleRef:
   kind: Role
   name: {{ template "scylla.fullname" . }}

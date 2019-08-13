@@ -30,7 +30,6 @@ pub struct ComponentNotFoundError {
     name: String,
 }
 
-const DEFAULT_NAMESPACE: &'static str = "default";
 
 /// An Instigator takes an inbound object and manages the reconcilliation with the desired objects.
 ///
@@ -147,13 +146,13 @@ impl Instigator {
                 Phase::Add => {
                     info!("Adding component {}", component.name.clone());
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreAdd,
                     )?;
                     workload.add()?;
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::Add,
                     )?;
@@ -161,13 +160,13 @@ impl Instigator {
                 Phase::Modify => {
                     info!("Modifying component {}", component.name.clone());
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreModify,
                     )?;
                     workload.modify()?;
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::Modify,
                     )?;
@@ -175,13 +174,13 @@ impl Instigator {
                 Phase::Delete => {
                     info!("Deleting component {}", component.name.clone());
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreDelete,
                     )?;
                     workload.delete()?;
                     trait_manager.exec(
-                        DEFAULT_NAMESPACE.into(),
+                        self.namespace.as_str(),
                         self.client.clone(),
                         Phase::Delete,
                     )?;
@@ -224,7 +223,7 @@ impl Instigator {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
-                    namespace: DEFAULT_NAMESPACE.into(),
+                    namespace: self.namespace.clone(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
@@ -237,7 +236,7 @@ impl Instigator {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
-                    namespace: DEFAULT_NAMESPACE.into(),
+                    namespace: self.namespace.clone(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
@@ -250,7 +249,7 @@ impl Instigator {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
-                    namespace: DEFAULT_NAMESPACE.into(),
+                    namespace: self.namespace.clone(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
@@ -263,7 +262,7 @@ impl Instigator {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
-                    namespace: DEFAULT_NAMESPACE.into(),
+                    namespace: self.namespace.clone(),
                     definition: comp.spec.clone(),
                     client: self.client.clone(),
                     params: params.clone(),
