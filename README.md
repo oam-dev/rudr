@@ -6,13 +6,13 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 
 ## Installing Using Helm
 
-> Note: In its current version, Scylla will only run in the namespace `default`. This will change in the near future.
+> Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
 
 A relatively recent version of Scylla can be installed using [Helm 3](helm.sh). While Helm 3 sorts out a few CRD issues, we are temporarily advising users to manually install CRDs before running the install:
 
 ```console
-$ kubectl create -f k8s/crds.yaml
-$ helm install scylla ./charts/scylla
+$ kubectl create -f charts/scylla/templates/crds.yaml
+$ helm install scylla ./charts/scylla --no-hooks
 NAME: scylla
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
@@ -36,7 +36,183 @@ This will leave the CRDs intact.
 
 NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.
 
-## Building
+## Using Scylla
+
+Once you have installed Scylla, you can start building apps. The easiest way to get going is to try out some of the examples in the `examples/` directory.
+
+First, pre-load some component schematics:
+
+```console
+$ kubectl create -f examples/components.yaml
+```
+
+You can now list the components available to you:
+
+```console
+$ kubectl get components
+NAME                     AGE
+alpine-replicable-task   19h
+alpine-task              19h
+hpa-example-replicated   19h
+nginx-replicated         19h
+nginx-singleton          19h
+```
+
+You can look at an individual component:
+
+```console
+$ kubectl get component alpine-task -o yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: Component
+metadata:
+  creationTimestamp: "2019-08-08T03:31:36Z"
+  generation: 1
+  name: alpine-task
+  namespace: default
+  resourceVersion: "1990"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/components/alpine-task
+  uid: 016e40ed-8443-4a64-b87e-bdcec38e3273
+spec:
+  containers:
+  - image: alpine:latest
+    name: runner
+  os: linux
+  workloadType: core.hydra.io/v1alpha1.Task
+```
+
+You can also list the traits that are available on Scylla:
+
+```console
+$ kubectl get traits
+NAME            AGE
+autoscaler      19m
+empty           19m
+ingress         19m
+manual-scaler   19m
+```
+
+And you can look at an individual trait in the same way that you investigate a component:
+
+```console
+$ kubectl get trait manual-scaler -o yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  creationTimestamp: "2019-08-08T22:25:55Z"
+  generation: 1
+  name: manual-scaler
+  namespace: default
+  resourceVersion: "38274"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/traits/manual-scaler
+  uid: fecd2fb8-5f83-49dc-9a6e-dc04deaa8b92
+spec:
+  appliesTo:
+  - replicableService
+  - replicableTask
+  parameters:
+  - description: Number of replicas to start
+    name: replicaCount
+    required: true
+    type: int
+```
+
+When you are ready to try installing something, take a look at the `examples/first-app-config.yaml`, which shows a basic Operational Configuration with a single trait applied:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: first-app
+spec:
+  components:
+  - name: nginx-singleton
+    instanceName: first-app-nginx
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    traits:
+      - name: ingress
+        parameterValues:
+          - name: hostname
+            value: example.com
+          - name: path
+            value: /
+```
+
+To install this operational configuration, use `kubectl`:
+
+```console
+$ kubectl create -f examples/first-app-config.yaml
+configuration.core.hydra.io/first-app created
+```
+
+You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Kubernetes is creating all the necessary objects.
+
+And, of course, you can see your configuration:
+
+```console
+$ kubectl get configurations
+NAME        AGE
+first-app   4m23s
+$ kubectl get configuration first-app -o yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  creationTimestamp: "2019-08-08T22:49:29Z"
+  generation: 1
+  name: first-app
+  namespace: default
+  resourceVersion: "40006"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/configurations/first-app
+  uid: 7fcb2f3f-2339-4242-8a54-6bed11d4bf86
+spec:
+  components:
+  - instanceName: first-app-nginx
+    name: nginx-singleton
+    parameterValues:
+    - name: poet
+      value: Eliot
+    - name: poem
+      value: The Wasteland
+    traits:
+    - name: ingress
+      parameterValues:
+      - name: hostname
+        value: example.com
+      - name: path
+        value: /
+```
+
+Finally, you can delete your configuration:
+
+```console
+$ kubectl delete configuration first-app
+configuration.core.hydra.io "first-app" deleted
+```
+
+That will delete your application and all associated resources.
+
+It will _not_ delete the traits and the components, which are happily awaiting your use in the next Operational Configuration.
+
+```console
+$ kubectl get traits,components
+NAME                                AGE
+trait.core.hydra.io/autoscaler      31m
+trait.core.hydra.io/empty           31m
+trait.core.hydra.io/ingress         31m
+trait.core.hydra.io/manual-scaler   31m
+
+NAME                                             AGE
+component.core.hydra.io/alpine-replicable-task   19h
+component.core.hydra.io/alpine-task              19h
+component.core.hydra.io/hpa-example-replicated   19h
+component.core.hydra.io/nginx-replicated         19h
+component.core.hydra.io/nginx-singleton          19h
+```
+
+## Building from Source
 
 To build:
 
@@ -86,19 +262,6 @@ first-app-nginx-singleton-trait-ingress   example.com             80        19s
 ```
 
 To delete this, just do a `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
-
-## TODO
-
-This is the _brief_ version of high level TODOs. There are plenty more things that actually need to be done.
-
-- [x] Handle parameters!!!
-- [x] Switch to logger (death to `println!`)
-- [ ] Fix namespacing as soon as scopes make it into the spec
-- [ ] clone() is a crutch (90% of the time)
-- [ ] Refactor main()
-- [ ] How do we make the trait system more flexible?
-- [ ] Under what conditions is a deployment error a failure, a rollback, or a "keep going"?
-- [ ] Can we use ownership references to cascade deletes without the controller?
 
 ## License
 
