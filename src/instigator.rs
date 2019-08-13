@@ -30,7 +30,6 @@ pub struct ComponentNotFoundError {
     name: String,
 }
 
-
 /// An Instigator takes an inbound object and manages the reconcilliation with the desired objects.
 ///
 /// Any given Component may, underneath the hood, be composed of multiple Kubernetes objects.
@@ -151,11 +150,7 @@ impl Instigator {
                         Phase::PreAdd,
                     )?;
                     workload.add()?;
-                    trait_manager.exec(
-                        self.namespace.as_str(),
-                        self.client.clone(),
-                        Phase::Add,
-                    )?;
+                    trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)?;
                 }
                 Phase::Modify => {
                     info!("Modifying component {}", component.name.clone());

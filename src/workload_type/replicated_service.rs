@@ -27,6 +27,11 @@ impl ReplicatedService {
     fn to_deployment(&self) -> apps::Deployment {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.name.clone());
+        labels.insert(
+            "workload-type".to_string(),
+            "replicated-service".to_string(),
+        );
+
         apps::Deployment {
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta {
@@ -44,6 +49,11 @@ impl ReplicatedService {
         self.definition.listening_port().and_then(|port| {
             let mut labels = BTreeMap::new();
             labels.insert("component".to_string(), self.name.clone());
+            labels.insert(
+                "workload-type".to_string(),
+                "replicated-service".to_string(),
+            );
+
             Some(api::Service {
                 metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),

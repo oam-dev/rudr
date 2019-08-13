@@ -27,6 +27,7 @@ impl Singleton {
         let mut labels = BTreeMap::new();
         let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
+        labels.insert("workload-type".to_string(), "singleton-service".to_string());
         api::Pod {
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta {
@@ -44,6 +45,7 @@ impl Singleton {
         self.definition.listening_port().and_then(|port| {
             let mut labels = BTreeMap::new();
             labels.insert("app".to_string(), self.name.clone());
+            labels.insert("workload-type".to_string(), "singleton-service".to_string());
             Some(api::Service {
                 metadata: Some(meta::ObjectMeta {
                     name: Some(self.kube_name()),

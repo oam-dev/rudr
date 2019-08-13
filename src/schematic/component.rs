@@ -84,13 +84,16 @@ impl Component {
     }
 
     pub fn image_pull_secrets(&self) -> Vec<core::LocalObjectReference> {
-        self.containers.iter().filter_map(|c| {
-            info!("Looking for image pull secret");
-            c.image_pull_secret.clone().and_then(|n| {
-                info!("found image pull secret");
-                Some(core::LocalObjectReference{name: Some(n)})
-            })   
-        }).collect()
+        self.containers
+            .iter()
+            .filter_map(|c| {
+                info!("Looking for image pull secret");
+                c.image_pull_secret.clone().and_then(|n| {
+                    info!("found image pull secret");
+                    Some(core::LocalObjectReference { name: Some(n) })
+                })
+            })
+            .collect()
     }
 
     pub fn to_deployment_spec(&self, name: String) -> apps::DeploymentSpec {

@@ -6,7 +6,27 @@ use crate::workload_type::{task::*, KubeName};
 use std::collections::BTreeMap;
 
 #[test]
-fn test_task_kube_name() {
+fn test_singleton_task_kube_name() {
+    let cli = APIClient::new(mock_kube_config());
+
+    let task = SingletonTask {
+        name: "mytask".into(),
+        component_name: "taskrunner".into(),
+        instance_name: "taskinstance".into(),
+        namespace: "tests".into(),
+        definition: Component {
+            ..Default::default()
+        },
+        params: BTreeMap::new(),
+        client: cli,
+        owner_ref: None,
+    };
+
+    assert_eq!("taskinstance", task.kube_name().as_str());
+}
+
+#[test]
+fn test_replicated_task_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
     let task = Task {
@@ -20,6 +40,7 @@ fn test_task_kube_name() {
         params: BTreeMap::new(),
         client: cli,
         owner_ref: None,
+        replica_count: None,
     };
 
     assert_eq!("taskinstance", task.kube_name().as_str());

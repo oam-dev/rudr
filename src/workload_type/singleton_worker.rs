@@ -4,14 +4,14 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{InstigatorResult, KubeName, ParamMap, WorkloadType};
+use crate::workload_type::{InstigatorResult, KubeName, ParamMap, WorkloadType, workload_builder::JobBuilder};
 
 use std::collections::BTreeMap;
 
-/// ReplicatedTask represents a non-daemon process that can be parallelized.
+/// Task represents a non-daemon process.
 ///
 /// It is currently implemented as a Kubernetes Job.
-pub struct ReplicatedTask {
+pub struct SingletonWorker {
     pub name: String,
     pub component_name: String,
     pub instance_name: String,
@@ -19,49 +19,30 @@ pub struct ReplicatedTask {
     pub definition: Component,
     pub client: APIClient,
     pub params: ParamMap,
+    pub replica_count: i32,
     pub owner_ref: Option<Vec<meta::OwnerReference>>,
-    pub replica_count: Option<i32>,
 }
-impl ReplicatedTask {
+impl SingletonWorker {
     /// Create a Job
     pub fn to_job(&self) -> batchapi::Job {
         let mut labels = BTreeMap::new();
         let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
-        labels.insert("workload-type".to_string(), "task".to_string());
-        batchapi::Job {
-            // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta {
-                name: Some(podname.clone()),
-                labels: Some(labels.clone()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
-            spec: Some(batchapi::JobSpec {
-                backoff_limit: Some(4),
-                parallelism: self.replica_count,
-                template: api::PodTemplateSpec {
-                    metadata: Some(meta::ObjectMeta {
-                        name: Some(podname),
-                        labels: Some(labels),
-                        owner_references: self.owner_ref.clone(),
-                        ..Default::default()
-                    }),
-                    spec: Some(self.definition.to_pod_spec_with_policy("Never".into())),
-                },
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
+        labels.insert("workload-type".to_string(), "singleton-worker".to_string());
+        JobBuilder::new(podname, self.definition.clone())
+            .labels(labels)
+            .owner_ref(self.owner_ref.clone())
+            .restart_policy("OnError".to_string())
+            .to_job()
     }
 }
 
-impl KubeName for ReplicatedTask {
+impl KubeName for SingletonWorker {
     fn kube_name(&self) -> String {
         self.instance_name.to_string()
     }
 }
-impl WorkloadType for ReplicatedTask {
+impl WorkloadType for SingletonWorker {
     fn add(&self) -> InstigatorResult {
         let job = self.to_job();
         let pp = kube::api::PostParams::default();
