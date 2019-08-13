@@ -14,6 +14,8 @@ use scylla::schematic::{component::Component, configuration::OperationalConfigur
 
 use log::{error, info};
 
+const DEFAULT_NAMESPACE: &'static str = "default";
+
 fn kubeconfig() -> Result<kube::config::Configuration, failure::Error> {
     // If env var is set, use in cluster config
     if std::env::var("KUBERNETES_PORT").is_ok() {
@@ -28,7 +30,7 @@ type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
 
-    let top_ns = "default";
+    let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or(DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
 
     // There is probably a better way to do this than to create two clones, but there is a potential
@@ -37,7 +39,7 @@ fn main() -> Result<(), failure::Error> {
     let client = APIClient::new(top_cfg);
 
     let component_resource = RawApi::customResource("components")
-        .within(top_ns.into())
+        .within(top_ns.as_str())
         .group("core.hydra.io".into())
         .version("v1alpha1");
 
@@ -49,10 +51,10 @@ fn main() -> Result<(), failure::Error> {
 
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
-        let ns = top_ns;
+        let ns = top_ns.clone();
         let client = APIClient::new(cfg_watch);
         let resource = RawApi::customResource("configurations")
-            .within(top_ns.into())
+            .within(ns.as_str())
             .group("core.hydra.io".into())
             .version("v1alpha1");
 
@@ -65,7 +67,7 @@ fn main() -> Result<(), failure::Error> {
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {
-                if let Err(res) = handle_event(&client, event, ns.into()) {
+                if let Err(res) = handle_event(&client, event, ns.clone()) {
                     // Log the error and continue. In the future, should probably
                     // re-queue data in some cases.
                     error!("Error processing event: {:?}", res)

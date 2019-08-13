@@ -19,6 +19,11 @@ spec:
       serviceAccountName: {{ template "scylla.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
