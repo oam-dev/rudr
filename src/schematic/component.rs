@@ -48,16 +48,20 @@ impl Component {
     /// to_pod_spec generates a pod specification.
     pub fn to_pod_spec(&self) -> core::PodSpec {
         let containers = self.to_containers();
+        let secrets = self.image_pull_secrets();
         core::PodSpec {
             containers: containers,
+            image_pull_secrets: Some(secrets),
             ..Default::default()
         }
     }
 
     pub fn to_pod_spec_with_policy(&self, restart_policy: String) -> core::PodSpec {
         let containers = self.to_containers();
+        let secrets = self.image_pull_secrets();
         core::PodSpec {
             containers: containers,
+            image_pull_secrets: Some(secrets),
             restart_policy: Some(restart_policy),
             ..Default::default()
         }
@@ -77,6 +81,16 @@ impl Component {
                 ..Default::default()
             })
             .collect()
+    }
+
+    pub fn image_pull_secrets(&self) -> Vec<core::LocalObjectReference> {
+        self.containers.iter().filter_map(|c| {
+            info!("Looking for image pull secret");
+            c.image_pull_secret.clone().and_then(|n| {
+                info!("found image pull secret");
+                Some(core::LocalObjectReference{name: Some(n)})
+            })   
+        }).collect()
     }
 
     pub fn to_deployment_spec(&self, name: String) -> apps::DeploymentSpec {
@@ -123,6 +137,7 @@ impl Default for Component {
 pub struct Container {
     pub name: String,
     pub image: String,
+    pub image_pull_secret: Option<String>,
 
     #[serde(default)]
     pub resources: Resources,
