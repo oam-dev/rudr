@@ -14,7 +14,7 @@ use crate::{
         Status,
     },
     workload_type::{
-        CoreWorkloadType, ReplicatedService, ReplicatedTask, Singleton, SingletonTask, SingletonWorker, Worker, HYDRA_API_VERSION,
+        CoreWorkloadType, ReplicatedService, ReplicatedTask, SingletonService, SingletonTask, SingletonWorker, Worker, HYDRA_API_VERSION,
     },
 };
 
@@ -213,6 +213,7 @@ impl Instigator {
     ) -> Result<CoreWorkloadType, failure::Error> {
         info!("Looking up {}", config_name);
         match comp.spec.workload_type.as_str() {
+            // This one is DEPRECATED
             "core.hydra.io/v1alpha1.ReplicatedService" => {
                 let rs = ReplicatedService {
                     name: config_name,
@@ -226,8 +227,35 @@ impl Instigator {
                 };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
+            // DEPRECATED
             "core.hydra.io/v1alpha1.Singleton" => {
-                let sing = Singleton {
+                let sing = SingletonService {
+                    name: config_name,
+                    instance_name: instance_name,
+                    component_name: comp.metadata.name.clone(),
+                    namespace: self.namespace.clone(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                    params: params.clone(),
+                    owner_ref: owner,
+                };
+                Ok(CoreWorkloadType::SingletonType(sing))
+            }
+            "core.hydra.io/v1alpha1.Service" => {
+                let rs = ReplicatedService {
+                    name: config_name,
+                    instance_name: instance_name,
+                    component_name: comp.metadata.name.clone(),
+                    namespace: self.namespace.clone(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                    params: params.clone(),
+                    owner_ref: owner,
+                };
+                Ok(CoreWorkloadType::ReplicatedServiceType(rs))
+            }
+            "core.hydra.io/v1alpha1.SingletonService" => {
+                let sing = SingletonService {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),

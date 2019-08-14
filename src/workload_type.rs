@@ -1,19 +1,14 @@
 use std::collections::BTreeMap;
 
-mod singleton;
-pub use crate::workload_type::singleton::Singleton;
+mod service;
+pub use crate::workload_type::service::{SingletonService, ReplicatedService};
 #[cfg(test)]
-mod singleton_test;
+mod service_test;
 
 mod task;
 pub use crate::workload_type::task::{SingletonTask, ReplicatedTask};
 #[cfg(test)]
 mod task_test;
-
-mod replicated_service;
-pub use crate::workload_type::replicated_service::ReplicatedService;
-#[cfg(test)]
-mod replicated_service_test;
 
 mod worker;
 pub use crate::workload_type::worker::{Worker, SingletonWorker};
@@ -60,7 +55,7 @@ pub trait WorkloadType {
 }
 
 pub enum CoreWorkloadType {
-    SingletonType(Singleton),
+    SingletonType(SingletonService),
     ReplicatedServiceType(ReplicatedService),
     SingletonTaskType(SingletonTask),
     ReplicatedTaskType(ReplicatedTask),

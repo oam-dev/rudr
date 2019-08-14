@@ -1,9 +1,29 @@
 use kube::{client::APIClient, config::Configuration};
 
 use crate::schematic::component::Component;
-use crate::workload_type::*;
+use crate::workload_type::{service::*, KubeName};
 
 use std::collections::BTreeMap;
+
+#[test]
+fn test_singleton_service_kube_name() {
+    let cli = APIClient::new(mock_kube_config());
+
+    let sing = SingletonService {
+        name: "de".into(),
+        component_name: "hydrate".into(),
+        instance_name: "squidgy".into(),
+        namespace: "tests".into(),
+        definition: Component {
+            ..Default::default()
+        },
+        params: BTreeMap::new(),
+        client: cli,
+        owner_ref: None,
+    };
+
+    assert_eq!("squidgy", sing.kube_name().as_str());
+}
 
 #[test]
 fn test_replicated_service_kube_name() {
