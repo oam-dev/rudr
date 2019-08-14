@@ -25,7 +25,6 @@ impl ReplicatedTask {
     /// Create a Job
     pub fn to_job(&self) -> batchapi::Job {
         let mut labels = BTreeMap::new();
-        let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
         labels.insert("workload-type".to_string(), "task".to_string());
         JobBuilder::new(self.kube_name(), self.definition.clone())
@@ -80,7 +79,6 @@ impl SingletonTask {
     /// Create a Job
     pub fn to_job(&self) -> batchapi::Job {
         let mut labels = BTreeMap::new();
-        let podname = self.kube_name();
         labels.insert("app".to_string(), self.name.clone());
         labels.insert("workload-type".to_string(), "singleton-task".to_string());
         JobBuilder::new(self.kube_name(), self.definition.clone())

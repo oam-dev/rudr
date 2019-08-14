@@ -6,7 +6,7 @@ pub use crate::workload_type::singleton::Singleton;
 mod singleton_test;
 
 mod task;
-pub use crate::workload_type::task::Task;
+pub use crate::workload_type::task::{SingletonTask, ReplicatedTask};
 #[cfg(test)]
 mod task_test;
 
@@ -15,16 +15,8 @@ pub use crate::workload_type::replicated_service::ReplicatedService;
 #[cfg(test)]
 mod replicated_service_test;
 
-mod replicated_task;
-pub use crate::workload_type::replicated_task::ReplicatedTask;
-#[cfg(test)]
-mod replicated_task_test;
-
 mod worker;
-pub use crate::workload_type::worker::Worker;
-
-mod singleton_worker;
-pub use crate::workload_type::singleton_worker::SingletonWorker;
+pub use crate::workload_type::worker::{Worker, SingletonWorker};
 
 mod workload_builder;
 
@@ -70,7 +62,7 @@ pub trait WorkloadType {
 pub enum CoreWorkloadType {
     SingletonType(Singleton),
     ReplicatedServiceType(ReplicatedService),
-    TaskType(Task),
+    SingletonTaskType(SingletonTask),
     ReplicatedTaskType(ReplicatedTask),
     WorkerType(Worker),
     SingletonWorkerType(SingletonWorker)
@@ -81,7 +73,7 @@ impl CoreWorkloadType {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.delete(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.delete(),
-            CoreWorkloadType::TaskType(task) => task.delete(),
+            CoreWorkloadType::SingletonTaskType(task) => task.delete(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
             CoreWorkloadType::WorkerType(task) => task.delete(),
             CoreWorkloadType::SingletonWorkerType(task) => task.delete(),
@@ -92,7 +84,7 @@ impl CoreWorkloadType {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.add(),
-            CoreWorkloadType::TaskType(task) => task.add(),
+            CoreWorkloadType::SingletonTaskType(task) => task.add(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.add(),
             CoreWorkloadType::WorkerType(task) => task.add(),
             CoreWorkloadType::SingletonWorkerType(task) => task.add(),

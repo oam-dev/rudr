@@ -14,7 +14,7 @@ use crate::{
         Status,
     },
     workload_type::{
-        CoreWorkloadType, ReplicatedService, ReplicatedTask, Singleton, Task, HYDRA_API_VERSION,
+        CoreWorkloadType, ReplicatedService, ReplicatedTask, Singleton, SingletonTask, SingletonWorker, Worker, HYDRA_API_VERSION,
     },
 };
 
@@ -239,8 +239,8 @@ impl Instigator {
                 };
                 Ok(CoreWorkloadType::SingletonType(sing))
             }
-            "core.hydra.io/v1alpha1.Task" => {
-                let task = Task {
+            "core.hydra.io/v1alpha1.SingletonTask" => {
+                let task = SingletonTask {
                     name: config_name,
                     instance_name: instance_name,
                     component_name: comp.metadata.name.clone(),
@@ -250,9 +250,9 @@ impl Instigator {
                     params: params.clone(),
                     owner_ref: owner,
                 };
-                Ok(CoreWorkloadType::TaskType(task))
+                Ok(CoreWorkloadType::SingletonTaskType(task))
             }
-            "core.hydra.io/v1alpha1.ReplicableTask" => {
+            "core.hydra.io/v1alpha1.Task" => {
                 let task = ReplicatedTask {
                     name: config_name,
                     instance_name: instance_name,
@@ -265,6 +265,33 @@ impl Instigator {
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedTaskType(task))
+            }
+            "core.hydra.io/v1alpha1.SingletonWorker" => {
+                let wrkr = SingletonWorker {
+                    name: config_name,
+                    instance_name: instance_name,
+                    component_name: comp.metadata.name.clone(),
+                    namespace: self.namespace.clone(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                    params: params.clone(),
+                    owner_ref: owner,
+                };
+                Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
+            }
+            "core.hydra.io/v1alpha1.Worker" => {
+                let worker = Worker {
+                    name: config_name,
+                    instance_name: instance_name,
+                    component_name: comp.metadata.name.clone(),
+                    namespace: self.namespace.clone(),
+                    definition: comp.spec.clone(),
+                    client: self.client.clone(),
+                    params: params.clone(),
+                    owner_ref: owner,
+                    replica_count: 1, // Every(1) needs Some(1) to love.
+                };
+                Ok(CoreWorkloadType::WorkerType(worker))
             }
             _ => Err(format_err!(
                 "workloadType {} is unknown",

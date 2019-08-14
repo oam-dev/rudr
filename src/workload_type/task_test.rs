@@ -29,7 +29,7 @@ fn test_singleton_task_kube_name() {
 fn test_replicated_task_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
-    let task = Task {
+    let task = ReplicatedTask {
         name: "mytask".into(),
         component_name: "taskrunner".into(),
         instance_name: "taskinstance".into(),
