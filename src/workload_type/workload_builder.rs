@@ -192,7 +192,7 @@ impl ServiceBuilder {
 
 #[cfg(test)]
 mod test {
-    use crate::schematic::component::{Component, Container};
+    use crate::schematic::component::{Component, Container, Port, PortProtocol};
     use crate::workload_type::workload_builder::*;
     use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
 
@@ -201,7 +201,7 @@ mod test {
         let job = JobBuilder::new("testjob".into(), skeleton_component())
             .labels(skeleton_labels())
             .restart_policy("OnError".into())
-            .owner_ref(Some(vec![skeleton_owner_ref()]))
+            .owner_ref(skeleton_owner_ref())
             .parallelism(2)
             .to_job();
         assert_eq!(
@@ -235,6 +235,59 @@ mod test {
         );
     }
 
+    #[test]
+    fn test_service_builder() {
+        let svc = ServiceBuilder::new("test".into(), skeleton_component())
+            .labels(skeleton_labels())
+            .owner_reference(skeleton_owner_ref())
+            .to_service()
+            .expect("service");
+        assert_eq!(
+            svc.metadata
+                .clone()
+                .expect("metadata")
+                .labels
+                .expect("labels")
+                .len(),
+            2
+        );
+        assert_eq!(
+            svc.metadata
+                .clone()
+                .expect("metadata")
+                .owner_references
+                .expect("owners")
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_service_builder_no_port() {
+        let c = Component {
+            workload_type: "worker".into(),
+            os_type: "linux".into(),
+            arch: "amd64".into(),
+            parameters: vec![],
+            containers: vec![Container {
+                name: "foo".into(),
+                ports: vec![], // <-- No port, no service created.
+                env: vec![],
+                image: "test/foo:latest".into(),
+                image_pull_secret: None,
+                liveness_probe: None,
+                readiness_probe: None,
+                resources: Default::default(),
+            }],
+            workload_settings: vec![],
+        };
+        assert!(ServiceBuilder::new("test".into(), c)
+            .labels(skeleton_labels())
+            .owner_reference(skeleton_owner_ref())
+            .to_service()
+            .is_none());
+    }
+
     fn skeleton_labels() -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("first".into(), "one".into());
@@ -249,7 +302,11 @@ mod test {
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),
-                ports: vec![],
+                ports: vec![Port{
+                    container_port: 80,
+                    name: "http".into(),
+                    protocol: PortProtocol::TCP,
+                }],
                 env: vec![],
                 image: "test/foo:latest".into(),
                 image_pull_secret: None,
@@ -260,9 +317,9 @@ mod test {
             workload_settings: vec![],
         }
     }
-    fn skeleton_owner_ref() -> OwnerReference {
-        OwnerReference {
+    fn skeleton_owner_ref() -> Option<Vec<OwnerReference>> {
+        Some(vec![OwnerReference {
             ..Default::default()
-        }
+        }])
     }
 }
