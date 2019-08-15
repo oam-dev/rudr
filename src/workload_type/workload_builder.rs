@@ -189,3 +189,80 @@ impl ServiceBuilder {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::schematic::component::{Component, Container};
+    use crate::workload_type::workload_builder::*;
+    use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
+
+    #[test]
+    fn test_job_builder() {
+        let job = JobBuilder::new("testjob".into(), skeleton_component())
+            .labels(skeleton_labels())
+            .restart_policy("OnError".into())
+            .owner_ref(Some(vec![skeleton_owner_ref()]))
+            .parallelism(2)
+            .to_job();
+        assert_eq!(
+            job.metadata
+                .clone()
+                .expect("metadata")
+                .labels
+                .expect("labels")
+                .len(),
+            2
+        );
+        assert_eq!(
+            job.metadata
+                .clone()
+                .expect("metadata")
+                .owner_references
+                .expect("owners")
+                .len(),
+            1
+        );
+        assert_eq!(job.spec.clone().expect("spec").parallelism, Some(2));
+        assert_eq!(
+            job.spec
+                .clone()
+                .unwrap()
+                .template
+                .spec
+                .expect("spec")
+                .restart_policy,
+            Some("OnError".into())
+        );
+    }
+
+    fn skeleton_labels() -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("first".into(), "one".into());
+        labels.insert("second".into(), "two".into());
+        labels
+    }
+    fn skeleton_component() -> Component {
+        Component {
+            workload_type: "worker".into(),
+            os_type: "linux".into(),
+            arch: "amd64".into(),
+            parameters: vec![],
+            containers: vec![Container {
+                name: "foo".into(),
+                ports: vec![],
+                env: vec![],
+                image: "test/foo:latest".into(),
+                image_pull_secret: None,
+                liveness_probe: None,
+                readiness_probe: None,
+                resources: Default::default(),
+            }],
+            workload_settings: vec![],
+        }
+    }
+    fn skeleton_owner_ref() -> OwnerReference {
+        OwnerReference {
+            ..Default::default()
+        }
+    }
+}
