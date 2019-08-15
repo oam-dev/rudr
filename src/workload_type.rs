@@ -1,24 +1,16 @@
 use std::collections::BTreeMap;
 
-mod singleton;
-pub use crate::workload_type::singleton::Singleton;
-#[cfg(test)]
-mod singleton_test;
+mod service;
+pub use crate::workload_type::service::{ReplicatedService, SingletonService};
 
 mod task;
-pub use crate::workload_type::task::Task;
-#[cfg(test)]
-mod task_test;
+pub use crate::workload_type::task::{ReplicatedTask, SingletonTask};
 
-mod replicated_service;
-pub use crate::workload_type::replicated_service::ReplicatedService;
-#[cfg(test)]
-mod replicated_service_test;
+mod worker;
+pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 
-mod replicated_task;
-pub use crate::workload_type::replicated_task::ReplicatedTask;
-#[cfg(test)]
-mod replicated_task_test;
+mod workload_builder;
+pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
 pub const HYDRA_API_VERSION: &'static str = "core.hydra.io/v1alpha1";
 /// The fully qualified name of a replicated service.
@@ -60,10 +52,12 @@ pub trait WorkloadType {
 }
 
 pub enum CoreWorkloadType {
-    SingletonType(Singleton),
+    SingletonType(SingletonService),
     ReplicatedServiceType(ReplicatedService),
-    TaskType(Task),
+    SingletonTaskType(SingletonTask),
     ReplicatedTaskType(ReplicatedTask),
+    ReplicatedWorkerType(ReplicatedWorker),
+    SingletonWorkerType(SingletonWorker),
 }
 
 impl CoreWorkloadType {
@@ -71,16 +65,20 @@ impl CoreWorkloadType {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.delete(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.delete(),
-            CoreWorkloadType::TaskType(task) => task.delete(),
+            CoreWorkloadType::SingletonTaskType(task) => task.delete(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.delete(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.delete(),
         }
     }
     pub fn add(&self) -> InstigatorResult {
         match self {
             CoreWorkloadType::SingletonType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.add(),
-            CoreWorkloadType::TaskType(task) => task.add(),
+            CoreWorkloadType::SingletonTaskType(task) => task.add(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.add(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.add(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.add(),
         }
     }
     pub fn modify(&self) -> InstigatorResult {
