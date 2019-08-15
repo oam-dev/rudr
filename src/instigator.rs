@@ -14,7 +14,8 @@ use crate::{
         Status,
     },
     workload_type::{
-        CoreWorkloadType, ReplicatedService, ReplicatedTask, SingletonService, SingletonTask, SingletonWorker, Worker, HYDRA_API_VERSION,
+        CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker, SingletonService,
+        SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
     },
 };
 
@@ -212,114 +213,56 @@ impl Instigator {
         owner: Option<Vec<meta::OwnerReference>>,
     ) -> Result<CoreWorkloadType, failure::Error> {
         info!("Looking up {}", config_name);
+        let meta = WorkloadMetadata {
+            name: config_name,
+            instance_name: instance_name,
+            component_name: comp.metadata.name.clone(),
+            namespace: self.namespace.clone(),
+            definition: comp.spec.clone(),
+            client: self.client.clone(),
+            params: params.clone(),
+            owner_ref: owner,
+        };
         match comp.spec.workload_type.as_str() {
             // This one is DEPRECATED
             "core.hydra.io/v1alpha1.ReplicatedService" => {
-                let rs = ReplicatedService {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let rs = ReplicatedService { meta: meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
             // DEPRECATED
             "core.hydra.io/v1alpha1.Singleton" => {
-                let sing = SingletonService {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let sing = SingletonService { meta: meta };
                 Ok(CoreWorkloadType::SingletonType(sing))
             }
             "core.hydra.io/v1alpha1.Service" => {
-                let rs = ReplicatedService {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let rs = ReplicatedService { meta: meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
             "core.hydra.io/v1alpha1.SingletonService" => {
-                let sing = SingletonService {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let sing = SingletonService { meta: meta };
                 Ok(CoreWorkloadType::SingletonType(sing))
             }
             "core.hydra.io/v1alpha1.SingletonTask" => {
-                let task = SingletonTask {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let task = SingletonTask { meta: meta };
                 Ok(CoreWorkloadType::SingletonTaskType(task))
             }
             "core.hydra.io/v1alpha1.Task" => {
                 let task = ReplicatedTask {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
+                    meta: meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedTaskType(task))
             }
             "core.hydra.io/v1alpha1.SingletonWorker" => {
-                let wrkr = SingletonWorker {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                };
+                let wrkr = SingletonWorker { meta: meta };
                 Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
             }
             "core.hydra.io/v1alpha1.Worker" => {
-                let worker = Worker {
-                    name: config_name,
-                    instance_name: instance_name,
-                    component_name: comp.metadata.name.clone(),
-                    namespace: self.namespace.clone(),
-                    definition: comp.spec.clone(),
-                    client: self.client.clone(),
-                    params: params.clone(),
-                    owner_ref: owner,
-                    replica_count: 1, // Every(1) needs Some(1) to love.
+                let worker = ReplicatedWorker {
+                    meta: meta,
+                    replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
-                Ok(CoreWorkloadType::WorkerType(worker))
+                Ok(CoreWorkloadType::ReplicatedWorkerType(worker))
             }
             _ => Err(format_err!(
                 "workloadType {} is unknown",

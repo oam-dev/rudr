@@ -1,7 +1,7 @@
 use kube::{client::APIClient, config::Configuration};
 
 use crate::schematic::component::Component;
-use crate::workload_type::{task::*, KubeName};
+use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName};
 
 use std::collections::BTreeMap;
 
@@ -10,16 +10,18 @@ fn test_singleton_task_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
     let task = SingletonTask {
-        name: "mytask".into(),
-        component_name: "taskrunner".into(),
-        instance_name: "taskinstance".into(),
-        namespace: "tests".into(),
-        definition: Component {
-            ..Default::default()
+        meta: WorkloadMetadata {
+            name: "mytask".into(),
+            component_name: "taskrunner".into(),
+            instance_name: "taskinstance".into(),
+            namespace: "tests".into(),
+            definition: Component {
+                ..Default::default()
+            },
+            params: BTreeMap::new(),
+            client: cli,
+            owner_ref: None,
         },
-        params: BTreeMap::new(),
-        client: cli,
-        owner_ref: None,
     };
 
     assert_eq!("taskinstance", task.kube_name().as_str());
@@ -30,17 +32,19 @@ fn test_replicated_task_kube_name() {
     let cli = APIClient::new(mock_kube_config());
 
     let task = ReplicatedTask {
-        name: "mytask".into(),
-        component_name: "taskrunner".into(),
-        instance_name: "taskinstance".into(),
-        namespace: "tests".into(),
-        definition: Component {
-            ..Default::default()
+        meta: WorkloadMetadata {
+            name: "mytask".into(),
+            component_name: "taskrunner".into(),
+            instance_name: "taskinstance".into(),
+            namespace: "tests".into(),
+            definition: Component {
+                ..Default::default()
+            },
+            params: BTreeMap::new(),
+            client: cli,
+            owner_ref: None,
         },
-        params: BTreeMap::new(),
-        client: cli,
-        owner_ref: None,
-        replica_count: None,
+        replica_count: Some(1),
     };
 
     assert_eq!("taskinstance", task.kube_name().as_str());
