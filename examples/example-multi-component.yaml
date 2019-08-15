@@ -1,0 +1,26 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: Configuration
+metadata:
+  name: example-multi-component
+spec:
+  components:
+  - name: nginx-singleton
+    instanceName: example-multi-component-nginx
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    traits:
+      - name: ingress
+        parameterValues:
+          - name: hostname
+            value: example.com
+          - name: path
+            value: /
+  - name: alpine-task
+    instanceName: example-multi-component-alpine
+    parameterValues:
+      - name: message
+        value: Hello World
+  
