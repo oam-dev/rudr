@@ -54,3 +54,67 @@ impl WorkloadType for SingletonWorker {
             .do_request(self.meta.client.clone(), self.meta.namespace.clone())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use kube::{client::APIClient, config::Configuration};
+
+    use crate::schematic::component::Component;
+    use crate::workload_type::{worker::*, workload_builder::WorkloadMetadata, KubeName};
+
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn test_singleton_worker_kube_name() {
+        let cli = APIClient::new(mock_kube_config());
+
+        let wrkr = SingletonWorker {
+            meta: WorkloadMetadata {
+                name: "mytask".into(),
+                component_name: "workermcworkyface".into(),
+                instance_name: "workerinst".into(),
+                namespace: "tests".into(),
+                definition: Component {
+                    ..Default::default()
+                },
+                params: BTreeMap::new(),
+                client: cli,
+                owner_ref: None,
+            },
+        };
+
+        assert_eq!("workerinst", wrkr.kube_name().as_str());
+    }
+
+    #[test]
+    fn test_replicated_worker_kube_name() {
+        let cli = APIClient::new(mock_kube_config());
+
+        let wrkr = ReplicatedWorker {
+            meta: WorkloadMetadata {
+                name: "mytask".into(),
+                component_name: "workerbee".into(),
+                instance_name: "workerinst".into(),
+                namespace: "tests".into(),
+                definition: Component {
+                    ..Default::default()
+                },
+                params: BTreeMap::new(),
+                client: cli,
+                owner_ref: None,
+            },
+            replica_count: Some(1),
+        };
+
+        assert_eq!("workerinst", wrkr.kube_name().as_str());
+    }
+
+    /// This mock builds a KubeConfig that will not be able to make any requests.
+    fn mock_kube_config() -> Configuration {
+        Configuration {
+            base_path: ".".into(),
+            client: reqwest::Client::new(),
+        }
+    }
+
+}

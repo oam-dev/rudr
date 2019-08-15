@@ -2,13 +2,9 @@ use std::collections::BTreeMap;
 
 mod service;
 pub use crate::workload_type::service::{ReplicatedService, SingletonService};
-#[cfg(test)]
-mod service_test;
 
 mod task;
 pub use crate::workload_type::task::{ReplicatedTask, SingletonTask};
-#[cfg(test)]
-mod task_test;
 
 mod worker;
 pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
