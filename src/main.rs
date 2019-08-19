@@ -1,22 +1,18 @@
-#[macro_use]
-extern crate failure;
-extern crate hyper;
-
+use env_logger;
+use failure::{format_err, Error};
 use hyper::rt::Future;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
-
 use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
+use log::{error, info};
 
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
-use log::{error, info};
-
 const DEFAULT_NAMESPACE: &'static str = "default";
 
-fn kubeconfig() -> Result<kube::config::Configuration, failure::Error> {
+fn kubeconfig() -> Result<kube::config::Configuration, Error> {
     // If env var is set, use in cluster config
     if std::env::var("KUBERNETES_PORT").is_ok() {
         return incluster_config();
@@ -27,7 +23,7 @@ fn kubeconfig() -> Result<kube::config::Configuration, failure::Error> {
 type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
-fn main() -> Result<(), failure::Error> {
+fn main() -> Result<(), Error> {
     env_logger::init();
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or(DEFAULT_NAMESPACE.into());
@@ -116,7 +112,7 @@ fn handle_event(
     cli: &APIClient,
     event: WatchEvent<KubeOpsConfig>,
     namespace: String,
-) -> Result<(), failure::Error> {
+) -> Result<(), Error> {
     let inst = Instigator::new(cli.clone(), namespace);
     match event {
         WatchEvent::Added(o) => inst.add(o),

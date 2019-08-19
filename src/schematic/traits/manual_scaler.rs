@@ -1,8 +1,8 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
-
 use kube::client::APIClient;
+use log::info;
 
 /// A manual scaler provides a way to manually scale replicable objects.
 #[derive(Clone, Debug)]

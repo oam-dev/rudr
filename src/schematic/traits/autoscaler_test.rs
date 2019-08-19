@@ -1,5 +1,6 @@
 use crate::schematic::traits::*;
 use crate::workload_type::ParamMap;
+use serde_json::json;
 use std::collections::BTreeMap;
 
 #[test]

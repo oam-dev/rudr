@@ -1,3 +1,4 @@
+use failure::Error;
 use std::collections::BTreeMap;
 
 pub type ParameterList = Vec<Parameter>;
@@ -22,7 +23,7 @@ pub struct Parameter {
 }
 
 impl Parameter {
-    fn validate(&self, val: &serde_json::Value) -> Result<(), failure::Error> {
+    fn validate(&self, val: &serde_json::Value) -> Result<(), Error> {
         match self.parameter_type {
             ParameterType::Boolean => val
                 .as_bool()
@@ -52,14 +53,14 @@ type ResolvedVals = BTreeMap<String, serde_json::Value>;
 #[derive(Fail, Debug)]
 #[fail(display = "validation failed: {:?}", errs)]
 pub struct ValidationErrors {
-    errs: Vec<failure::Error>,
+    errs: Vec<Error>,
 }
 
 pub fn resolve_parameters(
     definition: Vec<Parameter>,
     values: ResolvedVals,
 ) -> Result<ResolvedVals, ValidationErrors> {
-    let mut errors: Vec<failure::Error> = Vec::new();
+    let mut errors: Vec<Error> = Vec::new();
     let mut resolved: ResolvedVals = BTreeMap::new();
 
     definition
@@ -107,7 +108,7 @@ pub fn resolve_parameters(
 pub fn resolve_values(
     current: Vec<ParameterValue>,
     parent: Vec<ParameterValue>,
-) -> Result<ResolvedVals, failure::Error> {
+) -> Result<ResolvedVals, Error> {
     let mut merged: ResolvedVals = BTreeMap::new();
 
     for p in current.iter() {

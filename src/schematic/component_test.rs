@@ -1,5 +1,3 @@
-extern crate spectral;
-
 use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
 
 #[test]

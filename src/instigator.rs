@@ -1,5 +1,8 @@
+use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::{api::Object, api::RawApi, api::Void, client::APIClient};
+use log::{debug, error, info};
+use serde_json::json;
 use std::collections::BTreeMap;
 
 use crate::{
@@ -20,7 +23,7 @@ use crate::{
 };
 
 /// Type alias for the results that all instantiation operations return
-pub type InstigatorResult = Result<(), failure::Error>;
+pub type InstigatorResult = Result<(), Error>;
 type OpResource = Object<OperationalConfiguration, Status>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
@@ -211,7 +214,7 @@ impl Instigator {
         comp: &KubeComponent,
         params: &ParamMap,
         owner: Option<Vec<meta::OwnerReference>>,
-    ) -> Result<CoreWorkloadType, failure::Error> {
+    ) -> Result<CoreWorkloadType, Error> {
         info!("Looking up {}", config_name);
         let meta = WorkloadMetadata {
             name: config_name,
@@ -275,7 +278,7 @@ impl Instigator {
         &self,
         name: String,
         owner: meta::OwnerReference,
-    ) -> Result<Vec<meta::OwnerReference>, failure::Error> {
+    ) -> Result<Vec<meta::OwnerReference>, Error> {
         let pp = kube::api::PostParams::default();
         let crd_req = RawApi::customResource("componentinstances")
             .group("core.hydra.io")
@@ -322,7 +325,7 @@ impl Instigator {
     fn component_instance_owner_reference(
         &self,
         name: &str,
-    ) -> Result<Vec<meta::OwnerReference>, failure::Error> {
+    ) -> Result<Vec<meta::OwnerReference>, Error> {
         let crd_req = RawApi::customResource("componentinstances")
             .group("core.hydra.io")
             .version("v1alpha1")
@@ -346,7 +349,7 @@ impl Instigator {
 pub fn config_owner_reference(
     parent_name: String,
     parent_uid: Option<String>,
-) -> Result<meta::OwnerReference, failure::Error> {
+) -> Result<meta::OwnerReference, Error> {
     match parent_uid {
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
@@ -382,7 +385,7 @@ struct TraitManager {
 }
 
 impl TraitManager {
-    fn load_traits(&mut self) -> Result<(), failure::Error> {
+    fn load_traits(&mut self) -> Result<(), Error> {
         let mut traits: Vec<HydraTrait> = vec![];
         for t in self.component.traits.as_ref().unwrap_or(&vec![]).iter() {
             // Load all of the traits into the manager.
@@ -392,7 +395,7 @@ impl TraitManager {
         self.traits = traits;
         Ok(())
     }
-    fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, failure::Error> {
+    fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, Error> {
         let trait_values = resolve_values(
             binding.parameter_values.clone().unwrap_or(vec![]),
             self.parent_params.clone(),
@@ -439,7 +442,7 @@ impl TraitManager {
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }
-    fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> Result<(), failure::Error> {
+    fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> Result<(), Error> {
         for imp in &self.traits {
             // At the moment, we don't return an error if a trait fails.
             let res = imp.exec(ns, client.clone(), phase.clone());

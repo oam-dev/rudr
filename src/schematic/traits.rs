@@ -1,6 +1,7 @@
 use crate::lifecycle::Phase;
 use crate::schematic::parameter::ParameterValue;
 use kube::client::APIClient;
+use log::info;
 
 // Re-exports
 mod autoscaler;
