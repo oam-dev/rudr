@@ -8,7 +8,9 @@ use kube::{client::APIClient, config::incluster_config, config::load_kube_config
 use log::{error, info};
 
 use scylla::instigator::Instigator;
-use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
+use scylla::schematic::{
+    component::Component, configuration::OperationalConfiguration, ComponentStatus, Status,
+};
 
 const DEFAULT_NAMESPACE: &'static str = "default";
 
@@ -20,7 +22,7 @@ fn kubeconfig() -> Result<kube::config::Configuration, Error> {
     load_kube_config()
 }
 
-type KubeComponent = Object<Component, Status>;
+type KubeComponent = Object<Component, ComponentStatus>;
 type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
 fn main() -> Result<(), Error> {

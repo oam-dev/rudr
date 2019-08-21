@@ -1,7 +1,7 @@
 use crate::lifecycle::Phase;
 use crate::schematic::parameter::ParameterValue;
 use kube::client::APIClient;
-use log::info;
+use log::{info, warn};
 
 // Re-exports
 mod autoscaler;
@@ -81,7 +81,10 @@ pub trait TraitImplementation {
     }
     fn add(&self, ns: &str, client: APIClient) -> TraitResult;
     fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
-        Err(format_err!("Trait updates not implemented for this type"))
+        //FIXME:
+        // Err(format_err!("Trait updates not implemented for this type"))
+        warn!("Trait updates not implemented for this type");
+        Ok({})
     }
     fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
         // Often, owner references mean you don't need to do anythign here.

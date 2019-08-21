@@ -4,6 +4,7 @@ pub mod component;
 pub mod component_instance;
 pub mod configuration;
 pub mod parameter;
+pub mod scopes;
 pub mod traits;
 
 #[cfg(test)]
@@ -20,23 +21,48 @@ mod traits_test;
 #[serde(rename_all = "camelCase")]
 pub struct Application {}
 
+use std::collections::HashMap;
+
 // TODO: This part is not specified in the spec b/c it is considered a runtime
 // detail of Kubernetes. Need to fill this in as we go.
 
-/// HydraStatus is the status of a Hydra object, per Kubernetes.
+/// HydraStatus is the status of a Hydra Configuration object, per Kubernetes.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HydraStatus {
     pub phase: Option<String>,
+    pub health: Option<HashMap<String, String>>,
 }
+
+impl HydraStatus {
+    pub fn new(phase: Option<String>) -> HydraStatus {
+        HydraStatus {
+            phase: phase,
+            health: None,
+        }
+    }
+}
+
+/// HydraComponentStatus is the status of a Hydra Component object, per Kubernetes.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HydraComponentStatus {
+    pub phase: Option<String>,
+}
+
 impl Default for HydraStatus {
     fn default() -> Self {
-        HydraStatus { phase: None }
+        HydraStatus {
+            phase: None,
+            health: None,
+        }
     }
 }
 
 /// Status is a convenience for an optional HydraStatus.
 pub type Status = Option<HydraStatus>;
+
+pub type ComponentStatus = Option<HydraComponentStatus>;
 
 /// GroupVersionKind represents a fully qualified identifier for a resource type.
 ///

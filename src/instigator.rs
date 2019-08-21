@@ -1,6 +1,6 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::Object, api::RawApi, api::Void, client::APIClient};
+use kube::{api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
 use log::{debug, error, info};
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -12,9 +12,11 @@ use crate::{
         component_instance::KubeComponentInstance,
         configuration::ComponentConfiguration,
         configuration::OperationalConfiguration,
+        configuration::ScopeBinding,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
+        scopes::{Health, HydraScope},
         traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
-        Status,
+        HydraStatus, Status,
     },
     workload_type::{
         CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker, SingletonService,
@@ -81,10 +83,12 @@ impl Instigator {
     fn exec(&self, event: OpResource, phase: Phase) -> InstigatorResult {
         // TODO:
         // - Resolve scope bindings
+        // First check if there is not allowed overlap
+        let scopes = load_scopes(event.spec.clone().scopes)?;
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
-        for component in event.spec.components.unwrap_or(vec![]) {
+        for component in event.spec.clone().components.unwrap_or(vec![]) {
             let component_resource = RawApi::customResource("components")
                 .version("v1alpha1")
                 .group("core.hydra.io")
@@ -124,6 +128,15 @@ impl Instigator {
                     ownref.unwrap()
                 }
             };
+
+            //TODO: Check if network scopes need to apply on workload
+            // TODO: add component to watch
+            for sc in &scopes {
+                let type_name = sc.scope_type();
+                if type_name == "core.hydra.io/v1alpha1.Health" {
+                    println!("add this to watch loop");
+                }
+            }
 
             // Instantiate components
             let workload = self.load_workload_type(
@@ -191,6 +204,38 @@ impl Instigator {
                 }
             }
         }
+        match event.status.clone() {
+            Some(s) => match s.clone() {
+                Some(hs) => {
+                    if hs.phase.is_some() && hs.phase.unwrap() == phase.to_string() {
+                        return Ok(());
+                    }
+                }
+                None => {}
+            },
+            None => {}
+        }
+
+        let status = HydraStatus::new(Some(phase.to_string()));
+        let mut new_event = event.clone();
+        new_event.status = Some(Some(status));
+        debug!("{:?},{:?}", new_event.spec, new_event.status);
+
+        let config_resource = RawApi::customResource("configurations")
+            .version("v1alpha1")
+            .group("core.hydra.io")
+            .within(&self.namespace);
+
+        let patch_params = PatchParams::default();
+        let req = config_resource.patch(
+            &event.metadata.name,
+            &patch_params,
+            serde_json::to_vec(&new_event)?,
+        )?;
+        let o = self
+            .client
+            .request::<Object<OperationalConfiguration, Status>>(req)?;
+        info!("Patched status {:?} for {}", o.status, o.metadata.name);
         Ok(())
     }
 
@@ -332,6 +377,7 @@ impl Instigator {
             .within(self.namespace.as_str());
         let req = crd_req.get(name)?;
         let res: KubeComponentInstance = self.client.request(req)?;
+        debug!("get instance {:?}", res.spec);
 
         let owner = meta::OwnerReference {
             api_version: HYDRA_API_VERSION.into(),
@@ -364,6 +410,55 @@ pub fn config_owner_reference(
         }
         None => Err(format_err!(
             "Mysteriously, no UID was created. Ancient version of Kubernetes?"
+        )),
+    }
+}
+
+/// Load application scopes from scope_bindings
+pub fn load_scopes(
+    scope_bindings: Option<Vec<ScopeBinding>>,
+) -> Result<Vec<HydraScope>, failure::Error> {
+    let mut scopes: Vec<HydraScope> = vec![];
+    let mut scope_overlap = BTreeMap::new();
+    if scope_bindings.is_none() {
+        return Ok(scopes);
+    }
+    for sc in scope_bindings.unwrap() {
+        let scope = load_scope(&sc)?;
+        if !scope.allow_overlap() {
+            if scope_overlap.get(&sc.scope_type).is_some() {
+                return Err(format_err!(
+                    "scope {} {} do not allow overlap",
+                    sc.name,
+                    sc.scope_type
+                ));
+            }
+        }
+        scopes.insert(scopes.len(), scope);
+        scope_overlap.insert(sc.scope_type, true);
+    }
+    Ok(scopes)
+}
+
+// load_scope load scope from k8s crd
+// NOTE: this is a temporary solution just return core scope here
+fn load_scope(binding: &ScopeBinding) -> Result<HydraScope, failure::Error> {
+    debug!("Scope binding params: {:?}", &binding.parameter_values);
+    match binding.name.as_str() {
+        /*
+        "core.hydra.io/v1alpha1.Network" => Ok(HydraScope::Network(Network::from_params(
+            binding.name.clone(),
+            binding.parameter_values,
+        ))),
+        */
+        "core.hydra.io/v1alpha1.Health" => Ok(HydraScope::Health(Health::from_params(
+            binding.name.clone(),
+            binding.parameter_values.clone(),
+        ))),
+        _ => Err(format_err!(
+            "unknown scope {} type {}",
+            binding.name,
+            binding.scope_type
         )),
     }
 }
