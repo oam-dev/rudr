@@ -1,9 +1,10 @@
 use crate::workload_type::*;
+use failure::Error;
 
 struct MockWorkloadType {}
 
 impl WorkloadType for MockWorkloadType {
-    fn add(&self) -> Result<(), failure::Error> {
+    fn add(&self) -> Result<(), Error> {
         Ok(())
     }
 }

@@ -3,6 +3,7 @@ use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::api::PostParams;
 use kube::client::APIClient;
+use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::component::Component;
@@ -302,7 +303,7 @@ mod test {
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),
-                ports: vec![Port{
+                ports: vec![Port {
                     container_port: 80,
                     name: "http".into(),
                     protocol: PortProtocol::TCP,

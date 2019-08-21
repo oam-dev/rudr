@@ -1,3 +1,5 @@
+use failure::Error;
+use log::info;
 use std::collections::BTreeMap;
 
 mod service;
@@ -21,7 +23,7 @@ pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
 pub const TASK_NAME: &'static str = "core.hydra.io/v1alpha1.Task";
 pub const REPLICATED_TASK_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedTask";
 
-type InstigatorResult = Result<(), failure::Error>;
+type InstigatorResult = Result<(), Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// KubeName describes anything that can produce its own Kubernetes name.

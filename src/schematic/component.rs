@@ -1,9 +1,10 @@
+use failure::Error;
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::{
     api::resource::Quantity, apis::meta::v1 as meta, util::intstr::IntOrString,
 };
-
+use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::parameter::{ParameterList, ParameterType};
@@ -30,7 +31,7 @@ pub struct Component {
 }
 impl Component {
     /// Parse JSON data into a Component.
-    pub fn from_str(json_data: &str) -> Result<Component, failure::Error> {
+    pub fn from_str(json_data: &str) -> Result<Component, Error> {
         let res: Component = serde_json::from_str(json_data)?;
         Ok(res)
     }

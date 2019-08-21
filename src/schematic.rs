@@ -1,3 +1,5 @@
+use failure::{err_msg, Error};
+
 pub mod component;
 pub mod component_instance;
 pub mod configuration;
@@ -65,16 +67,16 @@ impl GroupVersionKind {
         }
     }
     /// Parse a string into a GroupVersionKind.
-    pub fn from_str(gvp: &str) -> Result<GroupVersionKind, failure::Error> {
+    pub fn from_str(gvp: &str) -> Result<GroupVersionKind, Error> {
         // I suspect that this function could be made much more elegant.
         let parts: Vec<&str> = gvp.splitn(2, "/").collect();
         if parts.len() != 2 {
-            return Err(failure::err_msg("missing version and kind"));
+            return Err(err_msg("missing version and kind"));
         }
 
         let vk: Vec<&str> = parts.get(1).unwrap().splitn(2, ".").collect();
         if vk.len() != 2 {
-            return Err(failure::err_msg("missing kind"));
+            return Err(err_msg("missing kind"));
         }
 
         Ok(GroupVersionKind {

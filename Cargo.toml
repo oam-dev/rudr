@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 kube = { version = "0.12.0", features = ["openapi"] }
 k8s-openapi = { version = "0.4.0", features = ["v1_13"] }
-#kube = { git = "https://github.com/clux/kube-rs", rev = "2624341b8abc7b6cfaa3c9cb31db716db44d10e8" }
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
