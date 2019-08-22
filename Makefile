@@ -1,4 +1,4 @@
-REPO=technosophos/scylla
+REPO=hydraoss/scylla
 TAG=latest
 
 .PHONY: build
