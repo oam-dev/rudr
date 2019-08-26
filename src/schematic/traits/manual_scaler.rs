@@ -24,7 +24,7 @@ impl ManualScaler {
         owner_ref: OwnerRefs,
         workload_type: String,
     ) -> ManualScaler {
-        info!("params: {:?}", &params);
+        log::debug!("params: {:?}", &params);
         ManualScaler {
             name: name,
             instance_name: inst_name,
