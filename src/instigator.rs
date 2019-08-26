@@ -106,9 +106,9 @@ impl Instigator {
             let inst_name = component.instance_name.clone();
             let new_owner_ref = match phase {
                 Phase::Add => {
-                    self.create_component_instance(inst_name.clone(), owner_ref.clone())?
+                    Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
                 }
-                _ => {
+                Phase::Modify => {
                     let ownref = self.component_instance_owner_reference(inst_name.as_str());
                     if ownref.is_err() {
                         // Wrap the error to make it clear where we failed
@@ -121,8 +121,9 @@ impl Instigator {
                             ownref.unwrap_err()
                         ));
                     }
-                    ownref.unwrap()
+                    Some(ownref.unwrap())
                 }
+                _ => None
             };
 
             // Instantiate components
@@ -131,7 +132,7 @@ impl Instigator {
                 inst_name.clone(),
                 &comp_def,
                 &params,
-                Some(new_owner_ref.clone()),
+                new_owner_ref.clone(),
             )?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
@@ -139,7 +140,7 @@ impl Instigator {
                 instance_name: inst_name.clone(),
                 component: component.clone(),
                 parent_params: parent.clone(),
-                owner_ref: Some(new_owner_ref.clone()),
+                owner_ref: new_owner_ref.clone(),
                 workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
             };
