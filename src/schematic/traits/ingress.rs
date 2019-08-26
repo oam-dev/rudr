@@ -27,9 +27,10 @@ impl Ingress {
     ) -> Self {
         // Right now, we're relying on the higher level validation logic to validate types.
         Ingress {
-            name: name,
-            instance_name: instance_name,
-            component_name: component_name,
+            name,
+            instance_name,
+            component_name,
+            owner_ref,
             svc_port: params
                 .get("service_port")
                 .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
@@ -40,7 +41,6 @@ impl Ingress {
             path: params
                 .get("path")
                 .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
-            owner_ref: owner_ref,
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {
@@ -54,7 +54,10 @@ impl Ingress {
             }),
             spec: Some(ext::IngressSpec {
                 rules: Some(vec![ext::IngressRule {
-                    host: self.hostname.clone().or_else(|| Some("example.com".to_string())),
+                    host: self
+                        .hostname
+                        .clone()
+                        .or_else(|| Some("example.com".to_string())),
                     http: Some(ext::HTTPIngressRuleValue {
                         paths: vec![ext::HTTPIngressPath {
                             backend: ext::IngressBackend {

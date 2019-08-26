@@ -54,8 +54,8 @@ impl JobBuilder {
     /// Create a JobBuilder
     pub fn new(instance_name: String, component: Component) -> Self {
         JobBuilder {
+            component,
             name: instance_name,
-            component: component,
             labels: BTreeMap::new(),
             restart_policy: "Never".to_string(),
             owner_ref: None,
@@ -82,7 +82,7 @@ impl JobBuilder {
         self.parallelism = Some(count);
         self
     }
-    pub fn to_job(self) -> batchapi::Job {
+    fn to_job(self) -> batchapi::Job {
         batchapi::Job {
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta {
@@ -140,8 +140,8 @@ pub struct ServiceBuilder {
 impl ServiceBuilder {
     pub fn new(instance_name: String, component: Component) -> Self {
         ServiceBuilder {
+            component,
             name: instance_name,
-            component: component,
             labels: Labels::new(),
             owner_ref: None,
         }
@@ -154,7 +154,7 @@ impl ServiceBuilder {
         self.owner_ref = owner_ref;
         self
     }
-    pub fn to_service(self) -> Option<api::Service> {
+    fn to_service(self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
                 metadata: Some(meta::ObjectMeta {

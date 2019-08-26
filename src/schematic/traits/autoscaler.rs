@@ -26,9 +26,10 @@ impl Autoscaler {
         owner_ref: OwnerRefs,
     ) -> Self {
         Autoscaler {
-            name: name,
-            component_name: component_name,
-            instance_name: instance_name,
+            name,
+            component_name,
+            instance_name,
+            owner_ref,
             minimum: params
                 .get("minimum")
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
@@ -41,7 +42,6 @@ impl Autoscaler {
             memory: params
                 .get("memory")
                 .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
-            owner_ref: owner_ref,
         }
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {
