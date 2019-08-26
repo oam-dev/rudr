@@ -5,7 +5,7 @@ use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
 use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
-use log::{error, info};
+use log::{error, info, debug};
 
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
@@ -59,7 +59,7 @@ fn main() -> Result<(), Error> {
             Informer::raw(client.clone(), resource.clone().into()).init()?;
         loop {
             informer.poll()?;
-            info!("loop");
+            debug!("loop");
 
             // Clear out the event queue
             while let Some(event) = informer.pop() {
@@ -88,7 +88,7 @@ fn main() -> Result<(), Error> {
                 .serve(|| {
                     service_fn_ok(|_req| match (_req.method(), _req.uri().path()) {
                         (&Method::GET, "/health") => {
-                            info!("health check");
+                            debug!("health check");
                             Response::new(Body::from("OK"))
                         }
                         _ => Response::builder()

@@ -175,7 +175,7 @@ impl ServiceBuilder {
     pub fn do_request(self, client: APIClient, namespace: String) -> InstigatorResult {
         match self.to_service() {
             Some(svc) => {
-                info!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
+                log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
                 let pp = PostParams::default();
                 kube::api::Api::v1Service(client)
                     .within(namespace.as_str())
