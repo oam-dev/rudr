@@ -52,7 +52,7 @@ pub trait WorkloadType {
 }
 
 pub enum CoreWorkloadType {
-    SingletonType(SingletonService),
+    SingletonServiceType(SingletonService),
     ReplicatedServiceType(ReplicatedService),
     SingletonTaskType(SingletonTask),
     ReplicatedTaskType(ReplicatedTask),
@@ -63,7 +63,7 @@ pub enum CoreWorkloadType {
 impl CoreWorkloadType {
     pub fn delete(&self) -> InstigatorResult {
         match self {
-            CoreWorkloadType::SingletonType(sing) => sing.delete(),
+            CoreWorkloadType::SingletonServiceType(sing) => sing.delete(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.delete(),
             CoreWorkloadType::SingletonTaskType(task) => task.delete(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
@@ -73,7 +73,7 @@ impl CoreWorkloadType {
     }
     pub fn add(&self) -> InstigatorResult {
         match self {
-            CoreWorkloadType::SingletonType(sing) => sing.add(),
+            CoreWorkloadType::SingletonServiceType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.add(),
             CoreWorkloadType::SingletonTaskType(task) => task.add(),
             CoreWorkloadType::ReplicatedTaskType(task) => task.add(),

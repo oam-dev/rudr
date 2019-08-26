@@ -232,7 +232,7 @@ impl Instigator {
             // DEPRECATED
             "core.hydra.io/v1alpha1.Singleton" => {
                 let sing = SingletonService { meta: meta };
-                Ok(CoreWorkloadType::SingletonType(sing))
+                Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
             "core.hydra.io/v1alpha1.Service" => {
                 let rs = ReplicatedService { meta: meta };
@@ -240,7 +240,7 @@ impl Instigator {
             }
             "core.hydra.io/v1alpha1.SingletonService" => {
                 let sing = SingletonService { meta: meta };
-                Ok(CoreWorkloadType::SingletonType(sing))
+                Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
             "core.hydra.io/v1alpha1.SingletonTask" => {
                 let task = SingletonTask { meta: meta };
