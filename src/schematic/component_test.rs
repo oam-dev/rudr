@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
 
 #[test]

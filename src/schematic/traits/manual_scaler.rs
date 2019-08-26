@@ -31,7 +31,7 @@ impl ManualScaler {
             component_name: comp_name,
             owner_ref: owner_ref,
             replica_count: params
-                .get("replicaCount".into())
+                .get("replicaCount")
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32)))
                 .unwrap_or(1),
             workload_type: workload_type,

@@ -14,14 +14,14 @@ pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 mod workload_builder;
 pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
-pub const HYDRA_API_VERSION: &'static str = "core.hydra.io/v1alpha1";
+pub const HYDRA_API_VERSION: &str = "core.hydra.io/v1alpha1";
 /// The fully qualified name of a replicated service.
-pub const REPLICATED_SERVICE_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedService";
+pub const REPLICATED_SERVICE_NAME: &str = "core.hydra.io/v1alpha1.ReplicatedService";
 /// The fully qualified name of a singleton.
-pub const SINGLETON_NAME: &'static str = "core.hydra.io/v1alpha1.Singleton";
+pub const SINGLETON_NAME: &str = "core.hydra.io/v1alpha1.Singleton";
 
-pub const TASK_NAME: &'static str = "core.hydra.io/v1alpha1.Task";
-pub const REPLICATED_TASK_NAME: &'static str = "core.hydra.io/v1alpha1.ReplicatedTask";
+pub const TASK_NAME: &str = "core.hydra.io/v1alpha1.Task";
+pub const REPLICATED_TASK_NAME: &str = "core.hydra.io/v1alpha1.ReplicatedTask";
 
 type InstigatorResult = Result<(), Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;

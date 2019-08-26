@@ -31,14 +31,14 @@ impl Ingress {
             instance_name: instance_name,
             component_name: component_name,
             svc_port: params
-                .get("service_port".into())
+                .get("service_port")
                 .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
                 .unwrap_or(80),
             hostname: params
-                .get("hostname".into())
+                .get("hostname")
                 .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
             path: params
-                .get("path".into())
+                .get("path")
                 .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
             owner_ref: owner_ref,
         }
@@ -54,14 +54,14 @@ impl Ingress {
             }),
             spec: Some(ext::IngressSpec {
                 rules: Some(vec![ext::IngressRule {
-                    host: self.hostname.clone().or(Some("example.com".to_string())),
+                    host: self.hostname.clone().or_else(|| Some("example.com".to_string())),
                     http: Some(ext::HTTPIngressRuleValue {
                         paths: vec![ext::HTTPIngressPath {
                             backend: ext::IngressBackend {
                                 service_name: self.name.clone(),
                                 service_port: IntOrString::Int(self.svc_port),
                             },
-                            path: self.path.clone().or(Some("/".to_string())),
+                            path: self.path.clone().or_else(|| Some("/".to_string())),
                         }],
                     }),
                 }]),
