@@ -30,7 +30,7 @@ impl Autoscaler {
             component_name: component_name,
             instance_name: instance_name,
             minimum: params
-                .get("minimum".into())
+                .get("minimum")
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
             maximum: params
                 .get("maximum")
@@ -95,8 +95,7 @@ impl Autoscaler {
                 scale_target_ref: hpa::CrossVersionObjectReference {
                     api_version: Some("apps/v1".to_string()),
                     kind: "Deployment".to_string(),
-                    //name: format!("{}-{}", self.name.as_str(), self.component_name.as_str()),
-                    name: format!("{}", self.instance_name.as_str()),
+                    name: self.instance_name.to_string(),
                 },
             }),
             ..Default::default()

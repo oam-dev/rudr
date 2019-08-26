@@ -84,7 +84,7 @@ impl Instigator {
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
-        for component in event.spec.components.unwrap_or(vec![]) {
+        for component in event.spec.components.unwrap_or_else(|| vec![]) {
             let component_resource = RawApi::customResource("components")
                 .version("v1alpha1")
                 .group("core.hydra.io")
@@ -97,9 +97,9 @@ impl Instigator {
                 .spec
                 .parameter_values
                 .clone()
-                .or(Some(vec![]))
+                .or_else(|| Some(vec![]))
                 .unwrap();
-            let child = component.parameter_values.clone().or(Some(vec![])).unwrap();
+            let child = component.parameter_values.clone().or_else(|| Some(vec![])).unwrap();
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
@@ -398,7 +398,7 @@ impl TraitManager {
     }
     fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, Error> {
         let trait_values = resolve_values(
-            binding.parameter_values.clone().unwrap_or(vec![]),
+            binding.parameter_values.clone().unwrap_or_else(|| vec![]),
             self.parent_params.clone(),
         )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);

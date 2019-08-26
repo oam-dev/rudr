@@ -1,4 +1,3 @@
-use failure::Error;
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::{
@@ -30,12 +29,6 @@ pub struct Component {
     pub workload_settings: Vec<WorkloadSetting>,
 }
 impl Component {
-    /// Parse JSON data into a Component.
-    pub fn from_str(json_data: &str) -> Result<Component, Error> {
-        let res: Component = serde_json::from_str(json_data)?;
-        Ok(res)
-    }
-
     /// listening_port returns the first container port listed.
     pub fn listening_port(&self) -> Option<&Port> {
         for e in self.containers.iter() {
@@ -132,6 +125,16 @@ impl Default for Component {
             containers: Vec::new(),
             workload_settings: Vec::new(),
         }
+    }
+}
+
+impl std::str::FromStr for Component {
+    type Err = failure::Error;
+
+    /// Parse JSON data into a Component.
+    fn from_str(json_data: &str) -> Result<Self, Self::Err> {
+        let res: Component = serde_json::from_str(json_data)?;
+        Ok(res)
     }
 }
 

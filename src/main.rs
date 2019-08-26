@@ -10,7 +10,7 @@ use log::{error, info, debug};
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
-const DEFAULT_NAMESPACE: &'static str = "default";
+const DEFAULT_NAMESPACE: &str = "default";
 
 fn kubeconfig() -> Result<kube::config::Configuration, Error> {
     // If env var is set, use in cluster config
@@ -26,7 +26,7 @@ type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 fn main() -> Result<(), Error> {
     env_logger::init();
 
-    let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or(DEFAULT_NAMESPACE.into());
+    let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else( |_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
 
     // There is probably a better way to do this than to create two clones, but there is a potential
@@ -36,7 +36,7 @@ fn main() -> Result<(), Error> {
 
     let component_resource = RawApi::customResource("components")
         .within(top_ns.as_str())
-        .group("core.hydra.io".into())
+        .group("core.hydra.io")
         .version("v1alpha1");
 
     let component_cache: Reflector<KubeComponent> =
@@ -51,12 +51,12 @@ fn main() -> Result<(), Error> {
         let client = APIClient::new(cfg_watch);
         let resource = RawApi::customResource("operationalconfigurations")
             .within(ns.as_str())
-            .group("core.hydra.io".into())
+            .group("core.hydra.io")
             .version("v1alpha1");
 
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =
-            Informer::raw(client.clone(), resource.clone().into()).init()?;
+            Informer::raw(client.clone(), resource.clone()).init()?;
         loop {
             informer.poll()?;
             debug!("loop");

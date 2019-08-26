@@ -84,16 +84,15 @@ pub fn resolve_parameters(
             {
                 errors.push(format_err!("parameter {} is required", d.name.clone()));
             }
-            match d.validate(resolved.value.as_ref().unwrap()) {
-                Err(e) => errors.push(e),
-                _ => {}
+            if let Err(e) = d.validate(resolved.value.as_ref().unwrap()) {
+                errors.push(e)
             };
             resolved
         })
         .for_each(|p| {
             resolved.insert(p.name, p.value.unwrap());
         });
-    if errors.len() > 0 {
+    if !errors.is_empty() {
         return Err(ValidationErrors { errs: errors });
     }
     Ok(resolved)
@@ -122,7 +121,7 @@ pub fn resolve_values(
                 let parent_override = parent.iter().find(|item| item.name == from_name);
                 parent_override.and_then(|s| s.value.clone())
             })
-            .or(p.value.clone());
+            .or_else(|| p.value.clone());
 
         // If a from_param was not found, and no default value was supplied, then this is
         // an error.
