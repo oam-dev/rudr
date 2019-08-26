@@ -1,5 +1,5 @@
 apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
+kind: OperationalConfiguration
 metadata:
   name: example-task
 spec:

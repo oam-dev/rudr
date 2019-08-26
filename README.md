@@ -8,11 +8,10 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 
 > Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
 
-A relatively recent version of Scylla can be installed using [Helm 3](helm.sh). While Helm 3 sorts out a few CRD issues, we are temporarily advising users to manually install CRDs before running the install:
+A relatively recent version of Scylla can be installed using [Helm 3-beta.1](helm.sh).
 
 ```console
-$ kubectl create -f charts/scylla/templates/crds.yaml
-$ helm install scylla ./charts/scylla --no-hooks
+$ helm install scylla ./charts/scylla --wait
 NAME: scylla
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
@@ -22,6 +21,16 @@ NOTES:
 Scylla is a Kubernetes controller to manage Configuration CRDs.
 
 It has been successfully installed.
+```
+
+*IMPORTANT:* The CRD cache sometimes takes a while to regenerate. If the installation above fails with an error, wait until the CRD is cached and re-run the Helm command.
+
+```console
+$ helm install scylla charts/scylla
+Error: apiVersion "core.hydra.io/v1alpha1" in scylla/templates/traits.yaml is not available
+$ k get trait          ## When this command returns 'No resources found' you can re-run the install
+No resources found.
+$ helm install scylla charts/scylla
 ```
 
 This will install the CRDs and the controller into your Kubernetes cluster.

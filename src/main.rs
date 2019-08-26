@@ -53,7 +53,7 @@ fn main() -> Result<(), failure::Error> {
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
         let client = APIClient::new(cfg_watch);
-        let resource = RawApi::customResource("configurations")
+        let resource = RawApi::customResource("operationalconfigurations")
             .within(ns.as_str())
             .group("core.hydra.io".into())
             .version("v1alpha1");
