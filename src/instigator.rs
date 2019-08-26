@@ -85,7 +85,7 @@ impl Instigator {
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
         for component in event.spec.components.unwrap_or_else(|| vec![]) {
-            let component_resource = RawApi::customResource("components")
+            let component_resource = RawApi::customResource("componentschematics")
                 .version("v1alpha1")
                 .group("core.hydra.io")
                 .within(&self.namespace);

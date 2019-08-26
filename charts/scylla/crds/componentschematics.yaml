@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: components.core.hydra.io
+  name: componentschematics.core.hydra.io
 spec:
   group: core.hydra.io
   versions:
@@ -10,8 +10,9 @@ spec:
       storage: true
   scope: Namespaced
   names:
-    plural: components
-    singular: component
-    kind: Component
+    plural: componentschematics
+    singular: componentschematic
+    kind: ComponentSchematic
     shortNames:
+    - component
     - comp

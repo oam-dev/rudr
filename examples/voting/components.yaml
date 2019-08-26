@@ -1,5 +1,5 @@
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: voting-admin
   version: "1.0.0"
@@ -14,7 +14,7 @@ spec:
       image: dockersamples/examplevotingapp_result:before
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: postgres
   version: "1.0.0"
@@ -29,7 +29,7 @@ spec:
       image: postgres:9.4
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: redis
   version: "1.0.0"
@@ -44,7 +44,7 @@ spec:
       image: redis:alpine
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: voting-frontend
   version: "1.0.0"
@@ -59,7 +59,7 @@ spec:
       image: dockersamples/examplevotingapp_vote:before
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: voting-worker
   version: "1.0.0"

@@ -34,7 +34,7 @@ fn main() -> Result<(), Error> {
     let cfg_watch = top_cfg.clone();
     let client = APIClient::new(top_cfg);
 
-    let component_resource = RawApi::customResource("components")
+    let component_resource = RawApi::customResource("componentschematics")
         .within(top_ns.as_str())
         .group("core.hydra.io")
         .version("v1alpha1");
