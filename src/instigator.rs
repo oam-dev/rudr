@@ -69,11 +69,8 @@ impl Instigator {
     ///
     /// An instigator uses the reflector as a cache of Components, and will use the API client
     /// for creating and managing the component implementation.
-    pub fn new(client: kube::client::APIClient, ns: String) -> Self {
-        Instigator {
-            client: client,
-            namespace: ns,
-        }
+    pub fn new(client: kube::client::APIClient, namespace: String) -> Self {
+        Instigator { client, namespace }
     }
 
     /// The workhorse for Instigator.
@@ -99,7 +96,11 @@ impl Instigator {
                 .clone()
                 .or_else(|| Some(vec![]))
                 .unwrap();
-            let child = component.parameter_values.clone().or_else(|| Some(vec![])).unwrap();
+            let child = component
+                .parameter_values
+                .clone()
+                .or_else(|| Some(vec![]))
+                .unwrap();
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
@@ -123,7 +124,7 @@ impl Instigator {
                     }
                     Some(ownref.unwrap())
                 }
-                _ => None
+                _ => None,
             };
 
             // Instantiate components
@@ -214,56 +215,56 @@ impl Instigator {
         instance_name: String,
         comp: &KubeComponent,
         params: &ParamMap,
-        owner: Option<Vec<meta::OwnerReference>>,
+        owner_ref: Option<Vec<meta::OwnerReference>>,
     ) -> Result<CoreWorkloadType, Error> {
         info!("Looking up {}", config_name);
         let meta = WorkloadMetadata {
             name: config_name,
-            instance_name: instance_name,
+            instance_name,
             component_name: comp.metadata.name.clone(),
             namespace: self.namespace.clone(),
             definition: comp.spec.clone(),
             client: self.client.clone(),
             params: params.clone(),
-            owner_ref: owner,
+            owner_ref,
         };
         match comp.spec.workload_type.as_str() {
             // This one is DEPRECATED
             "core.hydra.io/v1alpha1.ReplicatedService" => {
-                let rs = ReplicatedService { meta: meta };
+                let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
             // DEPRECATED
             "core.hydra.io/v1alpha1.Singleton" => {
-                let sing = SingletonService { meta: meta };
+                let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
             "core.hydra.io/v1alpha1.Service" => {
-                let rs = ReplicatedService { meta: meta };
+                let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
             "core.hydra.io/v1alpha1.SingletonService" => {
-                let sing = SingletonService { meta: meta };
+                let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
             "core.hydra.io/v1alpha1.SingletonTask" => {
-                let task = SingletonTask { meta: meta };
+                let task = SingletonTask { meta };
                 Ok(CoreWorkloadType::SingletonTaskType(task))
             }
             "core.hydra.io/v1alpha1.Task" => {
                 let task = ReplicatedTask {
-                    meta: meta,
+                    meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedTaskType(task))
             }
             "core.hydra.io/v1alpha1.SingletonWorker" => {
-                let wrkr = SingletonWorker { meta: meta };
+                let wrkr = SingletonWorker { meta };
                 Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
             }
             "core.hydra.io/v1alpha1.Worker" => {
                 let worker = ReplicatedWorker {
-                    meta: meta,
+                    meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedWorkerType(worker))
@@ -318,7 +319,7 @@ impl Instigator {
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
             block_owner_deletion: Some(true),
-            name: name,
+            name,
         };
         Ok(vec![new_owner])
     }
@@ -356,7 +357,7 @@ pub fn config_owner_reference(
             let owner_ref = meta::OwnerReference {
                 api_version: HYDRA_API_VERSION.into(),
                 kind: "Configuration".into(),
-                uid: uid,
+                uid,
                 controller: Some(true),
                 block_owner_deletion: Some(true),
                 name: parent_name.clone(),

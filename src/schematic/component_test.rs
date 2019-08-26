@@ -299,3 +299,70 @@ fn test_workload_settings_deserialize() {
     assert_eq!(None, s2.default);
     assert_eq!(Some("param1".into()), s2.from_param);
 }
+
+#[test]
+fn component_listening_port() {
+    let comp = Component::from_str(
+        r#"{
+            "containers": [
+                {
+                    "name": "container1",
+                    "image": "nginx:latest"
+                },
+                {
+                    "name": "container2",
+                    "image": "nginx:latest",
+                    "ports": [
+                        {
+                            "name": "good",
+                            "containerPort": 443
+                        },
+                        {
+                            "name": "bad",
+                            "containerPort": 8080
+                        }
+                    ]
+                },
+                {
+                    "name": "container3",
+                    "image": "nginx:latest",
+                    "ports": [
+                        {
+                            "name": "bad",
+                            "containerPort": 31337
+                        }
+                    ]
+                }
+            ]
+        }"#,
+    );
+    assert_eq!(
+        "good",
+        comp.expect("component should exist")
+            .listening_port()
+            .expect("one listening port")
+            .name
+    );
+
+    assert!(Component::from_str(
+        r#"{
+            "containers": [
+                {
+                    "name": "container1",
+                    "image": "nginx:latest"
+                },
+                {
+                    "name": "container2",
+                    "image": "nginx:latest"
+                },
+                {
+                    "name": "container3",
+                    "image": "nginx:latest"
+                }
+            ]
+        }"#,
+    )
+    .expect("component should exist")
+    .listening_port()
+    .is_none());
+}

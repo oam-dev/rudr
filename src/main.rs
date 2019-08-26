@@ -5,7 +5,7 @@ use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
 use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
-use log::{error, info, debug};
+use log::{debug, error, info};
 
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
@@ -26,7 +26,7 @@ type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 fn main() -> Result<(), Error> {
     env_logger::init();
 
-    let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else( |_| DEFAULT_NAMESPACE.into());
+    let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
 
     // There is probably a better way to do this than to create two clones, but there is a potential

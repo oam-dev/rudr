@@ -18,23 +18,23 @@ pub struct ManualScaler {
 impl ManualScaler {
     pub fn from_params(
         name: String,
-        inst_name: String,
-        comp_name: String,
+        instance_name: String,
+        component_name: String,
         params: ParamMap,
         owner_ref: OwnerRefs,
         workload_type: String,
     ) -> ManualScaler {
         log::debug!("params: {:?}", &params);
         ManualScaler {
-            name: name,
-            instance_name: inst_name,
-            component_name: comp_name,
-            owner_ref: owner_ref,
+            name,
+            instance_name,
+            component_name,
+            owner_ref,
+            workload_type,
             replica_count: params
                 .get("replicaCount")
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32)))
                 .unwrap_or(1),
-            workload_type: workload_type,
         }
     }
 

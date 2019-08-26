@@ -31,31 +31,30 @@ pub struct Component {
 impl Component {
     /// listening_port returns the first container port listed.
     pub fn listening_port(&self) -> Option<&Port> {
-        for e in self.containers.iter() {
-            if let Some(first) = e.ports.iter().find_map(|p| Some(p)) {
-                return Some(first);
-            }
-        }
-        None
+        // Iterate through each container, and if any one contains a port,
+        // return it and stop processing.
+        self.containers
+            .iter()
+            .find_map(|e| e.ports.iter().find_map(Some))
     }
 
     /// to_pod_spec generates a pod specification.
     pub fn to_pod_spec(&self) -> core::PodSpec {
         let containers = self.to_containers();
-        let secrets = self.image_pull_secrets();
+        let image_pull_secrets = Some(self.image_pull_secrets());
         core::PodSpec {
-            containers: containers,
-            image_pull_secrets: Some(secrets),
+            containers,
+            image_pull_secrets,
             ..Default::default()
         }
     }
 
     pub fn to_pod_spec_with_policy(&self, restart_policy: String) -> core::PodSpec {
         let containers = self.to_containers();
-        let secrets = self.image_pull_secrets();
+        let image_pull_secrets = Some(self.image_pull_secrets());
         core::PodSpec {
-            containers: containers,
-            image_pull_secrets: Some(secrets),
+            containers,
+            image_pull_secrets,
             restart_policy: Some(restart_policy),
             ..Default::default()
         }
