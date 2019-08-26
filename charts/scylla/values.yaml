@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: technosophos/scylla
+  repository: hydraoss/scylla
   tag: latest # We're in pre-release
   pullPolicy: Always
 
