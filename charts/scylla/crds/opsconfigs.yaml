@@ -1,0 +1,18 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+ name: operationalconfigurations.core.hydra.io
+spec:
+  group: core.hydra.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: operationalconfigurations
+    singular: operationalconfiguration
+    kind: OperationalConfiguration
+    shortNames:
+    - cfg
+    - configuration

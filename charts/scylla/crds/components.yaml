@@ -1,0 +1,17 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: components.core.hydra.io
+spec:
+  group: core.hydra.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: components
+    singular: component
+    kind: Component
+    shortNames:
+    - comp
