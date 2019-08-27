@@ -8,6 +8,7 @@ build:
 .PHONY: test
 test:
 	cargo test
+	cargo clippy
 
 .PHONY: docker-build
 docker-build:
