@@ -1,5 +1,5 @@
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: hpa-example-replicated
 spec:
@@ -19,7 +19,7 @@ spec:
             required: 100M
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: nginx-replicated
 spec:
@@ -34,7 +34,7 @@ spec:
           protocol: TCP
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: nginx-singleton
 spec:
@@ -49,7 +49,7 @@ spec:
           protocol: TCP
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: alpine-task
 spec:
@@ -60,7 +60,7 @@ spec:
       image: alpine:latest
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: alpine-replicable-task
 spec:

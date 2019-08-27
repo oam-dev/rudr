@@ -58,7 +58,7 @@ $ kubectl create -f examples/components.yaml
 You can now list the components available to you:
 
 ```console
-$ kubectl get components
+$ kubectl get componentschematics
 NAME                     AGE
 alpine-replicable-task   19h
 alpine-task              19h
@@ -70,9 +70,9 @@ nginx-singleton          19h
 You can look at an individual component:
 
 ```console
-$ kubectl get component alpine-task -o yaml
+$ kubectl get componentschematic alpine-task -o yaml
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   creationTimestamp: "2019-08-08T03:31:36Z"
   generation: 1
