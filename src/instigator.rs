@@ -1,6 +1,6 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::Object, api::RawApi, api::Void, client::APIClient};
+use kube::{api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
 use log::{debug, error, info};
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -14,13 +14,18 @@ use crate::{
         configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
-        Status,
+        HydraStatus, Status,
     },
     workload_type::{
         CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker, SingletonService,
         SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
     },
 };
+
+pub const CONFIG_CRD: &str = "operationalconfigurations";
+pub const CONFIG_GROUP: &str = "core.hydra.io";
+pub const CONFIG_VERSION: &str = "v1alpha1";
+pub const COMPONENT_CRD: &str = "componentschematics";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
@@ -81,8 +86,8 @@ impl Instigator {
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
-        for component in event.spec.components.unwrap_or_else(|| vec![]) {
-            let component_resource = RawApi::customResource("componentschematics")
+        for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
+            let component_resource = RawApi::customResource(COMPONENT_CRD)
                 .version("v1alpha1")
                 .group("core.hydra.io")
                 .within(&self.namespace);
@@ -193,6 +198,33 @@ impl Instigator {
                 }
             }
         }
+        if let Some(s) = event.status.clone() {
+            if let Some(hs) = s.clone() {
+                if hs.phase.is_some() && hs.phase.unwrap() == phase.to_string() {
+                    return Ok(());
+                }
+            }
+        }
+
+        let status = HydraStatus::new(Some(phase.to_string()));
+        let mut new_event = event.clone();
+        new_event.status = Some(Some(status));
+        debug!("spec: {:?}, status: {:?}", new_event.spec, new_event.status);
+        let config_resource = RawApi::customResource(CONFIG_CRD)
+            .version(CONFIG_VERSION)
+            .group(CONFIG_GROUP)
+            .within(&self.namespace);
+
+        let patch_params = PatchParams::default();
+        let req = config_resource.patch(
+            &event.metadata.name,
+            &patch_params,
+            serde_json::to_vec(&new_event)?,
+        )?;
+        let o = self
+            .client
+            .request::<Object<OperationalConfiguration, Status>>(req)?;
+        info!("Patched status {:?} for {}", o.status, o.metadata.name);
         Ok(())
     }
 

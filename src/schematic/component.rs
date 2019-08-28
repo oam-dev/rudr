@@ -49,7 +49,11 @@ impl Component {
         }
     }
 
-    pub fn to_pod_spec_with_policy(&self, param_vals: ResolvedVals, restart_policy: String) -> core::PodSpec {
+    pub fn to_pod_spec_with_policy(
+        &self,
+        param_vals: ResolvedVals,
+        restart_policy: String,
+    ) -> core::PodSpec {
         let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
         core::PodSpec {
@@ -68,7 +72,12 @@ impl Component {
                 image: Some(c.image.clone()),
                 resources: Some(c.resources.to_resource_requirements()),
                 ports: Some(c.ports.iter().map(|p| p.to_container_port()).collect()),
-                env: Some(c.env.iter().map(|e| e.to_env_var(resolved_vals.clone())).collect()),
+                env: Some(
+                    c.env
+                        .iter()
+                        .map(|e| e.to_env_var(resolved_vals.clone()))
+                        .collect(),
+                ),
                 liveness_probe: c.liveness_probe.clone().and_then(|p| Some(p.to_probe())),
                 readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
                 ..Default::default()
@@ -89,7 +98,11 @@ impl Component {
             .collect()
     }
 
-    pub fn to_deployment_spec(&self, name: String, param_vals: ResolvedVals) -> apps::DeploymentSpec {
+    pub fn to_deployment_spec(
+        &self,
+        name: String,
+        param_vals: ResolvedVals,
+    ) -> apps::DeploymentSpec {
         let mut matching_labels = BTreeMap::new();
         matching_labels.insert("component".to_string(), name.clone());
         apps::DeploymentSpec {
@@ -185,20 +198,23 @@ impl Env {
     pub(crate) fn to_env_var(&self, params: ResolvedVals) -> core::EnvVar {
         let value = match self.from_param.clone() {
             Some(p) => {
-                params.get(p.as_str()).and_then(|i| {
-                    // Not sure what to do for other types.
-                    match i {
-                        serde_json::Value::String(s) => Some(s.clone()),
-                        _ => Some(i.to_string()),
-                    }
-                }).or_else(|| self.value.clone())
+                params
+                    .get(p.as_str())
+                    .and_then(|i| {
+                        // Not sure what to do for other types.
+                        match i {
+                            serde_json::Value::String(s) => Some(s.clone()),
+                            _ => Some(i.to_string()),
+                        }
+                    })
+                    .or_else(|| self.value.clone())
             }
-            None =>  self.value.clone()
+            None => self.value.clone(),
         };
         // FIXME: This needs to support fromParam
         core::EnvVar {
             name: self.name.clone(),
-            value: value,
+            value,
             value_from: None,
         }
     }
