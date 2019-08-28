@@ -1,7 +1,7 @@
 [package]
 name = "scylla"
 version = "0.1.0"
-authors = ["Matt Butcher <matt.butcher@microsoft.com>"]
+authors = ["Matt Butcher <matt.butcher@microsoft.com>", "Jianbo Sun <jianbo.sjb@alibaba-inc.com>"]
 edition = "2018"
 
 [dependencies]
