@@ -7,6 +7,11 @@ use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
 use log::{debug, error, info};
 
+use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
+    CustomResourceDefinitionSpec as CrdSpec,
+    CustomResourceDefinitionStatus as CrdStatus,
+};
+
 use scylla::instigator::Instigator;
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
@@ -33,6 +38,8 @@ fn main() -> Result<(), Error> {
     // thread safety issue here.
     let cfg_watch = top_cfg.clone();
     let client = APIClient::new(top_cfg);
+
+    precheck_crds(&client)?;
 
     let component_resource = RawApi::customResource("componentschematics")
         .within(top_ns.as_str())
@@ -120,4 +127,17 @@ fn handle_event(
         WatchEvent::Deleted(o) => inst.delete(o),
         WatchEvent::Error(e) => Err(format_err!("APIError: {:?}", e)),
     }
+}
+
+type CrdObj = Object<CrdSpec, CrdStatus>;
+fn precheck_crds(client: &APIClient) -> Result<(), failure::Error> {
+    let crds = vec!["operationalconfigurations", "traits", "componentschematics", "scopes"];
+    for crd in crds.iter() {
+        let req = RawApi::v1beta1CustomResourceDefinition().get(format!("{}.core.hydra.io", crd).as_str())?;
+        if let Err(e) = client.request::<CrdObj>(req) {
+            error!("Error prechecking CRDs: {}", e);
+            return Err(failure::format_err!("Missing CRD {}", crd));
+        }
+    }
+    Ok(())
 }
