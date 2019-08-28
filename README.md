@@ -230,7 +230,7 @@ To build:
 - Go into the main directory: `cd scylla`
 - Install the CRDs in `k8s/crds.yaml`: `kubectl create -f k8s/crds.yaml`
 - Run `cargo build`
-- To run the server: `cargo run`
+- To run the server: `make run`, this will run scylla controller locally, and use the cluster by your `~/.kube/config`.
 
 At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
 
