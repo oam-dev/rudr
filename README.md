@@ -8,7 +8,7 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 
 > Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
  
-> Tips: As there are some breaking changes(such as Configuration => OperationalConfiguration, Component => ComponentSchematic), if you reinstall scylla, make sure your old CRDs are deleted.
+> Tip: As there are some breaking changes (such as Configuration => OperationalConfiguration, Component => ComponentSchematic), if you reinstall Scylla, make sure your old CRDs are deleted.
 
 
 A relatively recent version of Scylla can be installed using [Helm 3-beta.1](helm.sh).
@@ -43,7 +43,7 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 The new chart is optimized for the CRD handling introduced in Helm 3 Beta 1. For earlier versions of Helm you will need to manually install the CRDs:
 
 ```console
-$ kubectl create -f charts/scylla/crds/*.yaml
+$ kubectl apply -f charts/scylla/crds/
 ```
 
 Then you can install the Helm chart:
