@@ -7,6 +7,9 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 ## Installing Using Helm
 
 > Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
+ 
+> Tips: As there are some breaking changes(such as Configuration => OperationalConfiguration, Component => ComponentSchematic), if you reinstall scylla, make sure your old CRDs are deleted.
+
 
 A relatively recent version of Scylla can be installed using [Helm 3-beta.1](helm.sh).
 
