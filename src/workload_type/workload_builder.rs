@@ -82,7 +82,7 @@ impl JobBuilder {
         self.parallelism = Some(count);
         self
     }
-    fn to_job(self) -> batchapi::Job {
+    fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta {
@@ -154,7 +154,7 @@ impl ServiceBuilder {
         self.owner_ref = owner_ref;
         self
     }
-    fn to_service(self) -> Option<api::Service> {
+    fn to_service(&self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
                 metadata: Some(meta::ObjectMeta {
@@ -164,7 +164,7 @@ impl ServiceBuilder {
                     ..Default::default()
                 }),
                 spec: Some(api::ServiceSpec {
-                    selector: Some(self.labels),
+                    selector: Some(self.labels.clone()),
                     ports: Some(vec![port.to_service_port()]),
                     ..Default::default()
                 }),
