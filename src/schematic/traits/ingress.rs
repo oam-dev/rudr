@@ -1,5 +1,6 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::ParamMap;
+use http;
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
@@ -81,6 +82,19 @@ impl TraitImplementation for Ingress {
     fn add(&self, ns: &str, client: APIClient) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
+        client.request::<ext::Ingress>(req)?;
+        Ok(())
+    }
+    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+        let ingress = self.to_ext_ingress();
+        let values = serde_json::to_value(&ingress)?;
+        let (mut req, _) = ext::Ingress::patch_namespaced_ingress(
+            self.kube_name().as_str(),
+            ns,
+            &meta::Patch::StrategicMerge(values),
+            Default::default(),
+        )?;
+
         client.request::<ext::Ingress>(req)?;
         Ok(())
     }

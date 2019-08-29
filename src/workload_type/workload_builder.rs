@@ -1,7 +1,7 @@
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::PostParams;
+use kube::api::{PatchParams, PostParams};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
@@ -179,15 +179,34 @@ impl ServiceBuilder {
             })
         })
     }
-    pub fn do_request(self, client: APIClient, namespace: String) -> InstigatorResult {
+    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         match self.to_service() {
             Some(svc) => {
                 log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
-                let pp = PostParams::default();
-                kube::api::Api::v1Service(client)
-                    .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&svc)?)?;
-                Ok(())
+                match phase {
+                    "modify" => {
+                        /*
+                        let old_svc = kube::api::Api::v1Service(client.clone())
+                            .within(namespace.as_str())
+                            .get(self.name.as_str())?;
+                        svc.metadata
+                            .as_mut()
+                            .map(|s| s.resource_version = old_svc.metadata.resourceVersion);
+                            */
+                        let pp = PatchParams::default();
+                        kube::api::Api::v1Service(client)
+                            .within(namespace.as_str())
+                            .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?)?;
+                        Ok(())
+                    }
+                    _ => {
+                        let pp = PostParams::default();
+                        kube::api::Api::v1Service(client)
+                            .within(namespace.as_str())
+                            .create(&pp, serde_json::to_vec(&svc)?)?;
+                        Ok(())
+                    }
+                }
             }
             // No service to create
             None => {

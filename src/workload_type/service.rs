@@ -61,7 +61,7 @@ impl WorkloadType for ReplicatedService {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(labels)
             .owner_reference(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
 }
 
@@ -111,7 +111,36 @@ impl WorkloadType for SingletonService {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(labels)
             .owner_reference(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+    }
+
+    fn modify(&self) -> InstigatorResult {
+        let pod = self.to_pod();
+        let pp = kube::api::PatchParams::default();
+
+        let old_pod = kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .get(self.kube_name().as_str())?;
+
+        kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .patch(
+                self.kube_name().as_str(),
+                &pp,
+                serde_json::to_vec(&pod.spec)?,
+            )?;
+        // Update service
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "singleton-service".to_string());
+        ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(labels)
+            .owner_reference(self.meta.owner_ref.clone())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
 }
 
