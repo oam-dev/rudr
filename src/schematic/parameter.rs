@@ -48,7 +48,7 @@ impl Parameter {
     }
 }
 
-type ResolvedVals = BTreeMap<String, serde_json::Value>;
+pub type ResolvedVals = BTreeMap<String, serde_json::Value>;
 
 #[derive(Fail, Debug)]
 #[fail(display = "validation failed: {:?}", errs)]

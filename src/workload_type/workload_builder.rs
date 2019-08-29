@@ -48,6 +48,7 @@ pub(crate) struct JobBuilder {
     restart_policy: String,
     owner_ref: Option<Vec<meta::OwnerReference>>,
     parallelism: Option<i32>,
+    param_vals: ParamMap,
 }
 
 impl JobBuilder {
@@ -60,11 +61,17 @@ impl JobBuilder {
             restart_policy: "Never".to_string(),
             owner_ref: None,
             parallelism: None,
+            param_vals: BTreeMap::new(),
         }
     }
     /// Add labels
     pub fn labels(mut self, labels: Labels) -> Self {
         self.labels = labels;
+        self
+    }
+
+    pub fn parameter_map(mut self, param_vals: ParamMap) -> Self {
+        self.param_vals = param_vals;
         self
     }
     /// Set the restart policy
@@ -103,7 +110,7 @@ impl JobBuilder {
                     }),
                     spec: Some(
                         self.component
-                            .to_pod_spec_with_policy(self.restart_policy.clone()),
+                            .to_pod_spec_with_policy(self.param_vals.clone(), self.restart_policy.clone()),
                     ),
                 },
                 ..Default::default()

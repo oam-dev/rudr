@@ -23,6 +23,7 @@ impl WorkloadType for ReplicatedTask {
         labels.insert("app".to_string(), self.meta.name.clone());
         labels.insert("workload-type".to_string(), "task".to_string());
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(labels)
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
@@ -48,6 +49,7 @@ impl WorkloadType for SingletonTask {
         labels.insert("app".to_string(), self.meta.name.clone());
         labels.insert("workload-type".to_string(), "singleton-task".to_string());
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(labels)
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())

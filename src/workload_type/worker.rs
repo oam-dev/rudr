@@ -21,6 +21,7 @@ impl WorkloadType for ReplicatedWorker {
         labels.insert("app".to_string(), self.meta.name.clone());
         labels.insert("workload-type".to_string(), "worker".to_string());
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(labels)
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
@@ -48,6 +49,7 @@ impl WorkloadType for SingletonWorker {
         labels.insert("app".to_string(), self.meta.name.clone());
         labels.insert("workload-type".to_string(), "singleton-worker".to_string());
         JobBuilder::new(podname, self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(labels)
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("OnError".to_string())

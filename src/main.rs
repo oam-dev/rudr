@@ -30,6 +30,7 @@ type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
 fn main() -> Result<(), Error> {
     env_logger::init();
+    info!("starting server");
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");

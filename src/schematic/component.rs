@@ -6,7 +6,7 @@ use k8s_openapi::apimachinery::pkg::{
 use log::info;
 use std::collections::BTreeMap;
 
-use crate::schematic::parameter::{ParameterList, ParameterType};
+use crate::schematic::parameter::{ParameterList, ParameterType, ResolvedVals};
 
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
@@ -39,8 +39,8 @@ impl Component {
     }
 
     /// to_pod_spec generates a pod specification.
-    pub fn to_pod_spec(&self) -> core::PodSpec {
-        let containers = self.to_containers();
+    pub fn to_pod_spec(&self, param_vals: ResolvedVals) -> core::PodSpec {
+        let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
         core::PodSpec {
             containers,
@@ -49,8 +49,8 @@ impl Component {
         }
     }
 
-    pub fn to_pod_spec_with_policy(&self, restart_policy: String) -> core::PodSpec {
-        let containers = self.to_containers();
+    pub fn to_pod_spec_with_policy(&self, param_vals: ResolvedVals, restart_policy: String) -> core::PodSpec {
+        let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
         core::PodSpec {
             containers,
@@ -60,7 +60,7 @@ impl Component {
         }
     }
 
-    pub fn to_containers(&self) -> Vec<core::Container> {
+    pub fn to_containers(&self, resolved_vals: ResolvedVals) -> Vec<core::Container> {
         self.containers
             .iter()
             .map(|c| core::Container {
@@ -68,7 +68,7 @@ impl Component {
                 image: Some(c.image.clone()),
                 resources: Some(c.resources.to_resource_requirements()),
                 ports: Some(c.ports.iter().map(|p| p.to_container_port()).collect()),
-                env: Some(c.env.iter().map(|e| e.to_env_var()).collect()),
+                env: Some(c.env.iter().map(|e| e.to_env_var(resolved_vals.clone())).collect()),
                 liveness_probe: c.liveness_probe.clone().and_then(|p| Some(p.to_probe())),
                 readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
                 ..Default::default()
@@ -89,7 +89,7 @@ impl Component {
             .collect()
     }
 
-    pub fn to_deployment_spec(&self, name: String) -> apps::DeploymentSpec {
+    pub fn to_deployment_spec(&self, name: String, param_vals: ResolvedVals) -> apps::DeploymentSpec {
         let mut matching_labels = BTreeMap::new();
         matching_labels.insert("component".to_string(), name.clone());
         apps::DeploymentSpec {
@@ -103,17 +103,13 @@ impl Component {
                     labels: Some(matching_labels),
                     ..Default::default()
                 }),
-                spec: Some(self.to_pod_spec()),
+                spec: Some(self.to_pod_spec(param_vals)),
             },
             ..Default::default()
         }
     }
 }
-impl Into<core::PodSpec> for Component {
-    fn into(self) -> core::PodSpec {
-        self.to_pod_spec()
-    }
-}
+
 impl Default for Component {
     fn default() -> Self {
         Component {
@@ -186,11 +182,23 @@ pub struct Env {
     pub from_param: Option<String>,
 }
 impl Env {
-    fn to_env_var(&self) -> core::EnvVar {
+    pub(crate) fn to_env_var(&self, params: ResolvedVals) -> core::EnvVar {
+        let value = match self.from_param.clone() {
+            Some(p) => {
+                params.get(p.as_str()).and_then(|i| {
+                    // Not sure what to do for other types.
+                    match i {
+                        serde_json::Value::String(s) => Some(s.clone()),
+                        _ => Some(i.to_string()),
+                    }
+                }).or_else(|| self.value.clone())
+            }
+            None =>  self.value.clone()
+        };
         // FIXME: This needs to support fromParam
         core::EnvVar {
             name: self.name.clone(),
-            value: self.value.clone(),
+            value: value,
             value_from: None,
         }
     }
