@@ -1,0 +1,49 @@
+## This is an example of using parameters, parameter values, and env vars.
+## The component definition defines the parameters and maps them to
+## env vars. Then the operational configuration overrides the component's
+## default values.
+##
+## Once you have installed this, you can verify that the env vars were
+## set correctly by doing:
+##
+##  $ kubectl get pod -o yaml example-alpine-forever
+##
+## You can get that pod's logs to see the results of injecting the FOO
+## variable.
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: alpine-forever
+spec:
+  workloadType: core.hydra.io/v1alpha1.SingletonService
+  os: linux
+  parameters:
+    - name: message
+      type: string
+      required: false
+    - name: unused_integer
+      type: number
+      required: false
+      default: 5678
+  containers:
+    - name: runner
+      image: technosophos/alpine-forever:latest
+      env:
+      - name: FOO
+        value: bar
+        fromParam: message
+      - name: UNUSED
+        value: "1234"
+        fromParam: unused_integer
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: OperationalConfiguration
+metadata:
+  name: example-env-vars
+spec:
+  components:
+  - name: alpine-forever
+    instanceName: example-alpine-forever
+    parameterValues:
+      - name: message
+        value: Hello World

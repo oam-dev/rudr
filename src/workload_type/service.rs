@@ -34,7 +34,7 @@ impl ReplicatedService {
             spec: Some(
                 self.meta
                     .definition
-                    .to_deployment_spec(self.meta.name.clone()),
+                    .to_deployment_spec(self.meta.name.clone(), self.meta.params.clone()),
             ),
             ..Default::default()
         }
@@ -86,7 +86,7 @@ impl SingletonService {
                 owner_references: self.meta.owner_ref.clone(),
                 ..Default::default()
             }),
-            spec: Some(self.meta.definition.to_pod_spec()),
+            spec: Some(self.meta.definition.to_pod_spec(self.meta.params.clone())),
             ..Default::default()
         }
     }

@@ -366,3 +366,74 @@ fn component_listening_port() {
     .listening_port()
     .is_none());
 }
+
+#[test]
+fn test_to_env_vars() {
+    let env = Component::from_str(r#"{
+            "parameters": [
+                {
+                    "name": "one",
+                    "type": "string",
+                    "default": "test one"
+                },
+                {
+                    "name": "two",
+                    "type": "number",
+                    "default": 2
+                },
+                {
+                    "name": "four",
+                    "type": "number",
+                    "default": 4
+                }
+            ],
+            "containers": [
+                {
+                    "name": "container1",
+                    "image": "nginx:latest",
+                    "env": [
+                        {
+                            "name": "VAR_ONE",
+                            "fromParam": "one"
+                        },
+                        {
+                            "name": "VAR_TWO",
+                            "fromParam": "two"
+                        },
+                        {
+                            "name": "VAR_THREE",
+                            "fromParam": "no_such_param",
+                            "value": "3"
+                        },
+                        {
+                            "name": "VAR_FOUR",
+                            "fromParam": "four"
+                        }
+                    ]
+                }
+            ]
+        }"#)
+    .as_ref()
+    .expect("component should exist")
+    .containers[0]
+    .env
+    .clone();
+
+    let mut valmap = std::collections::BTreeMap::new();
+    valmap.insert("one".to_string(), serde_json::json!("hello one"));
+    valmap.insert("two".to_string(), serde_json::json!("2"));
+    valmap.insert("three".to_string(), serde_json::json!("3"));
+    
+
+    let one = env[0].to_env_var(valmap.clone());
+    let two = env[1].to_env_var(valmap.clone());
+    let three = env[2].to_env_var(valmap.clone());
+    let four = env[3].to_env_var(valmap.clone());
+
+    assert_eq!("hello one", one.value.expect("found one val").as_str());
+    assert_eq!("2", two.value.expect("found two val").as_str());
+    assert_eq!("3", three.value.expect("found three val").as_str());
+
+    // This is None because the valmap was never coalesced with the root values.
+    assert_eq!(None, four.value);
+}
