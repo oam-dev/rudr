@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 
 use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
 
@@ -451,4 +452,15 @@ fn test_to_env_vars() {
 
     // This is None because the valmap was never coalesced with the root values.
     assert_eq!(None, four.value);
+}
+
+#[test]
+fn test_to_service_port() {
+    let port = Port{
+        name: "test".into(),
+        container_port: 443,
+        protocol: PortProtocol::TCP,
+    };
+    assert_eq!(443, port.to_service_port().port);
+    assert_eq!(IntOrString::Int(443), port.to_service_port().target_port.expect("port"));
 }
