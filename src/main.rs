@@ -47,10 +47,11 @@ fn main() -> Result<(), Error> {
         .version("v1alpha1");
 
     let component_cache: Reflector<KubeComponent> =
-        Reflector::raw(client.clone(), component_resource.clone())
-            .timeout(10)
-            .init()?;
+        Reflector::raw(client.clone(), component_resource.clone()).timeout(10);
     let reflector = component_cache.clone();
+    if let Err(err) = component_cache.init() {
+        error!("Component init error: {}", err);
+    }
 
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
