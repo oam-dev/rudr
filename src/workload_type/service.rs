@@ -118,10 +118,6 @@ impl WorkloadType for SingletonService {
         let pod = self.to_pod();
         let pp = kube::api::PatchParams::default();
 
-        let old_pod = kube::api::Api::v1Pod(self.meta.client.clone())
-            .within(self.meta.namespace.as_str())
-            .get(self.kube_name().as_str())?;
-
         kube::api::Api::v1Pod(self.meta.client.clone())
             .within(self.meta.namespace.as_str())
             .patch(

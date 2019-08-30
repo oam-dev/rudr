@@ -185,14 +185,6 @@ impl ServiceBuilder {
                 log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
                 match phase {
                     "modify" => {
-                        /*
-                        let old_svc = kube::api::Api::v1Service(client.clone())
-                            .within(namespace.as_str())
-                            .get(self.name.as_str())?;
-                        svc.metadata
-                            .as_mut()
-                            .map(|s| s.resource_version = old_svc.metadata.resourceVersion);
-                            */
                         let pp = PatchParams::default();
                         kube::api::Api::v1Service(client)
                             .within(namespace.as_str())
