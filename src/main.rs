@@ -15,7 +15,7 @@ use scylla::schematic::{component::Component, configuration::OperationalConfigur
 
 const DEFAULT_NAMESPACE: &str = "default";
 
-fn kubeconfig() -> Result<kube::config::Configuration, Error> {
+fn kubeconfig() -> kube::Result<kube::config::Configuration> {
     // If env var is set, use in cluster config
     if std::env::var("KUBERNETES_PORT").is_ok() {
         return incluster_config();

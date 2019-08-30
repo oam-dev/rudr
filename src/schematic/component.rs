@@ -72,6 +72,8 @@ impl Component {
                 image: Some(c.image.clone()),
                 resources: Some(c.resources.to_resource_requirements()),
                 ports: Some(c.ports.iter().map(|p| p.to_container_port()).collect()),
+                command: c.cmd.clone(),
+                args: c.args.clone(),
                 env: Some(
                     c.env
                         .iter()
@@ -156,6 +158,9 @@ pub struct Container {
 
     #[serde(default)]
     pub resources: Resources,
+
+    pub cmd: Option<Vec<String>>,
+    pub args: Option<Vec<String>>,
 
     #[serde(default)]
     pub env: Vec<Env>,

@@ -72,7 +72,7 @@ Once you have installed Scylla, you can start building apps. The easiest way to 
 First, pre-load some component schematics:
 
 ```console
-$ kubectl create -f examples/components.yaml
+$ kubectl apply -f examples/components.yaml
 ```
 
 You can now list the components available to you:
@@ -173,7 +173,7 @@ spec:
 To install this operational configuration, use `kubectl`:
 
 ```console
-$ kubectl create -f examples/first-app-config.yaml
+$ kubectl apply -f examples/first-app-config.yaml
 configuration.core.hydra.io/first-app created
 ```
 
@@ -248,7 +248,7 @@ To build:
 - Make sure you have Rust 2018 Edition or newer
 - Clone this repository
 - Go into the main directory: `cd scylla`
-- Install the CRDs in `k8s/crds.yaml`: `kubectl create -f k8s/crds.yaml`
+- Install the CRDs in `k8s/crds.yaml`: `kubectl apply -f k8s/crds.yaml`
 - Run `cargo build`
 - To run the server: `make run`, this will run scylla controller locally, and use the cluster by your `~/.kube/config`.
 
@@ -257,7 +257,7 @@ At this point, you will be running a local controller attached to the cluster to
 To get started, create some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
 
 ```console
-$ kubectl create -f examples/components.yaml
+$ kubectl apply -f examples/components.yaml
 component.core.hydra.io "nginx-replicated" created
 component.core.hydra.io "nginx-singleton" created
 $ kubectl get components
@@ -269,7 +269,7 @@ nginx-singleton    17s
 Next, create a new application that uses the component. In Hydra, as in 12-factor, an app is code (component) plus config. So you need to write a configuration. Examples are provided in the `examples/` directory:
 
 ```console
-$ kubectl create -f examples/first-app-config.yaml
+$ kubectl apply -f examples/first-app-config.yaml
 ```
 
 Now you may wish to explore your cluster to see what was created:
