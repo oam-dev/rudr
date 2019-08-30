@@ -1,9 +1,19 @@
-pool:
-  vmImage: 'Ubuntu 16.04'
+name: Rust
 
-steps:
-- script: |
-    cargo version
-    rustc --version
-    cargo test
-displayName: 'Run unit tests'
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Env check
+      run: rustc --version
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Style check
+      run: cargo clippy
