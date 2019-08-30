@@ -4,7 +4,7 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-singleton
+  - name: nginx-component
     instanceName: first-app-nginx
     parameterValues:
       - name: poet
