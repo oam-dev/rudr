@@ -1,0 +1,9 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+steps:
+- script: |
+    cargo version
+    rustc --version
+    cargo test
+displayName: 'Run unit tests'
