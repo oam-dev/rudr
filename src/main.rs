@@ -23,6 +23,8 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
     load_kube_config()
 }
 
+This will break the compile.
+
 type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
