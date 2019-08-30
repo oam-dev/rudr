@@ -10,8 +10,7 @@ use log::{debug, error, info};
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
     CustomResourceDefinitionSpec as CrdSpec, CustomResourceDefinitionStatus as CrdStatus,
 };
-
-use scylla::instigator::Instigator;
+use scylla::instigator::{Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION};
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
 const DEFAULT_NAMESPACE: &str = "default";
@@ -41,10 +40,10 @@ fn main() -> Result<(), Error> {
 
     precheck_crds(&client)?;
 
-    let component_resource = RawApi::customResource("componentschematics")
+    let component_resource = RawApi::customResource(COMPONENT_CRD)
         .within(top_ns.as_str())
-        .group("core.hydra.io")
-        .version("v1alpha1");
+        .group(CONFIG_GROUP)
+        .version(CONFIG_VERSION);
 
     let component_cache: Reflector<KubeComponent> =
         Reflector::raw(client.clone(), component_resource.clone()).timeout(10);
@@ -57,10 +56,10 @@ fn main() -> Result<(), Error> {
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
         let client = APIClient::new(cfg_watch);
-        let resource = RawApi::customResource("operationalconfigurations")
+        let resource = RawApi::customResource(CONFIG_CRD)
             .within(ns.as_str())
-            .group("core.hydra.io")
-            .version("v1alpha1");
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION);
 
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =

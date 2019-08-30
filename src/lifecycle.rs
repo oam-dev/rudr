@@ -1,3 +1,5 @@
+use std::fmt;
+
 /// Phase describes the lifecycle phase for an operation.
 ///
 /// The order of operations is this:
@@ -42,4 +44,17 @@ pub enum Phase {
     Modify,
     PreDelete,
     Delete,
+}
+
+impl fmt::Display for Phase {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Phase::PreAdd => write!(f, "PreAdd"),
+            Phase::Add => write!(f, "Add"),
+            Phase::PreModify => write!(f, "PreModify"),
+            Phase::Modify => write!(f, "Modify"),
+            Phase::PreDelete => write!(f, "PreDelete"),
+            Phase::Delete => write!(f, "Delete"),
+        }
+    }
 }

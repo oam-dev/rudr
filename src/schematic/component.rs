@@ -219,7 +219,7 @@ impl Env {
         // FIXME: This needs to support fromParam
         core::EnvVar {
             name: self.name.clone(),
-            value: value,
+            value,
             value_from: None,
         }
     }

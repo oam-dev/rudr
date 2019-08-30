@@ -34,6 +34,11 @@ impl Default for HydraStatus {
         HydraStatus { phase: None }
     }
 }
+impl HydraStatus {
+    pub fn new(phase: Option<String>) -> HydraStatus {
+        HydraStatus { phase }
+    }
+}
 
 /// Status is a convenience for an optional HydraStatus.
 pub type Status = Option<HydraStatus>;
