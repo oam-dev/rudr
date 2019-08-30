@@ -245,10 +245,11 @@ impl Port {
         }
     }
     pub fn to_service_port(&self) -> core::ServicePort {
+        let port = self.container_port;
         core::ServicePort {
-            target_port: Some(IntOrString::Int(self.container_port)),
+            port,
+            target_port: Some(IntOrString::Int(port)),
             name: Some(self.name.clone()),
-            port: 80,
             protocol: Some(self.protocol.to_string()),
             ..Default::default()
         }

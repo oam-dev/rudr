@@ -93,12 +93,12 @@ fn test_resolve_values() {
     let merged = resolve_values(child, parent).expect("resolve parent values into child");
     assert_eq!(
         Some("house"),
-        merged.get("abode".into()).expect("abode is home").as_str()
+        merged.get("abode").expect("abode is home").as_str()
     );
     assert_eq!(
         Some("dog"),
         merged
-            .get("favorite_animal".into())
+            .get("favorite_animal")
             .expect("abode is home")
             .as_str()
     );

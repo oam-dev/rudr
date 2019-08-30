@@ -1,3 +1,4 @@
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use std::str::FromStr;
 
 use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
@@ -79,59 +80,59 @@ fn test_container_deserialize_defaults() {
 }
 
 #[test]
+#[allow(clippy::cognitive_complexity)]
 fn test_container_deserialize() {
-    let data = Component::from_str(
-        r#"{
-            "containers": [
-                {
-                    "name": "my_container",
-                    "image": "nginx:latest",
-                    "ports": [
-                        {
-                            "name": "http",
-                            "containerPort": 8080,
-                            "protocol": "TCP"
-                        },
-                        {
-                            "name": "admin",
-                            "containerPort": 31337,
-                            "protocol": "UDP"
-                        }
-                    ],
-                    "cmd":["nginx-debug"],
-                    "args":["-g","daemon off;"],
-                    "env": [
-                        {
-                            "name": "key1",
-                            "value": "value1"
-                        },
-                        {
-                            "name": "key2",
-                            "fromParam": "param2"
-                        }
-                    ],
-                    "livenessProbe": {},
-                    "resources": {
-                        "memory": {
-                            "required": "2G"
-                        },
-                        "volumes": [
-                            {
-                                "name": "first",
-                                "mountPath": "/path/to/first"
-                            },
-                            {
-                                "name": "second",
-                                "mountPath": "/path/to/second",
-                                "accessMode": "RO",
-                                "sharingPolicy": "Shared"
-                            }
-                        ]
+    let def = r#"{
+        "containers": [
+            {
+                "name": "my_container",
+                "image": "nginx:latest",
+                "ports": [
+                    {
+                        "name": "http",
+                        "containerPort": 8080,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "name": "admin",
+                        "containerPort": 31337,
+                        "protocol": "UDP"
                     }
+                ],
+                "cmd":["nginx-debug"],
+                "args":["-g","daemon off;"],
+                "env": [
+                    {
+                        "name": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "name": "key2",
+                        "fromParam": "param2"
+                    }
+                ],
+                "livenessProbe": {},
+                "resources": {
+                    "memory": {
+                        "required": "2G"
+                    },
+                    "volumes": [
+                        {
+                            "name": "first",
+                            "mountPath": "/path/to/first"
+                        },
+                        {
+                            "name": "second",
+                            "mountPath": "/path/to/second",
+                            "accessMode": "RO",
+                            "sharingPolicy": "Shared"
+                        }
+                    ]
                 }
-            ]
-        }"#,
-    );
+            }
+        ]
+    }"#;
+    let data = Component::from_str(def);
 
     assert!(data.is_ok(), "{}", data.unwrap_err());
 
@@ -183,6 +184,7 @@ fn test_container_deserialize() {
     assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
     assert_eq!(AccessMode::RO, path2.access_mode);
 }
+
 #[test]
 fn test_health_probe_deserialize() {
     let data = Component::from_str(
@@ -451,4 +453,18 @@ fn test_to_env_vars() {
 
     // This is None because the valmap was never coalesced with the root values.
     assert_eq!(None, four.value);
+}
+
+#[test]
+fn test_to_service_port() {
+    let port = Port {
+        name: "test".into(),
+        container_port: 443,
+        protocol: PortProtocol::TCP,
+    };
+    assert_eq!(443, port.to_service_port().port);
+    assert_eq!(
+        IntOrString::Int(443),
+        port.to_service_port().target_port.expect("port")
+    );
 }
