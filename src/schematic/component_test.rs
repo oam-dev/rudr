@@ -72,6 +72,8 @@ fn test_container_deserialize_defaults() {
     assert_eq!("nginx:latest", container.image);
     assert_eq!(0, container.env.len());
     assert_eq!(0, container.ports.len());
+    assert!(container.cmd.is_none());
+    assert!(container.args.is_none());
     assert!(container.liveness_probe.is_none());
     assert!(container.readiness_probe.is_none());
 }
@@ -96,6 +98,8 @@ fn test_container_deserialize() {
                             "protocol": "UDP"
                         }
                     ],
+                    "cmd":["nginx-debug"],
+                    "args":["-g","daemon off;"],
                     "env": [
                         {
                             "name": "key1",
@@ -134,6 +138,16 @@ fn test_container_deserialize() {
     let container = data.as_ref().unwrap().containers.get(0).unwrap();
     assert_eq!("my_container", container.name);
     assert_eq!("nginx:latest", container.image);
+    assert!(container.cmd.is_some());
+    assert!(container.args.is_some());
+
+    let cmd = container.cmd.as_ref().unwrap().get(0).unwrap();
+    assert_eq!("nginx-debug", cmd);
+
+    let args1 = container.args.as_ref().unwrap().get(0).unwrap();
+    let args2 = container.args.as_ref().unwrap().get(1).unwrap();
+    assert_eq!("-g", args1);
+    assert_eq!("daemon off;", args2);
 
     // Ports
     assert_eq!(2, container.ports.len());
@@ -369,7 +383,8 @@ fn component_listening_port() {
 
 #[test]
 fn test_to_env_vars() {
-    let env = Component::from_str(r#"{
+    let env = Component::from_str(
+        r#"{
             "parameters": [
                 {
                     "name": "one",
@@ -412,18 +427,18 @@ fn test_to_env_vars() {
                     ]
                 }
             ]
-        }"#)
+        }"#,
+    )
     .as_ref()
     .expect("component should exist")
     .containers[0]
-    .env
-    .clone();
+        .env
+        .clone();
 
     let mut valmap = std::collections::BTreeMap::new();
     valmap.insert("one".to_string(), serde_json::json!("hello one"));
     valmap.insert("two".to_string(), serde_json::json!("2"));
     valmap.insert("three".to_string(), serde_json::json!("3"));
-    
 
     let one = env[0].to_env_var(valmap.clone());
     let two = env[1].to_env_var(valmap.clone());

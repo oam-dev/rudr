@@ -108,10 +108,10 @@ impl JobBuilder {
                         owner_references: self.owner_ref.clone(),
                         ..Default::default()
                     }),
-                    spec: Some(
-                        self.component
-                            .to_pod_spec_with_policy(self.param_vals.clone(), self.restart_policy.clone()),
-                    ),
+                    spec: Some(self.component.to_pod_spec_with_policy(
+                        self.param_vals.clone(),
+                        self.restart_policy.clone(),
+                    )),
                 },
                 ..Default::default()
             }),
@@ -281,6 +281,8 @@ mod test {
                 name: "foo".into(),
                 ports: vec![], // <-- No port, no service created.
                 env: vec![],
+                cmd: None,
+                args: None,
                 image: "test/foo:latest".into(),
                 image_pull_secret: None,
                 liveness_probe: None,
@@ -315,6 +317,8 @@ mod test {
                     name: "http".into(),
                     protocol: PortProtocol::TCP,
                 }],
+                cmd: None,
+                args: None,
                 env: vec![],
                 image: "test/foo:latest".into(),
                 image_pull_secret: None,

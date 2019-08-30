@@ -1,5 +1,5 @@
 apiVersion: core.hydra.io/v1alpha1
-kind: Component
+kind: ComponentSchematic
 metadata:
   name: nginx-component
 spec:
@@ -9,6 +9,11 @@ spec:
   containers:
     - name: foo
       image: nginx:latest
+      cmd:
+        - nginx-debug
+      args:
+        - '-g'
+        - 'daemon off;'
       env:
       - name: TEST
         value: FOO
