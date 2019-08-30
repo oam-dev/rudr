@@ -247,9 +247,9 @@ impl Port {
     pub fn to_service_port(&self) -> core::ServicePort {
         let port = self.container_port;
         core::ServicePort {
+            port,
             target_port: Some(IntOrString::Int(port)),
             name: Some(self.name.clone()),
-            port: port,
             protocol: Some(self.protocol.to_string()),
             ..Default::default()
         }
