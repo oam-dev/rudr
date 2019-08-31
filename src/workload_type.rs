@@ -86,6 +86,7 @@ impl CoreWorkloadType {
     pub fn modify(&self) -> InstigatorResult {
         match self {
             CoreWorkloadType::SingletonServiceType(sing) => sing.modify(),
+            CoreWorkloadType::ReplicatedServiceType(repl) => repl.modify(),
             _ => Err(format_err!("modify operation is not implemented")),
         }
     }

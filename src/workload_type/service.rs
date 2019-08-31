@@ -1,12 +1,13 @@
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::PostParams;
+use kube::api::{PatchParams, PostParams};
 
 use crate::workload_type::workload_builder::ServiceBuilder;
 use crate::workload_type::{InstigatorResult, KubeName, WorkloadMetadata, WorkloadType};
 
 use std::collections::BTreeMap;
+use std::{thread, time};
 
 /// A Replicated Service can take one component and scale it up or down.
 pub struct ReplicatedService {
@@ -63,6 +64,29 @@ impl WorkloadType for ReplicatedService {
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
+    fn modify(&self) -> InstigatorResult {
+        let deployment = self.to_deployment();
+        let deployments = kube::api::Api::v1Deployment(self.meta.client.clone())
+            .within(self.meta.namespace.as_str());
+        let pp = PatchParams::default();
+        deployments.patch(
+            self.kube_name().as_str(),
+            &pp,
+            serde_json::to_vec(&deployment)?,
+        )?;
+
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "service".to_string());
+        ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(labels)
+            .owner_reference(self.meta.owner_ref.clone())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
+    }
 }
 
 /// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
@@ -115,16 +139,29 @@ impl WorkloadType for SingletonService {
     }
 
     fn modify(&self) -> InstigatorResult {
+        //cause pod upgrade have many restrict, so we delete and create a new one to consistent with components.
+        let dp = kube::api::DeleteParams::default();
+        if let Err(err) = kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .delete(self.kube_name().as_str(), &dp)
+        {
+            match err.kind() {
+                kube::ErrorKind::Api(e) => {
+                    if e.code != 404 {
+                        return Err(failure::err_msg(err.to_string()));
+                    }
+                }
+                _ => return Err(failure::err_msg(err.to_string())),
+            }
+        }
+        //FIXME: there should check pod is deleting and retry, but we don't have queue now, so we just sleep some time avoid error
+        thread::sleep(time::Duration::from_secs(5));
+        //create new one
         let pod = self.to_pod();
-        let pp = kube::api::PatchParams::default();
-
+        let pp = kube::api::PostParams::default();
         kube::api::Api::v1Pod(self.meta.client.clone())
             .within(self.meta.namespace.as_str())
-            .patch(
-                self.kube_name().as_str(),
-                &pp,
-                serde_json::to_vec(&pod.spec)?,
-            )?;
+            .create(&pp, serde_json::to_vec(&pod)?)?;
         // Update service
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
