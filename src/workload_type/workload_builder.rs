@@ -133,7 +133,7 @@ impl JobBuilder {
         match phase {
             "modify" => {
                 let pp = kube::api::PatchParams::default();
-                batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
+                req = batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
             }
             _ => {
                 let pp = kube::api::PostParams::default();

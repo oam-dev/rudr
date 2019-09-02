@@ -154,7 +154,7 @@ impl WorkloadType for SingletonService {
                 _ => return Err(failure::err_msg(err.to_string())),
             }
         }
-        //FIXME: there should check pod is deleting and retry, but we don't have queue now, so we just sleep some time avoid error
+        //FIXME: Here we should check pod's terminating status until it's deleted completely.
         thread::sleep(time::Duration::from_secs(5));
         //create new one
         let pod = self.to_pod();

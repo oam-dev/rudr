@@ -87,7 +87,10 @@ impl CoreWorkloadType {
         match self {
             CoreWorkloadType::SingletonServiceType(sing) => sing.modify(),
             CoreWorkloadType::ReplicatedServiceType(repl) => repl.modify(),
-            _ => Err(format_err!("modify operation is not implemented")),
+            CoreWorkloadType::SingletonTaskType(task) => task.modify(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.modify(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.modify(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.modify(),
         }
     }
 }
