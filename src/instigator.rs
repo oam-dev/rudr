@@ -29,6 +29,7 @@ pub const CONFIG_CRD: &str = "operationalconfigurations";
 pub const COMPONENT_CRD: &str = "componentschematics";
 pub const TRAIT_CRD: &str = "traits";
 pub const SCOPE_CRD: &str = "scopes";
+pub const COMPONENT_RECORD_ANN: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
@@ -72,6 +73,13 @@ pub struct Instigator {
 /// Alias for a Kubernetes wrapper on a component.
 type KubeComponent = Object<Component, Void>;
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct ComponentRecord {
+    pub config: ComponentConfiguration,
+    pub version: String,
+}
+pub type RecordAnnotation = BTreeMap<String, ComponentRecord>;
+
 impl Instigator {
     /// Create a new instigator
     ///
@@ -88,14 +96,35 @@ impl Instigator {
         // - Resolve scope bindings
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
-
+        //TODO:
+        // - With this annotation, we can judge phase from it, without need the phase from informer which may not be accurate.
+        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANN);
+        let mut last_components = get_record_annotation(record_ann)?;
+        let mut new_components: BTreeMap<String, ComponentRecord> = BTreeMap::new();
+        let mut component_updated = false;
         for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
+            let record = last_components
+                .get_mut(component.instance_name.as_str())
+                .cloned();
             let component_resource = RawApi::customResource(COMPONENT_CRD)
                 .version("v1alpha1")
                 .group("core.hydra.io")
                 .within(&self.namespace);
             let comp_def_req = component_resource.get(component.name.as_str())?;
             let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
+            //check last components in every component loop
+            let new_record = &ComponentRecord {
+                version: comp_def.clone().metadata.resourceVersion.unwrap(),
+                config: component.clone(),
+            };
+            //remove the component in last and add to new, when we finish the component loop mentioned in event,
+            //we'll delete the left in last_components.
+            last_components.remove(component.instance_name.as_str());
+            new_components.insert(component.instance_name.clone(), new_record.to_owned());
+            if !check_diff(record, new_record) {
+                continue;
+            }
+            component_updated = true;
             // Resolve parameters
             let parent = event
                 .spec
@@ -196,21 +225,70 @@ impl Instigator {
             }
         }
 
-        if phase == Phase::Delete {
+        // delete the component left
+        for (_, component_record) in &last_components {
+            let component = component_record.config.clone();
+            component_updated = true;
+            let component_resource = RawApi::customResource(COMPONENT_CRD)
+                .version("v1alpha1")
+                .group("core.hydra.io")
+                .within(&self.namespace);
+            //FIXME: if this is not found, what can we do?
+            let comp_def_req = component_resource.get(component.name.as_str())?;
+            let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
+            // Resolve parameters
+            let parent = event
+                .spec
+                .parameter_values
+                .clone()
+                .or_else(|| Some(vec![]))
+                .unwrap();
+            let child = component
+                .parameter_values
+                .clone()
+                .or_else(|| Some(vec![]))
+                .unwrap();
+            let merged_vals = resolve_values(child, parent.clone())?;
+            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+
+            let inst_name = component.instance_name.clone();
+
+            // Instantiate components
+            let workload =
+                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
+            // Load all of the traits related to this component.
+            let mut trait_manager = TraitManager {
+                config_name: name.clone(),
+                instance_name: inst_name.clone(),
+                component: component.clone(),
+                parent_params: parent.clone(),
+                owner_ref: None,
+                workload_type: comp_def.spec.workload_type.clone(),
+                traits: vec![], // Always starts empty.
+            };
+            trait_manager.load_traits()?;
+
+            info!("Deleting component {}", component.name.clone());
+            trait_manager.exec(
+                self.namespace.as_str(),
+                self.client.clone(),
+                Phase::PreDelete,
+            )?;
+            workload.delete()?;
+            trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Delete)?;
+        }
+        // if no component was updated or this is an delete phase, just return without status change.
+        if !component_updated || phase == Phase::Delete {
             return Ok(());
         }
 
-        if let Some(s) = event.status.clone() {
-            if let Some(hs) = s.clone() {
-                if hs.phase.is_some() && hs.phase.unwrap() == phase.to_string() {
-                    return Ok(());
-                }
-            }
-        }
-
+        let new_record = serde_json::to_string(&new_components)?;
+        let mut annotation = event.metadata.annotations.clone();
+        annotation.insert(COMPONENT_RECORD_ANN.to_string(), new_record);
         let status = HydraStatus::new(Some(phase.to_string()));
         let mut new_event = event.clone();
         new_event.status = Some(Some(status));
+        new_event.metadata.annotations = annotation;
         debug!("spec: {:?}, status: {:?}", new_event.spec, new_event.status);
         let config_resource = RawApi::customResource(CONFIG_CRD)
             .version(CONFIG_VERSION)
@@ -401,6 +479,23 @@ pub fn config_owner_reference(
         None => Err(format_err!(
             "Mysteriously, no UID was created. Ancient version of Kubernetes?"
         )),
+    }
+}
+
+/// get_record_annotation json unmarshal component record from annotation
+pub fn get_record_annotation(
+    records_ann: Option<&String>,
+) -> Result<RecordAnnotation, serde_json::error::Error> {
+    match records_ann {
+        Some(str) => serde_json::from_str(str.as_str()),
+        None => Ok(BTreeMap::new()),
+    }
+}
+
+pub fn check_diff(old: Option<ComponentRecord>, new: &ComponentRecord) -> bool {
+    match old {
+        None => true,
+        Some(oldr) => oldr != new.clone(),
     }
 }
 
