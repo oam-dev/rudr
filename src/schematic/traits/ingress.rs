@@ -44,11 +44,13 @@ impl Ingress {
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {
+        let mut labels = trait_labels();
+        labels.insert("app".to_string(), self.name.clone());
         ext::Ingress {
             metadata: Some(meta::ObjectMeta {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
                 name: Some(self.kube_name()),
-                labels: Some(trait_labels()),
+                labels: Some(labels),
                 owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
@@ -61,7 +63,7 @@ impl Ingress {
                     http: Some(ext::HTTPIngressRuleValue {
                         paths: vec![ext::HTTPIngressPath {
                             backend: ext::IngressBackend {
-                                service_name: self.name.clone(),
+                                service_name: self.instance_name.clone(),
                                 service_port: IntOrString::Int(self.svc_port),
                             },
                             path: self.path.clone().or_else(|| Some("/".to_string())),

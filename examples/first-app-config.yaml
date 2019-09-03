@@ -18,3 +18,5 @@ spec:
             value: example.com
           - name: path
             value: /
+          - name: service_port
+            value: 80

@@ -140,6 +140,7 @@ impl JobBuilder {
 pub struct ServiceBuilder {
     component: Component,
     labels: Labels,
+    selector: Labels,
     name: String,
     owner_ref: Option<Vec<meta::OwnerReference>>,
 }
@@ -150,11 +151,16 @@ impl ServiceBuilder {
             component,
             name: instance_name,
             labels: Labels::new(),
+            selector: Labels::new(),
             owner_ref: None,
         }
     }
     pub fn labels(mut self, labels: Labels) -> Self {
         self.labels = labels;
+        self
+    }
+    pub fn select_labels(mut self, labels: Labels) -> Self {
+        self.selector = labels;
         self
     }
     pub fn owner_reference(mut self, owner_ref: Option<Vec<meta::OwnerReference>>) -> Self {
@@ -171,7 +177,7 @@ impl ServiceBuilder {
                     ..Default::default()
                 }),
                 spec: Some(api::ServiceSpec {
-                    selector: Some(self.labels.clone()),
+                    selector: Some(self.selector.clone()),
                     ports: Some(vec![port.to_service_port()]),
                     ..Default::default()
                 }),
@@ -247,6 +253,7 @@ mod test {
     fn test_service_builder() {
         let svc = ServiceBuilder::new("test".into(), skeleton_component())
             .labels(skeleton_labels())
+            .select_labels(skeleton_select_labels())
             .owner_reference(skeleton_owner_ref())
             .to_service()
             .expect("service");
@@ -258,6 +265,15 @@ mod test {
                 .expect("labels")
                 .len(),
             2
+        );
+        assert_eq!(
+            svc.spec
+                .clone()
+                .expect("metadata")
+                .selector
+                .expect("select_labels")
+                .len(),
+            1
         );
         assert_eq!(
             svc.metadata
@@ -302,6 +318,11 @@ mod test {
         let mut labels = BTreeMap::new();
         labels.insert("first".into(), "one".into());
         labels.insert("second".into(), "two".into());
+        labels
+    }
+    fn skeleton_select_labels() -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("first".into(), "one".into());
         labels
     }
     fn skeleton_component() -> Component {
