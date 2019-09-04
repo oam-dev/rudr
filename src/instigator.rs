@@ -29,7 +29,7 @@ pub const CONFIG_CRD: &str = "operationalconfigurations";
 pub const COMPONENT_CRD: &str = "componentschematics";
 pub const TRAIT_CRD: &str = "traits";
 pub const SCOPE_CRD: &str = "scopes";
-pub const COMPONENT_RECORD_ANN: &str = "component_record_annotation";
+pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
@@ -98,7 +98,7 @@ impl Instigator {
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
         //TODO:
         // - With this annotation, we can judge phase from it, without need the phase from informer which may not be accurate.
-        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANN);
+        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
         let mut last_components = get_record_annotation(record_ann)?;
         let mut new_components: BTreeMap<String, ComponentRecord> = BTreeMap::new();
         let mut component_updated = false;
@@ -106,12 +106,11 @@ impl Instigator {
             let record = last_components
                 .get_mut(component.instance_name.as_str())
                 .cloned();
-            let component_resource = RawApi::customResource(COMPONENT_CRD)
-                .version("v1alpha1")
-                .group("core.hydra.io")
-                .within(&self.namespace);
-            let comp_def_req = component_resource.get(component.name.as_str())?;
-            let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
+            let comp_def: KubeComponent = get_component_def(
+                self.namespace.clone(),
+                component.name.clone(),
+                self.client.clone(),
+            )?;
             //check last components in every component loop
             let new_record = &ComponentRecord {
                 version: comp_def.clone().metadata.resourceVersion.unwrap(),
@@ -126,17 +125,8 @@ impl Instigator {
             }
             component_updated = true;
             // Resolve parameters
-            let parent = event
-                .spec
-                .parameter_values
-                .clone()
-                .or_else(|| Some(vec![]))
-                .unwrap();
-            let child = component
-                .parameter_values
-                .clone()
-                .or_else(|| Some(vec![]))
-                .unwrap();
+            let parent = get_values(event.spec.parameter_values.clone());
+            let child = get_values(component.parameter_values.clone());
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
@@ -226,28 +216,18 @@ impl Instigator {
         }
 
         // delete the component left
-        for (_, component_record) in &last_components {
+        for component_record in last_components.values() {
             let component = component_record.config.clone();
             component_updated = true;
-            let component_resource = RawApi::customResource(COMPONENT_CRD)
-                .version("v1alpha1")
-                .group("core.hydra.io")
-                .within(&self.namespace);
-            //FIXME: if this is not found, what can we do?
-            let comp_def_req = component_resource.get(component.name.as_str())?;
-            let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
+            //FIXME: if component is not found, what can we do?
+            let comp_def: KubeComponent = get_component_def(
+                self.namespace.clone(),
+                component.name.clone(),
+                self.client.clone(),
+            )?;
             // Resolve parameters
-            let parent = event
-                .spec
-                .parameter_values
-                .clone()
-                .or_else(|| Some(vec![]))
-                .unwrap();
-            let child = component
-                .parameter_values
-                .clone()
-                .or_else(|| Some(vec![]))
-                .unwrap();
+            let parent = get_values(event.spec.parameter_values.clone());
+            let child = get_values(component.parameter_values.clone());
             let merged_vals = resolve_values(child, parent.clone())?;
             let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
@@ -284,7 +264,7 @@ impl Instigator {
 
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
-        annotation.insert(COMPONENT_RECORD_ANN.to_string(), new_record);
+        annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
         let status = HydraStatus::new(Some(phase.to_string()));
         let mut new_event = event.clone();
         new_event.status = Some(Some(status));
@@ -497,6 +477,24 @@ pub fn check_diff(old: Option<ComponentRecord>, new: &ComponentRecord) -> bool {
         None => true,
         Some(oldr) => oldr != new.clone(),
     }
+}
+
+pub fn get_component_def(
+    namespace: String,
+    comp_name: String,
+    client: APIClient,
+) -> Result<KubeComponent, Error> {
+    let component_resource = RawApi::customResource(COMPONENT_CRD)
+        .version("v1alpha1")
+        .group("core.hydra.io")
+        .within(&namespace);
+    let comp_def_req = component_resource.get(comp_name.as_str())?;
+    let comp_def: KubeComponent = client.request::<KubeComponent>(comp_def_req)?;
+    Ok(comp_def)
+}
+
+pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
+    values.or_else(|| Some(vec![])).unwrap()
 }
 
 // TraitManager maps a component to its traits, and handles trait lifecycle.
