@@ -183,12 +183,7 @@ impl Instigator {
                         self.client.clone(),
                         Phase::PreDelete,
                     )?;
-                    workload.delete()?;
-                    trait_manager.exec(
-                        self.namespace.as_str(),
-                        self.client.clone(),
-                        Phase::Delete,
-                    )?;
+                    // we leave owner reference to do delete work, so we don't need to invoke delete function here.
                 }
                 _ => {
                     return Err(format_err!(

@@ -89,6 +89,17 @@ impl WorkloadType for ReplicatedService {
                 "modify",
             )
     }
+    fn delete(&self) -> InstigatorResult {
+        let pp = kube::api::DeleteParams::default();
+        kube::api::Api::v1Deployment(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .delete(self.kube_name().as_str(), &pp)?;
+        ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
+    }
 }
 
 /// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
@@ -142,6 +153,23 @@ impl WorkloadType for SingletonService {
 
     //TODO: because pod upgrade have many restrictions and very complicated, so we don't support now.
     //User should delete and create a new SingletonService to solve this.
+    fn modify(&self) -> InstigatorResult {
+        Err(format_err!(
+            "we don't support SingletonService {} modify",
+            self.kube_name(),
+        ))
+    }
+    fn delete(&self) -> InstigatorResult {
+        let pp = kube::api::DeleteParams::default();
+        kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .delete(self.kube_name().as_str(), &pp)?;
+        ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
+    }
 }
 
 #[cfg(test)]
