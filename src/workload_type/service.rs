@@ -139,7 +139,7 @@ impl WorkloadType for SingletonService {
     }
 
     fn modify(&self) -> InstigatorResult {
-        //cause pod upgrade have many restrict, so we delete and create a new one to consistent with components.
+        //because pod upgrade have many restrictions, so we delete and create a new one to consistent with components.
         let dp = kube::api::DeleteParams::default();
         if let Err(err) = kube::api::Api::v1Pod(self.meta.client.clone())
             .within(self.meta.namespace.as_str())
