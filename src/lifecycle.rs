@@ -35,7 +35,7 @@ use std::fmt;
 /// Note that in deletion operations, Kubernetes will delete by owner reference before PreDelete. This means
 /// that the components will likely be unavailable by the time PreDelete fires. It is only guaranteed to fire
 /// before the component's Delete operation is fired.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Phase {
     // PreAdd happens before resources are added
     PreAdd,

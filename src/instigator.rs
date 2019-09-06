@@ -197,6 +197,11 @@ impl Instigator {
                 }
             }
         }
+
+        if phase == Phase::Delete {
+            return Ok(());
+        }
+
         if let Some(s) = event.status.clone() {
             if let Some(hs) = s.clone() {
                 if hs.phase.is_some() && hs.phase.unwrap() == phase.to_string() {
