@@ -4,7 +4,7 @@ use failure::{format_err, Error};
 use hyper::rt::Future;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
-use kube::api::{Informer, Object, RawApi, Reflector, WatchEvent};
+use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
 use log::{debug, error, info};
 
@@ -73,6 +73,18 @@ fn main() -> Result<(), Error> {
             .within(ns.as_str())
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION);
+        //init all the existing objects at initiate, this should be done by informer
+        let req = resource.list(&ListParams::default()).unwrap();
+        if let Ok(cfgs) = client.request::<ObjectList<KubeOpsConfig>>(req) {
+            for cfg in cfgs.items {
+                let event = WatchEvent::Added(cfg);
+                if let Err(res) = handle_event(&client, event, ns.clone()) {
+                    // Log the error and continue. In the future, should probably
+                    // re-queue data in some cases.
+                    error!("Error processing event: {:?}", res)
+                };
+            }
+        }
 
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =
