@@ -58,8 +58,11 @@ impl WorkloadType for ReplicatedService {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
         labels.insert("workload-type".to_string(), "service".to_string());
+        let mut select_labels = BTreeMap::new();
+        select_labels.insert("app".to_string(), self.meta.name.clone());
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(labels)
+            .select_labels(select_labels)
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }

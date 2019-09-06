@@ -56,7 +56,7 @@ fn test_ingress() {
         "/path",
         path.clone().path.expect("must be a path.path").as_str()
     );
-    assert_eq!("my-ingress", path.backend.service_name.as_str());
+    assert_eq!("squid", path.backend.service_name.as_str());
     assert_eq!(IntOrString::Int(8080), path.backend.service_port);
 }
 
