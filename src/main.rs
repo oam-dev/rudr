@@ -1,3 +1,4 @@
+use clap::{App, Arg};
 use env_logger;
 use failure::{format_err, Error};
 use hyper::rt::Future;
@@ -27,6 +28,18 @@ type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<OperationalConfiguration, Status>;
 
 fn main() -> Result<(), Error> {
+    let flags = App::new("scylla")
+        .version(env!("CARGO_PKG_VERSION"))
+        .arg(
+            Arg::with_name("metrics-addr")
+                .short("m")
+                .long("metrics-addr")
+                .default_value(":8080")
+                .help("The address the metric endpoint binds to."),
+        )
+        .get_matches();
+    let metrics_addr = "0.0.0.0".to_owned() + flags.value_of("metrics-addr").unwrap();
+
     env_logger::init();
     info!("starting server");
 
@@ -88,8 +101,9 @@ fn main() -> Result<(), Error> {
     });
     info!("Watcher is running");
 
-    std::thread::spawn(|| {
-        let addr = "0.0.0.0:8080".parse().unwrap();
+    std::thread::spawn(move || {
+        let addr = metrics_addr.parse().unwrap();
+        info!("Health server is running on {}", addr);
         hyper::rt::run(
             Server::bind(&addr)
                 .serve(|| {
