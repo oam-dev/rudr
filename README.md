@@ -26,14 +26,12 @@ Scylla is a Kubernetes controller to manage Configuration CRDs.
 It has been successfully installed.
 ```
 
-*IMPORTANT:* The CRD cache sometimes takes a while to regenerate. If the installation above fails with an error, wait until the CRD is cached and re-run the Helm command.
+*IMPORTANT:* If the installation above fails with an error `Error: apiVersion "core.hydra.io/v1alpha1" ... is not available`, wait until the CRD is cached and re-run the Helm command. The CRD cache sometimes takes a while to regenerate. 
 
 ```console
-$ helm install scylla charts/scylla
-Error: apiVersion "core.hydra.io/v1alpha1" in scylla/templates/traits.yaml is not available
-$ k get trait          ## When this command returns 'No resources found' you can re-run the install
+$ kubectl get trait  ## When this command returns 'No resources found' you can re-run the install
 No resources found.
-$ helm install scylla charts/scylla
+$ helm install scylla ./charts/scylla
 ```
 
 This will install the CRDs and the controller into your Kubernetes cluster.
@@ -43,16 +41,16 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 The new chart is optimized for the CRD handling introduced in Helm 3 Beta 1. For earlier versions of Helm you will need to manually install the CRDs:
 
 ```console
-$ kubectl apply -f charts/scylla/crds/
+$ kubectl apply -f ./charts/scylla/crds/
 ```
 
 Then you can install the Helm chart:
 
 ```console
 # Helm 2:
-$ helm install --name scylla charts/scylla
+$ helm install --name scylla ./charts/scylla
 # Helm 3 alphas:
-$ helm install scylla charts/scylla
+$ helm install scylla ./charts/scylla
 ```
 
 ### Uninstalling
