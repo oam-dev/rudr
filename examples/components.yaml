@@ -62,9 +62,9 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-replicable-task
+  name: alpine-singleton-task
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicableTask
+  workloadType: core.hydra.io/v1alpha1.SingletonTask
   os: linux
   containers:
     - name: runner

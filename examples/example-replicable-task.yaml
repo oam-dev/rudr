@@ -4,7 +4,7 @@ metadata:
   name: example-replicable-task
 spec:
   components:
-  - name: alpine-replicable-task
+  - name: alpine-task
     instanceName: multi-alpine-task
     parameterValues:
       - name: message
