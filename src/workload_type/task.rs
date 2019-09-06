@@ -28,7 +28,23 @@ impl WorkloadType for ReplicatedTask {
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+    }
+    fn modify(&self) -> InstigatorResult {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "task".to_string());
+        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(labels)
+            .parallelism(self.replica_count.unwrap_or(1))
+            .owner_ref(self.meta.owner_ref.clone())
+            .restart_policy("Never".to_string())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
 }
 
@@ -53,7 +69,22 @@ impl WorkloadType for SingletonTask {
             .labels(labels)
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+    }
+    fn modify(&self) -> InstigatorResult {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "singleton-task".to_string());
+        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(labels)
+            .owner_ref(self.meta.owner_ref.clone())
+            .restart_policy("Never".to_string())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
 }
 

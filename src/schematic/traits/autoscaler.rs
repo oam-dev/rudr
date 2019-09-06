@@ -125,6 +125,26 @@ impl TraitImplementation for Autoscaler {
         );
         Ok(())
     }
+    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+        let scaler = self.to_horizontal_pod_autoscaler();
+
+        let values = serde_json::to_value(&scaler)?;
+        let (req, _) = hpa::HorizontalPodAutoscaler::patch_namespaced_horizontal_pod_autoscaler(
+            self.kube_name().as_str(),
+            ns,
+            &meta::Patch::StrategicMerge(values),
+            Default::default(),
+        )?;
+
+        // Deserialize into a Value b/c the response from Kubernetes is not
+        // deserializing into an hpa::HorizontalPodAutoscaler correctly.
+        let res = client.request::<serde_json::Value>(req)?;
+        println!(
+            "Autoscaler modified: {}",
+            serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string())
+        );
+        Ok(())
+    }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME

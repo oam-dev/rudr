@@ -1,7 +1,7 @@
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::PostParams;
+use kube::api::{PatchParams, PostParams};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
@@ -118,9 +118,8 @@ impl JobBuilder {
             ..Default::default()
         }
     }
-    pub fn do_request(self, client: APIClient, namespace: String) -> InstigatorResult {
+    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
-        let pp = kube::api::PostParams::default();
         // Right now, the Batch API is not transparent through Kube.
         // Next release of Kube will fix this
         let batch = kube::api::RawApi {
@@ -130,8 +129,17 @@ impl JobBuilder {
             namespace: Some(namespace),
             version: "v1".into(),
         };
-
-        let req = batch.create(&pp, serde_json::to_vec(&job)?)?;
+        let req;
+        match phase {
+            "modify" => {
+                let pp = kube::api::PatchParams::default();
+                req = batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
+            }
+            _ => {
+                let pp = kube::api::PostParams::default();
+                req = batch.create(&pp, serde_json::to_vec(&job)?)?;
+            }
+        }
         client.request::<batchapi::Job>(req)?;
         Ok(())
     }
@@ -179,15 +187,26 @@ impl ServiceBuilder {
             })
         })
     }
-    pub fn do_request(self, client: APIClient, namespace: String) -> InstigatorResult {
+    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         match self.to_service() {
             Some(svc) => {
                 log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
-                let pp = PostParams::default();
-                kube::api::Api::v1Service(client)
-                    .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&svc)?)?;
-                Ok(())
+                match phase {
+                    "modify" => {
+                        let pp = PatchParams::default();
+                        kube::api::Api::v1Service(client)
+                            .within(namespace.as_str())
+                            .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?)?;
+                        Ok(())
+                    }
+                    _ => {
+                        let pp = PostParams::default();
+                        kube::api::Api::v1Service(client)
+                            .within(namespace.as_str())
+                            .create(&pp, serde_json::to_vec(&svc)?)?;
+                        Ok(())
+                    }
+                }
             }
             // No service to create
             None => {

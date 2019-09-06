@@ -93,7 +93,6 @@ impl Instigator {
                 .within(&self.namespace);
             let comp_def_req = component_resource.get(component.name.as_str())?;
             let comp_def: KubeComponent = self.client.request::<KubeComponent>(comp_def_req)?;
-
             // Resolve parameters
             let parent = event
                 .spec

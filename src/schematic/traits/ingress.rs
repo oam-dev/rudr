@@ -84,4 +84,17 @@ impl TraitImplementation for Ingress {
         client.request::<ext::Ingress>(req)?;
         Ok(())
     }
+    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+        let ingress = self.to_ext_ingress();
+        let values = serde_json::to_value(&ingress)?;
+        let (req, _) = ext::Ingress::patch_namespaced_ingress(
+            self.kube_name().as_str(),
+            ns,
+            &meta::Patch::StrategicMerge(values),
+            Default::default(),
+        )?;
+
+        client.request::<ext::Ingress>(req)?;
+        Ok(())
+    }
 }

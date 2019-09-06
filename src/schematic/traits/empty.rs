@@ -10,4 +10,7 @@ impl TraitImplementation for Empty {
     fn add(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
+    fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        Ok(())
+    }
 }

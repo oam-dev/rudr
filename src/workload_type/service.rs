@@ -1,7 +1,7 @@
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::PostParams;
+use kube::api::{PatchParams, PostParams};
 
 use crate::workload_type::workload_builder::ServiceBuilder;
 use crate::workload_type::{InstigatorResult, KubeName, WorkloadMetadata, WorkloadType};
@@ -61,7 +61,30 @@ impl WorkloadType for ReplicatedService {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(labels)
             .owner_reference(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+    }
+    fn modify(&self) -> InstigatorResult {
+        let deployment = self.to_deployment();
+        let deployments = kube::api::Api::v1Deployment(self.meta.client.clone())
+            .within(self.meta.namespace.as_str());
+        let pp = PatchParams::default();
+        deployments.patch(
+            self.kube_name().as_str(),
+            &pp,
+            serde_json::to_vec(&deployment)?,
+        )?;
+
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "service".to_string());
+        ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(labels)
+            .owner_reference(self.meta.owner_ref.clone())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
 }
 
@@ -111,8 +134,11 @@ impl WorkloadType for SingletonService {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(labels)
             .owner_reference(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
+
+    //TODO: because pod upgrade have many restrictions and very complicated, so we don't support now.
+    //User should delete and create a new SingletonService to solve this.
 }
 
 #[cfg(test)]

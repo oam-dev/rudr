@@ -84,6 +84,13 @@ impl CoreWorkloadType {
         }
     }
     pub fn modify(&self) -> InstigatorResult {
-        Err(format_err!("modify operation is not implemented"))
+        match self {
+            CoreWorkloadType::SingletonServiceType(sing) => sing.modify(),
+            CoreWorkloadType::ReplicatedServiceType(repl) => repl.modify(),
+            CoreWorkloadType::SingletonTaskType(task) => task.modify(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.modify(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.modify(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.modify(),
+        }
     }
 }
