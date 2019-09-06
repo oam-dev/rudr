@@ -11,7 +11,7 @@ This project implements the [Hydra specification](https://github.com/microsoft/h
 > Tip: As there are some breaking changes (such as Configuration => OperationalConfiguration, Component => ComponentSchematic), if you reinstall Scylla, make sure your old CRDs are deleted.
 
 
-A relatively recent version of Scylla can be installed using [Helm 3-beta.1](helm.sh).
+A relatively recent version of Scylla can be installed using [Helm v3](https://github.com/helm/helm/releases).
 
 ```console
 $ helm install scylla ./charts/scylla --wait
@@ -38,7 +38,7 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 
 ### For Older Versions of Helm
 
-The new chart is optimized for the CRD handling introduced in Helm 3 Beta 1. For earlier versions of Helm you will need to manually install the CRDs:
+The new chart is optimized for the CRD handling introduced in Helm v3. For earlier versions of Helm you will need to manually install the CRDs:
 
 ```console
 $ kubectl apply -f ./charts/scylla/crds/
