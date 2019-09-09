@@ -13,19 +13,22 @@ use crate::{
         configuration::ComponentConfiguration,
         configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
-        traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
+        traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
         HydraStatus, Status,
     },
     workload_type::{
-        CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker, SingletonService,
-        SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
+        self, CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker,
+        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
     },
 };
 
-pub const CONFIG_CRD: &str = "operationalconfigurations";
 pub const CONFIG_GROUP: &str = "core.hydra.io";
 pub const CONFIG_VERSION: &str = "v1alpha1";
+
+pub const CONFIG_CRD: &str = "operationalconfigurations";
 pub const COMPONENT_CRD: &str = "componentschematics";
+pub const TRAIT_CRD: &str = "traits";
+pub const SCOPE_CRD: &str = "scopes";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
@@ -266,39 +269,39 @@ impl Instigator {
         };
         match comp.spec.workload_type.as_str() {
             // This one is DEPRECATED
-            "core.hydra.io/v1alpha1.ReplicatedService" => {
+            workload_type::REPLICATED_SERVICE_NAME => {
                 let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
             // DEPRECATED
-            "core.hydra.io/v1alpha1.Singleton" => {
+            workload_type::SINGLETON_NAME => {
                 let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
-            "core.hydra.io/v1alpha1.Service" => {
+            workload_type::SERVICE_NAME => {
                 let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
-            "core.hydra.io/v1alpha1.SingletonService" => {
+            workload_type::SINGLETON_SERVICE_NAME => {
                 let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
-            "core.hydra.io/v1alpha1.SingletonTask" => {
+            workload_type::SINGLETON_TASK_NAME => {
                 let task = SingletonTask { meta };
                 Ok(CoreWorkloadType::SingletonTaskType(task))
             }
-            "core.hydra.io/v1alpha1.Task" => {
+            workload_type::TASK_NAME => {
                 let task = ReplicatedTask {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
                 Ok(CoreWorkloadType::ReplicatedTaskType(task))
             }
-            "core.hydra.io/v1alpha1.SingletonWorker" => {
+            workload_type::SINGLETON_WORKER => {
                 let wrkr = SingletonWorker { meta };
                 Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
             }
-            "core.hydra.io/v1alpha1.Worker" => {
+            workload_type::WORKER => {
                 let worker = ReplicatedWorker {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
@@ -319,11 +322,11 @@ impl Instigator {
     ) -> Result<Vec<meta::OwnerReference>, Error> {
         let pp = kube::api::PostParams::default();
         let crd_req = RawApi::customResource("componentinstances")
-            .group("core.hydra.io")
-            .version("v1alpha1")
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let comp_inst = json!({
-            "apiVersion": "core.hydra.io/v1alpha1",
+            "apiVersion": HYDRA_API_VERSION,
             "kind": "ComponentInstance",
             "metadata": {
                 "name": name.clone(),
@@ -365,8 +368,8 @@ impl Instigator {
         name: &str,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
         let crd_req = RawApi::customResource("componentinstances")
-            .group("core.hydra.io")
-            .version("v1alpha1")
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let req = crd_req.get(name)?;
         let res: KubeComponentInstance = self.client.request(req)?;
@@ -440,7 +443,7 @@ impl TraitManager {
         )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);
         match binding.name.as_str() {
-            "ingress" => {
+            traits::INGRESS => {
                 let ing = Ingress::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
@@ -450,7 +453,7 @@ impl TraitManager {
                 );
                 Ok(HydraTrait::Ingress(ing))
             }
-            "autoscaler" => {
+            traits::AUTOSCALER => {
                 let auto = Autoscaler::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
@@ -460,7 +463,7 @@ impl TraitManager {
                 );
                 Ok(HydraTrait::Autoscaler(auto))
             }
-            "manual-scaler" => {
+            traits::MANUAL_SCALER => {
                 let scaler = ManualScaler::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
@@ -473,7 +476,7 @@ impl TraitManager {
             }
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
-            "empty" => {
+            traits::EMPTY => {
                 let empty = Empty {};
                 Ok(HydraTrait::Empty(empty))
             }

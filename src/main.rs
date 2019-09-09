@@ -11,7 +11,9 @@ use log::{debug, error, info};
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
     CustomResourceDefinitionSpec as CrdSpec, CustomResourceDefinitionStatus as CrdStatus,
 };
-use scylla::instigator::{Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION};
+use scylla::instigator::{
+    Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION, SCOPE_CRD, TRAIT_CRD,
+};
 use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
 
 const DEFAULT_NAMESPACE: &str = "default";
@@ -157,12 +159,7 @@ fn handle_event(
 
 type CrdObj = Object<CrdSpec, CrdStatus>;
 fn precheck_crds(client: &APIClient) -> Result<(), failure::Error> {
-    let crds = vec![
-        "operationalconfigurations",
-        "traits",
-        "componentschematics",
-        "scopes",
-    ];
+    let crds = vec![CONFIG_CRD, TRAIT_CRD, COMPONENT_CRD, SCOPE_CRD];
     for crd in crds.iter() {
         let req = RawApi::v1beta1CustomResourceDefinition()
             .get(format!("{}.core.hydra.io", crd).as_str())?;
