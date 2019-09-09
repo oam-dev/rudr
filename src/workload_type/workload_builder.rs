@@ -7,7 +7,7 @@ use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{InstigatorResult, ParamMap};
+use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap};
 
 /// WorkloadMetadata contains common data about a workload.
 ///
@@ -89,6 +89,12 @@ impl JobBuilder {
         self.parallelism = Some(count);
         self
     }
+
+    fn to_config_maps(&self) -> Vec<api::ConfigMap> {
+        let configs = self.component.evaluate_configs(self.param_vals.clone());
+        to_config_maps(configs, self.owner_ref.clone(), Some(self.labels.clone()))
+    }
+
     fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
             // TODO: Could make this generic.
@@ -126,12 +132,13 @@ impl JobBuilder {
             group: "batch".into(),
             resource: "jobs".into(),
             prefix: "apis".into(),
-            namespace: Some(namespace),
+            namespace: Some(namespace.clone()),
             version: "v1".into(),
         };
         let req;
         match phase {
             "modify" => {
+                //TODO support modify config_map
                 let pp = kube::api::PatchParams::default();
                 req = batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
             }
@@ -140,6 +147,16 @@ impl JobBuilder {
                 req = batch.delete(self.name.as_str(), &pp)?;
             }
             _ => {
+                //pre create config_map
+                let config_maps = self.to_config_maps();
+                for config in config_maps.iter() {
+                    let (req, _) = api::ConfigMap::create_namespaced_config_map(
+                        namespace.as_str(),
+                        config,
+                        Default::default(),
+                    )?;
+                    client.request::<api::ConfigMap>(req)?;
+                }
                 let pp = kube::api::PostParams::default();
                 req = batch.create(&pp, serde_json::to_vec(&job)?)?;
             }
@@ -327,6 +344,7 @@ mod test {
                 name: "foo".into(),
                 ports: vec![], // <-- No port, no service created.
                 env: vec![],
+                config: None,
                 cmd: None,
                 args: None,
                 image: "test/foo:latest".into(),
@@ -371,6 +389,7 @@ mod test {
                 cmd: None,
                 args: None,
                 env: vec![],
+                config: None,
                 image: "test/foo:latest".into(),
                 image_pull_secret: None,
                 liveness_probe: None,

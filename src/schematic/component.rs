@@ -5,8 +5,9 @@ use k8s_openapi::apimachinery::pkg::{
 };
 use log::info;
 use std::collections::BTreeMap;
+use std::path::Path;
 
-use crate::schematic::parameter::{ParameterList, ParameterType, ResolvedVals};
+use crate::schematic::parameter::{resolve_value, ParameterList, ParameterType, ResolvedVals};
 
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
@@ -50,10 +51,34 @@ impl Component {
         let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
         let node_selector = self.to_node_selector();
+        let mut vols = vec![];
+        for container in self.containers.iter() {
+            for (i, _conf) in container
+                .config
+                .clone()
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .enumerate()
+            {
+                vols.insert(
+                    vols.len(),
+                    core::Volume {
+                        config_map: Some(core::ConfigMapVolumeSource {
+                            name: Some(container.name.clone() + i.to_string().as_str()),
+                            ..Default::default()
+                        }),
+                        name: container.name.clone() + i.to_string().as_str(),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
+        let volumes = Some(vols);
         core::PodSpec {
             containers,
             image_pull_secrets,
             node_selector,
+            volumes,
             ..Default::default()
         }
     }
@@ -73,6 +98,34 @@ impl Component {
         }
     }
 
+    pub fn evaluate_configs(
+        &self,
+        resolved_vals: ResolvedVals,
+    ) -> BTreeMap<String, BTreeMap<String, String>> {
+        let mut configs: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+        for container in self.containers.iter() {
+            for (i, conf) in container
+                .config
+                .clone()
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .enumerate()
+            {
+                let mut values = BTreeMap::new();
+                //config name is file path
+                let filename = Path::new(conf.name.as_str())
+                    .file_name()
+                    .unwrap()
+                    .to_os_string()
+                    .into_string()
+                    .expect("config file name");
+                values.insert(filename, conf.resolve_value(resolved_vals.clone()));
+                configs.insert(container.name.clone() + i.to_string().as_str(), values);
+            }
+        }
+        configs
+    }
+
     pub fn to_containers(&self, resolved_vals: ResolvedVals) -> Vec<core::Container> {
         self.containers
             .iter()
@@ -89,6 +142,31 @@ impl Component {
                         .map(|e| e.to_env_var(resolved_vals.clone()))
                         .collect(),
                 ),
+
+                volume_mounts: c.config.clone().and_then(|p| {
+                    let mut mounts = vec![];
+                    for (i, v) in p.iter().enumerate() {
+                        let path = Path::new(v.name.as_str())
+                            .parent()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_owned();
+                        mounts.insert(
+                            i,
+                            core::VolumeMount {
+                                mount_path: path,
+                                name: c.name.clone() + i.to_string().as_str(),
+                                ..Default::default()
+                            },
+                        );
+                    }
+                    if mounts.is_empty() {
+                        None
+                    } else {
+                        Some(mounts)
+                    }
+                }),
                 liveness_probe: c.liveness_probe.clone().and_then(|p| Some(p.to_probe())),
                 readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
                 ..Default::default()
@@ -175,6 +253,9 @@ pub struct Container {
     pub env: Vec<Env>,
 
     #[serde(default)]
+    pub config: Option<Vec<ConfigFile>>,
+
+    #[serde(default)]
     pub ports: Vec<Port>,
 
     pub liveness_probe: Option<HealthProbe>,
@@ -200,6 +281,22 @@ pub struct WorkloadSetting {
     pub from_param: Option<String>,
 }
 
+/// ConfigFile describes locations to write configuration as files accessible within the container
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigFile {
+    pub name: String,
+    pub value: Option<String>,
+    pub from_param: Option<String>,
+}
+impl ConfigFile {
+    pub(crate) fn resolve_value(&self, params: ResolvedVals) -> String {
+        let value = resolve_value(params, self.from_param.clone(), self.value.clone());
+        // rely on pre-check: that one of the value or from_param must exist.
+        value.unwrap()
+    }
+}
+
 /// Env describes an environment variable for a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -210,21 +307,7 @@ pub struct Env {
 }
 impl Env {
     pub(crate) fn to_env_var(&self, params: ResolvedVals) -> core::EnvVar {
-        let value = match self.from_param.clone() {
-            Some(p) => {
-                params
-                    .get(p.as_str())
-                    .and_then(|i| {
-                        // Not sure what to do for other types.
-                        match i {
-                            serde_json::Value::String(s) => Some(s.clone()),
-                            _ => Some(i.to_string()),
-                        }
-                    })
-                    .or_else(|| self.value.clone())
-            }
-            None => self.value.clone(),
-        };
+        let value = resolve_value(params, self.from_param.clone(), self.value.clone());
         // FIXME: This needs to support fromParam
         core::EnvVar {
             name: self.name.clone(),

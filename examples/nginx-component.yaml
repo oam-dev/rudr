@@ -17,6 +17,11 @@ spec:
       env:
       - name: TEST
         value: FOO
+      config:
+        - name: "/etc/access/default_user.txt"
+          value: "admin"
+        - name: "/etc/run/db-data"
+          fromParam: "poet"
       ports:
       - type: tcp
         containerPort: 80
