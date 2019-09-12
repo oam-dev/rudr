@@ -172,13 +172,15 @@ spec:
 
 To install this operational configuration, use `kubectl`:
 
-First, you need to install the component `nginx-component` as the role developer do.
+Because we will use `ingress` trait here, so if your cluster don't have any kind of [ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), you should install one kind of [ingress controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) first.
+
+Then, you need to install the component `nginx-component` as the developer do.
 
 ```console
 $ kubectl apply -f examples/nginx-component.yaml
 ```
 
-Then, just install the `first-app-config` as the role operator do.
+Finally, just install the `first-app-config` as the application operator do.
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
