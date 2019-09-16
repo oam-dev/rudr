@@ -10,9 +10,10 @@ use crate::{
     schematic::{
         component::Component,
         component_instance::KubeComponentInstance,
-        configuration::ApplicationConfiguration,
-        configuration::ComponentConfiguration,
+        configuration::{ApplicationConfiguration, ComponentConfiguration, ScopeBinding},
         parameter::{resolve_parameters, resolve_values, ParameterValue},
+        scopes::{self, Health, HydraScope, Network},
+        traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
         variable::{get_variable_values, resolve_variables},
         OAMStatus, Status,
     },
@@ -173,8 +174,8 @@ impl Instigator {
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
-        // TODO:
-        // - Resolve scope bindings
+        //TODO scopes should be resolved
+        let _scopes = load_scopes(event.spec.clone().scopes)?;
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
 
@@ -264,6 +265,31 @@ impl Instigator {
                 _ => None,
             };
 
+            //Note: if we don't manually add scopes, there are default scopes should be bind
+            for sc in &component
+                .application_scopes
+                .clone()
+                .unwrap_or_else(|| vec![])
+            {
+                //TODO load from scopes
+                match sc.scope_type.as_str() {
+                    scopes::NETWORK_SCOPE => {
+                        //TODO: change some of workload parameters and apply network scopes
+                        println!("network scope applied");
+                    }
+                    scopes::HEALTH_SCOPE => {
+                        // TODO: create health scope CR
+                        println!("health scope applied");
+                    }
+                    _ => {
+                        return Err(format_err!(
+                            "unknown application scope on {}: {}",
+                            inst_name.clone(),
+                            sc.scope_type
+                        ));
+                    }
+                }
+            }
             // Instantiate components
             let workload = self.load_workload_type(
                 name.clone(),
@@ -646,4 +672,52 @@ pub fn get_component_def(
 
 pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
     values.or_else(|| Some(vec![])).unwrap()
+}
+
+/// Load application scopes from scope_bindings
+/// check if there is not allowed overlap
+pub fn load_scopes(
+    scope_bindings: Option<Vec<ScopeBinding>>,
+) -> Result<Vec<HydraScope>, failure::Error> {
+    let mut scopes: Vec<HydraScope> = vec![];
+    let mut scope_overlap = BTreeMap::new();
+    if scope_bindings.is_none() {
+        return Ok(scopes);
+    }
+    for sc in scope_bindings.unwrap() {
+        let scope = load_scope(&sc)?;
+        if !scope.allow_overlap() {
+            if scope_overlap.get(&sc.scope_type).is_some() {
+                return Err(format_err!(
+                    "scope {} {} do not allow overlap",
+                    sc.name,
+                    sc.scope_type
+                ));
+            }
+            scope_overlap.insert(sc.scope_type, true);
+        }
+        scopes.insert(scopes.len(), scope);
+    }
+    Ok(scopes)
+}
+
+// load_scope should load scope from k8s crd
+// NOTE: this is a temporary solution just return core scope here
+fn load_scope(binding: &ScopeBinding) -> Result<HydraScope, failure::Error> {
+    debug!("Scope binding params: {:?}", &binding.parameter_values);
+    match binding.name.as_str() {
+        scopes::NETWORK_SCOPE => Ok(HydraScope::Network(Network::from_params(
+            binding.name.clone(),
+            binding.parameter_values.clone(),
+        ))),
+        scopes::HEALTH_SCOPE => Ok(HydraScope::Health(Health::from_params(
+            binding.name.clone(),
+            binding.parameter_values.clone(),
+        ))),
+        _ => Err(format_err!(
+            "unknown scope {} type {}",
+            binding.name,
+            binding.scope_type
+        )),
+    }
 }

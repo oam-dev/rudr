@@ -16,6 +16,8 @@ pub struct ComponentConfiguration {
     pub parameter_values: Option<Vec<ParameterValue>>,
     /// Traits to attach to the component
     pub traits: Option<Vec<TraitBinding>>,
+    /// Application Scopes which the component was involved
+    pub application_scopes: Option<Vec<ScopeRef>>,
 }
 
 /// ApplicationConfiguration is the top-level configuration object in OAM.
@@ -39,4 +41,13 @@ pub struct ScopeBinding {
     pub scope_type: String,
 
     pub parameter_values: Option<Vec<ParameterValue>>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeRef {
+    pub name: String,
+
+    #[serde(rename(serialize = "type", deserialize = "type"))]
+    pub scope_type: String,
 }
