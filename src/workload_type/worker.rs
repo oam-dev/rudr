@@ -25,7 +25,7 @@ impl WorkloadType for ReplicatedWorker {
             .labels(labels)
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnError".to_string())
+            .restart_policy("OnFailure".to_string())
             .do_request(
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
@@ -41,7 +41,7 @@ impl WorkloadType for ReplicatedWorker {
             .labels(labels)
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnError".to_string())
+            .restart_policy("OnFailure".to_string())
             .do_request(
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
@@ -79,7 +79,7 @@ impl WorkloadType for SingletonWorker {
             .parameter_map(self.meta.params.clone())
             .labels(labels)
             .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnError".to_string())
+            .restart_policy("OnFailure".to_string())
             .do_request(
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
@@ -95,7 +95,7 @@ impl WorkloadType for SingletonWorker {
             .parameter_map(self.meta.params.clone())
             .labels(labels)
             .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnError".to_string())
+            .restart_policy("OnFailure".to_string())
             .do_request(
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
