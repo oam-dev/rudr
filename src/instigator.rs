@@ -91,13 +91,12 @@ impl Instigator {
 
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
-    fn exec(&self, event: OpResource, phase: Phase) -> InstigatorResult {
+    fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
         // TODO:
         // - Resolve scope bindings
         let name = event.metadata.name.clone();
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
-        //TODO:
-        // - With this annotation, we can judge phase from it, without need the phase from informer which may not be accurate.
+
         let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
         let mut last_components = get_record_annotation(record_ann)?;
         let mut new_components: BTreeMap<String, ComponentRecord> = BTreeMap::new();
@@ -120,9 +119,17 @@ impl Instigator {
             //we'll delete the left in last_components.
             last_components.remove(component.instance_name.as_str());
             new_components.insert(component.instance_name.clone(), new_record.to_owned());
-            if !check_diff(record, new_record) {
+            if !check_diff(record.clone(), new_record) {
                 continue;
             }
+            // record exists means component exists so event is just modify
+            // while record is none means component don't exist so event is Add
+            if record.is_some() && phase == Phase::Add {
+                phase = Phase::Modify
+            } else if record.is_none() && phase == Phase::Modify {
+                phase = Phase::Add
+            }
+
             component_updated = true;
             // Resolve parameters
             let parent = get_values(event.spec.parameter_values.clone());
