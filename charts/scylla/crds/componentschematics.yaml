@@ -14,5 +14,6 @@ spec:
     singular: componentschematic
     kind: ComponentSchematic
     shortNames:
-    - component
-    - comp
+      - component
+      - comp
+      - components
