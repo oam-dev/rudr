@@ -158,3 +158,13 @@ fn test_resolve_values() {
     );
     assert_eq!(Some("house"), merged.get("abode").expect("abode").as_str());
 }
+
+#[test]
+fn test_parse_from_variable() {
+    assert_eq!(Some("VAR_42".to_owned()), parse_from_variable("[fromVariable(VAR_42)]".into()));
+    assert_eq!(Some("_".to_owned()), parse_from_variable("[fromVariable(_)]".into()));
+    assert_eq!(Some("42".to_owned()), parse_from_variable("[fromVariable(42)]".into()));
+    assert_eq!(Some("VAR".to_owned()), parse_from_variable("[fromVariable(VAR)]".into()));
+    assert_eq!(None, parse_from_variable("[fromVariable (VAR)]".into())); // illegal
+    assert_eq!(None, parse_from_variable("[fromVariable()]".into()));
+}
