@@ -24,6 +24,11 @@ mod manual_scaler_test;
 #[cfg(test)]
 mod util_test;
 
+pub const INGRESS: &str = "ingress";
+pub const AUTOSCALER: &str = "autoscaler";
+pub const MANUAL_SCALER: &str = "manual-scaler";
+pub const EMPTY: &str = "empty";
+
 /// Trait describes Hydra traits.
 ///
 /// Hydra traits are ops-oriented "add-ons" that can be attached to Components of the appropriate workloadType.
