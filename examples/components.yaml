@@ -69,3 +69,25 @@ spec:
   containers:
     - name: runner
       image: alpine:latest
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: alpine-singleton-worker
+spec:
+  workloadType: core.hydra.io/v1alpha1.SingletonWorker
+  os: linux
+  containers:
+    - name: worker
+      image: alpine:latest
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: alpine-worker
+spec:
+  workloadType: core.hydra.io/v1alpha1.Worker
+  os: linux
+  containers:
+    - name: worker
+      image: alpine:latest
