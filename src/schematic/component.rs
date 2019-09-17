@@ -113,6 +113,7 @@ impl Component {
         &self,
         name: String,
         param_vals: ResolvedVals,
+        annotations: Option<BTreeMap<String, String>>,
     ) -> apps::DeploymentSpec {
         let mut matching_labels = BTreeMap::new();
         matching_labels.insert("component".to_string(), name.clone());
@@ -124,6 +125,7 @@ impl Component {
             },
             template: core::PodTemplateSpec {
                 metadata: Some(meta::ObjectMeta {
+                    annotations,
                     labels: Some(matching_labels),
                     ..Default::default()
                 }),

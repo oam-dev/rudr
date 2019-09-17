@@ -1,5 +1,5 @@
-use regex::Regex;
 use failure::Error;
+use regex::Regex;
 use std::collections::BTreeMap;
 
 pub type ParameterList = Vec<Parameter>;
@@ -172,5 +172,6 @@ pub fn parse_from_variable(input: String) -> Option<String> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^\[fromVariable\((?P<var>[[:word:]]+)\)\]$").unwrap();
     }
-    RE.captures(&input).and_then(|cap| cap.name("var").map(|var| var.as_str().to_owned()))
+    RE.captures(&input)
+        .and_then(|cap| cap.name("var").map(|var| var.as_str().to_owned()))
 }

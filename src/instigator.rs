@@ -256,6 +256,7 @@ impl Instigator {
             name: config_name,
             instance_name,
             component_name: comp.metadata.name.clone(),
+            annotations: Some(comp.metadata.annotations.clone()),
             namespace: self.namespace.clone(),
             definition: comp.spec.clone(),
             client: self.client.clone(),

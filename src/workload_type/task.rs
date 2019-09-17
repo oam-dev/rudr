@@ -25,6 +25,7 @@ impl WorkloadType for ReplicatedTask {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
@@ -37,6 +38,7 @@ impl WorkloadType for ReplicatedTask {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
@@ -74,6 +76,7 @@ impl WorkloadType for SingletonTask {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
@@ -85,6 +88,7 @@ impl WorkloadType for SingletonTask {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
             .do_request(
@@ -124,6 +128,7 @@ mod test {
                 definition: Component {
                     ..Default::default()
                 },
+                annotations: None,
                 params: BTreeMap::new(),
                 client: cli,
                 owner_ref: None,
@@ -146,6 +151,7 @@ mod test {
                 definition: Component {
                     ..Default::default()
                 },
+                annotations: None,
                 params: BTreeMap::new(),
                 client: cli,
                 owner_ref: None,

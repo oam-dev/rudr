@@ -31,11 +31,11 @@ impl ReplicatedService {
                 owner_references: self.meta.owner_ref.clone(),
                 ..Default::default()
             }),
-            spec: Some(
-                self.meta
-                    .definition
-                    .to_deployment_spec(self.meta.name.clone(), self.meta.params.clone()),
-            ),
+            spec: Some(self.meta.definition.to_deployment_spec(
+                self.meta.name.clone(),
+                self.meta.params.clone(),
+                self.meta.annotations.clone(),
+            )),
             ..Default::default()
         }
     }
@@ -118,6 +118,7 @@ impl SingletonService {
         api::Pod {
             // TODO: Could make this generic.
             metadata: Some(meta::ObjectMeta {
+                annotations: self.meta.annotations.clone(),
                 name: Some(podname),
                 labels: Some(labels),
                 owner_references: self.meta.owner_ref.clone(),
@@ -194,6 +195,7 @@ mod test {
                 definition: Component {
                     ..Default::default()
                 },
+                annotations: None,
                 params: BTreeMap::new(),
                 client: cli,
                 owner_ref: None,
@@ -216,6 +218,7 @@ mod test {
                 definition: Component {
                     ..Default::default()
                 },
+                annotations: None,
                 params: BTreeMap::new(),
                 client: cli,
                 owner_ref: None,

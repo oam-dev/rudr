@@ -23,6 +23,7 @@ impl WorkloadType for ReplicatedWorker {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("OnError".to_string())
@@ -39,6 +40,7 @@ impl WorkloadType for ReplicatedWorker {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("OnError".to_string())
@@ -78,6 +80,7 @@ impl WorkloadType for SingletonWorker {
         JobBuilder::new(podname, self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("OnError".to_string())
             .do_request(
@@ -94,6 +97,7 @@ impl WorkloadType for SingletonWorker {
         JobBuilder::new(podname, self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(labels)
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("OnError".to_string())
             .do_request(
@@ -136,6 +140,7 @@ mod test {
                 },
                 params: BTreeMap::new(),
                 client: cli,
+                annotations: None,
                 owner_ref: None,
             },
         };
@@ -146,6 +151,8 @@ mod test {
     #[test]
     fn test_replicated_worker_kube_name() {
         let cli = APIClient::new(mock_kube_config());
+        let mut annotations = BTreeMap::new();
+        annotations.insert("annotation1".to_string(), "value".to_string());
 
         let wrkr = ReplicatedWorker {
             meta: WorkloadMetadata {
@@ -156,6 +163,7 @@ mod test {
                 definition: Component {
                     ..Default::default()
                 },
+                annotations: Some(annotations),
                 params: BTreeMap::new(),
                 client: cli,
                 owner_ref: None,
