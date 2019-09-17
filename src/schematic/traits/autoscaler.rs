@@ -145,6 +145,15 @@ impl TraitImplementation for Autoscaler {
         );
         Ok(())
     }
+    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+        let (req, _) = hpa::HorizontalPodAutoscaler::delete_namespaced_horizontal_pod_autoscaler(
+            self.kube_name().as_str(),
+            ns,
+            Default::default(),
+        )?;
+        client.request::<serde_json::Value>(req)?;
+        Ok(())
+    }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME

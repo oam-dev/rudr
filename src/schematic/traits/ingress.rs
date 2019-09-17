@@ -95,7 +95,12 @@ impl TraitImplementation for Ingress {
             &meta::Patch::StrategicMerge(values),
             Default::default(),
         )?;
-
+        client.request::<ext::Ingress>(req)?;
+        Ok(())
+    }
+    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+        let (req, _) =
+            ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
         client.request::<ext::Ingress>(req)?;
         Ok(())
     }

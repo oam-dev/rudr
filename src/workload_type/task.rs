@@ -46,6 +46,13 @@ impl WorkloadType for ReplicatedTask {
                 "modify",
             )
     }
+    fn delete(&self) -> InstigatorResult {
+        JobBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
+    }
 }
 
 /// SingletonTask represents a non-daemon process.
@@ -85,6 +92,13 @@ impl WorkloadType for SingletonTask {
                 self.meta.namespace.clone(),
                 "modify",
             )
+    }
+    fn delete(&self) -> InstigatorResult {
+        JobBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
     }
 }
 

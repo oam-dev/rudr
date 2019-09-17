@@ -1,7 +1,7 @@
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{PatchParams, PostParams};
+use kube::api::{DeleteParams, PatchParams, PostParams};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
@@ -135,6 +135,10 @@ impl JobBuilder {
                 let pp = kube::api::PatchParams::default();
                 req = batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
             }
+            "delete" => {
+                let pp = kube::api::DeleteParams::default();
+                req = batch.delete(self.name.as_str(), &pp)?;
+            }
             _ => {
                 let pp = kube::api::PostParams::default();
                 req = batch.create(&pp, serde_json::to_vec(&job)?)?;
@@ -203,6 +207,13 @@ impl ServiceBuilder {
                         kube::api::Api::v1Service(client)
                             .within(namespace.as_str())
                             .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?)?;
+                        Ok(())
+                    }
+                    "delete" => {
+                        let pp = DeleteParams::default();
+                        kube::api::Api::v1Service(client)
+                            .within(namespace.as_str())
+                            .delete(self.name.as_str(), &pp)?;
                         Ok(())
                     }
                     _ => {

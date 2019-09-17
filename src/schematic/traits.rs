@@ -89,9 +89,9 @@ pub trait TraitImplementation {
         Err(format_err!("Trait updates not implemented for this type"))
     }
     fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
-        // Often, owner references mean you don't need to do anythign here.
-        info!("Trait deleted");
-        Ok(())
+        // Often, owner references mean you don't need to do anything here.
+        // But if we invoke this delete function standalone, that means we hope to delete this sub resource actively.
+        Err(format_err!("Trait delete not implemented for this type"))
     }
     fn supports_workload_type(name: &str) -> bool {
         info!("Support {} by default", name);

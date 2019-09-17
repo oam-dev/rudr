@@ -13,4 +13,7 @@ impl TraitImplementation for Empty {
     fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
+    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        Ok(())
+    }
 }

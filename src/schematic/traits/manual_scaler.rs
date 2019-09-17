@@ -131,6 +131,9 @@ impl TraitImplementation for ManualScaler {
     fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
         self.scale(ns, client)
     }
+    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        Ok(())
+    }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME
