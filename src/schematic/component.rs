@@ -38,13 +38,22 @@ impl Component {
             .find_map(|e| e.ports.iter().find_map(Some))
     }
 
+    pub fn to_node_selector(&self) -> Option<BTreeMap<String, String>> {
+        let mut selector = BTreeMap::new();
+        selector.insert("kubernetes.io/os".to_string(), self.os_type.clone());
+        selector.insert("kubernetes.io/arch".to_string(), self.arch.clone());
+        Some(selector)
+    }
+
     /// to_pod_spec generates a pod specification.
     pub fn to_pod_spec(&self, param_vals: ResolvedVals) -> core::PodSpec {
         let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
+        let node_selector = self.to_node_selector();
         core::PodSpec {
             containers,
             image_pull_secrets,
+            node_selector,
             ..Default::default()
         }
     }
