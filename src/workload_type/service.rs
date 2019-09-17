@@ -206,6 +206,41 @@ mod test {
     }
 
     #[test]
+    fn test_singleton_service_to_pod() {
+        let cli = APIClient::new(mock_kube_config());
+        let mut annotations = BTreeMap::new();
+        annotations.insert("key".to_string(), "value".to_string());
+        annotations.insert("key2".to_string(), "value2".to_string());
+
+        let sing = SingletonService {
+            meta: WorkloadMetadata {
+                annotations: Some(annotations),
+                name: "de".into(),
+                component_name: "hydrate".into(),
+                instance_name: "inst".into(),
+                namespace: "tests".into(),
+                definition: Component {
+                    ..Default::default()
+                },
+                params: BTreeMap::new(),
+                client: cli,
+                owner_ref: None,
+            },
+        };
+        let pod = sing.to_pod();
+        let pod_annotations = pod
+            .metadata
+            .clone()
+            .expect("metadata")
+            .annotations
+            .expect("annotations")
+            .clone();
+        assert_eq!("inst", pod.metadata.expect("metadata").name.expect("name"));
+        assert_eq!(2, pod_annotations.len());
+        assert_eq!("value", pod_annotations.get("key").expect("a value"));
+    }
+
+    #[test]
     fn test_replicated_service_kube_name() {
         let cli = APIClient::new(mock_kube_config());
 
@@ -226,6 +261,45 @@ mod test {
         };
 
         assert_eq!("dehydrate", rs.kube_name().as_str());
+    }
+
+    #[test]
+    fn test_replicated_service_to_deployment() {
+        let cli = APIClient::new(mock_kube_config());
+        let mut annotations = BTreeMap::new();
+        annotations.insert("key".to_string(), "value".to_string());
+        annotations.insert("key2".to_string(), "value2".to_string());
+        let rs = ReplicatedService {
+            meta: WorkloadMetadata {
+                name: "name".into(),
+                component_name: "component_name".into(),
+                instance_name: "instance_name".into(),
+                namespace: "namespace".into(),
+                definition: Component {
+                    ..Default::default()
+                },
+                annotations: Some(annotations),
+                params: BTreeMap::new(),
+                client: cli,
+                owner_ref: None,
+            },
+        };
+        let dep = rs.to_deployment();
+        let pod_annotations = dep
+            .spec
+            .expect("spec")
+            .template
+            .metadata
+            .expect("metadata")
+            .annotations
+            .expect("annotations")
+            .clone();
+        assert_eq!(
+            "instance_name",
+            dep.metadata.expect("metadata").name.expect("name")
+        );
+        assert_eq!(2, pod_annotations.len());
+        assert_eq!("value", pod_annotations.get("key").expect("a value"));
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
