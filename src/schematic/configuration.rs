@@ -43,11 +43,9 @@ pub struct ScopeBinding {
     pub parameter_values: Option<Vec<ParameterValue>>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+/// ScopeRef refer to an AppConfig Instance represents scope instance
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ScopeRef {
     pub name: String,
-
-    #[serde(rename(serialize = "type", deserialize = "type"))]
-    pub scope_type: String,
 }

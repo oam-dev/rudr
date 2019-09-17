@@ -9,6 +9,8 @@ build:
 test:
 	cargo test
 	cargo clippy
+	cargo test --package healthscope
+	cargo clippy --package healthscope
 
 .PHONY: docker-build
 docker-build:
@@ -17,6 +19,9 @@ docker-build:
 
 run:
 	RUST_LOG="scylla=debug" RUST_BACKTRACE=short cargo run
+
+healthscoperun:
+	RUST_LOG="healthscope=debug" RUST_BACKTRACE=short cargo run --package healthscope
 
 GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 kind-e2e:

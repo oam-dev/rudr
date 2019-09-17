@@ -5,6 +5,7 @@ use log::{debug, info};
 use serde_json::json;
 use std::collections::BTreeMap;
 
+use crate::schematic::variable::Variable;
 use crate::{
     lifecycle::Phase,
     schematic::{
@@ -12,8 +13,7 @@ use crate::{
         component_instance::KubeComponentInstance,
         configuration::{ApplicationConfiguration, ComponentConfiguration, ScopeBinding},
         parameter::{resolve_parameters, resolve_values, ParameterValue},
-        scopes::{self, Health, HydraScope, Network},
-        traits::{Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
+        scopes::{self, Health, Network, OAMScope},
         variable::{get_variable_values, resolve_variables},
         OAMStatus, Status,
     },
@@ -35,7 +35,7 @@ pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
-type OpResource = Object<ApplicationConfiguration, Status>;
+pub type OpResource = Object<ApplicationConfiguration, Status>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -174,10 +174,50 @@ impl Instigator {
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
-        //TODO scopes should be resolved
-        let _scopes = load_scopes(event.spec.clone().scopes)?;
         let name = event.metadata.name.clone();
+        let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
+        if event.spec.scopes.is_some() {
+            let scopes = load_scopes(
+                self.client.clone(),
+                name.clone(),
+                event.spec.clone(),
+                variables.clone(),
+            )?;
+            match phase {
+                Phase::Add => {
+                    for sc in scopes.iter() {
+                        sc.create(self.namespace.as_str(), owner_ref.clone())
+                            .map_err(|e| {
+                                format_err!("create {} scope err {:?}", sc.scope_type(), e)
+                            })?;
+                    }
+                }
+                Phase::Modify => {
+                    for sc in scopes.iter() {
+                        sc.modify(self.namespace.as_str()).map_err(|e| {
+                            format_err!("create {} scope err {:?}", sc.scope_type(), e)
+                        })?;
+                    }
+                }
+                Phase::Delete => {
+                    for sc in scopes.iter() {
+                        sc.delete(self.namespace.as_str()).map_err(|e| {
+                            format_err!("create {} scope err {:?}", sc.scope_type(), e)
+                        })?;
+                    }
+                }
+                _ => {
+                    return Err(format_err!(
+                        "unknown phase for scopes {:?} on {}",
+                        phase.clone(),
+                        name.clone(),
+                    ))
+                }
+            }
+            // according to the spec, if this is not empty, this AppConfig will be scope instance only, so we could return after we resolved scopes.
+            return Ok(());
+        }
 
         let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
         let mut last_components = get_record_annotation(record_ann)?;
@@ -212,15 +252,17 @@ impl Instigator {
                 phase = Phase::Add
             }
 
+            //TODO: get_scope_instance and check scope overlap
+
             component_updated = true;
             // Resolve variables/parameters
-            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
+
             let parent = get_variable_values(Some(variables.clone()));
 
             let child = component
                 .parameter_values
                 .clone()
-                .map(|values| resolve_variables(values, variables))
+                .map(|values| resolve_variables(values, variables.clone()))
                 .unwrap_or_else(|| Ok(vec![]))?;
 
             let params = resolve_parameters(
@@ -266,30 +308,30 @@ impl Instigator {
             };
 
             //Note: if we don't manually add scopes, there are default scopes should be bind
-            for sc in &component
-                .application_scopes
-                .clone()
-                .unwrap_or_else(|| vec![])
-            {
-                //TODO load from scopes
-                match sc.scope_type.as_str() {
-                    scopes::NETWORK_SCOPE => {
-                        //TODO: change some of workload parameters and apply network scopes
-                        println!("network scope applied");
-                    }
-                    scopes::HEALTH_SCOPE => {
-                        // TODO: create health scope CR
-                        println!("health scope applied");
-                    }
-                    _ => {
-                        return Err(format_err!(
-                            "unknown application scope on {}: {}",
-                            inst_name.clone(),
-                            sc.scope_type
-                        ));
-                    }
-                }
-            }
+            //            for sc in &component
+            //                .application_scopes
+            //                .clone()
+            //                .unwrap_or_else(|| vec![])
+            //            {
+            //                //TODO load from scopes
+            //                match sc.scope_type.as_str() {
+            //                    scopes::NETWORK_SCOPE => {
+            //                        //TODO: change some of workload parameters and apply network scopes
+            //                        println!("network scope applied");
+            //                    }
+            //                    scopes::HEALTH_SCOPE => {
+            //                        // TODO: create health scope CR
+            //                        println!("health scope applied");
+            //                    }
+            //                    _ => {
+            //                        return Err(format_err!(
+            //                            "unknown application scope on {}: {}",
+            //                            inst_name.clone(),
+            //                            sc.scope_type()
+            //                        ));
+            //                    }
+            //                }
+            //            }
             // Instantiate components
             let workload = self.load_workload_type(
                 name.clone(),
@@ -677,47 +719,92 @@ pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
 /// Load application scopes from scope_bindings
 /// check if there is not allowed overlap
 pub fn load_scopes(
-    scope_bindings: Option<Vec<ScopeBinding>>,
-) -> Result<Vec<HydraScope>, failure::Error> {
-    let mut scopes: Vec<HydraScope> = vec![];
-    let mut scope_overlap = BTreeMap::new();
-    if scope_bindings.is_none() {
-        return Ok(scopes);
-    }
-    for sc in scope_bindings.unwrap() {
-        let scope = load_scope(&sc)?;
-        if !scope.allow_overlap() {
-            if scope_overlap.get(&sc.scope_type).is_some() {
-                return Err(format_err!(
-                    "scope {} {} do not allow overlap",
-                    sc.name,
-                    sc.scope_type
-                ));
-            }
-            scope_overlap.insert(sc.scope_type, true);
+    client: APIClient,
+    instance_name: String,
+    spec: ApplicationConfiguration,
+    variables: Vec<Variable>,
+) -> Result<Vec<OAMScope>, failure::Error> {
+    let mut scopes: Vec<OAMScope> = vec![];
+    for scope_binding in spec.scopes.iter() {
+        for sc in scope_binding.iter() {
+            let param = sc
+                .parameter_values
+                .clone()
+                .map(|values| resolve_variables(values, variables.clone()))
+                .unwrap_or_else(|| Ok(vec![]))
+                .unwrap();
+            let scope = load_scope(client.clone(), instance_name.clone(), &sc, param.clone())?;
+            scopes.insert(scopes.len(), scope);
         }
-        scopes.insert(scopes.len(), scope);
     }
     Ok(scopes)
+    //
+    //    let mut scope_overlap = BTreeMap::new();
+    //    if scope_bindings.is_none() {
+    //        return Ok(scopes);
+    //    }
+    //    for sc in scope_bindings.unwrap() {
+    //        let scope = load_scope(&sc)?;
+    //        if !scope.allow_overlap() {
+    //            if scope_overlap.get(&sc.scope_type).is_some() {
+    //                return Err(format_err!(
+    //                    "scope {} {} do not allow overlap",
+    //                    sc.name,
+    //                    sc.scope_type
+    //                ));
+    //            }
+    //            scope_overlap.insert(sc.scope_type, true);
+    //        }
+    //        scopes.insert(scopes.len(), scope);
+    //    }
+    //    Ok(scopes)
 }
 
 // load_scope should load scope from k8s crd
 // NOTE: this is a temporary solution just return core scope here
-fn load_scope(binding: &ScopeBinding) -> Result<HydraScope, failure::Error> {
+fn load_scope(
+    client: APIClient,
+    instance_name: String,
+    binding: &ScopeBinding,
+    param: Vec<ParameterValue>,
+) -> Result<OAMScope, failure::Error> {
     debug!("Scope binding params: {:?}", &binding.parameter_values);
-    match binding.name.as_str() {
-        scopes::NETWORK_SCOPE => Ok(HydraScope::Network(Network::from_params(
-            binding.name.clone(),
-            binding.parameter_values.clone(),
-        ))),
-        scopes::HEALTH_SCOPE => Ok(HydraScope::Health(Health::from_params(
-            binding.name.clone(),
-            binding.parameter_values.clone(),
-        ))),
+    load_scope_by_type(
+        client.clone(),
+        instance_name,
+        binding.scope_type.as_str(),
+        param,
+    )
+}
+
+fn load_scope_by_type(
+    client: APIClient,
+    instance_name: String,
+    scope_type: &str,
+    param: Vec<ParameterValue>,
+) -> Result<OAMScope, failure::Error> {
+    match scope_type {
+        scopes::NETWORK_SCOPE => Ok(OAMScope::Network(Network::from_params(
+            instance_name.clone(),
+            client.clone(),
+            param,
+        )?)),
+        scopes::HEALTH_SCOPE => Ok(OAMScope::Health(Health::from_params(
+            instance_name.clone(),
+            client.clone(),
+            param,
+        )?)),
         _ => Err(format_err!(
             "unknown scope {} type {}",
-            binding.name,
-            binding.scope_type
+            instance_name,
+            scope_type
         )),
     }
+}
+
+//get_scope_instance load scope by instance name
+fn get_scope_instance(_name: String) -> Result<OAMScope, failure::Error> {
+    //TODO load scopeinstance by name
+    //get scope type and use load_scope_by_type
+    Err(format_err!("not impelement"))
 }

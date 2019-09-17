@@ -1,25 +1,225 @@
-use crate::schematic::parameter::ParameterValue;
+use crate::schematic::parameter::{
+    self, extract_number_params, extract_string_params, ParameterValue,
+};
 use crate::schematic::scopes::HEALTH_SCOPE;
+use failure::Error;
+use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
+use kube::{api::RawApi, client::APIClient};
+use std::collections::BTreeMap;
 
-/// Health
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HealthScope {
+    pub probe_method: String,
+    pub probe_endpoint: String,
+    pub probe_timeout: Option<i64>,
+    pub probe_interval: Option<i64>,
+    pub failure_rate_threshold: Option<f64>,
+    pub healthy_rate_threshold: Option<f64>,
+    pub health_threshold_percentage: Option<f64>,
+    pub required_healthy_components: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HealthStatus {
+    pub components: Option<BTreeMap<String, BTreeMap<String, String>>>,
+}
+impl Default for HealthStatus {
+    fn default() -> Self {
+        HealthStatus { components: None }
+    }
+}
+
+pub type HealthScopeObject = kube::api::Object<HealthScope, HealthStatus>;
+
+/// Health scope is defined as https://github.com/microsoft/hydra-spec/blob/master/4.application_scopes.md#health-scope
+#[derive(Clone)]
 pub struct Health {
+    client: APIClient,
     pub name: String,
     pub allow_component_overlap: bool,
+    pub probe_method: String,
+    pub probe_endpoint: String,
+    pub probe_timeout: Option<i64>,
+    pub probe_interval: Option<i64>,
+    pub failure_rate_threshold: Option<f64>,
+    pub healthy_rate_threshold: Option<f64>,
+    pub health_threshold_percentage: Option<f64>,
+    pub required_healthy_components: Option<Vec<String>>,
 }
 
 impl Health {
-    pub fn from_params(name: String, _params: Option<Vec<ParameterValue>>) -> Self {
-        // Right now, we're relying on the higher level validation logic to validate types.
-        Health {
+    pub fn from_params(
+        name: String,
+        client: APIClient,
+        params: Vec<ParameterValue>,
+    ) -> Result<Self, Error> {
+        let probe_method = match extract_string_params("probe-method", params.clone()) {
+            Some(network_id) => network_id,
+            None => return Err(format_err!("probe-method is not exist")),
+        };
+        let probe_endpoint = match extract_string_params("probe-endpoint", params.clone()) {
+            Some(network_id) => network_id,
+            None => return Err(format_err!("probe-endpoint is not exist")),
+        };
+        let probe_timeout =
+            extract_number_params("probe-timeout", params.clone()).and_then(|v| v.as_i64());
+        let probe_interval =
+            extract_number_params("probe-interval", params.clone()).and_then(|v| v.as_i64());
+        let failure_rate_threshold =
+            extract_number_params("failure-rate-threshold", params.clone())
+                .and_then(|v| v.as_f64());
+        let healthy_rate_threshold =
+            extract_number_params("healthy-rate-threshold", params.clone())
+                .and_then(|v| v.as_f64());
+        let health_threshold_percentage =
+            extract_number_params("health-threshold-percentage", params.clone())
+                .and_then(|v| v.as_f64());
+        let required_healthy_components =
+            parameter::extract_value_params("required-healthy-components", params.clone())
+                .and_then(|v| v.as_array().cloned())
+                .and_then(|v| {
+                    v.iter()
+                        .map(|x| x.as_str().and_then(|v| Some(v.to_string())))
+                        .clone()
+                        .collect()
+                });
+        Ok(Health {
             name,
+            client,
             allow_component_overlap: true,
-        }
+            probe_method,
+            probe_endpoint,
+            probe_timeout,
+            probe_interval,
+            failure_rate_threshold,
+            healthy_rate_threshold,
+            health_threshold_percentage,
+            required_healthy_components,
+        })
     }
     pub fn allow_overlap(&self) -> bool {
         self.allow_component_overlap
     }
     pub fn scope_type(&self) -> String {
         String::from(HEALTH_SCOPE)
+    }
+    pub fn create(&self, ns: &str, owner: meta::OwnerReference) -> Result<(), Error> {
+        let pp = kube::api::PostParams::default();
+        let scope = HealthScopeObject {
+            spec: HealthScope {
+                probe_method: self.probe_method.clone(),
+                probe_endpoint: self.probe_endpoint.clone(),
+                probe_timeout: self.probe_timeout.clone(),
+                probe_interval: self.probe_interval,
+                failure_rate_threshold: self.failure_rate_threshold.clone(),
+                healthy_rate_threshold: self.healthy_rate_threshold.clone(),
+                health_threshold_percentage: self.health_threshold_percentage.clone(),
+                required_healthy_components: self.required_healthy_components.clone(),
+            },
+            types: kube::api::TypeMeta {
+                apiVersion: Some("core.hydra.io/v1alpha1".to_string()),
+                kind: Some("HealthScope".to_string()),
+            },
+            metadata: kube::api::ObjectMeta {
+                name: self.name.clone(),
+                ..Default::default()
+            },
+            status: None,
+        };
+        let healthscope_resource = RawApi::customResource("healthscope")
+            .version("v1alpha1")
+            .group("core.hydra.io")
+            .within(ns);
+        let req = healthscope_resource.create(&pp, serde_json::to_vec(&scope)?)?;
+        self.client.request::<HealthScopeObject>(req)?;
+        Ok(())
+    }
+    pub fn modify(&self, _ns: &str) -> Result<(), Error> {
+        Err(format_err!("health scope modify not implemented"))
+    }
+    pub fn delete(&self, _ns: &str) -> Result<(), Error> {
+        Err(format_err!("health scope delete not implemented"))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::schematic::parameter::ParameterValue;
+    use crate::schematic::scopes::{health::Health, HEALTH_SCOPE};
+    use kube::client::APIClient;
+    use kube::config::Configuration;
+    /// This mock builds a KubeConfig that will not be able to make any requests.
+    fn mock_kube_config() -> Configuration {
+        Configuration {
+            base_path: ".".into(),
+            client: reqwest::Client::new(),
+        }
+    }
+    #[test]
+    fn test_create_health() {
+        let mut params = vec![];
+        params.insert(
+            params.len(),
+            ParameterValue {
+                name: "probe-method".to_string(),
+                value: Some("httpGet".into()),
+                from_param: None,
+            },
+        );
+        params.insert(
+            params.len(),
+            ParameterValue {
+                name: "probe-endpoint".to_string(),
+                value: Some("/v1/health".into()),
+                from_param: None,
+            },
+        );
+        params.insert(
+            params.len(),
+            ParameterValue {
+                name: "probe-timeout".to_string(),
+                value: Some(10.into()),
+                from_param: None,
+            },
+        );
+        params.insert(
+            params.len(),
+            ParameterValue {
+                name: "failure-rate-threshold".to_string(),
+                value: Some(80.into()),
+                from_param: None,
+            },
+        );
+        let mut comps = vec![];
+        comps.insert(0, serde_json::Value::from("comp1"));
+        comps.insert(1, serde_json::Value::from("comp2"));
+        params.insert(
+            params.len(),
+            ParameterValue {
+                name: "required-healthy-components".to_string(),
+                value: Some(serde_json::Value::Array(comps)),
+                from_param: None,
+            },
+        );
+
+        let net = Health::from_params(
+            "test-health".to_string(),
+            APIClient::new(mock_kube_config()),
+            params,
+        )
+        .unwrap();
+        assert_eq!(true, net.allow_overlap());
+        assert_eq!(HEALTH_SCOPE.to_string(), net.scope_type());
+        assert_eq!("test-health".to_string(), net.name);
+        assert_eq!("httpGet".to_string(), net.probe_method);
+        assert_eq!("/v1/health".to_string(), net.probe_endpoint);
+        assert_eq!(Some(10), net.probe_timeout);
+        assert_eq!(Some(80.0), net.failure_rate_threshold);
+        let mut comps = vec![];
+        comps.insert(0, "comp1".to_string());
+        comps.insert(1, "comp2".to_string());
+        assert_eq!(Some(comps), net.required_healthy_components);
     }
 }
