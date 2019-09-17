@@ -147,12 +147,12 @@ When you are ready to try installing something, take a look at the `examples/fir
 
 ```yaml
 apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
+kind: OperationalConfiguration
 metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-singleton
+  - name: nginx-component
     instanceName: first-app-nginx
     parameterValues:
       - name: poet
@@ -166,9 +166,21 @@ spec:
             value: example.com
           - name: path
             value: /
+          - name: service_port
+            value: 80
 ```
 
 To install this operational configuration, use `kubectl`:
+
+Because we will use `ingress` trait here, so if your cluster don't have any kind of [ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), you should install one kind of [ingress controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) first.
+
+Then, you need to install the component `nginx-component` as the developer do.
+
+```console
+$ kubectl apply -f examples/nginx-component.yaml
+```
+
+Finally, just install the `first-app-config` as the application operator do.
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml

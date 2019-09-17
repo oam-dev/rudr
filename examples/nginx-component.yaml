@@ -19,9 +19,6 @@ spec:
         value: FOO
       ports:
       - type: tcp
-        containerPort: 8080
-        name: main
-      - type: tcp
         containerPort: 80
         name: http
   parameters:
