@@ -468,3 +468,20 @@ fn test_to_service_port() {
         port.to_service_port().target_port.expect("port")
     );
 }
+
+#[test]
+fn test_to_node_seletor() {
+    let data = Component::from_str(
+        r#"{
+            "osType":"linux",
+            "arch":"amd64"
+        }"#,
+    );
+    assert!(data.is_ok(), "Not okay: {}", data.unwrap_err());
+
+    let comp = data.unwrap();
+    let mut selector = std::collections::BTreeMap::new();
+    selector.insert("kubernetes.io/os".to_string(), "linux".to_string());
+    selector.insert("kubernetes.io/arch".to_string(), "amd64".to_string());
+    assert_eq!(Some(selector), comp.to_node_selector())
+}
