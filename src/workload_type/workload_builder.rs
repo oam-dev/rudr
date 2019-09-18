@@ -33,6 +33,7 @@ pub struct WorkloadMetadata {
     /// This tells Kubenretes what object "owns" this workload and is responsible
     /// for cleaning it up.
     pub owner_ref: Option<Vec<meta::OwnerReference>>,
+    pub annotations: Option<Labels>,
 }
 
 type Labels = BTreeMap<String, String>;
@@ -44,6 +45,7 @@ type Labels = BTreeMap<String, String>;
 pub(crate) struct JobBuilder {
     component: Component,
     labels: Labels,
+    annotations: Option<Labels>,
     name: String,
     restart_policy: String,
     owner_ref: Option<Vec<meta::OwnerReference>>,
@@ -57,7 +59,8 @@ impl JobBuilder {
         JobBuilder {
             component,
             name: instance_name,
-            labels: BTreeMap::new(),
+            labels: Labels::new(),
+            annotations: None,
             restart_policy: "Never".to_string(),
             owner_ref: None,
             parallelism: None,
@@ -67,6 +70,14 @@ impl JobBuilder {
     /// Add labels
     pub fn labels(mut self, labels: Labels) -> Self {
         self.labels = labels;
+        self
+    }
+
+    /// Add annotations.
+    ///
+    /// In Kubernetes, these will be added to the pod specification.
+    pub fn annotations(mut self, annotations: Option<Labels>) -> Self {
+        self.annotations = annotations;
         self
     }
 
@@ -111,6 +122,7 @@ impl JobBuilder {
                     metadata: Some(meta::ObjectMeta {
                         name: Some(self.name.clone()),
                         labels: Some(self.labels.clone()),
+                        annotations: self.annotations.clone(),
                         owner_references: self.owner_ref.clone(),
                         ..Default::default()
                     }),
@@ -259,8 +271,12 @@ mod test {
 
     #[test]
     fn test_job_builder() {
+        let mut annotations = Labels::new();
+        annotations.insert("key1".to_string(), "val1".to_string());
+        annotations.insert("key2".to_string(), "val2".to_string());
         let job = JobBuilder::new("testjob".into(), skeleton_component())
             .labels(skeleton_labels())
+            .annotations(Some(annotations))
             .restart_policy("OnError".into())
             .owner_ref(skeleton_owner_ref())
             .parallelism(2)
@@ -284,6 +300,18 @@ mod test {
             1
         );
         assert_eq!(job.spec.clone().expect("spec").parallelism, Some(2));
+        assert_eq!(
+            job.spec
+                .clone()
+                .expect("spec")
+                .template
+                .metadata
+                .expect("metadata")
+                .annotations
+                .expect("annotations")
+                .len(),
+            2
+        );
         assert_eq!(
             job.spec
                 .clone()
