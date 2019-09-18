@@ -46,7 +46,7 @@ impl ManualScaler {
         // It should be a safe assumption that we can look up every job and every
         // deployment with a particular Kubernetess name and update them appropriately.
         match self.workload_type.as_str() {
-            REPLICATED_SERVICE_NAME => {
+            REPLICATED_SERVICE_NAME | WORKER => {
                 let (req, _) = apps::Deployment::read_namespaced_deployment(
                     self.instance_name.as_str(),
                     ns,
@@ -67,7 +67,7 @@ impl ManualScaler {
                 }
                 Ok(())
             }
-            REPLICATED_TASK_NAME | WORKER => {
+            REPLICATED_TASK_NAME => {
                 // Scale jobs
                 let (jobreq, _) = batch::Job::read_namespaced_job(
                     self.instance_name.as_str(),

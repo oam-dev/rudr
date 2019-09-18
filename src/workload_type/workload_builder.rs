@@ -1,3 +1,4 @@
+use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
@@ -34,6 +35,88 @@ pub struct WorkloadMetadata {
     /// for cleaning it up.
     pub owner_ref: Option<Vec<meta::OwnerReference>>,
     pub annotations: Option<Labels>,
+}
+
+impl WorkloadMetadata {
+    pub fn kube_name(&self) -> String {
+        self.instance_name.to_string()
+    }
+    pub fn to_config_maps(&self, workload_type: &str) -> Vec<api::ConfigMap> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("workload-type".to_string(), workload_type.to_string());
+        let configs = self.definition.evaluate_configs(self.params.clone());
+        to_config_maps(configs, self.owner_ref.clone(), Some(labels.clone()))
+    }
+    pub fn create_config_maps(&self, workload_type: &str) -> InstigatorResult {
+        let config_maps = self.to_config_maps(workload_type);
+        if !config_maps.is_empty() {
+            log::debug!("start to create {} config_maps", config_maps.len());
+        }
+        for config in config_maps.iter() {
+            let (req, _) = api::ConfigMap::create_namespaced_config_map(
+                self.namespace.as_str(),
+                config,
+                Default::default(),
+            )?;
+            self.client.request::<api::ConfigMap>(req)?;
+        }
+        Ok(())
+    }
+    pub fn to_deployment(&self, workload_type: &str) -> apps::Deployment {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("workload-type".to_string(), workload_type.to_string());
+        apps::Deployment {
+            metadata: form_metadata(self.kube_name(), labels, self.owner_ref.clone()),
+            spec: Some(self.definition.to_deployment_spec(
+                self.name.clone(),
+                self.params.clone(),
+                self.annotations.clone(),
+            )),
+            ..Default::default()
+        }
+    }
+    pub fn create_deployment(&self, workload_type: &str) -> InstigatorResult {
+        let deployment = self.to_deployment(workload_type);
+        let deployments =
+            kube::api::Api::v1Deployment(self.client.clone()).within(self.namespace.as_str());
+        let pp = PostParams::default();
+        deployments.create(&pp, serde_json::to_vec(&deployment)?)?;
+        Ok(())
+    }
+    pub fn update_deployment(&self, workload_type: &str) -> InstigatorResult {
+        let deployment = self.to_deployment(workload_type);
+        let deployments =
+            kube::api::Api::v1Deployment(self.client.clone()).within(self.namespace.as_str());
+        let pp = PatchParams::default();
+        deployments.patch(
+            self.kube_name().as_str(),
+            &pp,
+            serde_json::to_vec(&deployment)?,
+        )?;
+        Ok(())
+    }
+    pub fn delete_deployment(&self) -> InstigatorResult {
+        let pp = kube::api::DeleteParams::default();
+        kube::api::Api::v1Deployment(self.client.clone())
+            .within(self.namespace.as_str())
+            .delete(self.kube_name().as_str(), &pp)?;
+        Ok(())
+    }
+}
+
+pub fn form_metadata(
+    name: String,
+    labels: BTreeMap<String, String>,
+    owner_references: Option<Vec<meta::OwnerReference>>,
+) -> Option<meta::ObjectMeta> {
+    Some(meta::ObjectMeta {
+        name: Some(name),
+        labels: Some(labels),
+        owner_references,
+        ..Default::default()
+    })
 }
 
 type Labels = BTreeMap<String, String>;
@@ -359,6 +442,21 @@ mod test {
                 .len(),
             1
         );
+    }
+
+    #[test]
+    fn test_form_metadata() {
+        let mut labels = BTreeMap::new();
+        labels.insert("first".into(), "one".into());
+        labels.insert("second".into(), "two".into());
+        let exp = Some(meta::ObjectMeta {
+            name: Some("test".to_string()),
+            labels: Some(labels.clone()),
+            owner_references: None,
+            ..Default::default()
+        });
+        let meta = form_metadata("test".to_string(), labels, None);
+        assert_eq!(meta, exp)
     }
 
     #[test]
