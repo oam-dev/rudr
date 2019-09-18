@@ -51,6 +51,28 @@ impl Parameter {
 
 pub type ResolvedVals = BTreeMap<String, serde_json::Value>;
 
+pub fn resolve_value(
+    params: ResolvedVals,
+    from_param: Option<String>,
+    value: Option<String>,
+) -> Option<String> {
+    match from_param {
+        Some(p) => {
+            params
+                .get(p.as_str())
+                .and_then(|i| {
+                    // Not sure what to do for other types.
+                    match i {
+                        serde_json::Value::String(s) => Some(s.clone()),
+                        _ => Some(i.to_string()),
+                    }
+                })
+                .or_else(|| value.clone())
+        }
+        None => value.clone(),
+    }
+}
+
 #[derive(Fail, Debug)]
 #[fail(display = "validation failed: {:?}", errs)]
 pub struct ValidationErrors {
