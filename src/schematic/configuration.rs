@@ -5,7 +5,7 @@ use crate::schematic::{parameter::ParameterValue, traits::TraitBinding};
 /// In Hydra, an instance is a Component definition plus a Configuration. Practically speaking, a
 /// Configuration says "Create a component of type X in scopes A, B, and C, set the following
 /// parameters, and attach these traits"
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentConfiguration {
     /// The name of the component to instantiate

@@ -39,6 +39,44 @@ impl ReplicatedService {
             ..Default::default()
         }
     }
+    fn to_config_maps(&self) -> Vec<api::ConfigMap> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert(
+            "workload-type".to_string(),
+            "replicated-service".to_string(),
+        );
+        let configs = self
+            .meta
+            .definition
+            .evaluate_configs(self.meta.params.clone());
+
+        to_config_maps(configs, self.meta.owner_ref.clone(), Some(labels.clone()))
+    }
+}
+
+pub fn to_config_maps(
+    configs: BTreeMap<String, BTreeMap<String, String>>,
+    owner_ref: Option<Vec<meta::OwnerReference>>,
+    labels: Option<BTreeMap<String, String>>,
+) -> Vec<api::ConfigMap> {
+    let mut new_configs: Vec<api::ConfigMap> = vec![];
+    for (key, values) in configs {
+        new_configs.insert(
+            new_configs.len(),
+            api::ConfigMap {
+                metadata: Some(meta::ObjectMeta {
+                    owner_references: owner_ref.clone(),
+                    labels: labels.clone(),
+                    name: Some(key),
+                    ..Default::default()
+                }),
+                data: Some(values),
+                ..Default::default()
+            },
+        );
+    }
+    new_configs
 }
 
 impl KubeName for ReplicatedService {
@@ -49,6 +87,20 @@ impl KubeName for ReplicatedService {
 
 impl WorkloadType for ReplicatedService {
     fn add(&self) -> InstigatorResult {
+        //pre create config_map
+        let config_maps = self.to_config_maps();
+        if !config_maps.is_empty() {
+            log::debug!("start to create {} config_maps", config_maps.len());
+        }
+        for config in config_maps.iter() {
+            let (req, _) = api::ConfigMap::create_namespaced_config_map(
+                self.meta.namespace.as_str(),
+                config,
+                Default::default(),
+            )?;
+            self.meta.client.request::<api::ConfigMap>(req)?;
+        }
+
         let deployment = self.to_deployment();
         let deployments = kube::api::Api::v1Deployment(self.meta.client.clone())
             .within(self.meta.namespace.as_str());
@@ -67,6 +119,7 @@ impl WorkloadType for ReplicatedService {
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
     fn modify(&self) -> InstigatorResult {
+        //TODO update config_map
         let deployment = self.to_deployment();
         let deployments = kube::api::Api::v1Deployment(self.meta.client.clone())
             .within(self.meta.namespace.as_str());
@@ -128,6 +181,20 @@ impl SingletonService {
             ..Default::default()
         }
     }
+    fn to_config_maps(&self) -> Vec<api::ConfigMap> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert(
+            "workload-type".to_string(),
+            "replicated-service".to_string(),
+        );
+        let configs = self
+            .meta
+            .definition
+            .evaluate_configs(self.meta.params.clone());
+
+        to_config_maps(configs, self.meta.owner_ref.clone(), Some(labels.clone()))
+    }
 }
 
 impl KubeName for SingletonService {
@@ -137,6 +204,17 @@ impl KubeName for SingletonService {
 }
 impl WorkloadType for SingletonService {
     fn add(&self) -> InstigatorResult {
+        //pre create config_map
+        let config_maps = self.to_config_maps();
+        for config in config_maps.iter() {
+            let (req, _) = api::ConfigMap::create_namespaced_config_map(
+                self.meta.namespace.as_str(),
+                config,
+                Default::default(),
+            )?;
+            self.meta.client.request::<api::ConfigMap>(req)?;
+        }
+
         let pod = self.to_pod();
         let pp = kube::api::PostParams::default();
         kube::api::Api::v1Pod(self.meta.client.clone())
@@ -310,4 +388,29 @@ mod test {
         }
     }
 
+    #[test]
+    fn test_to_config_maps() {
+        let mut exp: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+        let mut c20 = BTreeMap::new();
+        c20.insert("default_user.txt".to_string(), "admin".to_string());
+        let mut c21 = BTreeMap::new();
+        c21.insert("db-data".to_string(), "test one".to_string());
+        exp.insert("container20".to_string(), c20.clone());
+        exp.insert("container21".to_string(), c21.clone());
+        let cms = to_config_maps(exp, None, None);
+        assert_eq!(2, cms.len());
+        assert_eq!(
+            "container20",
+            cms.get(0)
+                .unwrap()
+                .metadata
+                .clone()
+                .unwrap()
+                .name
+                .unwrap()
+                .as_str()
+        );
+        assert_eq!(c20, cms.get(0).unwrap().data.clone().unwrap());
+        assert_eq!(c21, cms.get(1).unwrap().data.clone().unwrap());
+    }
 }

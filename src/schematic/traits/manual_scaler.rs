@@ -1,5 +1,5 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
-use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME};
+use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME, WORKER};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 use kube::client::APIClient;
 use log::info;
@@ -67,7 +67,7 @@ impl ManualScaler {
                 }
                 Ok(())
             }
-            REPLICATED_TASK_NAME => {
+            REPLICATED_TASK_NAME | WORKER => {
                 // Scale jobs
                 let (jobreq, _) = batch::Job::read_namespaced_job(
                     self.instance_name.as_str(),
@@ -136,6 +136,6 @@ impl TraitImplementation for ManualScaler {
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
-        name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME
+        name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME || name == WORKER
     }
 }

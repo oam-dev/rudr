@@ -180,3 +180,23 @@ fn test_parse_from_variable() {
     assert_eq!(None, parse_from_variable("[fromVariable (VAR)]".into())); // illegal
     assert_eq!(None, parse_from_variable("[fromVariable()]".into()));
 }
+
+#[test]
+fn test_resolve_value() {
+    let mut params: ResolvedVals = BTreeMap::new();
+    params.insert("abc".to_string(), serde_json::to_value("hello").unwrap());
+    let got = resolve_value(
+        params.clone(),
+        Some("abc".to_string()),
+        Some("123".to_string()),
+    );
+    assert_eq!("hello".to_string(), got.unwrap());
+    let got = resolve_value(params.clone(), Some("abc".to_string()), None);
+    assert_eq!("hello".to_string(), got.unwrap());
+    let got = resolve_value(
+        params.clone(),
+        Some("xxx".to_string()),
+        Some("123".to_string()),
+    );
+    assert_eq!("123".to_string(), got.unwrap());
+}

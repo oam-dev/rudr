@@ -1,7 +1,8 @@
-use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
-use std::str::FromStr;
-
+use crate::schematic::parameter::resolve_parameters;
 use crate::schematic::{component::*, parameter::ParameterType, GroupVersionKind};
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
+use std::collections::BTreeMap;
+use std::str::FromStr;
 
 #[test]
 fn test_group_version_kind() {
@@ -484,4 +485,66 @@ fn test_to_node_seletor() {
     selector.insert("kubernetes.io/os".to_string(), "linux".to_string());
     selector.insert("kubernetes.io/arch".to_string(), "amd64".to_string());
     assert_eq!(Some(selector), comp.to_node_selector())
+}
+
+#[test]
+fn test_evaluate_configs() {
+    let comp_res = Component::from_str(
+        r#"{
+            "parameters": [
+                {
+                    "name": "one",
+                    "type": "string",
+                    "default": "test one"
+                }
+            ],
+            "containers": [
+                {
+                    "name": "container1",
+                    "image": "nginx:latest"
+                },
+                {
+                    "name": "container2",
+                    "image": "nginx:latest",
+                    "config": [
+                        {
+                            "name": "/etc/access/default_user.txt",
+                            "value": "admin"
+                        },
+                        {
+                            "name": "/var/run/db-data",
+                            "fromParam": "one"
+                        }
+                    ]
+                },
+                {
+                    "name": "container3",
+                    "image": "nginx:latest",
+                    "config": [
+                        {
+                            "name": "/etc/access/default_user.txt",
+                            "value": "admin",
+                            "fromParam": "two"
+                        }
+                    ]
+                }
+            ]
+        }"#,
+    );
+    let comp = comp_res.as_ref().expect("component should exist");
+    let resloved_val =
+        resolve_parameters(comp.parameters.clone(), BTreeMap::new()).expect("resolved parameter");
+    let configs = comp.evaluate_configs(resloved_val);
+    assert_eq!(3, configs.len());
+    let mut exp: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+    let mut c20 = BTreeMap::new();
+    c20.insert("default_user.txt".to_string(), "admin".to_string());
+    let mut c21 = BTreeMap::new();
+    c21.insert("db-data".to_string(), "test one".to_string());
+    exp.insert("container20".to_string(), c20);
+    exp.insert("container21".to_string(), c21);
+    let mut c30 = BTreeMap::new();
+    c30.insert("default_user.txt".to_string(), "admin".to_string());
+    exp.insert("container30".to_string(), c30);
+    assert_eq!(exp, configs);
 }

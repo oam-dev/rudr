@@ -41,7 +41,7 @@ pub struct Trait {}
 /// A TraitBinding attaches a trait to a component.
 ///
 /// Trait bindings appear in configuration stanzas for traits.
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TraitBinding {
     pub name: String,
