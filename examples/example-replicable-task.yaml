@@ -1,5 +1,5 @@
 apiVersion: core.hydra.io/v1alpha1
-kind: OperationalConfiguration
+kind: ApplicationConfiguration
 metadata:
   name: example-replicable-task
 spec:

@@ -75,7 +75,7 @@ they can only choose workload types predefined by the platform runtime.
 A trait is a discretionary runtime overlay that augments a component workload type (workloadType) with additional features. 
 It is an opportunity for those in the application operator role to make specific decisions about the configuration of components, but without involving the developer. 
 
-A trait can be any operational configuration of a distributed application that applies to an individual component, such as traffic routing rules 
+A trait can be any application configuration of a distributed application that applies to an individual component, such as traffic routing rules 
 (e.g., load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more.
 
 So trait is another concept like component, it has CRDs predefined by the platform operator which application operator can choose to use.
@@ -96,16 +96,16 @@ Scylla will soon implement health and network application scope, now we don't ha
 
 Application scopes are also concept like component and trait. 
 
-### Operational configuration
+### Application configuration
 
-Operational configuration defines a deployment of components, their traits, and application scopes. 
+Application configuration defines a deployment of components, their traits, and application scopes. 
 So this is the **action** who will make the real application run in Kubernetes.
 
 The configuration schema is like below:
 
 ```yaml
 apiVersion: core.hydra.io/v1alpha1
-kind: OperationalConfiguration
+kind: ApplicationConfiguration
 metadata:
   name: first-app
 spec:

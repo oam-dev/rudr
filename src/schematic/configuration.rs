@@ -18,13 +18,13 @@ pub struct ComponentConfiguration {
     pub traits: Option<Vec<TraitBinding>>,
 }
 
-/// OperationalConfiguration is the top-level configuration object in Hydra.
+/// ApplicationConfiguration is the top-level configuration object in Hydra.
 ///
-/// An OperationalConfiguration can describe one or more components, a collection
+/// An ApplicationConfiguration can describe one or more components, a collection
 /// of related parameters, and the associated traits and scopes.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct OperationalConfiguration {
+pub struct ApplicationConfiguration {
     pub parameter_values: Option<Vec<ParameterValue>>,
     pub scopes: Option<Vec<ScopeBinding>>,
     pub components: Option<Vec<ComponentConfiguration>>,

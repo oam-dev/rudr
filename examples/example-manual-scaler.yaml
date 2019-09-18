@@ -2,7 +2,7 @@
 # Manual scaling is enabled by trait.
 # This example shows how to apply a manual scaler to a replicatable service.
 apiVersion: core.hydra.io/v1alpha1
-kind: OperationalConfiguration
+kind: ApplicationConfiguration
 metadata:
   name: manual-scaler-example
 spec:

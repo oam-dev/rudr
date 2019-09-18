@@ -1,6 +1,6 @@
 ## This is an example of using parameters, parameter values, and env vars.
 ## The component definition defines the parameters and maps them to
-## env vars. Then the operational configuration overrides the component's
+## env vars. Then the application configuration overrides the component's
 ## default values.
 ##
 ## Once you have installed this, you can verify that the env vars were
@@ -37,7 +37,7 @@ spec:
         fromParam: unused_integer
 ---
 apiVersion: core.hydra.io/v1alpha1
-kind: OperationalConfiguration
+kind: ApplicationConfiguration
 metadata:
   name: example-env-vars
 spec:

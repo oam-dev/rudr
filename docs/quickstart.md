@@ -109,11 +109,11 @@ spec:
     type: int
 ```
 
-When you are ready to try installing something, take a look at the `examples/first-app-config.yaml`, which shows a basic Operational Configuration with a single trait applied:
+When you are ready to try installing something, take a look at the `examples/first-app-config.yaml`, which shows a basic Application Configuration with a single trait applied:
 
 ```yaml
 apiVersion: core.hydra.io/v1alpha1
-kind: OperationalConfiguration
+kind: ApplicationConfiguration
 metadata:
   name: first-app
 spec:
@@ -136,7 +136,7 @@ spec:
             value: 80
 ```
 
-To install this operational configuration, use `kubectl`:
+To install this application configuration, use `kubectl`:
 
 Because we will use `ingress` trait here, so if your cluster don't have any kind of [ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), you should install one kind of [ingress controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) first.
 
@@ -199,7 +199,7 @@ configuration.core.hydra.io "first-app" deleted
 
 That will delete your application and all associated resources.
 
-It will _not_ delete the traits and the components, which are happily awaiting your use in the next Operational Configuration.
+It will _not_ delete the traits and the components, which are happily awaiting your use in the next Application Configuration.
 
 ```console
 $ kubectl get traits,components
