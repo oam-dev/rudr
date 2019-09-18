@@ -21,12 +21,13 @@ pub const REPLICATED_SERVICE_NAME: &str = "core.hydra.io/v1alpha1.ReplicatedServ
 /// Service just means a replicated service which will replace ReplicatedService
 pub const SERVICE_NAME: &str = "core.hydra.io/v1alpha1.Service";
 
-/// The fully qualified name of a singleton.
-pub const SINGLETON_NAME: &str = "core.hydra.io/v1alpha1.Singleton";
 /// SINGLETON_NAME was deprecated, use SingletonService instead
+pub const SINGLETON_NAME: &str = "core.hydra.io/v1alpha1.Singleton";
+/// SingletonService is a kind of Service that can't be replicated
 pub const SINGLETON_SERVICE_NAME: &str = "core.hydra.io/v1alpha1.SingletonService";
 
 pub const SINGLETON_TASK_NAME: &str = "core.hydra.io/v1alpha1.SingletonTask";
+/// Task just means a replicated task which will replace ReplicatedTask
 pub const TASK_NAME: &str = "core.hydra.io/v1alpha1.Task";
 pub const REPLICATED_TASK_NAME: &str = "core.hydra.io/v1alpha1.ReplicatedTask";
 
