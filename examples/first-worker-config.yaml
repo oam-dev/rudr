@@ -1,0 +1,18 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: OperationalConfiguration
+metadata:
+  name: first-worker-app
+spec:
+  components:
+  - name: alpine-worker
+    instanceName: first-app-nginx
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    traits:
+      - name: manual-scaler
+        parameterValues:
+          - name: replicaCount
+            value: 1
