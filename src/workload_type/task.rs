@@ -1,6 +1,6 @@
 use crate::workload_type::{
     workload_builder::{JobBuilder, WorkloadMetadata},
-    InstigatorResult, KubeName, WorkloadType,
+    InstigatorResult, KubeName, WorkloadType, SINGLETON_TASK_NAME, TASK_NAME,
 };
 
 use std::collections::BTreeMap;
@@ -17,14 +17,21 @@ impl KubeName for ReplicatedTask {
         self.meta.instance_name.to_string()
     }
 }
-impl WorkloadType for ReplicatedTask {
-    fn add(&self) -> InstigatorResult {
+
+impl ReplicatedTask {
+    fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "task".to_string());
+        labels.insert("workload-type".to_string(), TASK_NAME.to_string());
+        labels
+    }
+}
+
+impl WorkloadType for ReplicatedTask {
+    fn add(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
-            .labels(labels)
+            .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
@@ -32,12 +39,9 @@ impl WorkloadType for ReplicatedTask {
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
     fn modify(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "task".to_string());
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
-            .labels(labels)
+            .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .parallelism(self.replica_count.unwrap_or(1))
             .owner_ref(self.meta.owner_ref.clone())
@@ -68,26 +72,28 @@ impl KubeName for SingletonTask {
         self.meta.instance_name.to_string()
     }
 }
-impl WorkloadType for SingletonTask {
-    fn add(&self) -> InstigatorResult {
+impl SingletonTask {
+    fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-task".to_string());
+        labels.insert("workload-type".to_string(), SINGLETON_TASK_NAME.to_string());
+        labels
+    }
+}
+impl WorkloadType for SingletonTask {
+    fn add(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
-            .labels(labels)
+            .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
     fn modify(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-task".to_string());
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
-            .labels(labels)
+            .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
@@ -111,7 +117,7 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName};
+    use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName, TASK_NAME};
 
     use std::collections::BTreeMap;
 
@@ -160,6 +166,7 @@ mod test {
         };
 
         assert_eq!("taskinstance", task.kube_name().as_str());
+        assert_eq!(TASK_NAME, task.labels().get("workload-type").unwrap());
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.

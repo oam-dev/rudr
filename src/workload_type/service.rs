@@ -2,13 +2,25 @@ use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
 use crate::workload_type::workload_builder::ServiceBuilder;
-use crate::workload_type::{InstigatorResult, KubeName, WorkloadMetadata, WorkloadType};
+use crate::workload_type::{
+    InstigatorResult, KubeName, WorkloadMetadata, WorkloadType, SERVICE_NAME,
+    SINGLETON_SERVICE_NAME,
+};
 
 use std::collections::BTreeMap;
 
 /// A Replicated Service can take one component and scale it up or down.
 pub struct ReplicatedService {
     pub meta: WorkloadMetadata,
+}
+
+impl ReplicatedService {
+    fn labels(&self) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), SERVICE_NAME.to_string());
+        labels
+    }
 }
 
 pub fn to_config_maps(
@@ -47,13 +59,10 @@ impl WorkloadType for ReplicatedService {
         self.meta.create_config_maps("replicated-service")?;
         self.meta.create_deployment("replicated-service")?;
 
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "service".to_string());
         let mut select_labels = BTreeMap::new();
         select_labels.insert("app".to_string(), self.meta.name.clone());
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .labels(labels)
+            .labels(self.labels())
             .select_labels(select_labels)
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
@@ -62,11 +71,8 @@ impl WorkloadType for ReplicatedService {
         //TODO update config_map
         self.meta.update_deployment("replicated-service")?;
 
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "service".to_string());
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .labels(labels)
+            .labels(self.labels())
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
@@ -91,17 +97,23 @@ pub struct SingletonService {
     pub meta: WorkloadMetadata,
 }
 impl SingletonService {
+    fn labels(&self) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert(
+            "workload-type".to_string(),
+            SINGLETON_SERVICE_NAME.to_string(),
+        );
+        labels
+    }
     /// Create a Pod definition that describes this Singleton
     fn to_pod(&self) -> api::Pod {
-        let mut labels = BTreeMap::new();
         let podname = self.kube_name();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-service".to_string());
         api::Pod {
             metadata: Some(meta::ObjectMeta {
                 annotations: self.meta.annotations.clone(),
                 name: Some(podname),
-                labels: Some(labels),
+                labels: Some(self.labels()),
                 owner_references: self.meta.owner_ref.clone(),
                 ..Default::default()
             }),
@@ -127,11 +139,8 @@ impl WorkloadType for SingletonService {
             .within(self.meta.namespace.as_str())
             .create(&pp, serde_json::to_vec(&pod)?)?;
         // Create service
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-service".to_string());
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .labels(labels)
+            .labels(self.labels())
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
@@ -162,7 +171,9 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{service::*, KubeName, WorkloadMetadata};
+    use crate::workload_type::{
+        service::*, KubeName, WorkloadMetadata, SERVICE_NAME, SINGLETON_SERVICE_NAME,
+    };
 
     use std::collections::BTreeMap;
 
@@ -187,6 +198,10 @@ mod test {
         };
 
         assert_eq!("squidgy", sing.kube_name().as_str());
+        assert_eq!(
+            SINGLETON_SERVICE_NAME,
+            sing.labels().get("workload-type").unwrap()
+        );
     }
 
     #[test]
@@ -245,6 +260,7 @@ mod test {
         };
 
         assert_eq!("dehydrate", rs.kube_name().as_str());
+        assert_eq!(SERVICE_NAME, rs.labels().get("workload-type").unwrap());
     }
 
     #[test]
