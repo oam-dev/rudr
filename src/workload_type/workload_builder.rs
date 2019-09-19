@@ -229,25 +229,21 @@ impl JobBuilder {
     }
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
-        // Right now, the Batch API is not transparent through Kube.
-        // Next release of Kube will fix this
-        let batch = kube::api::RawApi {
-            group: "batch".into(),
-            resource: "jobs".into(),
-            prefix: "apis".into(),
-            namespace: Some(namespace.clone()),
-            version: "v1".into(),
-        };
-        let req;
         match phase {
             "modify" => {
                 //TODO support modify config_map
                 let pp = kube::api::PatchParams::default();
-                req = batch.patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
+                kube::api::Api::v1Job(client)
+                    .within(namespace.as_str())
+                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
+                Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
-                req = batch.delete(self.name.as_str(), &pp)?;
+                kube::api::Api::v1Job(client)
+                    .within(namespace.as_str())
+                    .delete(self.name.as_str(), &pp)?;
+                Ok(())
             }
             _ => {
                 //pre create config_map
@@ -261,11 +257,12 @@ impl JobBuilder {
                     client.request::<api::ConfigMap>(req)?;
                 }
                 let pp = kube::api::PostParams::default();
-                req = batch.create(&pp, serde_json::to_vec(&job)?)?;
+                kube::api::Api::v1Job(client)
+                    .within(namespace.as_str())
+                    .create(&pp, serde_json::to_vec(&job)?)?;
+                Ok(())
             }
         }
-        client.request::<batchapi::Job>(req)?;
-        Ok(())
     }
 }
 
