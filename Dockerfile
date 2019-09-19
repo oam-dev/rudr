@@ -15,7 +15,6 @@ RUN cargo build --release && \
 # Build real binaries now
 COPY ./src ./src
 RUN cargo build --release
-RUN ls -lah ./target/release
 
 FROM debian:stretch-slim
 WORKDIR /usr/app
