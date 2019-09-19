@@ -35,4 +35,5 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: {{ template "scylla.fullname" . }}
+  apiGroup: ""
 {{ end }}

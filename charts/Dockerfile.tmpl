@@ -1,0 +1,17 @@
+FROM quay.io/deis/lightweight-docker-go:v0.2.0
+FROM debian:stretch
+COPY --from=0 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+ARG BUNDLE_DIR
+
+# This is a template Dockerfile for the bundle's invocation image
+# You can customize it to use different base images, install tools and copy configuration files.
+#
+# Porter will use it as a template and append lines to it for the mixins
+# and to set the CMD appropriately for the CNAB specification.
+#
+# Add the following line to porter.yaml to instruct Porter to use this template
+# dockerfile: Dockerfile.tmpl
+
+# Use the BUNDLE_DIR build argument to copy files into the bundle
+# COPY . $BUNDLE_DIR
