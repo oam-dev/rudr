@@ -35,6 +35,7 @@ pub const SINGLETON_WORKER: &str = "core.hydra.io/v1alpha1.SingletonWorker";
 pub const WORKER: &str = "core.hydra.io/v1alpha1.Worker";
 
 type InstigatorResult = Result<(), Error>;
+type StatusResult = Result<String, Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// KubeName describes anything that can produce its own Kubernetes name.
@@ -61,6 +62,9 @@ pub trait WorkloadType {
     fn delete(&self) -> InstigatorResult {
         info!("Workload deleted");
         Ok(())
+    }
+    fn status(&self) -> StatusResult {
+        Err(format_err!("Not implemented"))
     }
 }
 
@@ -102,6 +106,16 @@ impl CoreWorkloadType {
             CoreWorkloadType::ReplicatedTaskType(task) => task.modify(),
             CoreWorkloadType::ReplicatedWorkerType(task) => task.modify(),
             CoreWorkloadType::SingletonWorkerType(task) => task.modify(),
+        }
+    }
+    pub fn status(&self) -> StatusResult {
+        match self {
+            CoreWorkloadType::SingletonServiceType(sing) => sing.status(),
+            CoreWorkloadType::ReplicatedServiceType(repl) => repl.status(),
+            CoreWorkloadType::SingletonTaskType(task) => task.status(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.status(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.status(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.status(),
         }
     }
 }

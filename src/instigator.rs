@@ -89,6 +89,57 @@ impl Instigator {
         Instigator { client, namespace }
     }
 
+    pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
+        let mut component_status = BTreeMap::new();
+        let name = event.metadata.name.clone();
+        for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
+            let comp_def: KubeComponent = get_component_def(
+                self.namespace.clone(),
+                component.name.clone(),
+                self.client.clone(),
+            )?;
+            // Resolve parameters
+            let parent = get_values(event.spec.parameter_values.clone());
+            let child = get_values(component.parameter_values.clone());
+            let merged_vals = resolve_values(child, parent.clone())?;
+            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+
+            let inst_name = component.instance_name.clone();
+
+            // Instantiate components
+            let workload =
+                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
+            let status = workload.status()?;
+            debug!(
+                "Sync component {}, got status {}",
+                component.name.clone(),
+                status.clone()
+            );
+            component_status.insert(component.name.clone(), status.clone());
+        }
+        let mut new_event = event.clone();
+        new_event.status = Some(Some(HydraStatus::new(
+            Some("synced".to_string()),
+            Some(component_status),
+        )));
+        let config_resource = RawApi::customResource(CONFIG_CRD)
+            .version(CONFIG_VERSION)
+            .group(CONFIG_GROUP)
+            .within(&self.namespace);
+
+        let patch_params = PatchParams::default();
+        let req = config_resource.patch(
+            &event.metadata.name,
+            &patch_params,
+            serde_json::to_vec(&new_event)?,
+        )?;
+        let o = self
+            .client
+            .request::<Object<ApplicationConfiguration, Status>>(req)?;
+        debug!("Patched status {:?} for {}", o.status, o.metadata.name);
+        Ok(())
+    }
+
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
@@ -273,9 +324,23 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let status = HydraStatus::new(Some(phase.to_string()));
+        let mut status = event.status.clone();
+        match status {
+            Some(s) => match s {
+                Some(mut hs) => {
+                    hs.phase = Some(phase.to_string());
+                    status = Some(Some(hs));
+                }
+                None => {
+                    status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+                }
+            },
+            None => {
+                status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+            }
+        }
         let mut new_event = event.clone();
-        new_event.status = Some(Some(status));
+        new_event.status = status;
         new_event.metadata.annotations = annotation;
         debug!("spec: {:?}, status: {:?}", new_event.spec, new_event.status);
         let config_resource = RawApi::customResource(CONFIG_CRD)

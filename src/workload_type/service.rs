@@ -1,9 +1,11 @@
+use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
+use kube::api::Object;
 
 use crate::workload_type::workload_builder::ServiceBuilder;
 use crate::workload_type::{
-    InstigatorResult, KubeName, WorkloadMetadata, WorkloadType,
+    InstigatorResult, KubeName, StatusResult, WorkloadMetadata, WorkloadType,
 };
 
 use std::collections::BTreeMap;
@@ -86,6 +88,29 @@ impl WorkloadType for ReplicatedService {
             "delete",
         )
     }
+    fn status(&self) -> StatusResult {
+        let deploy: Object<_, apps::DeploymentStatus> =
+            match kube::api::Api::v1Deployment(self.meta.client.clone())
+                .within(self.meta.namespace.as_str())
+                .get_status(self.kube_name().as_str())
+            {
+                Ok(deploy) => deploy,
+                Err(e) => return Ok(e.to_string()),
+            };
+
+        let status: apps::DeploymentStatus = deploy.status.unwrap();
+        let replica = status.replicas.unwrap_or(0);
+        let available_replicas = status.available_replicas.unwrap_or(0);
+        let unavailable_replicas = status.unavailable_replicas.unwrap_or(0);
+
+        if available_replicas == replica {
+            return Ok("running".to_string());
+        }
+        if unavailable_replicas > 0 {
+            return Ok("unavailable".to_string());
+        }
+        Ok("updating".to_string())
+    }
 }
 
 /// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
@@ -160,6 +185,18 @@ impl WorkloadType for SingletonService {
             "delete",
         )
     }
+    fn status(&self) -> StatusResult {
+        let pod = match kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .get_status(self.kube_name().as_str())
+        {
+            Ok(pod) => pod,
+            Err(e) => return Ok(e.to_string()),
+        };
+
+        let status: api::PodStatus = pod.status.unwrap();
+        Ok(status.phase.unwrap_or_else(|| "unknown".to_string()))
+    }
 }
 
 #[cfg(test)]
@@ -167,9 +204,7 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{
-        service::*, KubeName, WorkloadMetadata,
-    };
+    use crate::workload_type::{service::*, KubeName, WorkloadMetadata};
 
     use std::collections::BTreeMap;
 

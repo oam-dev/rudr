@@ -2,13 +2,13 @@ use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{DeleteParams, PatchParams, PostParams};
+use kube::api::{DeleteParams, Object, PatchParams, PostParams};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap};
+use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap, StatusResult};
 
 /// WorkloadMetadata contains common data about a workload.
 ///
@@ -233,6 +233,31 @@ impl JobBuilder {
             ..Default::default()
         }
     }
+
+    pub fn get_status(self, client: APIClient, namespace: String) -> StatusResult {
+        let job: Object<_, batchapi::JobStatus> = match kube::api::Api::v1Job(client)
+            .within(namespace.as_str())
+            .get_status(self.name.as_str())
+        {
+            Ok(job) => job,
+            Err(e) => return Ok(e.to_string()),
+        };
+        let status: batchapi::JobStatus = job.status.unwrap();
+
+        //just a simple way to give the job status
+        if let Some(sts) = status.active {
+            if sts > 0 {
+                return Ok("running".to_string());
+            }
+        }
+        if let Some(sts) = status.failed {
+            if sts > 0 {
+                return Ok("failed".to_string());
+            }
+        }
+        Ok("succeeded".to_string())
+    }
+
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
         match phase {
