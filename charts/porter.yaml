@@ -6,7 +6,7 @@
 name: scylla-install
 version: 0.1.0
 description: "An example Porter configuration"
-invocationImage: scylla-install:latest
+invocationImage: squillace/scylla-install:latest
 tag: squillace/scylla-install-cnab:latest
 
 # Uncomment out the line below to use a template Dockerfile for your invocation image
