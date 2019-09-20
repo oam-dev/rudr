@@ -7,6 +7,14 @@ To use, the easiest way will be to install https://porter.sh, and then type:
 1. `porter creds generate --tag squillace/scylla-install-cnab:latest` and enter a path to your kube config as a file path. then
 2. `porter install --tag squillace/scylla-install-cnab:latest -c scylla-install` to install scylla into your cluster.
 
+If that fails for any reason, you can build it yourself:
+1. Download https://porter.sh for your OS.
+2. Navigate and checkout this directory.
+3. `porter build`
+4. `porter creds generate` and select `file path` and enter the path to your .kube/config.
+5. `porter install scylla-install -c scylla-install`
+6. profit.
+
 # Contents
 
 ## porter.yaml

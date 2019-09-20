@@ -21,43 +21,46 @@ credentials:
 - name: KUBE_CONFIG
   path: /root/.kube/config
 
+parameters:
+- name: HELM_RELEASE
+  type: string
+  default: "scylla"  
+
 install:
-  - exec:
-      description: "Installing scylla using Helm."
-      command: bash
-      flags:
-        c: echo Starting the installation of scylla...
   - kubernetes:
-      description: "Create scylla CRDs..."
+      description: "Creating scylla CRDs..."
       manifests:
         - scylla/crds/
       wait: true
   - exec:
-      description: "Wait for CRDs...."
+      description: "Wait for CRDs to be cached...."
       command: "bash"
       arguments:
         - "waitForCRDs.sh"
   - helm:
       description: "Deploy scylla using helm...."
-      name: "scylla"
+      name: "{{bundle.parameters.HELM_RELEASE}}"
       chart: scylla
       replace: true
 
-
 upgrade:
   - exec:
-      description: "World 2.0"
+      description: "Not implemented."
       command: bash
       flags:
-        c: echo World 2.0
+        c: echo Not implemented.
 
 uninstall:
+  - helm:
+      description: "Removing the scylla-install chart..."
+      purge: true
+      releases: 
+        - "{{bundle.parameters.HELM_RELEASE}}"
   - exec:
-      description: "Uninstalling uninstalling scylla..."
+      description: "The CRDs remain. Please remove the CRDs manually."
       command: bash
       flags:
-        c: echo Goodbye scylla...
-
+        c: echo CRD removal not yet implemented.
 
 # See https://porter.sh/authoring-bundles/#dependencies
 #dependencies:
