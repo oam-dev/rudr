@@ -1,0 +1,75 @@
+# This is the configuration for Porter
+# You must define steps for each action, but the rest is optional
+# See https://porter.sh/authoring-bundles for documentation on how to configure your bundle
+# Uncomment out the sections below to take full advantage of what Porter can do!
+
+name: scylla-install
+version: 0.1.0
+description: "An example Porter configuration"
+invocationImage: squillace/scylla-install:latest
+tag: squillace/scylla-install-cnab:latest
+
+# Uncomment out the line below to use a template Dockerfile for your invocation image
+#dockerfile: Dockerfile.tmpl
+
+mixins:
+  - exec
+  - helm
+  - kubernetes
+
+credentials:
+- name: KUBE_CONFIG
+  path: /root/.kube/config
+
+parameters:
+- name: HELM_RELEASE
+  type: string
+  default: "scylla"  
+
+install:
+  - kubernetes:
+      description: "Creating scylla CRDs..."
+      manifests:
+        - scylla/crds/
+      wait: true
+  - exec:
+      description: "Wait for CRDs to be cached...."
+      command: "bash"
+      arguments:
+        - "waitForCRDs.sh"
+  - helm:
+      description: "Deploy scylla using helm...."
+      name: "{{bundle.parameters.HELM_RELEASE}}"
+      chart: scylla
+      replace: true
+
+upgrade:
+  - exec:
+      description: "Not implemented."
+      command: bash
+      flags:
+        c: echo Not implemented.
+
+uninstall:
+  - helm:
+      description: "Removing the scylla-install chart..."
+      purge: true
+      releases: 
+        - "{{bundle.parameters.HELM_RELEASE}}"
+  - exec:
+      description: "The CRDs remain. Please remove the CRDs manually."
+      command: bash
+      flags:
+        c: echo CRD removal not yet implemented.
+
+# See https://porter.sh/authoring-bundles/#dependencies
+#dependencies:
+#  mysql:
+#    tag: deislabs/porter-mysql:latest
+#    parameters:
+#      database-name: wordpress
+
+# See https://porter.sh/wiring/#credentials
+#credentials:
+#  - name: kubeconfig
+#    path: /root/.kube/config
