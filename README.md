@@ -192,7 +192,7 @@ You'll need to wait for a minute or two for it to fully deploy. Behind the scene
 And, of course, you can see your configuration:
 
 ```console
-$ kubectl get configurations
+$ kubectl get configuration
 NAME        AGE
 first-app   4m23s
 $ kubectl get configuration first-app -o yaml
@@ -236,7 +236,7 @@ That will delete your application and all associated resources.
 It will _not_ delete the traits and the components, which are happily awaiting your use in the next Operational Configuration.
 
 ```console
-$ kubectl get traits,components
+$ kubectl get traits,component
 NAME                                AGE
 trait.core.hydra.io/autoscaler      31m
 trait.core.hydra.io/empty           31m
