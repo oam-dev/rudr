@@ -113,7 +113,7 @@ impl Component {
             {
                 let mut values = BTreeMap::new();
                 //config name is file path
-                let filename = Path::new(conf.name.as_str())
+                let filename = Path::new(conf.path.as_str())
                     .file_name()
                     .unwrap()
                     .to_os_string()
@@ -146,7 +146,7 @@ impl Component {
                 volume_mounts: c.config.clone().and_then(|p| {
                     let mut mounts = vec![];
                     for (i, v) in p.iter().enumerate() {
-                        let path = Path::new(v.name.as_str())
+                        let path = Path::new(v.path.as_str())
                             .parent()
                             .unwrap()
                             .to_str()
@@ -287,7 +287,7 @@ pub struct WorkloadSetting {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigFile {
-    pub name: String,
+    pub path: String,
     pub value: Option<String>,
     pub from_param: Option<String>,
 }

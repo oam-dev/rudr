@@ -508,11 +508,11 @@ fn test_evaluate_configs() {
                     "image": "nginx:latest",
                     "config": [
                         {
-                            "name": "/etc/access/default_user.txt",
+                            "path": "/etc/access/default_user.txt",
                             "value": "admin"
                         },
                         {
-                            "name": "/var/run/db-data",
+                            "path": "/var/run/db-data",
                             "fromParam": "one"
                         }
                     ]
@@ -522,7 +522,7 @@ fn test_evaluate_configs() {
                     "image": "nginx:latest",
                     "config": [
                         {
-                            "name": "/etc/access/default_user.txt",
+                            "path": "/etc/access/default_user.txt",
                             "value": "admin",
                             "fromParam": "two"
                         }
