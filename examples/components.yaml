@@ -79,7 +79,7 @@ spec:
   os: linux
   containers:
     - name: worker
-      image: alpine:latest
+      image: nginx:latest
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
@@ -90,4 +90,4 @@ spec:
   os: linux
   containers:
     - name: worker
-      image: alpine:latest
+      image: nginx:latest

@@ -1,9 +1,6 @@
 use crate::workload_type::{
-    workload_builder::{JobBuilder, WorkloadMetadata},
-    InstigatorResult, KubeName, WorkloadType,
+    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, WorkloadType,
 };
-
-use std::collections::BTreeMap;
 
 pub struct ReplicatedWorker {
     pub meta: WorkloadMetadata,
@@ -12,50 +9,23 @@ pub struct ReplicatedWorker {
 
 impl KubeName for ReplicatedWorker {
     fn kube_name(&self) -> String {
-        self.meta.instance_name.to_string()
+        self.meta.kube_name()
     }
 }
+
 impl WorkloadType for ReplicatedWorker {
     fn add(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "worker".to_string());
-        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .parameter_map(self.meta.params.clone())
-            .labels(labels)
-            .annotations(self.meta.annotations.clone())
-            .parallelism(self.replica_count.unwrap_or(1))
-            .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnFailure".to_string())
-            .do_request(
-                self.meta.client.clone(),
-                self.meta.namespace.clone(),
-                "create",
-            )
+        //pre create config_map
+        self.meta.create_config_maps("replicated-worker")?;
+        self.meta.create_deployment("replicated-worker")?;
+        Ok(())
     }
     fn modify(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "worker".to_string());
-        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .parameter_map(self.meta.params.clone())
-            .labels(labels)
-            .annotations(self.meta.annotations.clone())
-            .parallelism(self.replica_count.unwrap_or(1))
-            .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnFailure".to_string())
-            .do_request(
-                self.meta.client.clone(),
-                self.meta.namespace.clone(),
-                "modify",
-            )
+        //TODO update config_map
+        self.meta.update_deployment("replicated-worker")
     }
     fn delete(&self) -> InstigatorResult {
-        JobBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
-            self.meta.client.clone(),
-            self.meta.namespace.clone(),
-            "delete",
-        )
+        self.meta.delete_deployment()
     }
 }
 
@@ -73,46 +43,17 @@ impl KubeName for SingletonWorker {
 }
 impl WorkloadType for SingletonWorker {
     fn add(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        let podname = self.kube_name();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-worker".to_string());
-        JobBuilder::new(podname, self.meta.definition.clone())
-            .parameter_map(self.meta.params.clone())
-            .labels(labels)
-            .annotations(self.meta.annotations.clone())
-            .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnFailure".to_string())
-            .do_request(
-                self.meta.client.clone(),
-                self.meta.namespace.clone(),
-                "create",
-            )
+        //pre create config_map
+        self.meta.create_config_maps("singleton-worker")?;
+        self.meta.create_deployment("singleton-worker")?;
+        Ok(())
     }
     fn modify(&self) -> InstigatorResult {
-        let mut labels = BTreeMap::new();
-        let podname = self.kube_name();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "singleton-worker".to_string());
-        JobBuilder::new(podname, self.meta.definition.clone())
-            .parameter_map(self.meta.params.clone())
-            .labels(labels)
-            .annotations(self.meta.annotations.clone())
-            .owner_ref(self.meta.owner_ref.clone())
-            .restart_policy("OnFailure".to_string())
-            .do_request(
-                self.meta.client.clone(),
-                self.meta.namespace.clone(),
-                "modify",
-            )
+        //TODO update config_map
+        self.meta.update_deployment("singleton-worker")
     }
     fn delete(&self) -> InstigatorResult {
-        let podname = self.kube_name();
-        JobBuilder::new(podname, self.meta.definition.clone()).do_request(
-            self.meta.client.clone(),
-            self.meta.namespace.clone(),
-            "modify",
-        )
+        self.meta.delete_deployment()
     }
 }
 
