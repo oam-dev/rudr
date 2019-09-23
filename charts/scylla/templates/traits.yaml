@@ -4,9 +4,9 @@ metadata:
   name: autoscaler
 spec:
   appliesTo:
-    - replicableService
-    - replicableTask
-  parameters:
+    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.Task
+  properties:
     - name: minimum
       description: Minumum number of replicas to start. Default 1
       type: int
@@ -31,9 +31,9 @@ metadata:
   name: manual-scaler
 spec:
   appliesTo:
-    - replicableService
-    - replicableTask
-  parameters:
+    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.Task
+  properties:
     - name: replicaCount
       description: Number of replicas to start
       type: int
@@ -47,9 +47,9 @@ metadata:
   name: ingress
 spec:
   appliesTo:
-    - replicableService
-    - singleton
-  parameters:
+    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.SingletonService
+  properties:
     - name: hostname
       description: Host name for the ingress
       type: string
