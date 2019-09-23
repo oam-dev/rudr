@@ -6,7 +6,7 @@ spec:
   appliesTo:
     - core.hydra.io/v1alpha1.Service
     - core.hydra.io/v1alpha1.Task
-  parameters:
+  properties:
     - name: minimum
       description: Minumum number of replicas to start. Default 1
       type: int
@@ -33,7 +33,7 @@ spec:
   appliesTo:
     - core.hydra.io/v1alpha1.Service
     - core.hydra.io/v1alpha1.Task
-  parameters:
+  properties:
     - name: replicaCount
       description: Number of replicas to start
       type: int
@@ -49,7 +49,7 @@ spec:
   appliesTo:
     - core.hydra.io/v1alpha1.Service
     - core.hydra.io/v1alpha1.SingletonService
-  parameters:
+  properties:
     - name: hostname
       description: Host name for the ingress
       type: string
