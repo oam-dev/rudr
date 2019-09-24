@@ -13,7 +13,7 @@ Now Scylla has all the core workload type, they are as belows:
 
 ## Service
 
-A Service is used for long-running, scalable workloads that have a network endpoint with a stable name to receive network traffic for the component as a whole. 
+A Service is used for long-running, scalable workload that have a network endpoint with a stable name to receive network traffic for the component as a whole. 
 Common use cases include web applications and services that expose APIs. 
 
 The name is a little confusing with Kubernetes Service, so maybe we'll name it by Server or ReplicabeService, it's all depending on the Hydra Spec.
@@ -30,7 +30,7 @@ The Singleton Service in Scylla is implemented by a [Kubernetes Pod](https://kub
 
 This is a singleton, so you can't use Autoscaler or Manual Scaler trait.
 
-Of cause binding an Ingress trait is OK just like the Service Workload. 
+Of course binding an Ingress trait is OK just like the Service Workload. 
 
 ## Task
 

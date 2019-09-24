@@ -16,8 +16,7 @@ See the [installation guide](./docs/install.md) for more details.
 
 ## Docs
 
-
-Get started with the [Quick Start](./docs/quickstart.md) guide or read the [documentation list](./docs/README.md) to find what you want.
+Get started with the [Quick Start](./docs/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
 
 ## License
 

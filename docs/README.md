@@ -1,7 +1,7 @@
 # Scylla Documentation
 
-* [Quick Start](quickstart.md) - Have a quick try first.
+* [Quick Start](quickstart.md) - Quickly get started with Scylla in 5 minutes or less.
 * [Install Scylla](install.md)
 * [Using Scylla](using_scylla.md) - Learn how to use Scylla.
 * [Core Workloads](workloads.md) - Learn to use core workload type.
-* [Traits](traits.md) - Learn how to use traits in Scylla.
+* [Traits](traits.md) - Learn in more depth how to use traits in Scylla.

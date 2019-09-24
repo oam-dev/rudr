@@ -57,4 +57,4 @@ $ helm delete scylla
 
 This will leave the CRDs intact.
 
-NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.
+**NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.**

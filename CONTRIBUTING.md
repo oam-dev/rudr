@@ -2,7 +2,7 @@
 
 This project welcomes contributions and suggestions.  
 
-Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
+All contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
@@ -33,7 +33,7 @@ nginx-replicated   17s
 nginx-singleton    17s
 ```
 
-Next, create a new application that uses the component. In Hydra, as in 12-factor, an app is code (component) plus config. So you need to write a configuration. Examples are provided in the `examples/` directory:
+Next, create a new application that uses the component. In Hydra, which is a 12-factor, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml

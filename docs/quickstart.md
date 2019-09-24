@@ -136,17 +136,19 @@ spec:
             value: 80
 ```
 
+This is an example of an application composed of a singular component that has an ingress trait with an address of example.com and a service port of 80. 
+
 To install this application configuration, use `kubectl`:
 
-Because we will use `ingress` trait here, so if your cluster don't have any kind of [ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), you should install one kind of [ingress controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) first.
+Because we used an `ingress` trait in our application configuration, our cluster will need to have ingress installed. If the cluster you created doesn't have any kind of [ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), you should install your preferred [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) first.
 
-Then, you need to install the component `nginx-component` as the developer do.
+After you have successfully verified or installed that you have an ingress controller on your cluster, you need to install the component `nginx-component`. Note that according to the personas defined by the Open Application Model (OAM) specification, component installation is a developer concern and ingress provisioning is an infrastructure operators concern. 
 
 ```console
 $ kubectl apply -f examples/nginx-component.yaml
 ```
 
-Finally, just install the `first-app-config` as the application operator do.
+Finally, just install the `first-app-config`. This is where OAM specification's third persona comes into play as application configuration deployment is an application operator's concern.
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
@@ -155,7 +157,7 @@ configuration.core.hydra.io/first-app created
 
 You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Kubernetes is creating all the necessary objects.
 
-And, of course, you can see your configuration:
+Once it is fully deployed, you can see your configuration:
 
 ```console
 $ kubectl get configurations
@@ -199,7 +201,7 @@ configuration.core.hydra.io "first-app" deleted
 
 That will delete your application and all associated resources.
 
-It will _not_ delete the traits and the components, which are happily awaiting your use in the next Application Configuration.
+It will _not_ delete the traits and the components, they are happily waiting your use in the next Application Configuration.
 
 ```console
 $ kubectl get traits,components
