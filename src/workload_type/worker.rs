@@ -41,6 +41,7 @@ impl KubeName for SingletonWorker {
         self.meta.instance_name.to_string()
     }
 }
+
 impl WorkloadType for SingletonWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map

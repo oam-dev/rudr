@@ -38,15 +38,22 @@ pub struct WorkloadMetadata {
 }
 
 impl WorkloadMetadata {
+    fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("workload-type".to_string(), workload_type.to_string());
+        labels
+    }
     pub fn kube_name(&self) -> String {
         self.instance_name.to_string()
     }
     pub fn to_config_maps(&self, workload_type: &str) -> Vec<api::ConfigMap> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
-        labels.insert("workload-type".to_string(), workload_type.to_string());
         let configs = self.definition.evaluate_configs(self.params.clone());
-        to_config_maps(configs, self.owner_ref.clone(), Some(labels.clone()))
+        to_config_maps(
+            configs,
+            self.owner_ref.clone(),
+            Some(self.labels(workload_type)),
+        )
     }
     pub fn create_config_maps(&self, workload_type: &str) -> InstigatorResult {
         let config_maps = self.to_config_maps(workload_type);
@@ -64,11 +71,12 @@ impl WorkloadMetadata {
         Ok(())
     }
     pub fn to_deployment(&self, workload_type: &str) -> apps::Deployment {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
-        labels.insert("workload-type".to_string(), workload_type.to_string());
         apps::Deployment {
-            metadata: form_metadata(self.kube_name(), labels, self.owner_ref.clone()),
+            metadata: form_metadata(
+                self.kube_name(),
+                self.labels(workload_type),
+                self.owner_ref.clone(),
+            ),
             spec: Some(self.definition.to_deployment_spec(
                 self.name.clone(),
                 self.params.clone(),
