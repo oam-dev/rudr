@@ -4,16 +4,28 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Env check
-      run: rustc --version
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Style check
-      run: cargo clippy
+      - uses: actions/checkout@v1
+      - name: Env check
+        run: rustc --version
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+      - uses: engineerd/setup-kind@v0.1.0
+      - uses: engineerd/configurator@v0.0.1
+        with:
+          name: helm
+          url: https://get.helm.sh/helm-v3.0.0-beta.3-linux-amd64.tar.gz
+          pathInArchive: linux-amd64/helm
+      - name: Kubernetes E2E
+        run: |
+          export KUBECONFIG="$(kind get kubeconfig-path)"
+          kubectl cluster-info
+          kubectl get pods -n kube-system
+          kubectl wait -n kube-system --for=condition=Ready -l k8s-app=kube-dns pods
+          make kind-e2e
+      - name: Style check
+        run: cargo clippy
