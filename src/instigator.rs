@@ -10,8 +10,8 @@ use crate::{
     schematic::{
         component::Component,
         component_instance::KubeComponentInstance,
+        configuration::ApplicationConfiguration,
         configuration::ComponentConfiguration,
-        configuration::OperationalConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
         HydraStatus, Status,
@@ -25,7 +25,7 @@ use crate::{
 pub const CONFIG_GROUP: &str = "core.hydra.io";
 pub const CONFIG_VERSION: &str = "v1alpha1";
 
-pub const CONFIG_CRD: &str = "operationalconfigurations";
+pub const CONFIG_CRD: &str = "applicationconfigurations";
 pub const COMPONENT_CRD: &str = "componentschematics";
 pub const TRAIT_CRD: &str = "traits";
 pub const SCOPE_CRD: &str = "scopes";
@@ -33,7 +33,7 @@ pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
-type OpResource = Object<OperationalConfiguration, Status>;
+type OpResource = Object<ApplicationConfiguration, Status>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -51,7 +51,7 @@ pub struct ComponentNotFoundError {
 /// managed by their respective WorkloadType. The Instigator's job is to read a component,
 /// and then delegate to the correct WorkloadType.
 ///
-/// Traits and Scopes are operational configuration. As such, it is not the responsibility of
+/// Traits and Scopes are application configuration. As such, it is not the responsibility of
 /// the WorkloadType to manage those. Thus, after delegating work to the WorkloadType, the
 /// Instigator will examine the Traits and Scopes requirements, and delegate those
 /// processes to the appropriate Scope or TraitImpl.
@@ -290,7 +290,7 @@ impl Instigator {
         )?;
         let o = self
             .client
-            .request::<Object<OperationalConfiguration, Status>>(req)?;
+            .request::<Object<ApplicationConfiguration, Status>>(req)?;
         info!("Patched status {:?} for {}", o.status, o.metadata.name);
         Ok(())
     }

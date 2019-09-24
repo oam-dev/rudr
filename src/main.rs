@@ -14,7 +14,7 @@ use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
 use scylla::instigator::{
     Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION, SCOPE_CRD, TRAIT_CRD,
 };
-use scylla::schematic::{component::Component, configuration::OperationalConfiguration, Status};
+use scylla::schematic::{component::Component, configuration::ApplicationConfiguration, Status};
 
 const DEFAULT_NAMESPACE: &str = "default";
 
@@ -27,7 +27,7 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
 }
 
 type KubeComponent = Object<Component, Status>;
-type KubeOpsConfig = Object<OperationalConfiguration, Status>;
+type KubeOpsConfig = Object<ApplicationConfiguration, Status>;
 
 fn main() -> Result<(), Error> {
     let flags = App::new("scylla")
@@ -142,7 +142,7 @@ fn main() -> Result<(), Error> {
     configuration_watch.join().unwrap()
 }
 
-/// This takes an event off the stream and delegates it to the instagator, calling the correct verb.
+/// This takes an event off the stream and delegates it to the instigator, calling the correct verb.
 fn handle_event(
     cli: &APIClient,
     event: WatchEvent<KubeOpsConfig>,
