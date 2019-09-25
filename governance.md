@@ -13,6 +13,22 @@ New maintainers can be added to the project by a [super-majority](https://en.wik
 
 A maintainer may step down by submitting an [issue](https://github.com/microsoft/scylla/issues/new) stating their intent.
 
+## Triaging and Milestones 
+
+### Milestones
+Currently, the Scylla project is tracking two milestones. 
+
+| Milestone        | Description  |
+|---------------------|---|
+| 1.0.0-a1 | Milestone tracking items for the first alpha release of Scylla. Currently, this is slated to be released with the first release of the [specification](https://github.com/microsoft/hydra-spec). |
+| 1.0.0-a2 | Milestone tracking items for the second alpha release of Scylla.  |
+
+### Triaging 
+
+Triaging of items into milestones will occur during the bi-weekly community call. During this call, issues might be brought into milestones, removed from milestones or moved between milestones. 
+
+Issues are assigned ONE status tag, one (or more) type tags and ONE milestone. The tags for issues are described in the [labels](https://github.com/microsoft/scylla/labels). 
+
 ## Code of Conduct
 This project has adopted the [Microsoft Open Source Code of conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
