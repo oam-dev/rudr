@@ -58,3 +58,23 @@ $ helm delete scylla
 This will leave the CRDs intact.
 
 **NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.**
+
+# Installing Implementations for Traits
+
+Scylla provides several traits, including ingress and autoscaler. However, it does not install default implementations of some of these. This is because they map to primitive Kubernetes features that can be fulfilled by  different controllers.
+
+The best place to find implementations for your traits is [Helm Hub](https://hub.helm.sh/).
+
+## Manual Scaler
+
+The manual scaler trait has no external dependencies.
+
+## Ingress
+
+To successfully use an `ingress` trait, you will need to install one of the Kubernetes Ingress controllers. We recommend [nginx-ingress](https://hub.helm.sh/charts/stable/nginx-ingress).
+
+*Note:* You still must manage your DNS configuration as well. Mapping an ingress to `example.com` will not work if you do not also control the domain mapping for `example.com`.
+
+## Autoscaler
+
+To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`s. We recommend [KEDA](https://hub.helm.sh/charts/kedacore/keda-edge).
