@@ -79,9 +79,8 @@ Like any good open source project, we use Pull Requests (PRs) to track code chan
     - All PRs require 1 review approval from a maintainer before being merged. 
 4. Reviewing/Discussion
     - All reviews will be completed using Github review tool.
-    - A "Comment" review should be used when there are questions about the spec that should be
-    answered, but that don't involve spec changes. This type of review does not count as approval.
-    - A "Changes Requested" review indicates that changes to the spec need to be made before they will be
+    - A "Comment" review should be used when there are questions about Scylla. This type of review does not count as approval.
+    - A "Changes Requested" review indicates that changes need to be made before they will be
     merged.
     - Reviewers should update labels as needed (such as `Status: Needs rebase`).
     - When a review is approved, the reviewer should add `LGTM` as a comment. 
