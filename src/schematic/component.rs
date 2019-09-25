@@ -189,22 +189,20 @@ impl Component {
 
     pub fn to_deployment_spec(
         &self,
-        name: String,
         param_vals: ResolvedVals,
+        labels: Option<BTreeMap<String, String>>,
         annotations: Option<BTreeMap<String, String>>,
     ) -> apps::DeploymentSpec {
-        let mut matching_labels = BTreeMap::new();
-        matching_labels.insert("component".to_string(), name.clone());
         apps::DeploymentSpec {
             replicas: Some(1),
             selector: meta::LabelSelector {
-                match_labels: Some(matching_labels.clone()),
+                match_labels: labels.clone(),
                 ..Default::default()
             },
             template: core::PodTemplateSpec {
                 metadata: Some(meta::ObjectMeta {
                     annotations,
-                    labels: Some(matching_labels),
+                    labels: labels.clone(),
                     ..Default::default()
                 }),
                 spec: Some(self.to_pod_spec(param_vals)),

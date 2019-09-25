@@ -18,7 +18,7 @@ impl ReplicatedService {
     fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), SERVICE_NAME.to_string());
+        labels.insert("workload-type".to_string(), "Service".to_string());
         labels
     }
 }
@@ -56,23 +56,22 @@ impl KubeName for ReplicatedService {
 impl WorkloadType for ReplicatedService {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("replicated-service")?;
-        self.meta.create_deployment("replicated-service")?;
+        self.meta.create_config_maps("Service")?;
+        self.meta.create_deployment("Service")?;
 
-        let mut select_labels = BTreeMap::new();
-        select_labels.insert("app".to_string(), self.meta.name.clone());
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
-            .select_labels(select_labels)
+            .select_labels(self.meta.select_labels())
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("replicated-service")?;
+        self.meta.update_deployment("Service")?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
+            .select_labels(self.meta.select_labels())
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
@@ -100,10 +99,7 @@ impl SingletonService {
     fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert(
-            "workload-type".to_string(),
-            SINGLETON_SERVICE_NAME.to_string(),
-        );
+        labels.insert("workload-type".to_string(), "SingletonService".to_string());
         labels
     }
     /// Create a Pod definition that describes this Singleton
@@ -141,6 +137,7 @@ impl WorkloadType for SingletonService {
         // Create service
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
+            .select_labels(self.meta.select_labels())
             .owner_reference(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
