@@ -90,8 +90,11 @@ impl Component {
     ) -> core::PodSpec {
         let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
+        let node_selector = self.to_node_selector();
+
         core::PodSpec {
             containers,
+            node_selector,
             image_pull_secrets,
             restart_policy: Some(restart_policy),
             ..Default::default()
