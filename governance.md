@@ -25,7 +25,9 @@ Currently, the Scylla project is tracking two milestones.
 
 ### Triaging 
 
-Triaging of items into milestones will occur during the bi-weekly community call. During this call, issues might be brought into milestones, removed from milestones or moved between milestones. 
+Each day, a maintainer should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. 
+
+Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call. 
 
 Issues are assigned ONE status tag, one (or more) type tags and ONE milestone. The tags for issues are described in the [labels](https://github.com/microsoft/scylla/labels). 
 
