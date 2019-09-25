@@ -145,17 +145,22 @@ impl Instigator {
                 Phase::Modify => {
                     let ownref = self.component_instance_owner_reference(inst_name.as_str());
                     if ownref.is_err() {
-                        // Wrap the error to make it clear where we failed
-                        // During deletion, this might indicate that something else
-                        // remove the component instance.
-                        return Err(format_err!(
-                            "{:?} on {}: {}",
-                            phase.clone(),
-                            inst_name.clone(),
-                            ownref.unwrap_err()
-                        ));
+                        let e = ownref.unwrap_err().to_string();
+                        if !e.contains("NotFound") {
+                            // Wrap the error to make it clear where we failed
+                            // During deletion, this might indicate that something else
+                            // remove the component instance.
+                            return Err(format_err!(
+                                "{:?} on {}: {}",
+                                phase.clone(),
+                                inst_name.clone(),
+                                e
+                            ));
+                        }
+                        Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
+                    } else {
+                        Some(ownref.unwrap())
                     }
-                    Some(ownref.unwrap())
                 }
                 _ => None,
             };
@@ -234,15 +239,8 @@ impl Instigator {
             )?;
             // Resolve parameters
             let parent = get_values(event.spec.parameter_values.clone());
-            let child = get_values(component.parameter_values.clone());
-            let merged_vals = resolve_values(child, parent.clone())?;
-            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
 
             let inst_name = component.instance_name.clone();
-
-            // Instantiate components
-            let workload =
-                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -256,13 +254,16 @@ impl Instigator {
             trait_manager.load_traits()?;
 
             info!("Deleting component {}", component.name.clone());
+            //The reason for this is that we do not require that traits be deployed only in-cluster.
+            //For example, a trait could create an object storage bucket or work with an external API service.
+            //So we want to give them a chance to react to a deletion event.
             trait_manager.exec(
                 self.namespace.as_str(),
                 self.client.clone(),
                 Phase::PreDelete,
             )?;
-            workload.delete()?;
-            trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Delete)?;
+            //delete component instance and let owner_reference to delete real resource
+            self.delete_component_instance(inst_name.clone())?;
         }
         // if no component was updated or this is an delete phase, just return without status change.
         if !component_updated || phase == Phase::Delete {
@@ -376,6 +377,22 @@ impl Instigator {
         }
     }
 
+    fn delete_component_instance(&self, name: String) -> InstigatorResult {
+        let pp = kube::api::DeleteParams::default();
+        let crd_req = RawApi::customResource("componentinstances")
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION)
+            .within(self.namespace.as_str());
+        let req = crd_req.delete(name.as_str(), &pp)?;
+        if let Err(e) = self.client.request_status::<KubeComponentInstance>(req) {
+            if e.to_string().contains("NotFound") {
+                return Ok(());
+            }
+            return Err(e.into());
+        }
+        Ok(())
+    }
+
     fn create_component_instance(
         &self,
         name: String,
@@ -393,7 +410,7 @@ impl Instigator {
                 "name": name.clone(),
                 "ownerReferences": [{
                     "apiVersion": HYDRA_API_VERSION,
-                    "kind": "Configuration",
+                    "kind": "ApplicationConfiguration",
                     "controller": true,
                     "blockOwnerDeletion": true,
                     "name": owner.name.clone(),
@@ -406,7 +423,21 @@ impl Instigator {
         });
 
         let req = crd_req.create(&pp, serde_json::to_vec(&comp_inst)?)?;
-        let res: KubeComponentInstance = self.client.request(req)?;
+        let res: KubeComponentInstance = match self.client.request(req) {
+            Ok(res) => res,
+            Err(e) => {
+                if let Some(api_err) = e.api_error() {
+                    if api_err.reason == "AlreadyExists" {
+                        let req = crd_req.get(name.as_str())?;
+                        self.client.request(req)?
+                    } else {
+                        return Err(e.into());
+                    }
+                } else {
+                    return Err(e.into());
+                }
+            }
+        };
 
         if res.metadata.uid.is_none() {
             return Err(format_err!("UID was not set on component instance"));
@@ -456,7 +487,7 @@ pub fn config_owner_reference(
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
                 api_version: HYDRA_API_VERSION.into(),
-                kind: "Configuration".into(),
+                kind: "ApplicationConfiguration".into(),
                 uid,
                 controller: Some(true),
                 block_owner_deletion: Some(true),
