@@ -19,6 +19,20 @@ The terms here are described elsewhere, particularly in the [specification](http
 - Traits: A trait describes an operational behavior that should be attached to a component at runtime. For example, a ReplicableService may have an Autoscaler trait attached.
 - Scopes: A scope is an arbitrary group of Component Instances that share a behavior. For example, the health check scope facilitates an aggregate health check of all Component Instances in that Scope. If any Component Instance's health check fails, the Scope's health check fails.
 
+## Separation of Concerns
+
+One of the questions we occasionally hear from seasoned Kubernetes developers is _What do I gain from Hydra?_. To be clear, part of the design of Hydra was to make it easier for developers to work with Kubernetes without needing to understand the operational aspects of Kubernetes. But the real virtue we see in Hydra is its separation of concerns.
+
+Today's Kubernetes objects are built to _describe a concept_. A Deployment describes a replicable service that can have certain rollout strategies applied.
+
+But Hydra attempts to start with a different premise, and then describe things accordingly:
+
+> Cloud Native Applications have responsibilities described by three different roles: Developers, Application Operators, and Infrastructure Operators.
+
+Each of these roles has a different job, and different concerns. A developer is responsible for producing a runnable workload. An application operator is responsible for executing an application inside of Kubernetes. An infrastructure operator is responsible for configuring and running Kubernetes itself.
+
+In our view, the developer is responsible for creating and maintaining Components. The application operator takes responsibility for the Application Configuration. And the infrastructure operator runs Scylla, and decides how Hydra's Traits and Scopes are used in practice. And Scylla's job is to take these various inputs and transform them into underlying Kubernetes types.
+
 ## Workflow
 
 Traits and Scopes are provided by Scylla. You can list them with `kubectl get traits` and `kubectl get scopes`.
