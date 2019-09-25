@@ -1,11 +1,11 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ApplicationConfiguration
 metadata:
-  name: first-worker-app
+  name: worker-app
 spec:
   components:
   - name: alpine-worker
-    instanceName: first-app-nginx
+    instanceName: worker-nginx
     parameterValues:
       - name: poet
         value: Eliot
