@@ -1,6 +1,6 @@
 use crate::workload_type::{
     workload_builder::{JobBuilder, WorkloadMetadata},
-    InstigatorResult, KubeName, WorkloadType, SINGLETON_TASK_NAME, TASK_NAME,
+    InstigatorResult, KubeName, WorkloadType,
 };
 
 use std::collections::BTreeMap;
@@ -117,7 +117,7 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName, TASK_NAME};
+    use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName};
 
     use std::collections::BTreeMap;
 

@@ -3,8 +3,7 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
 use crate::workload_type::workload_builder::ServiceBuilder;
 use crate::workload_type::{
-    InstigatorResult, KubeName, WorkloadMetadata, WorkloadType, SERVICE_NAME,
-    SINGLETON_SERVICE_NAME,
+    InstigatorResult, KubeName, WorkloadMetadata, WorkloadType,
 };
 
 use std::collections::BTreeMap;
@@ -169,7 +168,7 @@ mod test {
 
     use crate::schematic::component::Component;
     use crate::workload_type::{
-        service::*, KubeName, WorkloadMetadata, SERVICE_NAME, SINGLETON_SERVICE_NAME,
+        service::*, KubeName, WorkloadMetadata,
     };
 
     use std::collections::BTreeMap;
@@ -196,7 +195,7 @@ mod test {
 
         assert_eq!("squidgy", sing.kube_name().as_str());
         assert_eq!(
-            SINGLETON_SERVICE_NAME,
+            "SingletonService",
             sing.labels().get("workload-type").unwrap()
         );
     }
@@ -257,7 +256,7 @@ mod test {
         };
 
         assert_eq!("dehydrate", rs.kube_name().as_str());
-        assert_eq!(SERVICE_NAME, rs.labels().get("workload-type").unwrap());
+        assert_eq!("Service", rs.labels().get("workload-type").unwrap());
     }
 
     #[test]
