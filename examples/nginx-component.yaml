@@ -18,9 +18,9 @@ spec:
       - name: TEST
         value: FOO
       config:
-        - name: "/etc/access/default_user.txt"
+        - path: "/etc/access/default_user.txt"
           value: "admin"
-        - name: "/etc/run/db-data"
+        - path: "/etc/run/db-data"
           fromParam: "poet"
       ports:
       - type: tcp
