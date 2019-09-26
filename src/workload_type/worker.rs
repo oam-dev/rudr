@@ -16,13 +16,13 @@ impl KubeName for ReplicatedWorker {
 impl WorkloadType for ReplicatedWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("replicated-worker")?;
-        self.meta.create_deployment("replicated-worker")?;
+        self.meta.create_config_maps("Worker")?;
+        self.meta.create_deployment("Worker")?;
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("replicated-worker")
+        self.meta.update_deployment("Worker")
     }
     fn delete(&self) -> InstigatorResult {
         self.meta.delete_deployment()
@@ -45,13 +45,13 @@ impl KubeName for SingletonWorker {
 impl WorkloadType for SingletonWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("singleton-worker")?;
-        self.meta.create_deployment("singleton-worker")?;
+        self.meta.create_config_maps("SingletonWorker")?;
+        self.meta.create_deployment("SingletonWorker")?;
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("singleton-worker")
+        self.meta.update_deployment("SingletonWorker")
     }
     fn delete(&self) -> InstigatorResult {
         self.meta.delete_deployment()

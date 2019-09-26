@@ -22,7 +22,7 @@ impl ReplicatedTask {
     fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), TASK_NAME.to_string());
+        labels.insert("workload-type".to_string(), "Task".to_string());
         labels
     }
 }
@@ -76,7 +76,7 @@ impl SingletonTask {
     fn labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), SINGLETON_TASK_NAME.to_string());
+        labels.insert("workload-type".to_string(), "SingletonTask".to_string());
         labels
     }
 }
@@ -166,7 +166,7 @@ mod test {
         };
 
         assert_eq!("taskinstance", task.kube_name().as_str());
-        assert_eq!(TASK_NAME, task.labels().get("workload-type").unwrap());
+        assert_eq!("Task", task.labels().get("workload-type").unwrap());
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.

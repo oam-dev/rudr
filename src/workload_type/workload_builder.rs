@@ -44,6 +44,12 @@ impl WorkloadMetadata {
         labels.insert("workload-type".to_string(), workload_type.to_string());
         labels
     }
+    pub fn select_labels(&self) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.name.clone());
+        labels
+    }
+
     pub fn kube_name(&self) -> String {
         self.instance_name.to_string()
     }
@@ -78,8 +84,8 @@ impl WorkloadMetadata {
                 self.owner_ref.clone(),
             ),
             spec: Some(self.definition.to_deployment_spec(
-                self.name.clone(),
                 self.params.clone(),
+                Some(self.select_labels()),
                 self.annotations.clone(),
             )),
             ..Default::default()

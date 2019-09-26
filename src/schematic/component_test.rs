@@ -488,6 +488,74 @@ fn test_to_node_seletor() {
 }
 
 #[test]
+fn test_to_pod_spec_with_policy() {
+    let component = Component::from_str(
+        r#"{
+            "osType": "linux",
+            "arch": "arm64",
+            "containers": [
+                {
+                    "name": "my_container",
+                    "image": "nginx:latest",
+                    "livenessProbe": {
+                        "httpGet": {
+                            "path": "/healthz",
+                            "port": 9000,
+                            "httpHeaders": [
+                                {
+                                    "name": "HOSTNAME",
+                                    "value": "example.com"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }"#,
+    )
+    .expect("component must parse");
+
+    // This is a regression test for issue #189
+    {
+        let map = BTreeMap::new();
+        let pod = component
+            .clone()
+            .to_pod_spec_with_policy(map, "Always".to_string());
+        let node_selector = pod.node_selector.clone().expect("node selector btree");
+        assert_eq!(
+            "linux".to_string(),
+            *node_selector
+                .get("kubernetes.io/os")
+                .expect("an OS should be present")
+        );
+        assert_eq!(
+            "arm64".to_string(),
+            *node_selector
+                .get("kubernetes.io/arch")
+                .expect("an arch should be present")
+        );
+    }
+
+    {
+        let map = BTreeMap::new();
+        let pod = component.to_pod_spec(map);
+        let node_selector = pod.node_selector.clone().expect("node selector btree");
+        assert_eq!(
+            "linux".to_string(),
+            *node_selector
+                .get("kubernetes.io/os")
+                .expect("an OS should be present")
+        );
+        assert_eq!(
+            "arm64".to_string(),
+            *node_selector
+                .get("kubernetes.io/arch")
+                .expect("an arch should be present")
+        );
+    }
+}
+
+#[test]
 fn test_evaluate_configs() {
     let comp_res = Component::from_str(
         r#"{
@@ -547,4 +615,36 @@ fn test_evaluate_configs() {
     c30.insert("default_user.txt".to_string(), "admin".to_string());
     exp.insert("container30".to_string(), c30);
     assert_eq!(exp, configs);
+}
+
+#[test]
+fn test_to_deployment_spec() {
+    let comp_res = Component::from_str(
+        r#"{
+            "parameters": [
+                {
+                    "name": "one",
+                    "type": "string",
+                    "default": "test one"
+                }
+            ],
+            "containers": [
+                {
+                    "name": "container1",
+                    "image": "nginx:latest"
+                }
+            ]
+        }"#,
+    );
+    let comp = comp_res.as_ref().expect("component should exist");
+    let mut labels = BTreeMap::new();
+    labels.insert("app".to_string(), "test_deploy".to_string());
+    let resloved_val =
+        resolve_parameters(comp.parameters.clone(), BTreeMap::new()).expect("resolved parameter");
+    let deploy = comp.to_deployment_spec(resloved_val, Some(labels.clone()), None);
+    assert_eq!(deploy.selector.match_labels, Some(labels.clone()));
+    assert_eq!(
+        deploy.template.metadata.unwrap().labels,
+        Some(labels.clone())
+    );
 }
