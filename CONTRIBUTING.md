@@ -11,12 +11,8 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ## Triaging and Milestones 
 
 ### Milestones
-Currently, the Scylla project is tracking two milestones. 
 
-| Milestone        | Description  |
-|---------------------|---|
-| 1.0.0-a1 | Milestone tracking items for the first alpha release of Scylla. Currently, this is slated to be released with the first release of the [specification](https://github.com/microsoft/hydra-spec). |
-| 1.0.0-a2 | Milestone tracking items for the second alpha release of Scylla.  |
+To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
 
 ### Triaging 
 

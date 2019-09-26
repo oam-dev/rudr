@@ -32,7 +32,7 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 | Meeting Information | Bi-weekly (Starting Sept 24th), Tuesdays 10:30AM PST  |
 | Meeting Link | https://zoom.us/j/623691799?pwd=ZWc4SHFNdWpRUVVNYkdJWE9zVHpjZz09   |
 | Slack Channel       | TBD  |
-| Meeting Notes       | https://hackmd.io/T1Y9XvjVS8awcNwZQ1TH2Q |
+| Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
 
 ## Governance
 
