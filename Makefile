@@ -27,6 +27,9 @@ kind-e2e:
 	helm version && \
 	helm install scylla ./charts/scylla --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait && \
 	kubectl get trait && \
-    kubectl apply -f examples/components.yaml && \
-    kubectl get componentschematics && \
-    kubectl get componentschematic alpine-task -o yaml
+	kubectl apply -f examples/components.yaml && \
+	kubectl get componentschematics && \
+	kubectl get componentschematic alpine-task -o yaml
+
+docker-build-arm64:
+	docker build -t $(REPO):arm64 -f Dockerfile.arm64 .

@@ -8,6 +8,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: Validate arm64 build
+        run: make docker-build-arm64
       - name: Env check
         run: rustc --version
       - name: Build
