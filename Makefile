@@ -33,7 +33,7 @@ kind-e2e:
 
 docker-build-cx:
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	docker build -t $(REPO):arm64 -f Dockerfile --build-arg BUILDER_IMAGE=arm64v8/rust:1.36 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
+	docker build -t $(REPO):arm64 -f Dockerfile --build-arg BUILDER_IMAGE=arm64v8/rust:1.37 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
 	docker build -t $(REPO):amd64 .
 	docker manifest create $(REPO):$(TAG) $(REPO):amd64 $(REPO):arm64
 
