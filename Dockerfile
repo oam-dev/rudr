@@ -1,4 +1,4 @@
-FROM rust:1.36 AS builder
+FROM rust:1.37 AS builder
 WORKDIR /usr/src/scylla
 
 COPY Cargo.toml .
