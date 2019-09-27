@@ -31,6 +31,11 @@ kind-e2e:
 	kubectl get componentschematics && \
 	kubectl get componentschematic alpine-task -o yaml
 
-docker-build-arm64:
+docker-build-cx:
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	docker build -t $(REPO):arm64 -f Dockerfile.arm64 .
+	docker build -t $(REPO):arm64 -f Dockerfile --build-arg BUILDER_IMAGE=arm64v8/rust:1.36 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
+	docker build -t $(REPO):amd64 .
+	docker manifest create $(REPO):$(TAG) $(REPO):amd64 $(REPO):arm64
+
+docker-publish: docker-build-cx
+	docker manifest push $(REPO):$(TAG)
