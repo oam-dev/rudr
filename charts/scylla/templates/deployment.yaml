@@ -20,6 +20,8 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           env:
+            - name: RUST_LOG
+              value: {{ .Values.logLevel | default "scylla=info" | quote}}
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
