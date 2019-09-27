@@ -24,7 +24,19 @@ This project is available under the terms of the MIT license. See [LICENSE.txt](
 
 ## Contributing
 
-This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details. Below are links to join the bi-weekly community meetings and our meeting notes. Community Slack channels & mailing lists will be added shortly (~ 10/1). 
+
+| Item        | Value  |
+|---------------------|---|
+| Mailing List | TBD |
+| Meeting Information | Bi-weekly (Starting Sept 24th), Tuesdays 10:30AM PST  |
+| Meeting Link | https://zoom.us/j/623691799?pwd=ZWc4SHFNdWpRUVVNYkdJWE9zVHpjZz09   |
+| Slack Channel       | TBD  |
+| Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
+
+## Governance
+
+This project follows governance structure of numerous other open source projects. See [governance.md](governance.md) for more details.
 
 ## About the Name
 
