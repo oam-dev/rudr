@@ -1,4 +1,4 @@
-ARG BUILDER_IMAGE=rust:1.36
+ARG BUILDER_IMAGE=rust:1.37
 ARG BASE_IMAGE=debian:stretch-slim
 
 FROM ${BUILDER_IMAGE} AS builder
