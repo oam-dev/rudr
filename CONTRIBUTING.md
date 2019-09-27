@@ -44,7 +44,7 @@ contributing to Scylla. All issue types follow the same general lifecycle. Diffe
 3. Discussion
     - Enhancement, bug and document issues should be connected to the PR that resolves it.
     - Whoever is working on an issue should claim the issue in the comments.
-    - Issues should stay open until a maintainer closes it.
+    - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
 4. Issue closure
 
 ## How to Contribute a Patch
