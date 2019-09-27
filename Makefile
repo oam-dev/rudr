@@ -32,4 +32,5 @@ kind-e2e:
 	kubectl get componentschematic alpine-task -o yaml
 
 docker-build-arm64:
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 	docker build -t $(REPO):arm64 -f Dockerfile.arm64 .
