@@ -4,7 +4,8 @@ metadata:
   name: hpa-example-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  os: linux
+  osType: linux
+  arch: amd64
   containers:
     - name: server
       image: k8s.gcr.io/hpa-example:latest
@@ -24,7 +25,8 @@ metadata:
   name: nginx-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  os: linux
+  osType: linux
+  arch: amd64
   containers:
     - name: server
       image: nginx:latest
@@ -39,7 +41,8 @@ metadata:
   name: nginx-singleton
 spec:
   workloadType: core.hydra.io/v1alpha1.Singleton
-  os: linux
+  osType: linux
+  arch: amd64
   containers:
     - name: server
       image: nginx:latest
@@ -54,7 +57,7 @@ metadata:
   name: alpine-task
 spec:
   workloadType: core.hydra.io/v1alpha1.Task
-  os: linux
+  osType: linux
   containers:
     - name: runner
       image: alpine:latest
@@ -65,7 +68,7 @@ metadata:
   name: alpine-singleton-task
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonTask
-  os: linux
+  osType: linux
   containers:
     - name: runner
       image: alpine:latest
@@ -76,7 +79,7 @@ metadata:
   name: alpine-singleton-worker
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonWorker
-  os: linux
+  osType: linux
   containers:
     - name: worker
       image: nginx:latest
@@ -87,7 +90,7 @@ metadata:
   name: alpine-worker
 spec:
   workloadType: core.hydra.io/v1alpha1.Worker
-  os: linux
+  osType: linux
   containers:
     - name: worker
       image: nginx:latest

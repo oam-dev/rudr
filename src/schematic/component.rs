@@ -23,8 +23,8 @@ pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
 #[serde(default)]
 pub struct Component {
     pub workload_type: String,
-    pub os_type: String,
-    pub arch: String,
+    pub os_type: Option<String>,
+    pub arch: Option<String>,
     pub parameters: ParameterList,
     pub containers: Vec<Container>,
     pub workload_settings: Vec<WorkloadSetting>,
@@ -41,8 +41,15 @@ impl Component {
 
     pub fn to_node_selector(&self) -> Option<BTreeMap<String, String>> {
         let mut selector = BTreeMap::new();
-        selector.insert("kubernetes.io/os".to_string(), self.os_type.clone());
-        selector.insert("kubernetes.io/arch".to_string(), self.arch.clone());
+        if let Some(os) = self.os_type.clone() {
+            selector.insert("kubernetes.io/os".to_string(), os);
+        }
+        if let Some(arch) = self.arch.clone() {
+            selector.insert("kubernetes.io/arch".to_string(), arch);
+        }
+        if selector.is_empty() {
+            return None;
+        }
         Some(selector)
     }
 
@@ -219,8 +226,8 @@ impl Default for Component {
     fn default() -> Self {
         Component {
             workload_type: DEFAULT_WORKLOAD_TYPE.into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: None,
+            arch: None,
             parameters: Vec::new(),
             containers: Vec::new(),
             workload_settings: Vec::new(),
