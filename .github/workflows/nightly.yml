@@ -1,0 +1,16 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build Container Images
+        run: make docker-build-cx
+      - name: Publish Container Images
+        run: make docker-publish
