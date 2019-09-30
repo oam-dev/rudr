@@ -109,7 +109,7 @@ impl TraitImplementation for Ingress {
         let mut resource = BTreeMap::new();
         let key = "ingress/".to_string() + self.kube_name().as_str();
         let (req, _) = match ext::Ingress::read_namespaced_ingress_status(
-            self.name.as_str(),
+            self.kube_name().as_str(),
             ns,
             Default::default(),
         ) {

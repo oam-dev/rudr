@@ -109,12 +109,30 @@ impl Instigator {
             // Instantiate components
             let workload =
                 self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
-            let status = workload.status()?;
+            let mut status = workload.status()?;
             debug!(
                 "Sync component {}, got status {:?}",
                 component.name.clone(),
                 status.clone()
             );
+            // Load all of the traits related to this component.
+            let mut trait_manager = TraitManager {
+                config_name: name.clone(),
+                instance_name: inst_name.clone(),
+                component: component.clone(),
+                parent_params: parent.clone(),
+                owner_ref: None,
+                workload_type: comp_def.spec.workload_type.clone(),
+                traits: vec![], // Always starts empty.
+            };
+            trait_manager.load_traits()?;
+            if let Some(trait_status) =
+                trait_manager.status(self.namespace.as_str(), self.client.clone())
+            {
+                for (key, state) in trait_status {
+                    status.insert(key, state);
+                }
+            };
             component_status.insert(component.name.clone(), status.clone());
         }
         let mut new_event = event.clone();
@@ -689,5 +707,20 @@ impl TraitManager {
             }
         }
         Ok(())
+    }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let mut all_status = BTreeMap::new();
+        for imp in &self.traits {
+            if let Some(status) = imp.status(ns, client.clone()) {
+                for (name, state) in status {
+                    //we don't need to worry about name conflict as K8s wouldn't allow this happen in the same namespace.
+                    all_status.insert(name, state);
+                }
+            };
+        }
+        if all_status.is_empty() {
+            return None;
+        }
+        Some(all_status)
     }
 }
