@@ -29,7 +29,7 @@ pub struct Application {}
 #[serde(rename_all = "camelCase")]
 pub struct HydraStatus {
     pub phase: Option<String>,
-    pub components: Option<BTreeMap<String, String>>,
+    pub components: Option<BTreeMap<String, BTreeMap<String, String>>>,
 }
 impl Default for HydraStatus {
     fn default() -> Self {
@@ -40,7 +40,10 @@ impl Default for HydraStatus {
     }
 }
 impl HydraStatus {
-    pub fn new(phase: Option<String>, components: Option<BTreeMap<String, String>>) -> HydraStatus {
+    pub fn new(
+        phase: Option<String>,
+        components: Option<BTreeMap<String, BTreeMap<String, String>>>,
+    ) -> HydraStatus {
         HydraStatus { phase, components }
     }
 }

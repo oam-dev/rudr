@@ -1,6 +1,7 @@
 use crate::workload_type::{
-    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, WorkloadType,
+    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, StatusResult, WorkloadType,
 };
+use std::collections::BTreeMap;
 
 pub struct ReplicatedWorker {
     pub meta: WorkloadMetadata,
@@ -26,6 +27,13 @@ impl WorkloadType for ReplicatedWorker {
     }
     fn delete(&self) -> InstigatorResult {
         self.meta.delete_deployment()
+    }
+    fn status(&self) -> StatusResult {
+        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let mut resources = BTreeMap::new();
+        let state = self.meta.deployment_status()?;
+        resources.insert(key.clone(), state);
+        Ok(resources)
     }
 }
 
@@ -55,6 +63,13 @@ impl WorkloadType for SingletonWorker {
     }
     fn delete(&self) -> InstigatorResult {
         self.meta.delete_deployment()
+    }
+    fn status(&self) -> StatusResult {
+        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let mut resources = BTreeMap::new();
+        let state = self.meta.deployment_status()?;
+        resources.insert(key.clone(), state);
+        Ok(resources)
     }
 }
 

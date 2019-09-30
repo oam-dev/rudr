@@ -1,3 +1,4 @@
+use failure::Error;
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
@@ -8,7 +9,7 @@ use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap, StatusResult};
+use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap};
 
 /// WorkloadMetadata contains common data about a workload.
 ///
@@ -117,6 +118,29 @@ impl WorkloadMetadata {
             .within(self.namespace.as_str())
             .delete(self.kube_name().as_str(), &pp)?;
         Ok(())
+    }
+    pub fn deployment_status(&self) -> Result<String, Error> {
+        let deploy: Object<_, apps::DeploymentStatus> =
+            match kube::api::Api::v1Deployment(self.client.clone())
+                .within(self.namespace.as_str())
+                .get_status(self.kube_name().as_str())
+            {
+                Ok(deploy) => deploy,
+                Err(e) => {
+                    return Ok(e.to_string());
+                }
+            };
+        let status: apps::DeploymentStatus = deploy.status.unwrap();
+        let replica = status.replicas.unwrap_or(0);
+        let available_replicas = status.available_replicas.unwrap_or(0);
+        let unavailable_replicas = status.unavailable_replicas.unwrap_or(0);
+        let mut state = "updating".to_string();
+        if available_replicas == replica {
+            state = "running".to_string()
+        } else if unavailable_replicas > 0 {
+            state = "unavailable".to_string();
+        }
+        Ok(state)
     }
 }
 
@@ -234,28 +258,28 @@ impl JobBuilder {
         }
     }
 
-    pub fn get_status(self, client: APIClient, namespace: String) -> StatusResult {
+    pub fn get_status(self, client: APIClient, namespace: String) -> String {
         let job: Object<_, batchapi::JobStatus> = match kube::api::Api::v1Job(client)
             .within(namespace.as_str())
             .get_status(self.name.as_str())
         {
             Ok(job) => job,
-            Err(e) => return Ok(e.to_string()),
+            Err(e) => return e.to_string(),
         };
         let status: batchapi::JobStatus = job.status.unwrap();
 
         //just a simple way to give the job status
         if let Some(sts) = status.active {
             if sts > 0 {
-                return Ok("running".to_string());
+                return "running".to_string();
             }
         }
         if let Some(sts) = status.failed {
             if sts > 0 {
-                return Ok("failed".to_string());
+                return "failed".to_string();
             }
         }
-        Ok("succeeded".to_string())
+        "succeeded".to_string()
     }
 
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {

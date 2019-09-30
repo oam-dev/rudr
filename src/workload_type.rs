@@ -35,7 +35,7 @@ pub const SINGLETON_WORKER: &str = "core.hydra.io/v1alpha1.SingletonWorker";
 pub const WORKER: &str = "core.hydra.io/v1alpha1.Worker";
 
 type InstigatorResult = Result<(), Error>;
-type StatusResult = Result<String, Error>;
+type StatusResult = Result<BTreeMap<String, String>, Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// KubeName describes anything that can produce its own Kubernetes name.

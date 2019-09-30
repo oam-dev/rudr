@@ -111,7 +111,7 @@ impl Instigator {
                 self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
             let status = workload.status()?;
             debug!(
-                "Sync component {}, got status {}",
+                "Sync component {}, got status {:?}",
                 component.name.clone(),
                 status.clone()
             );

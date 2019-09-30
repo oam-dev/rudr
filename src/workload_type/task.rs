@@ -60,8 +60,13 @@ impl WorkloadType for ReplicatedTask {
         )
     }
     fn status(&self) -> StatusResult {
-        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .get_status(self.meta.client.clone(), self.meta.namespace.clone())
+        let mut resources = BTreeMap::new();
+        let key = "job/".to_string() + self.kube_name().as_str();
+        let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        resources.insert(key.clone(), state);
+
+        Ok(resources)
     }
 }
 
@@ -115,8 +120,13 @@ impl WorkloadType for SingletonTask {
         )
     }
     fn status(&self) -> StatusResult {
-        JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .get_status(self.meta.client.clone(), self.meta.namespace.clone())
+        let mut resources = BTreeMap::new();
+        let key = "job/".to_string() + self.kube_name().as_str();
+        let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        resources.insert(key.clone(), state);
+
+        Ok(resources)
     }
 }
 

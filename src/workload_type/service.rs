@@ -1,7 +1,5 @@
-use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::Object;
 
 use crate::workload_type::workload_builder::ServiceBuilder;
 use crate::workload_type::{
@@ -89,27 +87,13 @@ impl WorkloadType for ReplicatedService {
         )
     }
     fn status(&self) -> StatusResult {
-        let deploy: Object<_, apps::DeploymentStatus> =
-            match kube::api::Api::v1Deployment(self.meta.client.clone())
-                .within(self.meta.namespace.as_str())
-                .get_status(self.kube_name().as_str())
-            {
-                Ok(deploy) => deploy,
-                Err(e) => return Ok(e.to_string()),
-            };
+        let mut resources = BTreeMap::new();
 
-        let status: apps::DeploymentStatus = deploy.status.unwrap();
-        let replica = status.replicas.unwrap_or(0);
-        let available_replicas = status.available_replicas.unwrap_or(0);
-        let unavailable_replicas = status.unavailable_replicas.unwrap_or(0);
+        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let state = self.meta.deployment_status()?;
+        resources.insert(key.clone(), state);
 
-        if available_replicas == replica {
-            return Ok("running".to_string());
-        }
-        if unavailable_replicas > 0 {
-            return Ok("unavailable".to_string());
-        }
-        Ok("updating".to_string())
+        Ok(resources)
     }
 }
 
@@ -140,6 +124,17 @@ impl SingletonService {
             spec: Some(self.meta.definition.to_pod_spec(self.meta.params.clone())),
             ..Default::default()
         }
+    }
+    fn pod_status(&self) -> String {
+        let pod = match kube::api::Api::v1Pod(self.meta.client.clone())
+            .within(self.meta.namespace.as_str())
+            .get_status(self.kube_name().as_str())
+        {
+            Ok(pod) => pod,
+            Err(e) => return e.to_string(),
+        };
+        let status: api::PodStatus = pod.status.unwrap();
+        status.phase.unwrap_or_else(|| "unknown".to_string())
     }
 }
 
@@ -185,17 +180,15 @@ impl WorkloadType for SingletonService {
             "delete",
         )
     }
-    fn status(&self) -> StatusResult {
-        let pod = match kube::api::Api::v1Pod(self.meta.client.clone())
-            .within(self.meta.namespace.as_str())
-            .get_status(self.kube_name().as_str())
-        {
-            Ok(pod) => pod,
-            Err(e) => return Ok(e.to_string()),
-        };
 
-        let status: api::PodStatus = pod.status.unwrap();
-        Ok(status.phase.unwrap_or_else(|| "unknown".to_string()))
+    fn status(&self) -> StatusResult {
+        let mut resources = BTreeMap::new();
+
+        let key = "pod/".to_string() + self.kube_name().as_str();
+        let state = self.pod_status();
+        resources.insert(key.clone(), state);
+
+        Ok(resources)
     }
 }
 
