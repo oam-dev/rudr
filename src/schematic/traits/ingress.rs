@@ -3,6 +3,7 @@ use crate::workload_type::ParamMap;
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
+use std::collections::BTreeMap;
 
 /// An Ingress trait creates an ingress point to the workload type to which it is attached.
 ///
@@ -103,5 +104,36 @@ impl TraitImplementation for Ingress {
             ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
         client.request::<ext::Ingress>(req)?;
         Ok(())
+    }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let mut resource = BTreeMap::new();
+        let key = "ingress/".to_string() + self.kube_name().as_str();
+        let (req, _) = match ext::Ingress::read_namespaced_ingress_status(
+            self.name.as_str(),
+            ns,
+            Default::default(),
+        ) {
+            Ok(req) => req,
+            Err(e) => {
+                resource.insert(key.clone(), e.to_string());
+                return Some(resource);
+            }
+        };
+        let ingress = match client.request::<ext::Ingress>(req) {
+            Ok(ingress) => ingress,
+            Err(e) => {
+                resource.insert(key.clone(), e.to_string());
+                return Some(resource);
+            }
+        };
+
+        if let Some(status) = ingress.status {
+            if let Some(_lbstatus) = status.load_balancer {
+                //we can just put Created to status, or combine Hostname and IP to status.
+                resource.insert(key.clone(), "Created".to_string());
+                return Some(resource);
+            }
+        }
+        None
     }
 }
