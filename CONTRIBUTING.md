@@ -8,90 +8,6 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Triaging and Milestones 
-
-### Milestones
-
-To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
-
-### Triaging 
-
-Each day, a maintainer should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. 
-
-Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call. 
-
-Issues are assigned type tags and ONE milestone. PRs are assigned status tags and one milestone. The tags for issues and PRs are described on the [labels](https://github.com/microsoft/scylla/labels) page. 
-
-## Issues
-
-Issues are used as the primary method for tracking work in the milestones on the project.
-
-### Issue Types
-
-To learn about issue types, please read the [labels](https://github.com/microsoft/scylla/labels) page. 
-
-### Issue Lifecycle
-
-The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Scylla. All issue types follow the same general lifecycle. Differences are noted below.
-1. Issue creation
-2. Triage
-    - The maintainer in charge of triaging will apply the proper labels for the issue. This
-    includes labels for type, projects/milestones and metadata.
-    - (If needed) Clean up the title to succinctly and clearly state the issue. Also ensure
-    that proposals are prefaced with "Proposal".
-    - We attempt to do this process at least once per work day.
-3. Discussion
-    - Enhancement, bug and document issues should be connected to the PR that resolves it.
-    - Whoever is working on an issue should claim the issue in the comments.
-    - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
-4. Issue closure
-
-## How to Contribute a Patch
-
-1. Fork the repo, modify to address the issue.
-2. Link the PR to the issue. 
-3. Submit a pull request.
-
-The next section contains more information on the workflow followed for Pull Requests.
-
-## Pull Requests and Issues
-
-Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/scylla/labels) page. 
-
-### PR Lifecycle
-
-1. PR creation
-    - We more than welcome PRs that are currently in progress. They are a great way to keep track of
-    important work that is in-flight, but useful for others to see. If a PR is a work in progress,
-    it **should** be prefaced with "WIP: [title]" and add `Status: In Progress` will be added as a label. You should add the `Status: Review Needed` **label** once the PR is ready for review and remove "WIP" from the title.
-    - It is preferred, but not required, to have a PR tied to a specific issue. There can be
-    circumstances where if it is a quick fix then an issue might be overkill. The details provided
-    in the PR description would suffice in this case.
-2. Triage
-    - The maintainer in charge of triaging will apply the proper labels for the issue. This should
-    include at least a status label and a milestone.
-3. Assigning reviews
-    - All PRs require 1 review approval from a maintainer before being merged. 
-4. Reviewing/Discussion
-    - All reviews will be completed using Github review tool.
-    - A "Comment" review should be used when there are questions about Scylla. This type of review does not count as approval.
-    - A "Changes Requested" review indicates that changes need to be made before they will be
-    merged.
-    - Reviewers should update labels as needed (such as `Status: Needs rebase`).
-    - When a review is approved, the reviewer should add `LGTM` as a comment. 
-    - Final approval is required by a designated owner (see `.github/CODEOWNERS` file). Merging is blocked without this final approval. Approvers will factor reviews from all other reviewers into their approval process.
-5. PR owner should try to be responsive to comments by answering questions or changing text. Once all comments have been addressed,
-   the PR is ready to be merged. When it gets merged, the `Status: Completed` will be added signifying that it is in the next release candidate. 
-6. Merge or close
-    - A PR should stay open until a Final Approver (see above) has marked the PR approved
-    - PRs can be closed by the author without merging
-    - PRs may be closed by a Final Approver if the decision is made that the PR is not going to be merged 
-
-## The Triager
-
-Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the traiger. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
-
 ## Building from Source
 
 To build:
@@ -142,3 +58,77 @@ first-app-nginx-singleton-trait-ingress   example.com             80        19s
 ```
 
 To delete this, just do a `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
+
+## Contributing via pull requests
+
+Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/scylla/labels) page. 
+
+1. Fork the repo, modify to address the issue.
+2. Link the PR to the issue. 
+3. Submit a pull request.
+
+### PR Lifecycle
+
+1. PR creation
+    - We more than welcome PRs that are currently in progress. They are a great way to keep track of
+    important work that is in-flight, but useful for others to see. If a PR is a work in progress,
+    it **should** be prefaced with "WIP: [title]" and add `Status: In Progress` will be added as a label. You should add the `Status: Review Needed` **label** once the PR is ready for review and remove "WIP" from the title.
+    - It is preferred, but not required, to have a PR tied to a specific issue. There can be
+    circumstances where if it is a quick fix then an issue might be overkill. The details provided
+    in the PR description would suffice in this case.
+2. Triage
+    - The maintainer in charge of triaging will apply the proper labels for the issue. This should
+    include at least a status label and a milestone.
+3. Assigning reviews
+    - All PRs require 1 review approval from a maintainer before being merged. 
+4. Reviewing/Discussion
+    - All reviews will be completed using Github review tool.
+    - A "Comment" review should be used when there are questions about Scylla. This type of review does not count as approval.
+    - A "Changes Requested" review indicates that changes need to be made before they will be
+    merged.
+    - Reviewers should update labels as needed (such as `Status: Needs rebase`).
+    - When a review is approved, the reviewer should add `LGTM` as a comment. 
+    - Final approval is required by a designated owner (see `.github/CODEOWNERS` file). Merging is blocked without this final approval. Approvers will factor reviews from all other reviewers into their approval process.
+5. PR owner should try to be responsive to comments by answering questions or changing text. Once all comments have been addressed,
+   the PR is ready to be merged. When it gets merged, the `Status: Completed` will be added signifying that it is in the next release candidate. 
+6. Merge or close
+    - A PR should stay open until a Final Approver (see above) has marked the PR approved
+    - PRs can be closed by the author without merging
+    - PRs may be closed by a Final Approver if the decision is made that the PR is not going to be merged 
+
+## Contributing via Issues
+
+There are more ways to contribute to open source projects than pull requests. We implore users to open issues with any suggestions or problems discovered. Issues are used as the primary method for tracking work in the milestones on the project.
+
+### Issue Types
+
+To learn about issue types, please read the [labels](https://github.com/microsoft/scylla/labels) page. 
+
+### Issue Lifecycle
+
+The issue lifecycle is mainly driven by the core maintainers, but is good information for those
+contributing to Scylla. All issue types follow the same general lifecycle. Differences are noted below.
+1. Issue creation
+2. Triage
+    - The maintainer in charge of triaging will apply the proper labels for the issue. This
+    includes labels for type, projects/milestones and metadata.
+    - (If needed) Clean up the title to succinctly and clearly state the issue. Also ensure
+    that proposals are prefaced with "Proposal".
+    - We attempt to do this process at least once per work day.
+3. Discussion
+    - Enhancement, bug and document issues should be connected to the PR that resolves it.
+    - Whoever is working on an issue should claim the issue in the comments.
+    - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
+4. Issue closure
+
+## Triaging and Milestones 
+
+### Milestones
+
+To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
+
+### Triaging 
+
+Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the traiger. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
+
+Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call.

@@ -1,26 +1,87 @@
 # Scylla: A Kubernetes Hydra Implementation in Rust
 
-This project implements the [Hydra specification](https://github.com/microsoft/hydra-spec) for Kubernetes.
+The Open App Runner (OAR) is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allows users to focus on easily deploying and managing applications on any Kubernetes cluster without dealing with the complexities of the orchestrator.
 
-**This is unstable, experimental, and subject to massively breaking changes. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
+**Scylla is currently in alpha. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
 
-## Install
+## Quickstart: Deploy an app with Ingress 
 
-A relatively recent version of Scylla can be installed using [Helm v3](https://github.com/helm/helm/releases).
+1. Ensure you have a Kubernetes cluster. 
+    - [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
+    - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+    - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
+    - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-```console
-$ helm install scylla ./charts/scylla --wait
-```
+2. Install `kubectl`.
 
-See the [installation guide](./docs/install.md) for more details.
+    ```bash
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+    ```
 
-## Docs
+3. Install `helm`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
+
+    1. Download your desired version
+    2.  Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
+    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
+    4. From there, you should be able to run the client: helm help.
+
+4. Clone this repository. 
+
+    ```bash
+    git clone https://github.com/microsoft/scylla.git
+    ```
+
+5. Install Scylla on the cluster. 
+
+    ```bash
+    helm install scylla ./charts/scylla --wait
+    ```
+
+6. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components. 
+
+    ```bash
+    helm install stable/nginx-ingress
+    ```
+
+7. Register the components on your cluster. 
+
+    ```bash
+    kubectl apply -f examples/nginx-component.yaml
+    ```
+
+8. Apply the configuration to add the Ingress trait to your component. 
+
+    ```bash
+    kubectl apply -f examples/first-app-config.yaml
+    ```
+
+## The Problem Space: Building applications is difficult 
+
+Users want to focus on describing and building applications but Kubernetes is complex. At the heart of it, Kubernetes exposes container infrastructure primitives. Users have to stitch these together to accomplish their business goals.
+
+![K8s is hard](./docs/media/k8s_application_complexities.png)
+
+While Kubernetes makes things easier, the requirement to understand all the container infrastructure has introduced the following problems: 
+
+- There is no standard definiton for a cloud native application which makes it difficult for users looking for an easier way to modernize.
+- There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.  
+- It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs out of their domain that they have to learn to accomplish day-to-day tasks. 
+
+## The approach: Let's take things one step at a time
+
+Scylla takes an incremental approach to solving the problems. The current implementation is a layer on Kubernetes which allows OAM specifications to be deployed on Kubernetes clusters using familiar Kube APIs (you can still use kubectl!).    
+
+![oar arch](./docs/media/how_oar_works.png)
+
+- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on K8s. 
+
+- By leveraging the Open App Model, users now have an app definition on Kubernetes clusters 
+
+- Currently, Scylla makes no opinions on the tools to use to accomplish tasks. For example, in the example above, users had to install an Ingress and Scylla would configure it. In the future, this might be a focus of improvement. 
+
+## Try things out yourself 
 
 Get started with the [Quick Start](./docs/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
-
-## License
-
-This project is available under the terms of the MIT license. See [LICENSE.txt](LICENSE.txt).
 
 ## Contributing
 
@@ -36,7 +97,7 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 
 ## Governance
 
-This project follows governance structure of numerous other open source projects. See [governance.md](governance.md) for more details.
+This project follows governance structure of numerous other open source projects. See [governance.md](governance.md)for more details.
 
 ## About the Name
 
@@ -45,3 +106,7 @@ Scylla is one of the monsters in Homer's Odyssey. Odysseus must steer his ship b
 ## Why Rust?
 
 On occasion, we have been asked why Scylla is written in Rust instead of Go. There is no requirement in the Kubernetes world that Kubernetes controllers be written in Go. Many languages implement the Kubernetes API and can be used for creating controllers. We decided to write Scylla in Rust because the language allows us to write Kubernetes controllers with far less code. Rust's generics make it possible to quickly and succinctly describe custom Kubernetes API resources without requiring developers to run code generators. And Rust's Kubernetes library can easily switch between Kubernetes versions with ease. We recognize that Rust might not be to everyone's taste (and neither is Go). However, we are confident that Rust is a solid choice for writing maintainable and concise Kubernetes applications.
+
+## License
+
+This project is available under the terms of the MIT license. See [LICENSE.txt](LICENSE.txt).

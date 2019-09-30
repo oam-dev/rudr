@@ -1,15 +1,30 @@
 # Installing Scylla
 
-There are two parts to installing Scylla:
+## Prerequisites 
+
+You will need both `kubectl` and `helm` to install Scylla. 
+
+1. Install `kubectl`.
+
+    ```bash
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+    ```
+
+2. Install `helm`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
+
+    1. Download your desired version
+    2.  Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
+    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
+    4. From there, you should be able to run the client: helm help.
+
+3. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16.
+
+## Installing Using Helm 3
 
 - Installing the Scylla controller and CRDs
 - Installing add-ons to fulfill Hydra traits (examples: ingress, autoscaler)
 
 Both parts are covered in this document.
-
-## Prerequisites
-
-Scylla is a Kubernetes application. The Kubernetes authors consider the current version of Kubernetes and the previous version of Kubernetes to be the only two supported releases. As such, Scylla tends to only be compatible with the latest and previous Kubernetes releases. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16.
 
 ### Installing a Compatible Version of Kubernetes on AKS
 
