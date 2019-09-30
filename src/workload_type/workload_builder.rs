@@ -369,6 +369,21 @@ impl ServiceBuilder {
             })
         })
     }
+    pub fn get_status(self, client: APIClient, namespace: String) -> String {
+        match kube::api::Api::v1Service(client)
+            .within(namespace.as_str())
+            .get_status(self.name.as_str())
+        {
+            Ok(status) => {
+                let svc_status: Object<api::ServiceSpec, api::ServiceStatus> = status;
+                if let Some(_state) = svc_status.status {
+                    return "created".to_string();
+                }
+                "not existed".to_string()
+            }
+            Err(e) => e.to_string(),
+        }
+    }
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         match self.to_service() {
             Some(svc) => {

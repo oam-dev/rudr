@@ -93,6 +93,11 @@ impl WorkloadType for ReplicatedService {
         let state = self.meta.deployment_status()?;
         resources.insert(key.clone(), state);
 
+        let svc_state = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        let svc_key = "service/".to_string() + self.kube_name().as_str();
+        resources.insert(svc_key.clone(), svc_state);
+
         Ok(resources)
     }
 }
@@ -187,6 +192,11 @@ impl WorkloadType for SingletonService {
         let key = "pod/".to_string() + self.kube_name().as_str();
         let state = self.pod_status();
         resources.insert(key.clone(), state);
+
+        let svc_state = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        let svc_key = "service/".to_string() + self.kube_name().as_str();
+        resources.insert(svc_key.clone(), svc_state);
 
         Ok(resources)
     }
