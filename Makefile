@@ -27,6 +27,17 @@ kind-e2e:
 	helm version && \
 	helm install scylla ./charts/scylla --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait && \
 	kubectl get trait && \
-    kubectl apply -f examples/components.yaml && \
-    kubectl get componentschematics && \
-    kubectl get componentschematic alpine-task -o yaml
+	kubectl apply -f examples/components.yaml && \
+	kubectl get componentschematics && \
+	kubectl get componentschematic alpine-task -o yaml
+
+docker-build-cx:
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+	docker build -t $(REPO)-arm64:$(TAG) -f Dockerfile --build-arg BUILDER_IMAGE=arm64v8/rust:1.37 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
+	docker build -t $(REPO)-amd64:$(TAG) .
+
+docker-publish: docker-build-cx
+	docker push $(REPO)-amd64:$(TAG)
+	docker push $(REPO)-arm64:$(TAG)
+	docker manifest create $(REPO):$(TAG) $(REPO)-amd64:$(TAG) $(REPO)-arm64:$(TAG)
+	docker manifest push $(REPO):$(TAG)
