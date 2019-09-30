@@ -14,6 +14,7 @@ mod manual_scaler;
 pub use crate::schematic::traits::manual_scaler::ManualScaler;
 mod util;
 use crate::schematic::traits::util::*;
+use std::collections::BTreeMap;
 
 #[cfg(test)]
 mod autoscaler_test;
@@ -68,6 +69,14 @@ impl HydraTrait {
             HydraTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
+    pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        match self {
+            HydraTrait::Autoscaler(a) => a.status(ns, client),
+            HydraTrait::Ingress(i) => i.status(ns, client),
+            HydraTrait::ManualScaler(m) => m.status(ns, client),
+            HydraTrait::Empty(e) => e.status(ns, client),
+        }
+    }
 }
 
 /// A TraitImplementation is an implementation of a Hydra Trait.
@@ -105,5 +114,8 @@ pub trait TraitImplementation {
     }
     fn pre_delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
+    }
+    fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+        None
     }
 }
