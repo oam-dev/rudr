@@ -2,7 +2,7 @@
 
 ## Prerequisites 
 
-You will need both `kubectl` and `helm` to install Scylla. 
+You will need both `kubectl` and `Helm 3` to install Scylla. 
 
 1. Install `kubectl`.
 
@@ -10,21 +10,14 @@ You will need both `kubectl` and `helm` to install Scylla.
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
     ```
 
-2. Install `helm`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
+2. Install `Helm 3`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
 
-    1. Download your desired version
-    2.  Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
-    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
+    1. Download your desired version of [Helm 3 from the releases page](https://github.com/helm/helm/releases)
+    2. Unpack it (`tar -zxvf helm-v3.0.0-beta.3-darwin-amd64.tar.gz`)
+    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv macos-amd64/helm /usr/local/bin/helm`)
     4. From there, you should be able to run the client: helm help.
 
 3. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16.
-
-## Installing Using Helm 3
-
-- Installing the Scylla controller and CRDs
-- Installing add-ons to fulfill Hydra traits (examples: ingress, autoscaler)
-
-Both parts are covered in this document.
 
 ### Installing a Compatible Version of Kubernetes on AKS
 
@@ -58,8 +51,13 @@ At the end of this process, verify that you are connected to this cluster with `
 ## Installing Scylla Using Helm 3
 
 > Note: In its current version, Scylla will only listen for events in one namespace. This will change in the future. For now, though, you must install Scylla into the namespace into which you will deploy Scylla apps. You may install Scylla multiple times on the same cluster as long as you deploy to a different namespace each time.
+ 
+> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic), if you reinstall Scylla, make sure your old CRDs are deleted. Helm will not automatically delete CRDs. You must do this with `kubectl delete crd`.
+> Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
+ 
+> Tip: As there are some breaking changes, if you reinstall Scylla, make sure your old CRDs are deleted.
 
-To install Helm 3, read the [Helm 3 Quickstart](https://v3.helm.sh/docs/intro/quickstart/)
+1. Helm install Scylla
 
 ```console
 $ helm install scylla ./charts/scylla --wait
