@@ -330,21 +330,11 @@ impl Instigator {
             owner_ref,
         };
         match comp.spec.workload_type.as_str() {
-            // This one is DEPRECATED
-            workload_type::REPLICATED_SERVICE_NAME => {
+            workload_type::SERVER_NAME => {
                 let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
-            // DEPRECATED
-            workload_type::SINGLETON_NAME => {
-                let sing = SingletonService { meta };
-                Ok(CoreWorkloadType::SingletonServiceType(sing))
-            }
-            workload_type::SERVICE_NAME => {
-                let rs = ReplicatedService { meta };
-                Ok(CoreWorkloadType::ReplicatedServiceType(rs))
-            }
-            workload_type::SINGLETON_SERVICE_NAME => {
+            workload_type::SINGLETON_SERVER_NAME => {
                 let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
@@ -363,7 +353,7 @@ impl Instigator {
                 let wrkr = SingletonWorker { meta };
                 Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
             }
-            workload_type::WORKER => {
+            workload_type::WORKER_NAME => {
                 let worker = ReplicatedWorker {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
