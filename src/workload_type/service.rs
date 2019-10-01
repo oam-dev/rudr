@@ -119,21 +119,6 @@ impl SingletonService {
         labels.insert("workload-type".to_string(), "SingletonService".to_string());
         labels
     }
-    /// Create a Pod definition that describes this Singleton
-    fn to_pod(&self) -> api::Pod {
-        let podname = self.kube_name();
-        api::Pod {
-            metadata: Some(meta::ObjectMeta {
-                annotations: self.meta.annotations.clone(),
-                name: Some(podname),
-                labels: Some(self.labels()),
-                owner_references: self.meta.owner_ref.clone(),
-                ..Default::default()
-            }),
-            spec: Some(self.meta.definition.to_pod_spec(self.meta.params.clone())),
-            ..Default::default()
-        }
-    }
 }
 
 impl KubeName for SingletonService {
@@ -146,11 +131,13 @@ impl WorkloadType for SingletonService {
         //pre create config_map
         self.meta.create_config_maps("singleton-service")?;
 
-        let pod = self.to_pod();
-        let pp = kube::api::PostParams::default();
-        kube::api::Api::v1Pod(self.meta.client.clone())
-            .within(self.meta.namespace.as_str())
-            .create(&pp, serde_json::to_vec(&pod)?)?;
+        // Create deployment
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(self.labels())
+            .replicas(1)
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
+
         // Create service
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
@@ -168,10 +155,12 @@ impl WorkloadType for SingletonService {
         ))
     }
     fn delete(&self) -> InstigatorResult {
-        let pp = kube::api::DeleteParams::default();
-        kube::api::Api::v1Pod(self.meta.client.clone())
-            .within(self.meta.namespace.as_str())
-            .delete(self.kube_name().as_str(), &pp)?;
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )?;
+
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
@@ -216,41 +205,6 @@ mod test {
             "SingletonService",
             sing.labels().get("workload-type").unwrap()
         );
-    }
-
-    #[test]
-    fn test_singleton_service_to_pod() {
-        let cli = APIClient::new(mock_kube_config());
-        let mut annotations = BTreeMap::new();
-        annotations.insert("key".to_string(), "value".to_string());
-        annotations.insert("key2".to_string(), "value2".to_string());
-
-        let sing = SingletonService {
-            meta: WorkloadMetadata {
-                annotations: Some(annotations),
-                name: "de".into(),
-                component_name: "hydrate".into(),
-                instance_name: "inst".into(),
-                namespace: "tests".into(),
-                definition: Component {
-                    ..Default::default()
-                },
-                params: BTreeMap::new(),
-                client: cli,
-                owner_ref: None,
-            },
-        };
-        let pod = sing.to_pod();
-        let pod_annotations = pod
-            .metadata
-            .clone()
-            .expect("metadata")
-            .annotations
-            .expect("annotations")
-            .clone();
-        assert_eq!("inst", pod.metadata.expect("metadata").name.expect("name"));
-        assert_eq!(2, pod_annotations.len());
-        assert_eq!("value", pod_annotations.get("key").expect("a value"));
     }
 
     #[test]
