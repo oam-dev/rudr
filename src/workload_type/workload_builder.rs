@@ -162,6 +162,10 @@ impl DeploymentBuilder {
             }),
             spec: Some(apps::DeploymentSpec {
                 replicas: self.replicas,
+                selector: meta::LabelSelector {
+                    match_labels: Some(self.labels.clone()),
+                    ..Default::default()
+                },
                 template: api::PodTemplateSpec {
                     metadata: Some(meta::ObjectMeta {
                         name: Some(self.name.clone()),

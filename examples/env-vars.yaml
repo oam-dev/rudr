@@ -16,7 +16,6 @@ metadata:
   name: alpine-forever
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonServer
-  osType: linux
   parameters:
     - name: message
       type: string
