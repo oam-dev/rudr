@@ -78,7 +78,7 @@ impl WorkloadMetadata {
     }
 }
 
-pub fn form_metadata(
+fn form_metadata(
     name: String,
     labels: BTreeMap<String, String>,
     owner_references: Option<Vec<meta::OwnerReference>>,
@@ -453,7 +453,8 @@ mod test {
             .owner_ref(skeleton_owner_ref())
             .to_deployment();
         assert_eq!(
-            deployment.metadata
+            deployment
+                .metadata
                 .clone()
                 .expect("metadata")
                 .labels
@@ -462,7 +463,8 @@ mod test {
             2
         );
         assert_eq!(
-            deployment.metadata
+            deployment
+                .metadata
                 .clone()
                 .expect("metadata")
                 .owner_references
@@ -472,7 +474,8 @@ mod test {
         );
         assert_eq!(deployment.spec.clone().expect("spec").replicas, Some(3));
         assert_eq!(
-            deployment.spec
+            deployment
+                .spec
                 .clone()
                 .expect("spec")
                 .template
@@ -484,7 +487,8 @@ mod test {
             2
         );
         assert_eq!(
-            deployment.spec
+            deployment
+                .spec
                 .clone()
                 .unwrap()
                 .template
