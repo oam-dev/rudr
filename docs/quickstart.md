@@ -69,7 +69,7 @@ spec:
   containers:
   - image: alpine:latest
     name: runner
-  os: linux
+  osType: linux
   workloadType: core.hydra.io/v1alpha1.Task
 ```
 

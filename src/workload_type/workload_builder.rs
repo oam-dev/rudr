@@ -474,8 +474,8 @@ mod test {
     fn test_service_builder_no_port() {
         let c = Component {
             workload_type: "worker".into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: Some("linux".into()),
+            arch: Some("amd64".into()),
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),
@@ -513,8 +513,8 @@ mod test {
     fn skeleton_component() -> Component {
         Component {
             workload_type: "worker".into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: Some("linux".into()),
+            arch: Some("amd64".into()),
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),

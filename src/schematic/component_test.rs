@@ -32,8 +32,8 @@ fn test_component_deserialize() {
 
     assert!(data.is_ok());
     let component = data.unwrap();
-    assert_eq!("linux", component.os_type);
-    assert_eq!("amd64", component.arch);
+    assert_eq!(Some("linux".to_string()), component.os_type);
+    assert_eq!(Some("amd64".to_string()), component.arch);
     assert_eq!("core.hydra.io/v1.Singleton", component.workload_type);
 
     let gvk = GroupVersionKind::from_str(component.workload_type.as_str());
@@ -46,8 +46,8 @@ fn test_component_defaults() {
 
     assert!(data.is_ok());
     let component = data.unwrap();
-    assert_eq!("linux", component.os_type);
-    assert_eq!("amd64", component.arch);
+    assert_eq!(None, component.os_type);
+    assert_eq!(None, component.arch);
     assert_eq!("test", component.workload_type);
     assert_eq!(0, component.parameters.len());
     assert_eq!(0, component.workload_settings.len());

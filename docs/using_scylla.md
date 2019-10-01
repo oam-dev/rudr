@@ -21,7 +21,7 @@ metadata:
   name: nginx-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  os: linux
+  osType: linux
   arch: amd64
   containers:
     - name: server
