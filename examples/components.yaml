@@ -4,8 +4,6 @@ metadata:
   name: hpa-example-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  osType: linux
-  arch: amd64
   containers:
     - name: server
       image: k8s.gcr.io/hpa-example:latest
@@ -14,10 +12,10 @@ spec:
           containerPort: 80
           protocol: TCP
       resources:
-          cpu:
-            required: "0.5"
-          memory:
-            required: 100M
+        cpu:
+          required: "0.5"
+        memory:
+          required: 100M
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
@@ -25,8 +23,6 @@ metadata:
   name: nginx-replicated
 spec:
   workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  osType: linux
-  arch: amd64
   containers:
     - name: server
       image: nginx:latest
@@ -41,8 +37,6 @@ metadata:
   name: nginx-singleton
 spec:
   workloadType: core.hydra.io/v1alpha1.Singleton
-  osType: linux
-  arch: amd64
   containers:
     - name: server
       image: nginx:latest
