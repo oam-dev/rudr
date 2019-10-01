@@ -1,7 +1,9 @@
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
-use crate::workload_type::workload_builder::ServiceBuilder;
+use crate::workload_type::workload_builder::{
+    ServiceBuilder, DeploymentBuilder
+};
 use crate::workload_type::{
     InstigatorResult, KubeName, WorkloadMetadata, WorkloadType,
 };
@@ -56,22 +58,33 @@ impl WorkloadType for ReplicatedService {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("Service")?;
-        self.meta.create_deployment("Service")?;
+
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(self.labels())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
             .select_labels(self.meta.select_labels())
-            .owner_reference(self.meta.owner_ref.clone())
+            .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("Service")?;
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .labels(self.labels())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
             .select_labels(self.meta.select_labels())
-            .owner_reference(self.meta.owner_ref.clone())
+            .owner_ref(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
@@ -79,7 +92,12 @@ impl WorkloadType for ReplicatedService {
             )
     }
     fn delete(&self) -> InstigatorResult {
-        self.meta.delete_deployment()?;
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )?;
+        
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
@@ -137,7 +155,7 @@ impl WorkloadType for SingletonService {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
             .select_labels(self.meta.select_labels())
-            .owner_reference(self.meta.owner_ref.clone())
+            .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
 
@@ -257,45 +275,6 @@ mod test {
 
         assert_eq!("dehydrate", rs.kube_name().as_str());
         assert_eq!("Service", rs.labels().get("workload-type").unwrap());
-    }
-
-    #[test]
-    fn test_replicated_service_to_deployment() {
-        let cli = APIClient::new(mock_kube_config());
-        let mut annotations = BTreeMap::new();
-        annotations.insert("key".to_string(), "value".to_string());
-        annotations.insert("key2".to_string(), "value2".to_string());
-        let rs = ReplicatedService {
-            meta: WorkloadMetadata {
-                name: "name".into(),
-                component_name: "component_name".into(),
-                instance_name: "instance_name".into(),
-                namespace: "namespace".into(),
-                definition: Component {
-                    ..Default::default()
-                },
-                annotations: Some(annotations),
-                params: BTreeMap::new(),
-                client: cli,
-                owner_ref: None,
-            },
-        };
-        let dep = rs.meta.to_deployment("replicated-service");
-        let pod_annotations = dep
-            .spec
-            .expect("spec")
-            .template
-            .metadata
-            .expect("metadata")
-            .annotations
-            .expect("annotations")
-            .clone();
-        assert_eq!(
-            "instance_name",
-            dep.metadata.expect("metadata").name.expect("name")
-        );
-        assert_eq!(2, pod_annotations.len());
-        assert_eq!("value", pod_annotations.get("key").expect("a value"));
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.

@@ -1,5 +1,5 @@
 use crate::workload_type::{
-    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, WorkloadType,
+    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, WorkloadType, workload_builder::DeploymentBuilder,
 };
 
 pub struct ReplicatedWorker {
@@ -17,15 +17,25 @@ impl WorkloadType for ReplicatedWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("Worker")?;
-        self.meta.create_deployment("Worker")?;
+
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
+
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("Worker")
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "modify")
     }
     fn delete(&self) -> InstigatorResult {
-        self.meta.delete_deployment()
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
     }
 }
 
@@ -46,15 +56,25 @@ impl WorkloadType for SingletonWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("SingletonWorker")?;
-        self.meta.create_deployment("SingletonWorker")?;
+
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
+
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        self.meta.update_deployment("SingletonWorker")
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "modify")
     }
     fn delete(&self) -> InstigatorResult {
-        self.meta.delete_deployment()
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+            self.meta.client.clone(),
+            self.meta.namespace.clone(),
+            "delete",
+        )
     }
 }
 
