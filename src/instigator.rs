@@ -139,11 +139,16 @@ impl Instigator {
 
             let inst_name = component.instance_name.clone();
             let new_owner_ref = match phase {
-                Phase::Add => {
-                    Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
-                }
+                Phase::Add => Some(self.create_component_instance(
+                    component.name.clone(),
+                    inst_name.clone(),
+                    owner_ref.clone(),
+                )?),
                 Phase::Modify => {
-                    let ownref = self.component_instance_owner_reference(inst_name.as_str());
+                    let ownref = self.component_instance_owner_reference(
+                        component.name.clone(),
+                        inst_name.clone(),
+                    );
                     if ownref.is_err() {
                         let e = ownref.unwrap_err().to_string();
                         if !e.contains("NotFound") {
@@ -157,7 +162,11 @@ impl Instigator {
                                 e
                             ));
                         }
-                        Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
+                        Some(self.create_component_instance(
+                            component.name.clone(),
+                            inst_name.clone(),
+                            owner_ref.clone(),
+                        )?)
                     } else {
                         Some(ownref.unwrap())
                     }
@@ -263,7 +272,7 @@ impl Instigator {
                 Phase::PreDelete,
             )?;
             //delete component instance and let owner_reference to delete real resource
-            self.delete_component_instance(inst_name.clone())?;
+            self.delete_component_instance(component.name.clone(), inst_name.clone())?;
         }
         // if no component was updated or this is an delete phase, just return without status change.
         if !component_updated || phase == Phase::Delete {
@@ -367,7 +376,12 @@ impl Instigator {
         }
     }
 
-    fn delete_component_instance(&self, name: String) -> InstigatorResult {
+    fn delete_component_instance(
+        &self,
+        component_name: String,
+        instance_name: String,
+    ) -> InstigatorResult {
+        let name = combine_name(component_name, instance_name);
         let pp = kube::api::DeleteParams::default();
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
@@ -385,9 +399,11 @@ impl Instigator {
 
     fn create_component_instance(
         &self,
-        name: String,
+        component_name: String,
+        instance_name: String,
         owner: meta::OwnerReference,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
+        let name = combine_name(component_name, instance_name);
         let pp = kube::api::PostParams::default();
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
@@ -447,13 +463,15 @@ impl Instigator {
 
     fn component_instance_owner_reference(
         &self,
-        name: &str,
+        component_name: String,
+        instance_name: String,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
+        let name = combine_name(component_name, instance_name);
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
-        let req = crd_req.get(name)?;
+        let req = crd_req.get(name.as_str())?;
         let res: KubeComponentInstance = self.client.request(req)?;
 
         let owner = meta::OwnerReference {
@@ -466,6 +484,12 @@ impl Instigator {
         };
         Ok(vec![owner])
     }
+}
+
+/// combine_name combine component name with instance_name,
+/// so we won't afraid different components using same instance_name   
+pub fn combine_name(component_name: String, instance_name: String) -> String {
+    component_name + "-" + instance_name.as_str()
 }
 
 /// Build an owner reference for the given parent UID of kind Configuration.
