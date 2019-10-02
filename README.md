@@ -1,13 +1,14 @@
 # Scylla: A Kubernetes Hydra Implementation in Rust
 
-The Open App Runner (OAR) is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allows users to focus on easily deploying and managing applications on any Kubernetes cluster without dealing with the complexities of the orchestrator.
+Scylla is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allows users to focus on easily deploying and managing applications on any Kubernetes cluster without dealing with the complexities of the orchestrator.
 
-**Scylla is currently in alpha. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
+**Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
 ## Quickstart: Deploy an app with Ingress 
 
 1. Ensure you have a Kubernetes cluster. 
     - [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
+    - [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
     - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
     - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
     - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
@@ -55,13 +56,16 @@ The Open App Runner (OAR) is an implementation of the [Open App Model (OAM)](htt
     kubectl apply -f examples/first-app-config.yaml
     ```
 
-## The Problem Space: Building applications is difficult 
+
+![Alt Text](./docs/media/readme.gif)
+
+## The Problem Space: Building cloud native applications is difficult 
 
 Users want to focus on describing and building applications but Kubernetes is complex. At the heart of it, Kubernetes exposes container infrastructure primitives. Users have to stitch these together to accomplish their business goals.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
-While Kubernetes makes things easier, the requirement to understand all the container infrastructure has introduced the following problems: 
+While Kubernetes makes container management easier, the requirement to understand all the container infrastructure has introduced the following problems: 
 
 - There is no standard definiton for a cloud native application which makes it difficult for users looking for an easier way to modernize.
 - There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.  
@@ -75,9 +79,9 @@ Scylla takes an incremental approach to solving the problems. The current implem
 
 - This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on K8s. 
 
-- By leveraging the Open App Model, users now have an app definition on Kubernetes clusters 
+- By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters. 
 
-- Currently, Scylla makes no opinions on the tools to use to accomplish tasks. For example, in the example above, users had to install an Ingress and Scylla would configure it. In the future, this might be a focus of improvement. 
+- Currently, Scylla makes no opinions on the tools to use to accomplish tasks. In the example above, users had to install an Ingress and Scylla would configure it. In the future, this might be an area of focus for improvement. 
 
 ## Try things out yourself 
 
@@ -97,7 +101,7 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 
 ## Governance
 
-This project follows governance structure of numerous other open source projects. See [governance.md](governance.md)for more details.
+This project follows governance structure of numerous other open source projects. See [governance.md](governance.md) for more details.
 
 ## About the Name
 

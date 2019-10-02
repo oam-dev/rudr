@@ -10,18 +10,32 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## Building from Source
 
+This section goes over how to build the source code for Scylla. 
+
+### Prerequisites 
+
+- [Rust 2018 Edition or newer](https://www.rust-lang.org/tools/install)
+- Install kubectl and Helm 3. Instructions for both are in the [set up doc](./docs/setup/install.md)
+- Access to a Kubernetes cluster. Instructions for [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) can be found here 
+
 To build:
 
-- Make sure you have Rust 2018 Edition or newer
 - Clone this repository
 - Go into the main directory: `cd scylla`
-- Install the CRDs in `k8s/crds.yaml`: `kubectl apply -f k8s/crds.yaml`
+- Install the CRDs
+```bash
+kubectl apply -f charts/scylla/crds/appconfigs.yaml
+kubectl apply -f charts/scylla/crds/componentinstances.yaml
+kubectl apply -f charts/scylla/crds/componentschematics.yaml
+kubectl apply -f charts/scylla/crds/scopes.yaml
+kubectl apply -f charts/scylla/crds/traits.yaml
+```
 - Run `cargo build`
-- To run the server: `make run`, this will run scylla controller locally, and use the cluster by your `~/.kube/config`.
+- To run the server: `make run`, this will run Scylla controller locally, and use the cluster by your `~/.kube/config`.
 
 At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
 
-To get started, create some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
+To get started, define some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
 
 ```console
 $ kubectl apply -f examples/components.yaml
@@ -33,7 +47,7 @@ nginx-replicated   17s
 nginx-singleton    17s
 ```
 
-Next, create a new application that uses the component. In Hydra, which is a 12-factor, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
+Next, create a new application that uses the component. In Hydra, which follows the 12-factor model, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
@@ -57,7 +71,7 @@ NAME                                      HOSTS         ADDRESS   PORTS     AGE
 first-app-nginx-singleton-trait-ingress   example.com             80        19s
 ```
 
-To delete this, just do a `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
+To delete this, run `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
 
 ## Contributing via pull requests
 
@@ -107,8 +121,9 @@ To learn about issue types, please read the [labels](https://github.com/microsof
 ### Issue Lifecycle
 
 The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Scylla. All issue types follow the same general lifecycle. Differences are noted below.
-1. Issue creation
+contributing to Scylla. All issue types follow the same general lifecycle.
+
+1. Issue creation. 
 2. Triage
     - The maintainer in charge of triaging will apply the proper labels for the issue. This
     includes labels for type, projects/milestones and metadata.
@@ -119,9 +134,9 @@ contributing to Scylla. All issue types follow the same general lifecycle. Diffe
     - Enhancement, bug and document issues should be connected to the PR that resolves it.
     - Whoever is working on an issue should claim the issue in the comments.
     - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
-4. Issue closure
+4. Issue closure.
 
-## Triaging and Milestones 
+## Milestones and Triaging 
 
 ### Milestones
 
@@ -129,6 +144,6 @@ To get an overview of the milestones that are being tracked for Scylla please vi
 
 ### Triaging 
 
-Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the traiger. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
+Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or voluteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
 
 Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call.
