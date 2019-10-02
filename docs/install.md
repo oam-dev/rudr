@@ -80,6 +80,28 @@ $ helm install --name scylla ./charts/scylla
 $ helm install scylla ./charts/scylla
 ```
 
+### Verifying the Install
+
+You can verify that Scylla is installed by running `kubectl get crds`:
+
+```console
+$ kubectl get crds
+NAME                                      CREATED AT
+applicationconfigurations.core.hydra.io   2019-10-02T19:57:32Z
+componentinstances.core.hydra.io          2019-10-02T19:57:32Z
+componentschematics.core.hydra.io         2019-10-02T19:57:32Z
+scopes.core.hydra.io                      2019-10-02T19:57:32Z
+traits.core.hydra.io                      2019-10-02T19:57:32Z
+```
+
+You should see at least those five CRDs. You can also verify that the Scylla deployment is running:
+
+```console
+$ kubectl get deployment scylla
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+scylla   1/1     1            1           2m47s
+```
+
 ### Uninstalling
 
 ```console
