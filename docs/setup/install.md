@@ -4,7 +4,7 @@
 
 You will need both `kubectl` and `Helm 3` to install Scylla. 
 
-1. Install `kubectl`.
+1. Install `kubectl`. The below is for MacOS. For other OS, please go to https://kubernetes.io/docs/tasks/tools/install-kubectl/. 
 
     ```bash
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"

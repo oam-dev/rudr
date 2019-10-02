@@ -13,7 +13,7 @@ Scylla is an implementation of the [Open App Model (OAM)](https://github.com/mic
     - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
     - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-2. Install `kubectl`.
+2. Install `kubectl`. The below is for MacOS. For other OS, please go to https://kubernetes.io/docs/tasks/tools/install-kubectl/. 
 
     ```bash
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
