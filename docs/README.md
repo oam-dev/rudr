@@ -15,4 +15,4 @@
 ## 5. Concepts
 * ### [Traits](./concepts/traits.md) - Learn in more depth about traits in Scylla.
 
-## 6. FAQ
+## 6. [FAQ](./faq.md)
