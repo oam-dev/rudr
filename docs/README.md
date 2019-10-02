@@ -6,3 +6,4 @@
 * [Core Workloads](workloads.md) - Learn to use core workload type.
 * [Traits](traits.md) - Learn in more depth how to use traits in Scylla.
 * [Migrating Kubernetes Resources](migrating.md) - Learn how to move a Kubernetes application to Scylla.
+* [Frequently Asked Questions (FAQ)](faq.md) - Answers to popular questions.
