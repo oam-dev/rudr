@@ -12,6 +12,7 @@ use crate::{
         component_instance::KubeComponentInstance,
         configuration::ApplicationConfiguration,
         configuration::ComponentConfiguration,
+        variable::{resolve_variables, get_variable_values},
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
         HydraStatus, Status,
@@ -131,11 +132,18 @@ impl Instigator {
             }
 
             component_updated = true;
-            // Resolve parameters
-            let parent = get_values(event.spec.parameter_values.clone());
-            let child = get_values(component.parameter_values.clone());
-            let merged_vals = resolve_values(child, parent.clone())?;
-            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+            // Resolve variables/parameters
+            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let parent = get_variable_values(Some(variables.clone()));
+
+            let child = component.parameter_values.clone()
+                .map(|values| resolve_variables(values, variables))
+                .unwrap_or(Ok(vec![]))?;
+
+            let params = resolve_parameters(
+                comp_def.spec.parameters.clone(),
+                resolve_values(child, vec![])?,
+            )?;
 
             let inst_name = component.instance_name.clone();
             let new_owner_ref = match phase {
@@ -246,9 +254,8 @@ impl Instigator {
                 component.name.clone(),
                 self.client.clone(),
             )?;
-            // Resolve parameters
-            let parent = get_values(event.spec.parameter_values.clone());
-
+            // Resolve variables/parameters
+            let parent = get_variable_values(event.spec.variables.clone());
             let inst_name = component.instance_name.clone();
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {

@@ -1,4 +1,4 @@
-use crate::schematic::{parameter::ParameterValue, traits::TraitBinding};
+use crate::schematic::{parameter::ParameterValue, variable::Variable, traits::TraitBinding};
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
 ///
@@ -10,7 +10,7 @@ use crate::schematic::{parameter::ParameterValue, traits::TraitBinding};
 pub struct ComponentConfiguration {
     /// The name of the component to instantiate
     pub name: String,
-    // The name of the instance that is to be created
+    /// The name of the instance that is to be created
     pub instance_name: String,
     /// Values to substitute into the component
     pub parameter_values: Option<Vec<ParameterValue>>,
@@ -25,7 +25,7 @@ pub struct ComponentConfiguration {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ApplicationConfiguration {
-    pub parameter_values: Option<Vec<ParameterValue>>,
+    pub variables: Option<Vec<Variable>>,
     pub scopes: Option<Vec<ScopeBinding>>,
     pub components: Option<Vec<ComponentConfiguration>>,
 }
