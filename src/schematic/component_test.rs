@@ -488,6 +488,44 @@ fn test_to_node_seletor() {
 }
 
 #[test]
+fn test_to_volume_mounts() {
+    let container = Container {
+        name: "test_container".into(),
+        image: "test/image".into(),
+        resources: Resources{
+            cpu: CPU {required: "1".into()},
+            memory: Memory {required: "128".into()},
+            gpu: GPU {required: "0".into()},
+            volumes: vec![Volume{
+                name: "myvol".into(),
+                mount_path: "/myvol".into(),
+                access_mode: AccessMode::RO,
+                disk: Some(Disk{
+                    ephemeral: true,
+                    required: "200M".into(),
+                }),
+                sharing_policy: SharingPolicy::Exclusive,
+            }],
+            ..Default::default()
+        },
+        env: vec![],
+        ports: vec![],
+        args: None,
+        cmd: None,
+        config: Some(vec![ConfigFile{
+            path: "/config/file".into(),
+            value: Some("value".to_string()),
+            from_param: None,
+        }]),
+        image_pull_secret: None,
+        liveness_probe: None,
+        readiness_probe: None,
+    };
+    let mounts = container.volume_mounts();
+    assert_eq!(mounts.expect("at least one mount").len(), 2);
+}
+
+#[test]
 fn test_to_pod_spec_with_policy() {
     let component = Component::from_str(
         r#"{
