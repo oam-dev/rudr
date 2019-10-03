@@ -72,7 +72,7 @@ None. *The manual scaler trait has no external dependencies.*
 ### Properties
 
 | Name | Description | Type | Required | Default
-| -- |--| -- | -- | -- |
+| :-- | :--| :-- | :-- | :-- |
 | **replicaCount** | Number of replicas to run. | int | True | -- |
 
 ## Autoscaler trait
@@ -95,7 +95,7 @@ $ helm install keda stable/keda
 ### Properties
 
 | Name | Description | Type | Required | Default |
-| -- | -- | -- | -- | -- |
+| :-- | :--| :-- | :-- | :-- |
 | **minimum** | Lower threshold of replicas to run. | int | False | `1`
 | **maximum** | Higher threshold of replicas to run. Cannot be less than `minimum` value. | int | False | `10`
 | **memory** | Memory consumption threshold (as percent) that will cause a scale event. | int | False | --
@@ -123,7 +123,7 @@ $ helm install nginx-ingress stable/nginx-ingress
 ### Properties
 
 | Name | Description | Type | Required | Default |
-| -- | -- | -- | -- | -- |
+| :-- | :--| :-- | :-- | :-- |
 | **hostname** | Host name for the ingress. | string | True | --
 | **service_port** | Port number on the service to bind to the ingress. | int | True | --
 | **path** | Path to expose. | string | False | `/`
