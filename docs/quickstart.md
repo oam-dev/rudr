@@ -9,7 +9,7 @@ The following prerequisites are required for a successful use of Scylla.
 1. A copy of this repo (`git clone https://github.com/microsoft/scylla.git`)
 2. A Kubernetes cluster
 3. `kubectl` installed and pointed at the cluster
-4. [Helm 3](https://v3.helm.sh/) (To install with Helm 2, see the [Installation Guide](install.md))
+4. [Helm 3](https://v3.helm.sh/)
 
 To find out which cluster Scylla would install to, you can run `kubectl config current-context` or `kubectl cluster-info`.
 
