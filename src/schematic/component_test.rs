@@ -128,6 +128,12 @@ fn test_container_deserialize() {
                             "accessMode": "RO",
                             "sharingPolicy": "Shared"
                         }
+                    ],
+                    "extended": [
+                        {
+                            "name": "ext.example.com/v1.MotionSensor",
+                            "required": "1"
+                        }
                     ]
                 }
             }
@@ -172,8 +178,9 @@ fn test_container_deserialize() {
     assert_eq!("2G", res.memory.required);
     assert_eq!("1", res.cpu.required);
 
-    let path1 = res.volumes.get(0).unwrap();
-    let path2 = res.volumes.get(1).unwrap();
+    let vols = res.volumes.clone().expect("expected volumes");
+    let path1 = vols.get(0).expect("expect a first volume");
+    let path2 = vols.get(1).expect("expect a second volume");
 
     assert_eq!("first", path1.name);
     assert_eq!("/path/to/first", path1.mount_path);
@@ -184,6 +191,11 @@ fn test_container_deserialize() {
     assert_eq!("/path/to/second", path2.mount_path);
     assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
     assert_eq!(AccessMode::RO, path2.access_mode);
+
+    let ext = res.extended.clone().expect("extended resources");
+    let ext1 = ext.get(0).expect("expected a first resources");
+    assert_eq!("ext.example.com/v1.MotionSensor", ext1.name);
+    assert_eq!("1", ext1.required);
 }
 
 #[test]
@@ -495,8 +507,8 @@ fn test_to_volume_mounts() {
         resources: Resources{
             cpu: CPU {required: "1".into()},
             memory: Memory {required: "128".into()},
-            gpu: GPU {required: "0".into()},
-            volumes: vec![Volume{
+            gpu: Some(GPU {required: "0".into()}),
+            volumes: Some(vec![Volume{
                 name: "myvol".into(),
                 mount_path: "/myvol".into(),
                 access_mode: AccessMode::RO,
@@ -505,7 +517,7 @@ fn test_to_volume_mounts() {
                     required: "200M".into(),
                 }),
                 sharing_policy: SharingPolicy::Exclusive,
-            }],
+            }]),
             ..Default::default()
         },
         env: vec![],

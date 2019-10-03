@@ -76,17 +76,23 @@ impl Component {
                     ..Default::default()
                 });
             }
-            container.resources.volumes.iter().for_each(|v| {
-                // There is an ephemeral flag on v.disk. What do we do with that?
-                vols.push(core::Volume {
-                    name: v.name.clone(),
-                    empty_dir: Some(core::EmptyDirVolumeSource {
-                        size_limit: v.disk.clone().and_then(|d| Some(Quantity(d.required))),
+            container
+                .resources
+                .volumes
+                .clone()
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .for_each(|v| {
+                    // There is an ephemeral flag on v.disk. What do we do with that?
+                    vols.push(core::Volume {
+                        name: v.name.clone(),
+                        empty_dir: Some(core::EmptyDirVolumeSource {
+                            size_limit: v.disk.clone().and_then(|d| Some(Quantity(d.required))),
+                            ..Default::default()
+                        }),
                         ..Default::default()
-                    }),
-                    ..Default::default()
-                });
-            })
+                    });
+                })
         }
         let volumes = Some(vols);
         core::PodSpec {
@@ -269,14 +275,19 @@ impl Container {
             }
             mounts
         });
-        self.resources.volumes.iter().for_each(|vol| {
-            volumes.push(core::VolumeMount {
-                mount_path: vol.mount_path.clone(),
-                name: vol.name.clone(),
-                read_only: Some(vol.access_mode == AccessMode::RO),
-                ..Default::default()
-            })
-        });
+        self.resources
+            .volumes
+            .clone()
+            .unwrap_or_else(|| vec![])
+            .iter()
+            .for_each(|vol| {
+                volumes.push(core::VolumeMount {
+                    mount_path: vol.mount_path.clone(),
+                    name: vol.name.clone(),
+                    read_only: Some(vol.access_mode == AccessMode::RO),
+                    ..Default::default()
+                })
+            });
         match volumes.len() {
             0 => None,
             _ => Some(volumes),
@@ -488,6 +499,8 @@ impl TcpSocket {
     }
 }
 
+type ExtendedResources = Vec<ExtendedResource>;
+
 /// Resources defines the resources required by a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -495,9 +508,11 @@ impl TcpSocket {
 pub struct Resources {
     pub cpu: CPU,
     pub memory: Memory,
-    pub gpu: GPU,
-    pub volumes: Vec<Volume>,
+    pub gpu: Option<GPU>,
+    pub volumes: Option<Vec<Volume>>,
+    pub extended: Option<ExtendedResources>,
 }
+
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
@@ -521,10 +536,9 @@ impl Default for Resources {
             memory: Memory {
                 required: "1G".into(),
             },
-            gpu: GPU {
-                required: "0".into(),
-            },
-            volumes: Vec::new(),
+            gpu: None,
+            volumes: None,
+            extended: None,
         }
     }
 }
@@ -616,6 +630,13 @@ impl Default for SharingPolicy {
     fn default() -> Self {
         SharingPolicy::Exclusive
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtendedResource {
+    pub name: String,
+    pub required: String,
 }
 
 /// PortProtocol is a protocol used when attaching to ports.
