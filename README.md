@@ -22,7 +22,7 @@ Scylla is an implementation of the [Open App Model (OAM)](https://github.com/mic
 3. Install `helm`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
 
     1. Download your desired version
-    2.  Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
+    2. Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
     3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
     4. From there, you should be able to run the client: helm help.
 
@@ -77,11 +77,11 @@ Scylla takes an incremental approach to solving the problems. The current implem
 
 ![oar arch](./docs/media/how_oar_works.png)
 
-- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on K8s. 
+- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes. 
 
 - By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters. 
 
-- Currently, Scylla makes no opinions on the tools to use to accomplish tasks. In the example above, users had to install an Ingress and Scylla would configure it. In the future, this might be an area of focus for improvement. 
+- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait. 
 
 ## Try things out yourself 
 
