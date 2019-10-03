@@ -9,7 +9,7 @@ Both parts are covered in this document.
 
 ## Prerequisites
 
-Scylla is a Kubernetes application. The Kubernetes authors consider the current version of Kubernetes and the previous version of Kubernetes to be the only two supported releases. As such, Scylla tends to only be compatible with the latest and previous Kubernetes releases. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16.
+Scylla is a Kubernetes application. The Kubernetes authors consider the current version of Kubernetes and the previous version of Kubernetes to be the only two supported releases. As such, Scylla tends to only be compatible with the latest and previous Kubernetes releases. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16. Your version of `kubectl` should also match your version of Kubernetes.
 
 ### Installing a Compatible Version of Kubernetes on AKS
 
