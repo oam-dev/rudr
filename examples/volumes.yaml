@@ -2,7 +2,7 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: server-with-volume
+  name: server-with-volume-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.Server
   containers:
@@ -22,6 +22,6 @@ metadata:
   name: example-server-with-volume
 spec:
   components:
-    - name: server-with-volume
+    - name: server-with-volume-v1
       instanceName: example-server-with-volume
 # TODO: Add trait to bind a PVC

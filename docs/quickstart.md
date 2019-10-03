@@ -79,7 +79,7 @@ kind: ComponentSchematic
 metadata:
   creationTimestamp: "2019-10-02T20:10:36Z"
   generation: 1
-  name: nginx-component
+  name: nginx-component-v1
   namespace: default
   resourceVersion: "119193"
   selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/componentschematics/nginx-component
@@ -152,7 +152,7 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-component
+  - name: nginx-component-v1
     instanceName: first-app-nginx
     parameterValues:
       - name: poet
@@ -201,7 +201,7 @@ metadata:
 spec:
   components:
   - instanceName: first-app-nginx
-    name: nginx-singleton
+    name: nginx-singleton-v1
     parameterValues:
     - name: poet
       value: Eliot

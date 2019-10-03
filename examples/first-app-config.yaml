@@ -4,19 +4,19 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-component
-    instanceName: first-app-nginx
-    parameterValues:
-      - name: poet
-        value: Eliot
-      - name: poem
-        value: The Wasteland
-    traits:
-      - name: ingress
-        parameterValues:
-          - name: hostname
-            value: example.com
-          - name: path
-            value: /
-          - name: service_port
-            value: 80
+    - name: nginx-component-v1
+      instanceName: first-app-nginx
+      parameterValues:
+        - name: poet
+          value: Eliot
+        - name: poem
+          value: The Wasteland
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 80
