@@ -6,55 +6,40 @@ Scylla is an implementation of the [Open App Model (OAM)](https://github.com/mic
 
 ## Quickstart: Deploy an app with Ingress 
 
-1. Ensure you have a Kubernetes cluster. 
+Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl. 
+
+Ensure you have a Kubernetes cluster. 
     - [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
     - [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
     - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
     - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
     - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-2. Install `kubectl`. The below is for MacOS. For other OS, please go to https://kubernetes.io/docs/tasks/tools/install-kubectl/. 
-
-    ```bash
-    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
-    ```
-
-3. Install `helm`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
-
-    1. Download your desired version
-    2. Unpack it (`tar -zxvf helm-v2.0.0-linux-amd64.tgz`)
-    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
-    4. From there, you should be able to run the client: helm help.
-
-4. Clone this repository. 
-
-    ```bash
-    git clone https://github.com/microsoft/scylla.git
-    ```
-
-5. Install Scylla on the cluster. 
+1. Install Scylla on the cluster. 
 
     ```bash
     helm install scylla ./charts/scylla --wait
     ```
 
-6. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components. 
+2. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components. 
 
     ```bash
     helm install stable/nginx-ingress
     ```
 
-7. Register the components on your cluster. 
+3. Register the components on your cluster. 
 
     ```bash
     kubectl apply -f examples/nginx-component.yaml
     ```
 
-8. Apply the configuration to add the Ingress trait to your component. 
+4. Apply the configuration to add the Ingress trait to your component. 
 
     ```bash
     kubectl apply -f examples/first-app-config.yaml
     ```
+
+5. Hitting the public endpoint of your ingress service, should reveal the nginx component. 
 
 
 ![Alt Text](./docs/media/readme.gif)
