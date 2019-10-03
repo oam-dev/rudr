@@ -4,8 +4,8 @@ metadata:
   name: example-task
 spec:
   components:
-  - name: alpine-singleton-task
-    instanceName: one-alpine-task
-    parameterValues:
-      - name: message
-        value: Hello World
+    - name: alpine-singleton-task-v1
+      instanceName: one-alpine-task
+      parameterValues:
+        - name: message
+          value: Hello World
