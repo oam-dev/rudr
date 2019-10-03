@@ -40,26 +40,9 @@ $ az aks get-credentials -n scylla -g scylla
 
 At the end of this process, verify that you are connected to this cluster with `kubectl config current-context`.
 
-### Installing Scylla Using Helm 2
+## Installing Scylla Using Helm 3
 
 > Note: In its current version, Scylla will only listen for events in one namespace. This will change in the future. For now, though, you must install Scylla into the namespace into which you will deploy Scylla apps. You may install Scylla multiple times on the same cluster as long as you deploy to a different namespace each time.
-
-We recommend upgrading to Helm 3. However, if you already have Helm 2 installed and running, here are instructions.
-
-The new chart is optimized for the CRD handling introduced in Helm v3. For earlier versions of Helm you will need to manually install the CRDs:
-
-```console
-$ kubectl apply -f ./charts/scylla/crds/
-```
-
-Then you can install the Helm chart with Helm 2:
-
-```console
-# Helm 2:
-$ helm install --name scylla ./charts/scylla
-```
-
-## Installing Scylla Using Helm 3
 
 To install Helm 3, read the [Helm 3 Quickstart](https://v3.helm.sh/docs/intro/quickstart/)
 
