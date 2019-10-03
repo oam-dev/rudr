@@ -252,7 +252,7 @@ pub struct Container {
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
-        let mut volume_mounts = self.config.clone().map_or(vec![], |p| {
+        let mut volumes = self.config.clone().map_or(vec![], |p| {
             let mut mounts = vec![];
             for (i, v) in p.iter().enumerate() {
                 let path = Path::new(v.path.as_str())
@@ -270,16 +270,16 @@ impl Container {
             mounts
         });
         self.resources.volumes.iter().for_each(|vol| {
-            volume_mounts.push(core::VolumeMount {
+            volumes.push(core::VolumeMount {
                 mount_path: vol.mount_path.clone(),
                 name: vol.name.clone(),
                 read_only: Some(vol.access_mode == AccessMode::RO),
                 ..Default::default()
             })
         });
-        match volume_mounts.len() {
+        match volumes.len() {
             0 => None,
-            _ => Some(volume_mounts),
+            _ => Some(volumes),
         }
     }
 }
