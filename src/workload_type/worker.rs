@@ -12,10 +12,7 @@ pub struct ReplicatedWorker {
 
 impl ReplicatedWorker {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "Worker".to_string());
-        labels
+        self.meta.labels("Worker")
     }
 }
 
@@ -66,10 +63,7 @@ pub struct SingletonWorker {
 
 impl SingletonWorker {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "SingletonWorker".to_string());
-        labels
+        self.meta.labels("SingletonWorker")
     }
 }
 

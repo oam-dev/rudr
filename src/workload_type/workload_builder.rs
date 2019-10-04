@@ -38,15 +38,15 @@ pub struct WorkloadMetadata {
 }
 
 impl WorkloadMetadata {
-    fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
+    pub fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         labels.insert("workload-type".to_string(), workload_type.to_string());
         labels
     }
     pub fn select_labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         labels
     }
 
