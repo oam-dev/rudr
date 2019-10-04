@@ -14,7 +14,7 @@ spec:
     - name: maximum
       description: Maximum number of replicas to start. Default 10.
       type: int
-      required: false 
+      required: false
     - name: memory
       description: The memory consumption threshold (as percent) that will cause a scale event
       type: int
@@ -24,7 +24,6 @@ spec:
       type: int
       required: false
 ---
-
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:
@@ -40,7 +39,6 @@ spec:
       required: true
 
 ---
-
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:
@@ -64,7 +62,28 @@ spec:
       required: false
 
 ---
-
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
+  name: volumeMounter
+spec:
+  appliesTo:
+    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.SingletonService
+    - core.hydra.io/v1alpha1.Worker
+    - core.hydra.io/v1alpha1.SingletonWorker
+    - core.hydra.io/v1alpha1.Task
+    - core.hydra.io/v1alpha1.SingletonTask
+  properties:
+    - name: volumeName
+      description: The name of the volume this backs. This matches the volume name declared in the ComponentSchematic.
+      type: string
+      required: true
+    - name: storageClass
+      description: The storage class that a PVC requires
+      type: string
+      required: true
+---
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:

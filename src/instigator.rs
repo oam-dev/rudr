@@ -13,7 +13,9 @@ use crate::{
         configuration::ApplicationConfiguration,
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
-        traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
+        traits::{
+            self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
+        },
         variable::{get_variable_values, resolve_variables},
         HydraStatus, Status,
     },
@@ -280,6 +282,7 @@ impl Instigator {
                 owner_ref: new_owner_ref.clone(),
                 workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
+                component_schematic: comp_def.spec.clone(),
             };
             trait_manager.load_traits()?;
 
@@ -347,6 +350,7 @@ impl Instigator {
                 owner_ref: None,
                 workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
+                component_schematic: comp_def.spec.clone(),
             };
             trait_manager.load_traits()?;
 
@@ -657,7 +661,8 @@ struct TraitManager {
     parent_params: Vec<ParameterValue>,
     owner_ref: Option<Vec<meta::OwnerReference>>,
     workload_type: String,
-
+    // Component schematic loaded from cluster.
+    component_schematic: Component,
     traits: Vec<HydraTrait>,
 }
 
@@ -688,6 +693,17 @@ impl TraitManager {
                     self.owner_ref.clone(),
                 );
                 Ok(HydraTrait::Ingress(ing))
+            }
+            traits::VOLUME_MOUNTER => {
+                let volmount = VolumeMounter::from_params(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.name.clone(),
+                    trait_values,
+                    self.owner_ref.clone(),
+                    self.component_schematic.clone(),
+                );
+                Ok(HydraTrait::VolumeMounter(volmount))
             }
             traits::AUTOSCALER => {
                 let auto = Autoscaler::from_params(
