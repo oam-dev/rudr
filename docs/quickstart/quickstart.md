@@ -66,29 +66,33 @@ This component declares a basic NGINX container. You can list all available comp
 
 ```console
 $ kubectl get componentschematics
-NAME              AGE
-nginx-component   14s
+NAME                 AGE
+nginx-component-v1   14s
 ```
 
 You can look at an individual component:
 
 ```console
-$ kubectl get componentschematic nginx-component -o yaml
+$ kubectl get componentschematic nginx-component-v1 -o yaml
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  creationTimestamp: "2019-10-02T20:10:36Z"
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"core.hydra.io/v1alpha1","kind":"ComponentSchematic","metadata":{"annotations":{},"name":"nginx-component-v1","namespace":"default"},"spec":{"arch":"amd64","containers":[{"args":["-g","daemon off;"],"cmd":["nginx-debug"],"config":[{"path":"/etc/access/default_user.txt","value":"admin"},{"fromParam":"poet","path":"/etc/run/db-data"}],"env":[{"name":"TEST","value":"FOO"}],"image":"nginx:latest","name":"foo","ports":[{"containerPort":80,"name":"http","type":"tcp"}]}],"name":"nginx-component","osType":"linux","parameters":[{"default":"Yeats","name":"poet","type":"string"},{"default":"The Second Coming","name":"poem","type":"string"}],"workloadType":"core.hydra.io/v1alpha1.SingletonServer"}}
+  creationTimestamp: "2019-10-04T19:29:39Z"
   generation: 1
   name: nginx-component-v1
   namespace: default
-  resourceVersion: "119193"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/componentschematics/nginx-component
-  uid: a0024b12-8d56-4c4c-8fff-4092892fce76
+  resourceVersion: "2313"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/componentschematics/nginx-component-v1
+  uid: 66c28d52-7243-4840-9507-9d5c904048e5
 spec:
   arch: amd64
   containers:
   - args:
     - -g
+    - daemon off;
 # ... more YAML
 ```
 
@@ -101,9 +105,10 @@ You can also list the traits that are available on Scylla:
 ```console
 $ kubectl get traits
 NAME            AGE
-autoscaler      19m
-ingress         19m
-manual-scaler   19m
+autoscaler      4s
+empty           4s
+ingress         4s
+manual-scaler   4s
 ```
 
 And you can look at an individual trait in the same way that you investigate a component:
@@ -113,13 +118,16 @@ $ kubectl get trait ingress -o yaml
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:
-  creationTimestamp: "2019-10-02T19:57:37Z"
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"core.hydra.io/v1alpha1","kind":"Trait","metadata":{"annotations":{},"name":"ingress","namespace":"default"},"spec":{"appliesTo":["core.hydra.io/v1alpha1.Service","core.hydra.io/v1alpha1.SingletonService"],"properties":[{"description":"Host name for the ingress","name":"hostname","required":true,"type":"string"},{"description":"Port number on the service","name":"service_port","required":true,"type":"int"},{"description":"Path to expose. Default is '/'","name":"path","required":false,"type":"string"}]}}
+  creationTimestamp: "2019-10-04T19:35:43Z"
   generation: 1
   name: ingress
   namespace: default
-  resourceVersion: "117813"
+  resourceVersion: "2808"
   selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/traits/ingress
-  uid: 9f82c346-c8c6-4780-9949-3ecfd47879f9
+  uid: ea8a2366-18f3-4513-9eff-126adc119bb0
 spec:
   appliesTo:
   - core.hydra.io/v1alpha1.Service
