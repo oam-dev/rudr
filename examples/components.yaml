@@ -1,10 +1,9 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: hpa-example-replicated
+  name: hpa-example-replicated-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  os: linux
+  workloadType: core.hydra.io/v1alpha1.Server
   containers:
     - name: server
       image: k8s.gcr.io/hpa-example:latest
@@ -13,18 +12,17 @@ spec:
           containerPort: 80
           protocol: TCP
       resources:
-          cpu:
-            required: "0.5"
-          memory:
-            required: 100M
+        cpu:
+          required: "0.5"
+        memory:
+          required: 100M
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: nginx-replicated
+  name: nginx-replicated-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
-  os: linux
+  workloadType: core.hydra.io/v1alpha1.Server
   containers:
     - name: server
       image: nginx:latest
@@ -36,10 +34,9 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: nginx-singleton
+  name: nginx-singleton-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.Singleton
-  os: linux
+  workloadType: core.hydra.io/v1alpha1.SingletonServer
   containers:
     - name: server
       image: nginx:latest
@@ -51,10 +48,10 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-task
+  name: alpine-task-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.Task
-  os: linux
+  osType: linux
   containers:
     - name: runner
       image: alpine:latest
@@ -62,10 +59,10 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-singleton-task
+  name: alpine-singleton-task-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonTask
-  os: linux
+  osType: linux
   containers:
     - name: runner
       image: alpine:latest
@@ -73,10 +70,10 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-singleton-worker
+  name: alpine-singleton-worker-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonWorker
-  os: linux
+  osType: linux
   containers:
     - name: worker
       image: nginx:latest
@@ -84,10 +81,10 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-worker
+  name: alpine-worker-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.Worker
-  os: linux
+  osType: linux
   containers:
     - name: worker
       image: nginx:latest

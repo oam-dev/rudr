@@ -1,0 +1,11 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: example-replicable-task
+spec:
+  components:
+    - name: alpine-task-v1
+      instanceName: multi-alpine-task
+      parameterValues:
+        - name: message
+          value: Hello World

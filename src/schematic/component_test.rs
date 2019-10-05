@@ -32,8 +32,8 @@ fn test_component_deserialize() {
 
     assert!(data.is_ok());
     let component = data.unwrap();
-    assert_eq!("linux", component.os_type);
-    assert_eq!("amd64", component.arch);
+    assert_eq!(Some("linux".to_string()), component.os_type);
+    assert_eq!(Some("amd64".to_string()), component.arch);
     assert_eq!("core.hydra.io/v1.Singleton", component.workload_type);
 
     let gvk = GroupVersionKind::from_str(component.workload_type.as_str());
@@ -46,8 +46,8 @@ fn test_component_defaults() {
 
     assert!(data.is_ok());
     let component = data.unwrap();
-    assert_eq!("linux", component.os_type);
-    assert_eq!("amd64", component.arch);
+    assert_eq!(None, component.os_type);
+    assert_eq!(None, component.arch);
     assert_eq!("test", component.workload_type);
     assert_eq!(0, component.parameters.len());
     assert_eq!(0, component.workload_settings.len());
@@ -128,6 +128,12 @@ fn test_container_deserialize() {
                             "accessMode": "RO",
                             "sharingPolicy": "Shared"
                         }
+                    ],
+                    "extended": [
+                        {
+                            "name": "ext.example.com/v1.MotionSensor",
+                            "required": "1"
+                        }
                     ]
                 }
             }
@@ -172,8 +178,9 @@ fn test_container_deserialize() {
     assert_eq!("2G", res.memory.required);
     assert_eq!("1", res.cpu.required);
 
-    let path1 = res.volumes.get(0).unwrap();
-    let path2 = res.volumes.get(1).unwrap();
+    let vols = res.volumes.clone().expect("expected volumes");
+    let path1 = vols.get(0).expect("expect a first volume");
+    let path2 = vols.get(1).expect("expect a second volume");
 
     assert_eq!("first", path1.name);
     assert_eq!("/path/to/first", path1.mount_path);
@@ -184,6 +191,11 @@ fn test_container_deserialize() {
     assert_eq!("/path/to/second", path2.mount_path);
     assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
     assert_eq!(AccessMode::RO, path2.access_mode);
+
+    let ext = res.extended.clone().expect("extended resources");
+    let ext1 = ext.get(0).expect("expected a first resources");
+    assert_eq!("ext.example.com/v1.MotionSensor", ext1.name);
+    assert_eq!("1", ext1.required);
 }
 
 #[test]
@@ -485,6 +497,44 @@ fn test_to_node_seletor() {
     selector.insert("kubernetes.io/os".to_string(), "linux".to_string());
     selector.insert("kubernetes.io/arch".to_string(), "amd64".to_string());
     assert_eq!(Some(selector), comp.to_node_selector())
+}
+
+#[test]
+fn test_to_volume_mounts() {
+    let container = Container {
+        name: "test_container".into(),
+        image: "test/image".into(),
+        resources: Resources{
+            cpu: CPU {required: "1".into()},
+            memory: Memory {required: "128".into()},
+            gpu: Some(GPU {required: "0".into()}),
+            volumes: Some(vec![Volume{
+                name: "myvol".into(),
+                mount_path: "/myvol".into(),
+                access_mode: AccessMode::RO,
+                disk: Some(Disk{
+                    ephemeral: true,
+                    required: "200M".into(),
+                }),
+                sharing_policy: SharingPolicy::Exclusive,
+            }]),
+            ..Default::default()
+        },
+        env: vec![],
+        ports: vec![],
+        args: None,
+        cmd: None,
+        config: Some(vec![ConfigFile{
+            path: "/config/file".into(),
+            value: Some("value".to_string()),
+            from_param: None,
+        }]),
+        image_pull_secret: None,
+        liveness_probe: None,
+        readiness_probe: None,
+    };
+    let mounts = container.volume_mounts();
+    assert_eq!(mounts.expect("at least one mount").len(), 2);
 }
 
 #[test]

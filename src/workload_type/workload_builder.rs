@@ -144,7 +144,7 @@ impl WorkloadMetadata {
     }
 }
 
-pub fn form_metadata(
+fn form_metadata(
     name: String,
     labels: BTreeMap<String, String>,
     owner_references: Option<Vec<meta::OwnerReference>>,
@@ -158,6 +158,126 @@ pub fn form_metadata(
 }
 
 type Labels = BTreeMap<String, String>;
+
+/// DeploymentBuilder builds new deployments specific to Scylla
+///
+/// This hides many of the details of building a Deployment, exposing only
+/// parameters common to Scylla workload types.
+pub(crate) struct DeploymentBuilder {
+    component: Component,
+    labels: Labels,
+    annotations: Option<Labels>,
+    name: String,
+    replicas: Option<i32>,
+    restart_policy: String,
+    owner_ref: Option<Vec<meta::OwnerReference>>,
+    param_vals: ParamMap,
+}
+
+impl DeploymentBuilder {
+    /// Create a DeploymentBuilder
+    pub fn new(instance_name: String, component: Component) -> Self {
+        DeploymentBuilder {
+            component,
+            name: instance_name,
+            labels: Labels::new(),
+            annotations: None,
+            replicas: None,
+            restart_policy: "Always".to_string(),
+            owner_ref: None,
+            param_vals: BTreeMap::new(),
+        }
+    }
+    /// Add labels
+    pub fn labels(mut self, labels: Labels) -> Self {
+        self.labels = labels;
+        self
+    }
+
+    /// Add annotations.
+    ///
+    /// In Kubernetes, these will be added to the pod specification.
+    pub fn annotations(mut self, annotations: Option<Labels>) -> Self {
+        self.annotations = annotations;
+        self
+    }
+
+    pub fn parameter_map(mut self, param_vals: ParamMap) -> Self {
+        self.param_vals = param_vals;
+        self
+    }
+    /// Set the owner refence for the job and the pod
+    pub fn owner_ref(mut self, owner: Option<Vec<meta::OwnerReference>>) -> Self {
+        self.owner_ref = owner;
+        self
+    }
+    /// Set the replicas
+    pub fn replicas(mut self, count: i32) -> Self {
+        self.replicas = Some(count);
+        self
+    }
+
+    pub fn to_deployment(&self) -> apps::Deployment {
+        apps::Deployment {
+            // TODO: Could make this generic.
+            metadata: Some(meta::ObjectMeta {
+                name: Some(self.name.clone()),
+                labels: Some(self.labels.clone()),
+                owner_references: self.owner_ref.clone(),
+                ..Default::default()
+            }),
+            spec: Some(apps::DeploymentSpec {
+                replicas: self.replicas,
+                selector: meta::LabelSelector {
+                    match_labels: Some(self.labels.clone()),
+                    ..Default::default()
+                },
+                template: api::PodTemplateSpec {
+                    metadata: Some(meta::ObjectMeta {
+                        name: Some(self.name.clone()),
+                        labels: Some(self.labels.clone()),
+                        annotations: self.annotations.clone(),
+                        owner_references: self.owner_ref.clone(),
+                        ..Default::default()
+                    }),
+                    spec: Some(self.component.to_pod_spec_with_policy(
+                        self.param_vals.clone(),
+                        self.restart_policy.clone(),
+                    )),
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+
+    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+        let deployment = self.to_deployment();
+        match phase {
+            "modify" => {
+                let pp = kube::api::PatchParams::default();
+                kube::api::Api::v1Deployment(client)
+                    .within(namespace.as_str())
+                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&deployment)?)?;
+                Ok(())
+            }
+            "delete" => {
+                let pp = kube::api::DeleteParams::default();
+                kube::api::Api::v1Deployment(client)
+                    .within(namespace.as_str())
+                    .delete(self.name.as_str(), &pp)?;
+                Ok(())
+            }
+            _ => {
+                let pp = kube::api::PostParams::default();
+                kube::api::Api::v1Deployment(client)
+                    .within(namespace.as_str())
+                    .create(&pp, serde_json::to_vec(&deployment)?)?;
+                Ok(())
+            }
+        }
+    }
+}
 
 /// JobBuilder builds new jobs specific to Scylla
 ///
@@ -347,7 +467,7 @@ impl ServiceBuilder {
         self.selector = labels;
         self
     }
-    pub fn owner_reference(mut self, owner_ref: Option<Vec<meta::OwnerReference>>) -> Self {
+    pub fn owner_ref(mut self, owner_ref: Option<Vec<meta::OwnerReference>>) -> Self {
         self.owner_ref = owner_ref;
         self
     }
@@ -428,6 +548,64 @@ mod test {
     use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
 
     #[test]
+    fn test_deployment_builder() {
+        let mut annotations = Labels::new();
+        annotations.insert("key1".to_string(), "val1".to_string());
+        annotations.insert("key2".to_string(), "val2".to_string());
+        let deployment = DeploymentBuilder::new("test".into(), skeleton_component())
+            .labels(skeleton_labels())
+            .annotations(Some(annotations))
+            .replicas(3)
+            .owner_ref(skeleton_owner_ref())
+            .to_deployment();
+        assert_eq!(
+            deployment
+                .metadata
+                .clone()
+                .expect("metadata")
+                .labels
+                .expect("labels")
+                .len(),
+            2
+        );
+        assert_eq!(
+            deployment
+                .metadata
+                .clone()
+                .expect("metadata")
+                .owner_references
+                .expect("owners")
+                .len(),
+            1
+        );
+        assert_eq!(deployment.spec.clone().expect("spec").replicas, Some(3));
+        assert_eq!(
+            deployment
+                .spec
+                .clone()
+                .expect("spec")
+                .template
+                .metadata
+                .expect("metadata")
+                .annotations
+                .expect("annotations")
+                .len(),
+            2
+        );
+        assert_eq!(
+            deployment
+                .spec
+                .clone()
+                .unwrap()
+                .template
+                .spec
+                .expect("spec")
+                .restart_policy,
+            Some("Always".into())
+        );
+    }
+
+    #[test]
     fn test_job_builder() {
         let mut annotations = Labels::new();
         annotations.insert("key1".to_string(), "val1".to_string());
@@ -487,7 +665,7 @@ mod test {
         let svc = ServiceBuilder::new("test".into(), skeleton_component())
             .labels(skeleton_labels())
             .select_labels(skeleton_select_labels())
-            .owner_reference(skeleton_owner_ref())
+            .owner_ref(skeleton_owner_ref())
             .to_service()
             .expect("service");
         assert_eq!(
@@ -538,8 +716,8 @@ mod test {
     fn test_service_builder_no_port() {
         let c = Component {
             workload_type: "worker".into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: Some("linux".into()),
+            arch: Some("amd64".into()),
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),
@@ -558,7 +736,7 @@ mod test {
         };
         assert!(ServiceBuilder::new("test".into(), c)
             .labels(skeleton_labels())
-            .owner_reference(skeleton_owner_ref())
+            .owner_ref(skeleton_owner_ref())
             .to_service()
             .is_none());
     }
@@ -577,8 +755,8 @@ mod test {
     fn skeleton_component() -> Component {
         Component {
             workload_type: "worker".into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: Some("linux".into()),
+            arch: Some("amd64".into()),
             parameters: vec![],
             containers: vec![Container {
                 name: "foo".into(),

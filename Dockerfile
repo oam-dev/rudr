@@ -1,4 +1,7 @@
-FROM rust:1.37 AS builder
+ARG BUILDER_IMAGE=rust:1.37
+ARG BASE_IMAGE=debian:stretch-slim
+
+FROM ${BUILDER_IMAGE} AS builder
 WORKDIR /usr/src/scylla
 
 COPY Cargo.toml .
@@ -16,7 +19,7 @@ RUN cargo build --release && \
 COPY ./src ./src
 RUN cargo build --release
 
-FROM debian:stretch-slim
+FROM ${BASE_IMAGE}
 WORKDIR /usr/app
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/scylla/target/release/scylla .

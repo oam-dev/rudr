@@ -1,11 +1,12 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: voting-admin
-  version: "1.0.0"
-  description: Voting results interface
+  name: voting-admin-v1
+  annotations:
+    version: "1.0.0"
+    description: Voting results interface
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  workloadType: core.hydra.io/v1alpha1.Server
   containers:
     - name: server
       ports:
@@ -16,11 +17,12 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: postgres
-  version: "1.0.0"
-  description: PostgreSQL Database
+  name: postgres-v9
+  annotations:
+    version: "1.0.0"
+    description: PostgreSQL Database
 spec:
-  workloadType: core.hydra.io/v1alpha1.Singleton
+  workloadType: core.hydra.io/v1alpha1.SingletonServer
   containers:
     - name: db
       ports:
@@ -31,11 +33,12 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: redis
-  version: "1.0.0"
-  description: Redis single-node
+  name: redis-v1
+  annotations:
+    version: "1.0.0"
+    description: Redis single-node
 spec:
-  workloadType: core.hydra.io/v1alpha1.Singleton
+  workloadType: core.hydra.io/v1alpha1.SingletonServer
   containers:
     - name: cache
       ports:
@@ -46,11 +49,12 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: voting-frontend
-  version: "1.0.0"
-  description: Voting front-end webserver
+  name: voting-frontend-v1
+  annotations:
+    version: "1.0.0"
+    description: Voting front-end webserver
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  workloadType: core.hydra.io/v1alpha1.Server
   containers:
     - name: server
       ports:
@@ -61,12 +65,14 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: voting-worker
-  version: "1.0.0"
-  description: Worker for tallying voting results
+  name: voting-worker-v1
+  annotations:
+    version: "1.0.0"
+    description: Worker for tallying voting results
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  workloadType: core.hydra.io/v1alpha1.Server
   containers:
     - name: server
       image: dockersamples/examplevotingapp_worker
 ---
+

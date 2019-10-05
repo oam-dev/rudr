@@ -1,11 +1,11 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ApplicationConfiguration
 metadata:
-  name: first-app
+  name: example-multi-component
 spec:
   components:
-    - name: nginx-component-v1
-      instanceName: first-app-nginx
+    - name: nginx-singleton-v1
+      instanceName: example-multi-component-nginx
       parameterValues:
         - name: poet
           value: Eliot
@@ -18,5 +18,8 @@ spec:
               value: example.com
             - name: path
               value: /
-            - name: service_port
-              value: 80
+    - name: alpine-task-v1
+      instanceName: example-multi-component-alpine
+      parameterValues:
+        - name: message
+          value: Hello World

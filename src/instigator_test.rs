@@ -97,3 +97,9 @@ fn test_check_diff() {
     };
     assert_eq!(check_diff(Some(new_record3), &old_record), true);
 }
+
+#[test]
+fn test_combine_name() {
+    let name = combine_name("component-a".to_string(), "instance-b".to_string());
+    assert_eq!("component-a-instance-b", name.as_str())
+}

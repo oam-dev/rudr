@@ -13,10 +13,9 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-forever
+  name: alpine-forever-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.SingletonService
-  os: linux
+  workloadType: core.hydra.io/v1alpha1.SingletonServer
   parameters:
     - name: message
       type: string
@@ -29,12 +28,12 @@ spec:
     - name: runner
       image: technosophos/alpine-forever:latest
       env:
-      - name: FOO
-        value: bar
-        fromParam: message
-      - name: UNUSED
-        value: "1234"
-        fromParam: unused_integer
+        - name: FOO
+          value: bar
+          fromParam: message
+        - name: UNUSED
+          value: "1234"
+          fromParam: unused_integer
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ApplicationConfiguration
@@ -42,8 +41,8 @@ metadata:
   name: example-env-vars
 spec:
   components:
-  - name: alpine-forever
-    instanceName: example-alpine-forever
-    parameterValues:
-      - name: message
-        value: Hello World
+    - name: alpine-forever-v1
+      instanceName: example-alpine-forever
+      parameterValues:
+        - name: message
+          value: Hello World

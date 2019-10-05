@@ -1,5 +1,5 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
-use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME, WORKER};
+use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 use kube::client::APIClient;
 use log::info;
@@ -47,7 +47,7 @@ impl ManualScaler {
         // It should be a safe assumption that we can look up every job and every
         // deployment with a particular Kubernetess name and update them appropriately.
         match self.workload_type.as_str() {
-            REPLICATED_SERVICE_NAME | WORKER => {
+            SERVER_NAME | WORKER_NAME => {
                 let (req, _) = apps::Deployment::read_namespaced_deployment(
                     self.instance_name.as_str(),
                     ns,
@@ -68,7 +68,7 @@ impl ManualScaler {
                 }
                 Ok(())
             }
-            REPLICATED_TASK_NAME => {
+            TASK_NAME => {
                 // Scale jobs
                 let (jobreq, _) = batch::Job::read_namespaced_job(
                     self.instance_name.as_str(),
@@ -137,7 +137,7 @@ impl TraitImplementation for ManualScaler {
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
-        name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME || name == WORKER
+        name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
     fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
         None

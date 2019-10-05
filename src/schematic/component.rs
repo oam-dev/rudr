@@ -23,8 +23,8 @@ pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
 #[serde(default)]
 pub struct Component {
     pub workload_type: String,
-    pub os_type: String,
-    pub arch: String,
+    pub os_type: Option<String>,
+    pub arch: Option<String>,
     pub parameters: ParameterList,
     pub containers: Vec<Container>,
     pub workload_settings: Vec<WorkloadSetting>,
@@ -41,8 +41,15 @@ impl Component {
 
     pub fn to_node_selector(&self) -> Option<BTreeMap<String, String>> {
         let mut selector = BTreeMap::new();
-        selector.insert("kubernetes.io/os".to_string(), self.os_type.clone());
-        selector.insert("kubernetes.io/arch".to_string(), self.arch.clone());
+        if let Some(os) = self.os_type.clone() {
+            selector.insert("kubernetes.io/os".to_string(), os);
+        }
+        if let Some(arch) = self.arch.clone() {
+            selector.insert("kubernetes.io/arch".to_string(), arch);
+        }
+        if selector.is_empty() {
+            return None;
+        }
         Some(selector)
     }
 
@@ -60,18 +67,32 @@ impl Component {
                 .iter()
                 .enumerate()
             {
-                vols.insert(
-                    vols.len(),
-                    core::Volume {
-                        config_map: Some(core::ConfigMapVolumeSource {
-                            name: Some(container.name.clone() + i.to_string().as_str()),
+                vols.push(core::Volume {
+                    config_map: Some(core::ConfigMapVolumeSource {
+                        name: Some(container.name.clone() + i.to_string().as_str()),
+                        ..Default::default()
+                    }),
+                    name: container.name.clone() + i.to_string().as_str(),
+                    ..Default::default()
+                });
+            }
+            container
+                .resources
+                .volumes
+                .clone()
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .for_each(|v| {
+                    // There is an ephemeral flag on v.disk. What do we do with that?
+                    vols.push(core::Volume {
+                        name: v.name.clone(),
+                        empty_dir: Some(core::EmptyDirVolumeSource {
+                            size_limit: v.disk.clone().and_then(|d| Some(Quantity(d.required))),
                             ..Default::default()
                         }),
-                        name: container.name.clone() + i.to_string().as_str(),
                         ..Default::default()
-                    },
-                );
-            }
+                    });
+                })
         }
         let volumes = Some(vols);
         core::PodSpec {
@@ -88,17 +109,9 @@ impl Component {
         param_vals: ResolvedVals,
         restart_policy: String,
     ) -> core::PodSpec {
-        let containers = self.to_containers(param_vals);
-        let image_pull_secrets = Some(self.image_pull_secrets());
-        let node_selector = self.to_node_selector();
-
-        core::PodSpec {
-            containers,
-            node_selector,
-            image_pull_secrets,
-            restart_policy: Some(restart_policy),
-            ..Default::default()
-        }
+        let mut pod_spec = self.to_pod_spec(param_vals);
+        pod_spec.restart_policy = Some(restart_policy);
+        pod_spec
     }
 
     pub fn evaluate_configs(
@@ -146,30 +159,7 @@ impl Component {
                         .collect(),
                 ),
 
-                volume_mounts: c.config.clone().and_then(|p| {
-                    let mut mounts = vec![];
-                    for (i, v) in p.iter().enumerate() {
-                        let path = Path::new(v.path.as_str())
-                            .parent()
-                            .unwrap()
-                            .to_str()
-                            .unwrap()
-                            .to_owned();
-                        mounts.insert(
-                            i,
-                            core::VolumeMount {
-                                mount_path: path,
-                                name: c.name.clone() + i.to_string().as_str(),
-                                ..Default::default()
-                            },
-                        );
-                    }
-                    if mounts.is_empty() {
-                        None
-                    } else {
-                        Some(mounts)
-                    }
-                }),
+                volume_mounts: c.volume_mounts(),
                 liveness_probe: c.liveness_probe.clone().and_then(|p| Some(p.to_probe())),
                 readiness_probe: c.readiness_probe.clone().and_then(|p| Some(p.to_probe())),
                 ..Default::default()
@@ -219,8 +209,8 @@ impl Default for Component {
     fn default() -> Self {
         Component {
             workload_type: DEFAULT_WORKLOAD_TYPE.into(),
-            os_type: "linux".into(),
-            arch: "amd64".into(),
+            os_type: None,
+            arch: None,
             parameters: Vec::new(),
             containers: Vec::new(),
             workload_settings: Vec::new(),
@@ -263,6 +253,46 @@ pub struct Container {
 
     pub liveness_probe: Option<HealthProbe>,
     pub readiness_probe: Option<HealthProbe>,
+}
+
+impl Container {
+    /// Generate volume mounts for a container.
+    pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
+        let mut volumes = self.config.clone().map_or(vec![], |p| {
+            let mut mounts = vec![];
+            for (i, v) in p.iter().enumerate() {
+                let path = Path::new(v.path.as_str())
+                    .parent()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_owned();
+                mounts.push(core::VolumeMount {
+                    mount_path: path,
+                    name: self.name.clone() + i.to_string().as_str(),
+                    ..Default::default()
+                });
+            }
+            mounts
+        });
+        self.resources
+            .volumes
+            .clone()
+            .unwrap_or_else(|| vec![])
+            .iter()
+            .for_each(|vol| {
+                volumes.push(core::VolumeMount {
+                    mount_path: vol.mount_path.clone(),
+                    name: vol.name.clone(),
+                    read_only: Some(vol.access_mode == AccessMode::RO),
+                    ..Default::default()
+                })
+            });
+        match volumes.len() {
+            0 => None,
+            _ => Some(volumes),
+        }
+    }
 }
 
 /// Workload settings describe the configuration for a workload.
@@ -469,6 +499,8 @@ impl TcpSocket {
     }
 }
 
+type ExtendedResources = Vec<ExtendedResource>;
+
 /// Resources defines the resources required by a container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -476,9 +508,11 @@ impl TcpSocket {
 pub struct Resources {
     pub cpu: CPU,
     pub memory: Memory,
-    pub gpu: GPU,
-    pub volumes: Vec<Volume>,
+    pub gpu: Option<GPU>,
+    pub volumes: Option<Vec<Volume>>,
+    pub extended: Option<ExtendedResources>,
 }
+
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
@@ -502,10 +536,9 @@ impl Default for Resources {
             memory: Memory {
                 required: "1G".into(),
             },
-            gpu: GPU {
-                required: "0".into(),
-            },
-            volumes: Vec::new(),
+            gpu: None,
+            volumes: None,
+            extended: None,
         }
     }
 }
@@ -558,8 +591,8 @@ pub struct Volume {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Disk {
-    required: String,
-    ephemeral: bool,
+    pub required: String,
+    pub ephemeral: bool,
 }
 impl Default for Disk {
     fn default() -> Disk {
@@ -597,6 +630,13 @@ impl Default for SharingPolicy {
     fn default() -> Self {
         SharingPolicy::Exclusive
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtendedResource {
+    pub name: String,
+    pub required: String,
 }
 
 /// PortProtocol is a protocol used when attaching to ports.

@@ -1,5 +1,5 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
-use crate::workload_type::{ParamMap, REPLICATED_SERVICE_NAME, REPLICATED_TASK_NAME, WORKER};
+use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
@@ -157,7 +157,7 @@ impl TraitImplementation for Autoscaler {
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
-        name == REPLICATED_SERVICE_NAME || name == REPLICATED_TASK_NAME || name == WORKER
+        name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
     fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         let mut resource = BTreeMap::new();

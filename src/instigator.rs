@@ -14,6 +14,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
+        variable::{get_variable_values, resolve_variables},
         HydraStatus, Status,
     },
     workload_type::{
@@ -98,11 +99,20 @@ impl Instigator {
                 component.name.clone(),
                 self.client.clone(),
             )?;
-            // Resolve parameters
-            let parent = get_values(event.spec.parameter_values.clone());
-            let child = get_values(component.parameter_values.clone());
-            let merged_vals = resolve_values(child, parent.clone())?;
-            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+            // Resolve variables/parameters
+            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let parent = get_variable_values(Some(variables.clone()));
+
+            let child = component
+                .parameter_values
+                .clone()
+                .map(|values| resolve_variables(values, variables))
+                .unwrap_or(Ok(vec![]))?;
+
+            let params = resolve_parameters(
+                comp_def.spec.parameters.clone(),
+                resolve_values(child, vec![])?,
+            )?;
 
             let inst_name = component.instance_name.clone();
 
@@ -200,19 +210,33 @@ impl Instigator {
             }
 
             component_updated = true;
-            // Resolve parameters
-            let parent = get_values(event.spec.parameter_values.clone());
-            let child = get_values(component.parameter_values.clone());
-            let merged_vals = resolve_values(child, parent.clone())?;
-            let params = resolve_parameters(comp_def.spec.parameters.clone(), merged_vals)?;
+            // Resolve variables/parameters
+            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let parent = get_variable_values(Some(variables.clone()));
+
+            let child = component
+                .parameter_values
+                .clone()
+                .map(|values| resolve_variables(values, variables))
+                .unwrap_or(Ok(vec![]))?;
+
+            let params = resolve_parameters(
+                comp_def.spec.parameters.clone(),
+                resolve_values(child, vec![])?,
+            )?;
 
             let inst_name = component.instance_name.clone();
             let new_owner_ref = match phase {
-                Phase::Add => {
-                    Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
-                }
+                Phase::Add => Some(self.create_component_instance(
+                    component.name.clone(),
+                    inst_name.clone(),
+                    owner_ref.clone(),
+                )?),
                 Phase::Modify => {
-                    let ownref = self.component_instance_owner_reference(inst_name.as_str());
+                    let ownref = self.component_instance_owner_reference(
+                        component.name.clone(),
+                        inst_name.clone(),
+                    );
                     if ownref.is_err() {
                         let e = ownref.unwrap_err().to_string();
                         if !e.contains("NotFound") {
@@ -226,7 +250,11 @@ impl Instigator {
                                 e
                             ));
                         }
-                        Some(self.create_component_instance(inst_name.clone(), owner_ref.clone())?)
+                        Some(self.create_component_instance(
+                            component.name.clone(),
+                            inst_name.clone(),
+                            owner_ref.clone(),
+                        )?)
                     } else {
                         Some(ownref.unwrap())
                     }
@@ -306,9 +334,8 @@ impl Instigator {
                 component.name.clone(),
                 self.client.clone(),
             )?;
-            // Resolve parameters
-            let parent = get_values(event.spec.parameter_values.clone());
-
+            // Resolve variables/parameters
+            let parent = get_variable_values(event.spec.variables.clone());
             let inst_name = component.instance_name.clone();
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
@@ -332,7 +359,7 @@ impl Instigator {
                 Phase::PreDelete,
             )?;
             //delete component instance and let owner_reference to delete real resource
-            self.delete_component_instance(inst_name.clone())?;
+            self.delete_component_instance(component.name.clone(), inst_name.clone())?;
         }
         // if no component was updated or this is an delete phase, just return without status change.
         if !component_updated || phase == Phase::Delete {
@@ -413,21 +440,11 @@ impl Instigator {
             owner_ref,
         };
         match comp.spec.workload_type.as_str() {
-            // This one is DEPRECATED
-            workload_type::REPLICATED_SERVICE_NAME => {
+            workload_type::SERVER_NAME => {
                 let rs = ReplicatedService { meta };
                 Ok(CoreWorkloadType::ReplicatedServiceType(rs))
             }
-            // DEPRECATED
-            workload_type::SINGLETON_NAME => {
-                let sing = SingletonService { meta };
-                Ok(CoreWorkloadType::SingletonServiceType(sing))
-            }
-            workload_type::SERVICE_NAME => {
-                let rs = ReplicatedService { meta };
-                Ok(CoreWorkloadType::ReplicatedServiceType(rs))
-            }
-            workload_type::SINGLETON_SERVICE_NAME => {
+            workload_type::SINGLETON_SERVER_NAME => {
                 let sing = SingletonService { meta };
                 Ok(CoreWorkloadType::SingletonServiceType(sing))
             }
@@ -446,7 +463,7 @@ impl Instigator {
                 let wrkr = SingletonWorker { meta };
                 Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
             }
-            workload_type::WORKER => {
+            workload_type::WORKER_NAME => {
                 let worker = ReplicatedWorker {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
@@ -460,7 +477,12 @@ impl Instigator {
         }
     }
 
-    fn delete_component_instance(&self, name: String) -> InstigatorResult {
+    fn delete_component_instance(
+        &self,
+        component_name: String,
+        instance_name: String,
+    ) -> InstigatorResult {
+        let name = combine_name(component_name, instance_name);
         let pp = kube::api::DeleteParams::default();
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
@@ -478,9 +500,11 @@ impl Instigator {
 
     fn create_component_instance(
         &self,
-        name: String,
+        component_name: String,
+        instance_name: String,
         owner: meta::OwnerReference,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
+        let name = combine_name(component_name, instance_name);
         let pp = kube::api::PostParams::default();
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
@@ -540,13 +564,15 @@ impl Instigator {
 
     fn component_instance_owner_reference(
         &self,
-        name: &str,
+        component_name: String,
+        instance_name: String,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
+        let name = combine_name(component_name, instance_name);
         let crd_req = RawApi::customResource("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
-        let req = crd_req.get(name)?;
+        let req = crd_req.get(name.as_str())?;
         let res: KubeComponentInstance = self.client.request(req)?;
 
         let owner = meta::OwnerReference {
@@ -559,6 +585,12 @@ impl Instigator {
         };
         Ok(vec![owner])
     }
+}
+
+/// combine_name combine component name with instance_name,
+/// so we won't afraid different components using same instance_name   
+pub fn combine_name(component_name: String, instance_name: String) -> String {
+    component_name + "-" + instance_name.as_str()
 }
 
 /// Build an owner reference for the given parent UID of kind Configuration.

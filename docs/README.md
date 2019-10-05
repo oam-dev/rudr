@@ -1,8 +1,18 @@
 # Scylla Documentation
 
-* [Quick Start](quickstart.md) - Quickly get started with Scylla in 5 minutes or less.
-* [Install Scylla](install.md)
-* [Using Scylla](using_scylla.md) - Learn how to use Scylla.
-* [Core Workloads](workloads.md) - Learn to use core workload type.
-* [Traits](traits.md) - Learn in more depth how to use traits in Scylla.
-* [Migrating Kubernetes Resources](migrating.md) - Learn how to move a Kubernetes application to Scylla.
+# Table of Contents
+
+## 1. [Install Scylla](./setup/install.md)
+
+## 2. [Quickstart](./quickstart/quickstart.md)
+## 3. How-To's
+* ### [Use Scylla](./how-to/using_scylla.md) - Learn how to use Scylla.
+* ### [Use Core Workloads](./how-to/workloads.md) - Learn how to use core workload type.
+* ### [Migrate existing Kubernetes resources](./how-to/migrating.md) - Learn how to migrate existing K8s resources
+
+## 4. Tutorials 
+
+## 5. Concepts
+* ### [Traits](./concepts/traits.md) - Learn in more depth about traits in Scylla.
+
+## 6. [FAQ](./faq.md)
