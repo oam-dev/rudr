@@ -100,14 +100,14 @@ impl Instigator {
                 self.client.clone(),
             )?;
             // Resolve variables/parameters
-            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
             let parent = get_variable_values(Some(variables.clone()));
 
             let child = component
                 .parameter_values
                 .clone()
                 .map(|values| resolve_variables(values, variables))
-                .unwrap_or(Ok(vec![]))?;
+                .unwrap_or_else(|| Ok(vec![]))?;
 
             let params = resolve_parameters(
                 comp_def.spec.parameters.clone(),
@@ -125,6 +125,7 @@ impl Instigator {
                 component.name.clone(),
                 status.clone()
             );
+
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -211,14 +212,14 @@ impl Instigator {
 
             component_updated = true;
             // Resolve variables/parameters
-            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
             let parent = get_variable_values(Some(variables.clone()));
 
             let child = component
                 .parameter_values
                 .clone()
                 .map(|values| resolve_variables(values, variables))
-                .unwrap_or(Ok(vec![]))?;
+                .unwrap_or_else(|| Ok(vec![]))?;
 
             let params = resolve_parameters(
                 comp_def.spec.parameters.clone(),
@@ -369,21 +370,14 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let mut status = event.status.clone();
-        match status {
-            Some(s) => match s {
-                Some(mut hs) => {
-                    hs.phase = Some(phase.to_string());
-                    status = Some(Some(hs));
-                }
-                None => {
-                    status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
-                }
-            },
-            None => {
-                status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
-            }
-        }
+        let default_status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+        let status = event.status.clone().map_or(default_status.clone(), |s| {
+            s.map_or(default_status, |mut hs| {
+                hs.phase = Some(phase.to_string());
+                Some(Some(hs))
+            })
+        });
+
         let mut new_event = event.clone();
         new_event.status = status;
         new_event.metadata.annotations = annotation;

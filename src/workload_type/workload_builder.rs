@@ -77,48 +77,7 @@ impl WorkloadMetadata {
         }
         Ok(())
     }
-    pub fn to_deployment(&self, workload_type: &str) -> apps::Deployment {
-        apps::Deployment {
-            metadata: form_metadata(
-                self.kube_name(),
-                self.labels(workload_type),
-                self.owner_ref.clone(),
-            ),
-            spec: Some(self.definition.to_deployment_spec(
-                self.params.clone(),
-                Some(self.select_labels()),
-                self.annotations.clone(),
-            )),
-            ..Default::default()
-        }
-    }
-    pub fn create_deployment(&self, workload_type: &str) -> InstigatorResult {
-        let deployment = self.to_deployment(workload_type);
-        let deployments =
-            kube::api::Api::v1Deployment(self.client.clone()).within(self.namespace.as_str());
-        let pp = PostParams::default();
-        deployments.create(&pp, serde_json::to_vec(&deployment)?)?;
-        Ok(())
-    }
-    pub fn update_deployment(&self, workload_type: &str) -> InstigatorResult {
-        let deployment = self.to_deployment(workload_type);
-        let deployments =
-            kube::api::Api::v1Deployment(self.client.clone()).within(self.namespace.as_str());
-        let pp = PatchParams::default();
-        deployments.patch(
-            self.kube_name().as_str(),
-            &pp,
-            serde_json::to_vec(&deployment)?,
-        )?;
-        Ok(())
-    }
-    pub fn delete_deployment(&self) -> InstigatorResult {
-        let pp = kube::api::DeleteParams::default();
-        kube::api::Api::v1Deployment(self.client.clone())
-            .within(self.namespace.as_str())
-            .delete(self.kube_name().as_str(), &pp)?;
-        Ok(())
-    }
+
     pub fn deployment_status(&self) -> Result<String, Error> {
         let deploy: Object<_, apps::DeploymentStatus> =
             match kube::api::Api::v1Deployment(self.client.clone())
