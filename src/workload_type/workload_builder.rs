@@ -447,6 +447,7 @@ mod test {
         annotations.insert("key1".to_string(), "val1".to_string());
         annotations.insert("key2".to_string(), "val2".to_string());
         let deployment = DeploymentBuilder::new("test".into(), skeleton_component())
+            .parameter_map(BTreeMap::new())
             .labels(skeleton_labels())
             .annotations(Some(annotations))
             .replicas(3)
