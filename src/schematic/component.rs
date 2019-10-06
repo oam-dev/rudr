@@ -506,8 +506,8 @@ type ExtendedResources = Vec<ExtendedResource>;
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct Resources {
-    pub cpu: CPU,
-    pub memory: Memory,
+    pub cpu: Option<CPU>,
+    pub memory: Option<Memory>,
     pub gpu: Option<GPU>,
     pub volumes: Option<Vec<Volume>>,
     pub extended: Option<ExtendedResources>,
@@ -516,8 +516,13 @@ pub struct Resources {
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
-        requests.insert("cpu".to_string(), Quantity(self.cpu.required.clone()));
-        requests.insert("memory".to_string(), Quantity(self.memory.required.clone()));
+
+        self.cpu.clone().and_then(|cpu|{
+            requests.insert("cpu".to_string(), Quantity(cpu.required.clone()))
+        });
+        self.memory.clone().and_then(|mem|{
+            requests.insert("memory".to_string(), Quantity(mem.required.clone()))
+        });
 
         // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
         core::ResourceRequirements {
@@ -530,12 +535,8 @@ impl Resources {
 impl Default for Resources {
     fn default() -> Self {
         Resources {
-            cpu: CPU {
-                required: "1".into(),
-            },
-            memory: Memory {
-                required: "1G".into(),
-            },
+            cpu: None,
+            memory: None,
             gpu: None,
             volumes: None,
             extended: None,
