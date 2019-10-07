@@ -1,6 +1,6 @@
 # Scylla: A Kubernetes Hydra Implementation in Rust
 
-Scylla is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allows users to focus on easily deploying and managing applications on any Kubernetes cluster without dealing with the complexities of the orchestrator.
+Scylla is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
 **Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
@@ -9,11 +9,11 @@ Scylla is an implementation of the [Open App Model (OAM)](https://github.com/mic
 Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl. 
 
 Ensure you have a Kubernetes cluster. 
-    - [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
-    - [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
-    - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
-    - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
-    - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
+- [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
+- [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
+- [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+- [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
+- [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
 1. Install Scylla on the cluster. 
 
@@ -46,19 +46,19 @@ Ensure you have a Kubernetes cluster.
 
 ## The Problem Space: Building cloud native applications is difficult 
 
-Users want to focus on describing and building applications but Kubernetes is complex. At the heart of it, Kubernetes exposes container infrastructure primitives. Users have to stitch these together to accomplish their business goals.
+Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixed together application primitives with infrastructure primitives. Different roles like developers and operators have to concern with problems from domains of each other and adjust themselves to understand the whole picture of the underlying infrastructure.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
-While Kubernetes makes container management easier, the requirement to understand all the container infrastructure has introduced the following problems: 
+The requirement to deep understand the container infrastructure has introduced the following problems for application deployment and management:
 
-- There is no standard definiton for a cloud native application which makes it difficult for users looking for an easier way to modernize.
+- There is no standard definition for a cloud native application which makes it difficult for users looking for an easier way to modernize.
 - There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.  
 - It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs out of their domain that they have to learn to accomplish day-to-day tasks. 
 
 ## The approach: Let's take things one step at a time
 
-Scylla takes an incremental approach to solving the problems. The current implementation is a layer on Kubernetes which allows OAM specifications to be deployed on Kubernetes clusters using familiar Kube APIs (you can still use kubectl!).    
+Scylla takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
 
 ![oar arch](./docs/media/how_oar_works.png)
 
