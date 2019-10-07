@@ -258,31 +258,24 @@ pub struct Container {
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
-        let mut volumes: std::vec::Vec<core::VolumeMount> = self.config.clone().map_or(vec![], |p| {
+        let configured_volumes: std::vec::Vec<core::VolumeMount> = self.config.clone().map_or(vec![], |p| {
             p.iter().enumerate().map(|(i, v)| {
-                self.volume_mount(i, v)
+                self.configured_volume(i, v)
             }).collect()
         });
-        self.resources
-            .volumes
-            .clone()
-            .unwrap_or_else(|| vec![])
-            .iter()
-            .for_each(|vol| {
-                volumes.push(core::VolumeMount {
-                    mount_path: vol.mount_path.clone(),
-                    name: vol.name.clone(),
-                    read_only: Some(vol.access_mode == AccessMode::RO),
-                    ..Default::default()
-                })
-            });
+        let resource_volumes: std::vec::Vec<core::VolumeMount> = self.resources.volumes.clone().map_or(vec![], |vols| {
+            vols.iter().map(|vol| {
+                self.resource_volume(vol)
+            }).collect()
+        });
+        let volumes = [configured_volumes, resource_volumes].concat();
         match volumes.len() {
             0 => None,
             _ => Some(volumes),
         }
     }
 
-    fn volume_mount(&self, file_index: usize, config_file: &ConfigFile) -> core::VolumeMount {
+    fn configured_volume(&self, file_index: usize, config_file: &ConfigFile) -> core::VolumeMount {
         let path = Path::new(config_file.path.as_str())
             .parent()
             .unwrap()
@@ -292,6 +285,15 @@ impl Container {
         core::VolumeMount {
             mount_path: path,
             name: self.name.clone() + file_index.to_string().as_str(),
+            ..Default::default()
+        }
+    }
+
+    fn resource_volume(&self, vol: &Volume) -> core::VolumeMount {
+        core::VolumeMount {
+            mount_path: vol.mount_path.clone(),
+            name: vol.name.clone(),
+            read_only: Some(vol.access_mode == AccessMode::RO),
             ..Default::default()
         }
     }
