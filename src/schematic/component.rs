@@ -255,6 +255,24 @@ pub struct Container {
     pub readiness_probe: Option<HealthProbe>,
 }
 
+impl Default for Container {
+    fn default() -> Self {
+        Container {
+            name: "".to_string(),
+            image: "".to_string(),
+            image_pull_secret: None,
+            resources: Default::default(),
+            cmd: None,
+            args: None,
+            env: vec![],
+            config: None,
+            ports: vec![],
+            liveness_probe: None,
+            readiness_probe: None,
+        }
+    }
+}
+
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {

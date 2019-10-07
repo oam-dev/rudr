@@ -1,15 +1,21 @@
 use k8s_openapi::api::core::v1 as core;
+use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 
 use crate::schematic::{
-    component::Component,
+    component::{AccessMode, Component, Container, SharingPolicy, Volume},
     traits::util::{OwnerRefs, TraitResult},
     traits::TraitImplementation,
 };
 use crate::workload_type::ParamMap;
 
 use std::collections::BTreeMap;
+
+/// PVCs must have a minimum size. However, the Hydra model
+/// does not require volume size be specified. This is the
+/// default if no size is specified.
+pub const DEFAULT_VOLUME_SIZE: &str = "200M";
 
 /// The VolumeMounter trait provisions volumes that can
 /// be mounted by a Component.
@@ -67,6 +73,14 @@ impl VolumeMounter {
         labels
     }
     pub fn to_pvc(&self) -> core::PersistentVolumeClaim {
+        let attach_to = self.find_volume();
+        let size = Quantity(
+            attach_to
+                .and_then(|v| v.disk.as_ref().and_then(|d| Some(d.required.clone())))
+                .unwrap_or_else(|| DEFAULT_VOLUME_SIZE.to_string()),
+        );
+        let mut reqs = BTreeMap::new();
+        reqs.insert("storage".to_string(), size);
         core::PersistentVolumeClaim {
             metadata: Some(meta::ObjectMeta {
                 name: Some(self.volume_name.clone()),
@@ -75,12 +89,50 @@ impl VolumeMounter {
                 ..Default::default()
             }),
             spec: Some(core::PersistentVolumeClaimSpec {
-                access_modes: Some(vec!["ReadWriteOnce".to_string()]),
+                access_modes: Some(vec![self.mount_policy(attach_to)]),
                 storage_class_name: Some(self.storage_class.clone()),
+                resources: Some(core::ResourceRequirements {
+                    requests: Some(reqs),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }),
             ..Default::default()
         }
+    }
+    fn mount_policy(&self, volume: Option<&Volume>) -> String {
+        volume
+            .and_then(|vol| {
+                Some(match vol.access_mode {
+                    AccessMode::RO => "ReadOnlyMany",
+                    AccessMode::RW => match vol.sharing_policy {
+                        SharingPolicy::Shared => "ReadWriteMany",
+                        _ => "ReadWriteOnce",
+                    },
+                })
+            })
+            .unwrap_or("ReadWriteOnce")
+            .to_string()
+    }
+    /// Find the volume on this component that has the given volume name.
+    fn find_container(&self) -> Option<&Container> {
+        self.component.containers.iter().find(|c| {
+            c.resources
+                .volumes
+                .clone()
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .any(|v| self.volume_name.eq_ignore_ascii_case(v.name.as_str()))
+        })
+    }
+
+    fn find_volume(&self) -> Option<&Volume> {
+        self.component.containers.iter().find_map(|c| {
+            c.resources.volumes.as_ref().and_then(|vols| {
+                vols.iter()
+                    .find(|v| self.volume_name.eq_ignore_ascii_case(v.name.as_str()))
+            })
+        })
     }
 }
 
@@ -121,25 +173,14 @@ impl TraitImplementation for VolumeMounter {
 #[cfg(test)]
 mod test {
     use super::VolumeMounter;
-    use crate::schematic::component::Component;
+    use crate::schematic::component::{
+        AccessMode, Component, Container, Disk, Resources, SharingPolicy, Volume,
+    };
+
     use crate::workload_type::ParamMap;
     #[test]
     fn test_from_params() {
-        let component = Component {
-            ..Default::default()
-        };
-        let mut params = ParamMap::new();
-        params.insert("storageClass".into(), serde_json::json!("really-fast"));
-        params.insert("volumeName".into(), serde_json::json!("panda-bears"));
-        let vm = VolumeMounter::from_params(
-            "name".to_string(),
-            "instance name".to_string(),
-            "component name".to_string(),
-            params,
-            None,
-            component,
-        );
-
+        let vm = mock_volume_mounter("name", Default::default());
         assert_eq!("really-fast", vm.storage_class);
         assert_eq!("panda-bears", vm.volume_name);
     }
@@ -153,22 +194,58 @@ mod test {
             workload_settings: vec![],
             ..Default::default()
         };
+        let pvc = mock_volume_mounter("name", component).to_pvc();
+
+        assert_eq!(
+            "panda-bears",
+            pvc.metadata.expect("metadata").name.expect("name")
+        )
+    }
+
+    #[test]
+    fn test_find_volume() {
+        let component = Component {
+            workload_type: "Server".into(),
+            parameters: vec![],
+            containers: vec![mock_container("test")],
+            workload_settings: vec![],
+            ..Default::default()
+        };
+        let vm = mock_volume_mounter("test", component);
+        let volume = vm.find_volume().expect("found volume");
+        assert_eq!("panda-bears".to_string(), volume.name);
+    }
+
+    fn mock_container(name: &str) -> Container {
+        Container {
+            name: name.to_string(),
+            resources: Resources {
+                volumes: Some(vec![Volume {
+                    name: "panda-bears".to_string(),
+                    mount_path: "/var/foo".to_string(),
+                    sharing_policy: SharingPolicy::Exclusive,
+                    access_mode: AccessMode::RO,
+                    disk: Some(Disk {
+                        required: "123M".to_string(),
+                        ephemeral: false,
+                    }),
+                }]),
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    }
+    fn mock_volume_mounter(name: &str, component: Component) -> VolumeMounter {
         let mut params = ParamMap::new();
         params.insert("storageClass".into(), serde_json::json!("really-fast"));
         params.insert("volumeName".into(), serde_json::json!("panda-bears"));
-        let pvc = VolumeMounter::from_params(
-            "name".to_string(),
+        VolumeMounter::from_params(
+            name.to_string(),
             "instance name".to_string(),
             "component name".to_string(),
             params,
             None,
             component,
-        )
-        .to_pvc();
-
-        assert_eq!(
-            "panda-bears",
-            pvc.metadata.expect("metadata").name.expect("name")
         )
     }
 }

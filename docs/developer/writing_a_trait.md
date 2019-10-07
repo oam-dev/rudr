@@ -203,6 +203,8 @@ impl VolumeMounter {
 
     /// Create a PersistentVolumeClaim that describes this volume
     pub fn to_pvc(&self) -> core::PersistentVolumeClaim {
+        let mut reqs = BTreeMap::new();
+        reqs.insert("storage".to_string(), Quantity("200M".to_string()));
         core::PersistentVolumeClaim {
             metadata: Some(meta::ObjectMeta {
                 name: Some(self.volume_name.clone()),
@@ -213,6 +215,10 @@ impl VolumeMounter {
             spec: Some(core::PersistentVolumeClaimSpec {
                 access_modes: Some(vec!["ReadWriteOnce".to_string()]),
                 storage_class_name: Some(self.storage_class.clone()),
+                resources: Some(core::ResourceRequirements {
+                    requests: Some(reqs),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }),
             ..Default::default()
