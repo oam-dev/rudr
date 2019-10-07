@@ -16,7 +16,7 @@ Now Scylla has all the core workload type, they are as belows:
 A Service is used for long-running, scalable workload that have a network endpoint with a stable name to receive network traffic for the component as a whole. 
 Common use cases include web applications and services that expose APIs. 
 
-The name is a little confusing with Kubernetes Service, so maybe we'll name it by Server or ReplicabeService, it's all depending on the Hydra Spec.
+The name is a little confusing with Kubernetes Service, so maybe we'll name it by Server or ReplicabeService, it's all depending on the Open Application Model Spec.
 
 The Service Workload in Scylla is implemented by a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) binding with a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/).
 

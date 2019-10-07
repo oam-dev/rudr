@@ -1,6 +1,6 @@
 # Migrating Kubernetes Resources to Scylla
 
-This document explains, at a high level, how to represent your Kubernetes applications using the Hydra specification.
+This document explains, at a high level, how to represent your Kubernetes applications using the Open Application Model specification.
 
 ## Terms
 
@@ -8,7 +8,7 @@ The terms here are described elsewhere, particularly in the [specification](http
 
 - Component: A component describes a particular workload (or microservice) that can be deployed.
 - Component Instance: A particular instance of a component. If one Component is deployed in two Application Configurations, it will create two Component Instances, each of which is managed by its Application Configuration
-- Workload type: Hydra describes the basic behavior of a Component using workload types. There are 6 core workload types:
+- Workload type: Open Application Model describes the basic behavior of a Component using workload types. There are 6 core workload types:
   - SingletonService: This service listens on a network interface. Only one instance of the component's pod can run at a time.
   - ReplicableService: This service listens on a network interface, but multiple replicas of the component's pod can be running concurrently.
   - SingletonTask: This component only runs for a short period of time (it is not a daemon). It does not listen on a network interface. And at any given time, only one of these may run per application.
@@ -21,17 +21,17 @@ The terms here are described elsewhere, particularly in the [specification](http
 
 ## Separation of Concerns
 
-One of the questions we occasionally hear from seasoned Kubernetes developers is _What do I gain from Hydra?_. To be clear, part of the design of Hydra was to make it easier for developers to work with Kubernetes without needing to understand the operational aspects of Kubernetes. But the real virtue we see in Hydra is its separation of concerns.
+One of the questions we occasionally hear from seasoned Kubernetes developers is _What do I gain from Open Application Model?_. To be clear, part of the design of Open Application Model was to make it easier for developers to work with Kubernetes without needing to understand the operational aspects of Kubernetes. But the real virtue we see in Open Application Model is its separation of concerns.
 
 Today's Kubernetes objects are built to _describe a concept_. A Deployment describes a replicable service that can have certain rollout strategies applied.
 
-But Hydra attempts to start with a different premise, and then describe things accordingly:
+But Open Application Model attempts to start with a different premise, and then describe things accordingly:
 
 > Cloud Native Applications have responsibilities described by three different roles: Developers, Application Operators, and Infrastructure Operators.
 
 Each of these roles has a different job, and different concerns. A developer is responsible for producing a runnable workload. An application operator is responsible for executing an application inside of Kubernetes. An infrastructure operator is responsible for configuring and running Kubernetes itself.
 
-In our view, the developer is responsible for creating and maintaining Components. The application operator takes responsibility for the Application Configuration. And the infrastructure operator runs Scylla, and decides how Hydra's Traits and Scopes are used in practice. And Scylla's job is to take these various inputs and transform them into underlying Kubernetes types.
+In our view, the developer is responsible for creating and maintaining Components. The application operator takes responsibility for the Application Configuration. And the infrastructure operator runs Scylla, and decides how Open Application Model's Traits and Scopes are used in practice. And Scylla's job is to take these various inputs and transform them into underlying Kubernetes types.
 
 ## Workflow
 
@@ -47,7 +47,7 @@ Likewise, when Application Configurations are modified or deleted, Scylla will r
 
 ## Converting a Kubernetes Application to Scylla
 
-A major goal of the Hydra specification is to separate operational concerns from developer concerns. So a `ComponentSchematic` describes a component from a developer's view, while an `ApplicationConfiguration` creates instances of Components, and attaches configuration data to them.
+A major goal of the Open Application Model specification is to separate operational concerns from developer concerns. So a `ComponentSchematic` describes a component from a developer's view, while an `ApplicationConfiguration` creates instances of Components, and attaches configuration data to them.
 
 To convert a Kubernetes application to Scylla, you can follow these steps:
 
@@ -55,7 +55,7 @@ To convert a Kubernetes application to Scylla, you can follow these steps:
     - A `Deployment` or `ReplicaSet` can be converted to one of `SingletonService`, `ReplicableService`, `SingletonWorker`, or `ReplicableWorker` depending on its runtime requirements
     - A `Job` can be converted to one of `SingletonTask` or `ReplicableTask`
     - A `Pod` can be converted to `SingletonService` or `SingletonWorker`
-    - At this time, `StatefulSets` and `DaemonSets` do not have Hydra equivalents.
+    - At this time, `StatefulSets` and `DaemonSets` do not have Open Application Model equivalents.
     - Expose parameters. For example, if your container image takes `FOO` as an environment variable, you may expose a parameter that allows an operator to set `FOO`'s value.
 2. Create an `ApplicationConfiguration` YAML file
 3. Compose your application by listing which Components (defined above) should be instantiated as part of your application.
