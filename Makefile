@@ -1,5 +1,5 @@
-REPO=hydraoss/scylla
-TAG=latest
+REPO = hydraoss/scylla
+TAG ?= latest
 
 .PHONY: build
 build:
