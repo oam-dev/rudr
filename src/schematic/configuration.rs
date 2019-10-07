@@ -1,4 +1,4 @@
-use crate::schematic::{parameter::ParameterValue, variable::Variable, traits::TraitBinding};
+use crate::schematic::{parameter::ParameterValue, traits::TraitBinding, variable::Variable};
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
 ///

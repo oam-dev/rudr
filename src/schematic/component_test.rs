@@ -175,7 +175,10 @@ fn test_container_deserialize() {
 
     let res = &container.resources;
 
-    assert_eq!("2G", res.memory.as_ref().expect("memory should be set").required);
+    assert_eq!(
+        "2G",
+        res.memory.as_ref().expect("memory should be set").required
+    );
     assert!(res.cpu.is_none());
 
     let vols = res.volumes.clone().expect("expected volumes");
@@ -504,27 +507,45 @@ fn test_to_volume_mounts() {
     let container = Container {
         name: "test_container".into(),
         image: "test/image".into(),
-        resources: Resources{
-            cpu: Some(CPU {required: "1".into()}),
-            memory: Some(Memory {required: "128".into()}),
-            gpu: Some(GPU {required: "0".into()}),
-            volumes: Some(vec![Volume{
-                name: "myvol".into(),
-                mount_path: "/myvol".into(),
-                access_mode: AccessMode::RO,
-                disk: Some(Disk{
-                    ephemeral: true,
-                    required: "200M".into(),
-                }),
-                sharing_policy: SharingPolicy::Exclusive,
-            }]),
+        resources: Resources {
+            cpu: Some(CPU {
+                required: "1".into(),
+            }),
+            memory: Some(Memory {
+                required: "128".into(),
+            }),
+            gpu: Some(GPU {
+                required: "0".into(),
+            }),
+            volumes: Some(vec![
+                Volume {
+                    name: "myvol".into(),
+                    mount_path: "/myvol".into(),
+                    access_mode: AccessMode::RO,
+                    disk: Some(Disk {
+                        ephemeral: true,
+                        required: "200M".into(),
+                    }),
+                    sharing_policy: SharingPolicy::Exclusive,
+                },
+                Volume {
+                    name: "pvcvol".into(),
+                    mount_path: "/pvcvol".into(),
+                    access_mode: AccessMode::RW,
+                    disk: Some(Disk {
+                        ephemeral: false,
+                        required: "123M".into(),
+                    }),
+                    sharing_policy: SharingPolicy::Exclusive,
+                },
+            ]),
             ..Default::default()
         },
         env: vec![],
         ports: vec![],
         args: None,
         cmd: None,
-        config: Some(vec![ConfigFile{
+        config: Some(vec![ConfigFile {
             path: "/config/file".into(),
             value: Some("value".to_string()),
             from_param: None,
@@ -534,7 +555,7 @@ fn test_to_volume_mounts() {
         readiness_probe: None,
     };
     let mounts = container.volume_mounts();
-    assert_eq!(mounts.expect("at least one mount").len(), 2);
+    assert_eq!(mounts.as_ref().expect("at least one mount").len(), 3);
 }
 
 #[test]

@@ -13,8 +13,8 @@ spec:
           - name: myvol
             mountPath: /myvol
             disk:
-              required: "200M"
-              ephemeral: true
+              required: "50M"
+              ephemeral: false
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ApplicationConfiguration

@@ -4,7 +4,7 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 
 use crate::schematic::{
-    component::{AccessMode, Component, Container, SharingPolicy, Volume},
+    component::{AccessMode, Component, SharingPolicy, Volume},
     traits::util::{OwnerRefs, TraitResult},
     traits::TraitImplementation,
 };
@@ -114,17 +114,6 @@ impl VolumeMounter {
             .unwrap_or("ReadWriteOnce")
             .to_string()
     }
-    /// Find the volume on this component that has the given volume name.
-    fn find_container(&self) -> Option<&Container> {
-        self.component.containers.iter().find(|c| {
-            c.resources
-                .volumes
-                .clone()
-                .unwrap_or_else(|| vec![])
-                .iter()
-                .any(|v| self.volume_name.eq_ignore_ascii_case(v.name.as_str()))
-        })
-    }
 
     fn find_volume(&self) -> Option<&Volume> {
         self.component.containers.iter().find_map(|c| {
@@ -137,7 +126,10 @@ impl VolumeMounter {
 }
 
 impl TraitImplementation for VolumeMounter {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    /// Make sure the PVC is created before the Pod.
+    /// This won't make a different most of the time, but on fast disk provisioning operations
+    /// this may help a little.
+    fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
         let pvc = self.to_pvc();
         let (req, _) = core::PersistentVolumeClaim::create_namespaced_persistent_volume_claim(
             ns,
@@ -145,6 +137,10 @@ impl TraitImplementation for VolumeMounter {
             Default::default(),
         )?;
         client.request::<core::PersistentVolumeClaim>(req)?;
+        Ok(())
+    }
+    /// There is nothing to do on the add phase for this trait
+    fn add(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
     fn modify(&self, ns: &str, client: APIClient) -> TraitResult {

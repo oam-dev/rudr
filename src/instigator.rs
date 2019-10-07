@@ -6,7 +6,6 @@ use serde_json::json;
 use std::collections::BTreeMap;
 
 use crate::{
-    trait_manager::TraitManager,
     lifecycle::Phase,
     schematic::{
         component::Component,
@@ -20,6 +19,7 @@ use crate::{
         variable::{get_variable_values, resolve_variables},
         HydraStatus, Status,
     },
+    trait_manager::TraitManager,
     workload_type::{
         self, CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker,
         SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
@@ -649,6 +649,7 @@ pub fn get_component_def(
 pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
     values.or_else(|| Some(vec![])).unwrap()
 }
+<<<<<<< HEAD
 
 
 <<<<<<< HEAD
@@ -840,3 +841,8 @@ impl TraitManager {
 }
 =======
 >>>>>>> migrated TraitManager to its own module
+||||||| merged common ancestors
+
+
+=======
+>>>>>>> Attach PVC to pod for any non-ephemeral volume
