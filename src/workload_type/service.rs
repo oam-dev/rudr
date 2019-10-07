@@ -60,7 +60,9 @@ impl WorkloadType for ReplicatedService {
         self.meta.create_config_maps("Service")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -73,7 +75,9 @@ impl WorkloadType for ReplicatedService {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
@@ -133,7 +137,9 @@ impl WorkloadType for SingletonService {
 
         // Create deployment
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .replicas(1)
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;

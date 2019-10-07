@@ -1,26 +1,76 @@
 # Scylla: A Kubernetes Hydra Implementation in Rust
 
-This project implements the [Hydra specification](https://github.com/microsoft/hydra-spec) for Kubernetes.
+Scylla is an implementation of the [Open App Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
-**This is unstable, experimental, and subject to massively breaking changes. It may reflect the spec, or even features we are vetting before inclusion into the spec.**
+**Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
-## Install
+## Quickstart: Deploy an app with Ingress 
 
-A relatively recent version of Scylla can be installed using [Helm v3](https://github.com/helm/helm/releases).
+Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl. 
 
-```console
-$ helm install scylla ./charts/scylla --wait
-```
+Ensure you have a Kubernetes cluster. 
+- [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
+- [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
+- [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+- [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
+- [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-See the [installation guide](./docs/install.md) for more details.
+1. Install Scylla on the cluster. 
 
-## Docs
+    ```bash
+    helm install scylla ./charts/scylla --wait
+    ```
 
-Get started with the [Quick Start](./docs/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
+2. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components. 
 
-## License
+    ```bash
+    helm install stable/nginx-ingress
+    ```
 
-This project is available under the terms of the MIT license. See [LICENSE.txt](LICENSE.txt).
+3. Register the components on your cluster. 
+
+    ```bash
+    kubectl apply -f examples/nginx-component.yaml
+    ```
+
+4. Apply the configuration to add the Ingress trait to your component. 
+
+    ```bash
+    kubectl apply -f examples/first-app-config.yaml
+    ```
+
+5. Hitting the public endpoint of your ingress service, should reveal the nginx component. 
+
+
+![Alt Text](./docs/media/readme.gif)
+
+## The Problem Space: Building cloud native applications is difficult 
+
+Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixed together application primitives with infrastructure primitives. Different roles like developers and operators have to concern with problems from domains of each other and adjust themselves to understand the whole picture of the underlying infrastructure.
+
+![K8s is hard](./docs/media/k8s_application_complexities.png)
+
+The requirement to deep understand the container infrastructure has introduced the following problems for application deployment and management:
+
+- There is no standard definition for a cloud native application which makes it difficult for users looking for an easier way to modernize.
+- There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.  
+- It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs out of their domain that they have to learn to accomplish day-to-day tasks. 
+
+## The approach: Let's take things one step at a time
+
+Scylla takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
+
+![oar arch](./docs/media/how_oar_works.png)
+
+- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes. 
+
+- By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters. 
+
+- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait. 
+
+## Try things out yourself 
+
+Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
 
 ## Contributing
 
@@ -45,3 +95,7 @@ Scylla is one of the monsters in Homer's Odyssey. Odysseus must steer his ship b
 ## Why Rust?
 
 On occasion, we have been asked why Scylla is written in Rust instead of Go. There is no requirement in the Kubernetes world that Kubernetes controllers be written in Go. Many languages implement the Kubernetes API and can be used for creating controllers. We decided to write Scylla in Rust because the language allows us to write Kubernetes controllers with far less code. Rust's generics make it possible to quickly and succinctly describe custom Kubernetes API resources without requiring developers to run code generators. And Rust's Kubernetes library can easily switch between Kubernetes versions with ease. We recognize that Rust might not be to everyone's taste (and neither is Go). However, we are confident that Rust is a solid choice for writing maintainable and concise Kubernetes applications.
+
+## License
+
+This project is available under the terms of the MIT license. See [LICENSE.txt](LICENSE.txt).

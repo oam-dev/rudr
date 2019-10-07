@@ -1,10 +1,22 @@
 use crate::workload_type::{
-    workload_builder::WorkloadMetadata, InstigatorResult, KubeName, WorkloadType, workload_builder::DeploymentBuilder,
+    workload_builder::DeploymentBuilder, workload_builder::WorkloadMetadata, InstigatorResult,
+    KubeName, WorkloadType,
 };
+
+use std::collections::BTreeMap;
 
 pub struct ReplicatedWorker {
     pub meta: WorkloadMetadata,
     pub replica_count: Option<i32>,
+}
+
+impl ReplicatedWorker {
+    fn labels(&self) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "Worker".to_string());
+        labels
+    }
 }
 
 impl KubeName for ReplicatedWorker {
@@ -19,6 +31,9 @@ impl WorkloadType for ReplicatedWorker {
         self.meta.create_config_maps("Worker")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -27,8 +42,15 @@ impl WorkloadType for ReplicatedWorker {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "modify")
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
     fn delete(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
@@ -46,6 +68,15 @@ pub struct SingletonWorker {
     pub meta: WorkloadMetadata,
 }
 
+impl SingletonWorker {
+    fn labels(&self) -> BTreeMap<String, String> {
+        let mut labels = BTreeMap::new();
+        labels.insert("app".to_string(), self.meta.name.clone());
+        labels.insert("workload-type".to_string(), "SingletonWorker".to_string());
+        labels
+    }
+}
+
 impl KubeName for SingletonWorker {
     fn kube_name(&self) -> String {
         self.meta.instance_name.to_string()
@@ -58,6 +89,9 @@ impl WorkloadType for SingletonWorker {
         self.meta.create_config_maps("SingletonWorker")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -66,8 +100,15 @@ impl WorkloadType for SingletonWorker {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "modify")
+            .do_request(
+                self.meta.client.clone(),
+                self.meta.namespace.clone(),
+                "modify",
+            )
     }
     fn delete(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
@@ -86,6 +127,61 @@ mod test {
     use crate::workload_type::{worker::*, workload_builder::WorkloadMetadata, KubeName};
 
     use std::collections::BTreeMap;
+
+    #[test]
+    fn test_worker_labels() {
+        {
+            let wrkr = ReplicatedWorker {
+                meta: WorkloadMetadata {
+                    name: "mytask".into(),
+                    component_name: "workerbee".into(),
+                    instance_name: "workerinst".into(),
+                    namespace: "tests".into(),
+                    definition: Component {
+                        ..Default::default()
+                    },
+                    annotations: None,
+                    params: BTreeMap::new(),
+                    client: APIClient::new(mock_kube_config()),
+                    owner_ref: None,
+                },
+                replica_count: Some(1),
+            };
+
+            let labels = wrkr.labels();
+            assert_eq!(
+                "Worker",
+                labels
+                    .get("workload-type")
+                    .expect("worker-type label must be set")
+            )
+        }
+        {
+            let wrkr = SingletonWorker {
+                meta: WorkloadMetadata {
+                    name: "mytask".into(),
+                    component_name: "workerbee".into(),
+                    instance_name: "workerinst".into(),
+                    namespace: "tests".into(),
+                    definition: Component {
+                        ..Default::default()
+                    },
+                    annotations: None,
+                    params: BTreeMap::new(),
+                    client: APIClient::new(mock_kube_config()),
+                    owner_ref: None,
+                },
+            };
+
+            let labels = wrkr.labels();
+            assert_eq!(
+                "SingletonWorker",
+                labels
+                    .get("workload-type")
+                    .expect("worker-type label must be set")
+            )
+        }
+    }
 
     #[test]
     fn test_singleton_worker_kube_name() {

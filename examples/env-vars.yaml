@@ -13,7 +13,7 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: alpine-forever
+  name: alpine-forever-v1
 spec:
   workloadType: core.hydra.io/v1alpha1.SingletonServer
   parameters:
@@ -41,7 +41,7 @@ metadata:
   name: example-env-vars
 spec:
   components:
-    - name: alpine-forever
+    - name: alpine-forever-v1
       instanceName: example-alpine-forever
       parameterValues:
         - name: message

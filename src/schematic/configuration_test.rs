@@ -23,3 +23,22 @@ fn test_component_configuration() {
     assert!(conf.parameter_values.is_some());
     assert!(conf.traits.is_none());
 }
+
+#[test]
+fn test_application_configuration() {
+    // Test that an application configuration deserializes correctly.
+
+    let conf: ApplicationConfiguration = serde_json::from_str(
+        r#"{
+            "variables": [
+                {
+                    "name": "var1",
+                    "value": 1234
+                }
+            ]
+        }"#,
+    )
+    .expect("JSON must parse");
+
+    assert!(conf.variables.is_some());
+}

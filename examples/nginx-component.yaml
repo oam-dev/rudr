@@ -1,7 +1,7 @@
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: nginx-component
+  name: nginx-component-v1
 spec:
   name: nginx-component
   workloadType: core.hydra.io/v1alpha1.SingletonServer
@@ -13,20 +13,20 @@ spec:
       cmd:
         - nginx-debug
       args:
-        - '-g'
-        - 'daemon off;'
+        - "-g"
+        - "daemon off;"
       env:
-      - name: TEST
-        value: FOO
+        - name: TEST
+          value: FOO
       config:
         - path: "/etc/access/default_user.txt"
           value: "admin"
         - path: "/etc/run/db-data"
           fromParam: "poet"
       ports:
-      - type: tcp
-        containerPort: 80
-        name: http
+        - type: tcp
+          containerPort: 80
+          name: http
   parameters:
     - name: poet
       type: string

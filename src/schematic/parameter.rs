@@ -1,5 +1,4 @@
 use failure::Error;
-use regex::Regex;
 use std::collections::BTreeMap;
 
 pub type ParameterList = Vec<Parameter>;
@@ -188,12 +187,4 @@ pub struct ParameterValue {
     pub name: String,
     pub value: Option<serde_json::Value>,
     pub from_param: Option<String>,
-}
-
-pub fn parse_from_variable(input: String) -> Option<String> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"^\[fromVariable\((?P<var>[[:word:]]+)\)\]$").unwrap();
-    }
-    RE.captures(&input)
-        .and_then(|cap| cap.name("var").map(|var| var.as_str().to_owned()))
 }

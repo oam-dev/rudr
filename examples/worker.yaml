@@ -4,15 +4,15 @@ metadata:
   name: worker-app
 spec:
   components:
-  - name: alpine-worker
-    instanceName: worker-nginx
-    parameterValues:
-      - name: poet
-        value: Eliot
-      - name: poem
-        value: The Wasteland
-    traits:
-      - name: manual-scaler
-        parameterValues:
-          - name: replicaCount
-            value: 1
+    - name: alpine-worker-v1
+      instanceName: worker-nginx
+      parameterValues:
+        - name: poet
+          value: Eliot
+        - name: poem
+          value: The Wasteland
+      traits:
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: 1

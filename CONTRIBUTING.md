@@ -8,56 +8,78 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Triaging and Milestones 
+## Building from Source
 
-### Milestones
+This section goes over how to build the source code for Scylla. 
 
-To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
+### Prerequisites 
 
-### Triaging 
+- [Rust 2018 Edition or newer](https://www.rust-lang.org/tools/install)
+- Install kubectl and Helm 3. Instructions for both are in the [set up doc](./docs/setup/install.md)
+- Access to a Kubernetes cluster. Instructions for [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) can be found here 
 
-Each day, a maintainer should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. 
+To build:
 
-Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call. 
+- Clone this repository
+- Go into the main directory: `cd scylla`
+- Install the CRDs
+```bash
+kubectl apply -f charts/scylla/crds/appconfigs.yaml
+kubectl apply -f charts/scylla/crds/componentinstances.yaml
+kubectl apply -f charts/scylla/crds/componentschematics.yaml
+kubectl apply -f charts/scylla/crds/scopes.yaml
+kubectl apply -f charts/scylla/crds/traits.yaml
+```
+- Run `cargo build`
+- To run the server: `make run`, this will run Scylla controller locally, and use the cluster by your `~/.kube/config`.
 
-Issues are assigned type tags and ONE milestone. PRs are assigned status tags and one milestone. The tags for issues and PRs are described on the [labels](https://github.com/microsoft/scylla/labels) page. 
+At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
 
-## Issues
+To get started, define some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
 
-Issues are used as the primary method for tracking work in the milestones on the project.
+```console
+$ kubectl apply -f examples/components.yaml
+component.core.hydra.io "nginx-replicated" created
+component.core.hydra.io "nginx-singleton" created
+$ kubectl get components
+NAME               AGE
+nginx-replicated   17s
+nginx-singleton    17s
+```
 
-### Issue Types
+Next, create a new application that uses the component. In Hydra, which follows the 12-factor model, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
 
-To learn about issue types, please read the [labels](https://github.com/microsoft/scylla/labels) page. 
+```console
+$ kubectl apply -f examples/first-app-config.yaml
+```
 
-### Issue Lifecycle
+Now you may wish to explore your cluster to see what was created:
 
-The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Scylla. All issue types follow the same general lifecycle. Differences are noted below.
-1. Issue creation
-2. Triage
-    - The maintainer in charge of triaging will apply the proper labels for the issue. This
-    includes labels for type, projects/milestones and metadata.
-    - (If needed) Clean up the title to succinctly and clearly state the issue. Also ensure
-    that proposals are prefaced with "Proposal".
-    - We attempt to do this process at least once per work day.
-3. Discussion
-    - Enhancement, bug and document issues should be connected to the PR that resolves it.
-    - Whoever is working on an issue should claim the issue in the comments.
-    - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
-4. Issue closure
+```console
+$ kubectl get configuration,pod,svc,ingress
+NAME        AGE
+first-app   28s
 
-## How to Contribute a Patch
+NAME                        READY     STATUS    RESTARTS   AGE
+first-app-nginx-singleton   1/1       Running   0          19s
+
+NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+first-app-nginx-singleton           ClusterIP   10.0.78.193   <none>        80/TCP    19s
+kubernetes                          ClusterIP   10.0.0.1      <none>        443/TCP   95d
+
+NAME                                      HOSTS         ADDRESS   PORTS     AGE
+first-app-nginx-singleton-trait-ingress   example.com             80        19s
+```
+
+To delete this, run `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
+
+## Contributing via pull requests
+
+Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/scylla/labels) page. 
 
 1. Fork the repo, modify to address the issue.
 2. Link the PR to the issue. 
 3. Submit a pull request.
-
-The next section contains more information on the workflow followed for Pull Requests.
-
-## Pull Requests and Issues
-
-Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/scylla/labels) page. 
 
 ### PR Lifecycle
 
@@ -88,57 +110,40 @@ Like any good open source project, we use Pull Requests (PRs) to track code chan
     - PRs can be closed by the author without merging
     - PRs may be closed by a Final Approver if the decision is made that the PR is not going to be merged 
 
-## The Triager
+## Contributing via Issues
 
-Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the traiger. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
+There are more ways to contribute to open source projects than pull requests. We implore users to open issues with any suggestions or problems discovered. Issues are used as the primary method for tracking work in the milestones on the project.
 
-## Building from Source
+### Issue Types
 
-To build:
+To learn about issue types, please read the [labels](https://github.com/microsoft/scylla/labels) page. 
 
-- Make sure you have Rust 2018 Edition or newer
-- Clone this repository
-- Go into the main directory: `cd scylla`
-- Install the CRDs in `k8s/crds.yaml`: `kubectl apply -f k8s/crds.yaml`
-- Run `cargo build`
-- To run the server: `make run`, this will run scylla controller locally, and use the cluster by your `~/.kube/config`.
+### Issue Lifecycle
 
-At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
+The issue lifecycle is mainly driven by the core maintainers, but is good information for those
+contributing to Scylla. All issue types follow the same general lifecycle.
 
-To get started, create some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
+1. Issue creation. 
+2. Triage
+    - The maintainer in charge of triaging will apply the proper labels for the issue. This
+    includes labels for type, projects/milestones and metadata.
+    - (If needed) Clean up the title to succinctly and clearly state the issue. Also ensure
+    that proposals are prefaced with "Proposal".
+    - We attempt to do this process at least once per work day.
+3. Discussion
+    - Enhancement, bug and document issues should be connected to the PR that resolves it.
+    - Whoever is working on an issue should claim the issue in the comments.
+    - Issues should stay open until a maintainer closes it or the owner of the issue decides to close it. 
+4. Issue closure.
 
-```console
-$ kubectl apply -f examples/components.yaml
-component.core.hydra.io "nginx-replicated" created
-component.core.hydra.io "nginx-singleton" created
-$ kubectl get components
-NAME               AGE
-nginx-replicated   17s
-nginx-singleton    17s
-```
+## Milestones and Triaging 
 
-Next, create a new application that uses the component. In Hydra, which is a 12-factor, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
+### Milestones
 
-```console
-$ kubectl apply -f examples/first-app-config.yaml
-```
+To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
 
-Now you may wish to explore your cluster to see what was created:
+### Triaging 
 
-```console
-$ kubectl get configuration,pod,svc,ingress
-NAME        AGE
-first-app   28s
+Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or voluteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
 
-NAME                        READY     STATUS    RESTARTS   AGE
-first-app-nginx-singleton   1/1       Running   0          19s
-
-NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
-first-app-nginx-singleton           ClusterIP   10.0.78.193   <none>        80/TCP    19s
-kubernetes                          ClusterIP   10.0.0.1      <none>        443/TCP   95d
-
-NAME                                      HOSTS         ADDRESS   PORTS     AGE
-first-app-nginx-singleton-trait-ingress   example.com             80        19s
-```
-
-To delete this, just do a `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
+Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call.

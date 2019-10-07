@@ -127,3 +127,4 @@ $ helm install nginx-ingress stable/nginx-ingress
 | **hostname** | Host name for the ingress. | string | True | --
 | **service_port** | Port number on the service to bind to the ingress. | int | True | --
 | **path** | Path to expose. | string | False | `/`
+
