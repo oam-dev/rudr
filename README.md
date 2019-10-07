@@ -70,7 +70,7 @@ Scylla takes an incremental approach to solving the problems. The current implem
 
 ## Try things out yourself 
 
-Get started with the [Quick Start](./docs/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
+Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
 
 ## Contributing
 
