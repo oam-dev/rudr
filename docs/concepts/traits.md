@@ -128,3 +128,76 @@ $ helm install nginx-ingress stable/nginx-ingress
 | **service_port** | Port number on the service to bind to the ingress. | int | True | --
 | **path** | Path to expose. | string | False | `/`
 
+## Volume Mounter Trait
+
+The Volume Mounter trait is responsible for attaching Kubernetes Persistent Volume Claims to components.
+
+When creating components, component authors may indicate that a container needs a storage to be attached as a volume.
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: server-with-volume-v1
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  containers:
+    - name: server
+      image: nginx:latest
+      resources:
+        volumes:
+          - name: myvol
+            mountPath: /myvol
+            disk:
+              required: "50M"
+              ephemeral: true
+```
+
+In the `resources` section above, one volume is required. It must be at least `50M` in size. It is `ephemeral`, which means that the component author does not expect the data to persist if the pod is destroyed.
+
+Sometimes, components need to persist data. In such cases, the `ephemeral` flag should be set to `false`:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: server-with-volume-v1
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  containers:
+    - name: server
+      image: nginx:latest
+      resources:
+        volumes:
+          - name: myvol
+            mountPath: /myvol
+            disk:
+              required: "50M"
+              ephemeral: false
+```
+
+In the Kubernetes implementation of OAM, a Persistent Volume Claim (PVC) is used to satisfy the non-ephemeral case. However, by default Scylla does not create this PVC automatically. A trait must be applied that will indicate how the PVC is created:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: example-server-with-volume
+spec:
+  components:
+    - name: server-with-volume-v1
+      instanceName: example-server-with-volume
+      traits:
+        - name: volumeMounter
+          parameterValues:
+            - name: volumeName
+              value: myvol
+            - name: storageClass
+              value: default
+```
+
+The `volumeMounter` trait ensures that a PVC is created with the given name (`myvol`) using the given storage class (`default`). Typically, the `volumeName` should match the `resources.volumes[].name` field from the `ComponentSchematic`. Thus `myvol` above will match the volume declared in the `volumes` section of `server-with-volume-v1`.
+
+When this request is processed by Scylla, it will first create the Kubernetes PVC named `myvol` and then create a Kubernetes pod that attaches that PVC as a `volumeMount`.
+
+Attaching PVCs to Pods _may take extra time_, as the underlying system must first provision storage.
