@@ -8,7 +8,7 @@ Currently, Scylla supports the following traits:
  - [Autoscaler](#autoscaler-trait)
  - [Ingress](#ingress-trait)
 
-An [App operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
+An [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
 
 <pre>
 apiVersion: core.hydra.io/v1alpha1
@@ -35,7 +35,7 @@ spec:
                       value: 80
 </pre>
 
-You can assign a trait to a component by specifying its `name` (as listed in `kubectl get traits`) and your specific `parameterValues` (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
+You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **`parameterValues`** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
 
 ## Supported traits
 
