@@ -46,13 +46,13 @@ Here's how to get info on the traits supported on your Scylla installation.
 **List supported traits**:
 
 ```console
-`kubectl get traits`
+$ kubectl get traits
 ```
 
 **Show the schema details of a trait:**
 
 ```console
-kubectl get trait <trait-name> -o yaml
+$ kubectl get trait <trait-name> -o yaml
 ````
 
 ## Manual Scaler trait
