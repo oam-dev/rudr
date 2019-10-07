@@ -258,22 +258,10 @@ pub struct Container {
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
-        let mut volumes = self.config.clone().map_or(vec![], |p| {
-            let mut mounts = vec![];
-            for (i, v) in p.iter().enumerate() {
-                let path = Path::new(v.path.as_str())
-                    .parent()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_owned();
-                mounts.push(core::VolumeMount {
-                    mount_path: path,
-                    name: self.name.clone() + i.to_string().as_str(),
-                    ..Default::default()
-                });
-            }
-            mounts
+        let mut volumes: std::vec::Vec<core::VolumeMount> = self.config.clone().map_or(vec![], |p| {
+            p.iter().enumerate().map(|(i, v)| {
+                self.volume_mount(i, v)
+            }).collect()
         });
         self.resources
             .volumes
@@ -291,6 +279,20 @@ impl Container {
         match volumes.len() {
             0 => None,
             _ => Some(volumes),
+        }
+    }
+
+    fn volume_mount(&self, file_index: usize, config_file: &ConfigFile) -> core::VolumeMount {
+        let path = Path::new(config_file.path.as_str())
+            .parent()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
+        core::VolumeMount {
+            mount_path: path,
+            name: self.name.clone() + file_index.to_string().as_str(),
+            ..Default::default()
         }
     }
 }
