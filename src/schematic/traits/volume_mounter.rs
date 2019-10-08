@@ -72,6 +72,7 @@ impl VolumeMounter {
         labels.insert("trait".to_string(), "volume-mounter".to_string());
         labels
     }
+    /// Conver the volume mounter data to a PersistentVolumeClaim
     pub fn to_pvc(&self) -> core::PersistentVolumeClaim {
         let attach_to = self.find_volume();
         let size = Quantity(
@@ -115,6 +116,7 @@ impl VolumeMounter {
             .to_string()
     }
 
+    /// Locate the volume that this mounter is supposed to attach
     fn find_volume(&self) -> Option<&Volume> {
         self.component.containers.iter().find_map(|c| {
             c.resources.volumes.as_ref().and_then(|vols| {
@@ -127,7 +129,7 @@ impl VolumeMounter {
 
 impl TraitImplementation for VolumeMounter {
     /// Make sure the PVC is created before the Pod.
-    /// This won't make a different most of the time, but on fast disk provisioning operations
+    /// This won't make a difference most of the time, but on fast disk provisioning operations
     /// this may help a little.
     fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
         let pvc = self.to_pvc();
