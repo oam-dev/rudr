@@ -154,12 +154,7 @@ impl DeploymentBuilder {
     pub fn to_deployment(&self) -> apps::Deployment {
         apps::Deployment {
             // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta {
-                name: Some(self.name.clone()),
-                labels: Some(self.labels.clone()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
+            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
             spec: Some(apps::DeploymentSpec {
                 replicas: self.replicas,
                 selector: meta::LabelSelector {
@@ -283,13 +278,7 @@ impl JobBuilder {
 
     fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
-            // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta {
-                name: Some(self.name.clone()),
-                labels: Some(self.labels.clone()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
+            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
             spec: Some(batchapi::JobSpec {
                 backoff_limit: Some(4),
                 parallelism: self.parallelism,
@@ -383,12 +372,7 @@ impl ServiceBuilder {
     fn to_service(&self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
-                metadata: Some(meta::ObjectMeta {
-                    name: Some(self.name.clone()),
-                    labels: Some(self.labels.clone()),
-                    owner_references: self.owner_ref.clone(),
-                    ..Default::default()
-                }),
+                metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
                 spec: Some(api::ServiceSpec {
                     selector: Some(self.selector.clone()),
                     ports: Some(vec![port.to_service_port()]),
