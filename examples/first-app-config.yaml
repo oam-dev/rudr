@@ -4,13 +4,13 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: nginx-component-v1
-      instanceName: first-app-nginx
+    - name: helloworld-python-v1
+      instanceName: first-app-helloworld-python-v1
       parameterValues:
-        - name: poet
-          value: Eliot
-        - name: poem
-          value: The Wasteland
+        - name: target
+          value: Scylla
+        - name: port
+          value: '9999'
       traits:
         - name: ingress
           parameterValues:
@@ -19,4 +19,4 @@ spec:
             - name: path
               value: /
             - name: service_port
-              value: 80
+              value: 9999
