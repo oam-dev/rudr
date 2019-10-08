@@ -688,7 +688,7 @@ fn test_to_deployment_spec() {
     );
     let comp = comp_res.as_ref().expect("component should exist");
     let mut labels = BTreeMap::new();
-    labels.insert("app".to_string(), "test_deploy".to_string());
+    labels.insert("app.kubernetes.io/name".to_string(), "test_deploy".to_string());
     let resloved_val =
         resolve_parameters(comp.parameters.clone(), BTreeMap::new()).expect("resolved parameter");
     let deploy = comp.to_deployment_spec(resloved_val, Some(labels.clone()), None);

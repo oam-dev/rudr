@@ -17,10 +17,7 @@ pub struct ReplicatedService {
 
 impl ReplicatedService {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "Service".to_string());
-        labels
+        self.meta.labels("Service")
     }
 }
 
@@ -118,10 +115,7 @@ pub struct SingletonService {
 }
 impl SingletonService {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "SingletonService".to_string());
-        labels
+        self.meta.labels("SingletonService")
     }
 }
 
