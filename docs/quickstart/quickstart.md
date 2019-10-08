@@ -245,6 +245,24 @@ component.core.hydra.io/nginx-replicated         19h
 component.core.hydra.io/nginx-singleton          19h
 ```
 
+## Uninstall Scylla
+
+If you want to clean up your test environment and uninstall Scylla, you could do the following:
+
+ ```console
+ $ helm delete scylla
+ ```
+ 
+ This will leave the CRDs and configurations intact.
+ 
+ **NOTE: When you delete the CRDs, it will delete everything touching Open Application Model from configurations to secrets.**
+ 
+ ```console
+ kubectl delete crd -l app.kubernetes.io/part-of=core.hydra.io
+ ```
+ 
+ The above will delete the CRDs and clean up everything related with Open Application Model.
+
 ## Learn more...
 
 Read how to [use Scylla](using_scylla.md) for more details.
