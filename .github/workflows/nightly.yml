@@ -13,4 +13,6 @@ jobs:
       - name: Build Container Images
         run: make docker-build-cx
       - name: Publish Container Images
+        env:
+          hydraoss_secret: ${{ secrets.hydraoss }}
         run: make docker-publish

@@ -37,6 +37,7 @@ docker-build-cx:
 	docker build -t $(REPO)-amd64:$(TAG) .
 
 docker-publish: docker-build-cx
+	docker login -u hydraoss -p ${hydraoss_secret}
 	docker push $(REPO)-amd64:$(TAG)
 	docker push $(REPO)-arm64:$(TAG)
 	docker manifest create $(REPO):$(TAG) $(REPO)-amd64:$(TAG) $(REPO)-arm64:$(TAG)
