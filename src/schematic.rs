@@ -5,8 +5,8 @@ pub mod component;
 pub mod component_instance;
 pub mod configuration;
 pub mod parameter;
-pub mod variable;
 pub mod traits;
+pub mod variable;
 
 #[cfg(test)]
 mod component_test;

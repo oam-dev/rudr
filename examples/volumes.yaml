@@ -13,8 +13,8 @@ spec:
           - name: myvol
             mountPath: /myvol
             disk:
-              required: "200M"
-              ephemeral: true
+              required: "50M"
+              ephemeral: false
 ---
 apiVersion: core.hydra.io/v1alpha1
 kind: ApplicationConfiguration
@@ -24,4 +24,11 @@ spec:
   components:
     - name: server-with-volume-v1
       instanceName: example-server-with-volume
+      traits:
+        - name: volumeMounter
+          parameterValues:
+            - name: volumeName
+              value: myvol
+            - name: storageClass
+              value: default
 # TODO: Add trait to bind a PVC

@@ -83,13 +83,26 @@ impl Component {
                 .unwrap_or_else(|| vec![])
                 .iter()
                 .for_each(|v| {
-                    // There is an ephemeral flag on v.disk. What do we do with that?
-                    vols.push(core::Volume {
-                        name: v.name.clone(),
-                        empty_dir: Some(core::EmptyDirVolumeSource {
+                    // Fill out both the PVC and the EmptyDir fields at the same time.
+                    let mut pvc: Option<core::PersistentVolumeClaimVolumeSource> = None;
+                    let empty_dir = if v.disk.as_ref().map_or(false, |d| d.ephemeral) {
+                        Some(core::EmptyDirVolumeSource {
                             size_limit: v.disk.clone().and_then(|d| Some(Quantity(d.required))),
                             ..Default::default()
-                        }),
+                        })
+                    } else {
+                        pvc = Some(core::PersistentVolumeClaimVolumeSource {
+                            claim_name: v.name.clone(),
+                            read_only: Some(v.access_mode == AccessMode::RO),
+                        });
+                        None
+                    };
+                    // An ephemeral volume will be backed by EmptyDir. A persistent volume
+                    // will attempt to mount an existing PVC (ideally created by a trait).
+                    vols.push(core::Volume {
+                        name: v.name.clone(),
+                        empty_dir,
+                        persistent_volume_claim: pvc,
                         ..Default::default()
                     });
                 })
@@ -253,6 +266,24 @@ pub struct Container {
 
     pub liveness_probe: Option<HealthProbe>,
     pub readiness_probe: Option<HealthProbe>,
+}
+
+impl Default for Container {
+    fn default() -> Self {
+        Container {
+            name: "".to_string(),
+            image: "".to_string(),
+            image_pull_secret: None,
+            resources: Default::default(),
+            cmd: None,
+            args: None,
+            env: vec![],
+            config: None,
+            ports: vec![],
+            liveness_probe: None,
+            readiness_probe: None,
+        }
+    }
 }
 
 impl Container {

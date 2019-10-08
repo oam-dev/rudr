@@ -9,6 +9,7 @@ extern crate regex;
 pub mod instigator;
 pub mod lifecycle;
 pub mod schematic;
+mod trait_manager;
 pub mod workload_type;
 
 #[cfg(test)]

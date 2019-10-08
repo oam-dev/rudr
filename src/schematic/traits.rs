@@ -12,6 +12,8 @@ mod empty;
 pub use crate::schematic::traits::empty::Empty;
 mod manual_scaler;
 pub use crate::schematic::traits::manual_scaler::ManualScaler;
+mod volume_mounter;
+pub use crate::schematic::traits::volume_mounter::VolumeMounter;
 mod util;
 use crate::schematic::traits::util::*;
 use std::collections::BTreeMap;
@@ -28,6 +30,7 @@ mod util_test;
 pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "autoscaler";
 pub const MANUAL_SCALER: &str = "manual-scaler";
+pub const VOLUME_MOUNTER: &str = "volumeMounter";
 pub const EMPTY: &str = "empty";
 
 /// Trait describes Hydra traits.
@@ -58,6 +61,7 @@ pub enum HydraTrait {
     Autoscaler(Autoscaler),
     ManualScaler(ManualScaler),
     Ingress(Ingress),
+    VolumeMounter(VolumeMounter),
     Empty(Empty),
 }
 impl HydraTrait {
@@ -66,6 +70,7 @@ impl HydraTrait {
             HydraTrait::Autoscaler(a) => a.exec(ns, client, phase),
             HydraTrait::Ingress(i) => i.exec(ns, client, phase),
             HydraTrait::ManualScaler(m) => m.exec(ns, client, phase),
+            HydraTrait::VolumeMounter(v) => v.exec(ns, client, phase),
             HydraTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
@@ -75,6 +80,7 @@ impl HydraTrait {
             HydraTrait::Ingress(i) => i.status(ns, client),
             HydraTrait::ManualScaler(m) => m.status(ns, client),
             HydraTrait::Empty(e) => e.status(ns, client),
+            HydraTrait::VolumeMounter(v) => v.status(ns, client),
         }
     }
 }
