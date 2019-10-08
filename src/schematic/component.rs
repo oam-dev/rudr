@@ -258,39 +258,44 @@ pub struct Container {
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
-        let mut volumes = self.config.clone().map_or(vec![], |p| {
-            let mut mounts = vec![];
-            for (i, v) in p.iter().enumerate() {
-                let path = Path::new(v.path.as_str())
-                    .parent()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_owned();
-                mounts.push(core::VolumeMount {
-                    mount_path: path,
-                    name: self.name.clone() + i.to_string().as_str(),
-                    ..Default::default()
-                });
-            }
-            mounts
-        });
-        self.resources
-            .volumes
-            .clone()
-            .unwrap_or_else(|| vec![])
-            .iter()
-            .for_each(|vol| {
-                volumes.push(core::VolumeMount {
-                    mount_path: vol.mount_path.clone(),
-                    name: vol.name.clone(),
-                    read_only: Some(vol.access_mode == AccessMode::RO),
-                    ..Default::default()
-                })
+        let configured_volumes: std::vec::Vec<core::VolumeMount> =
+            self.config.clone().map_or(vec![], |p| {
+                p.iter()
+                    .enumerate()
+                    .map(|(i, v)| self.configured_volume(i, v))
+                    .collect()
             });
+        let resource_volumes: std::vec::Vec<core::VolumeMount> =
+            self.resources.volumes.clone().map_or(vec![], |vols| {
+                vols.iter().map(|vol| self.resource_volume(vol)).collect()
+            });
+        let volumes = [configured_volumes, resource_volumes].concat();
         match volumes.len() {
             0 => None,
             _ => Some(volumes),
+        }
+    }
+
+    fn configured_volume(&self, file_index: usize, config_file: &ConfigFile) -> core::VolumeMount {
+        let path = Path::new(config_file.path.as_str())
+            .parent()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
+        core::VolumeMount {
+            mount_path: path,
+            name: self.name.clone() + file_index.to_string().as_str(),
+            ..Default::default()
+        }
+    }
+
+    fn resource_volume(&self, vol: &Volume) -> core::VolumeMount {
+        core::VolumeMount {
+            mount_path: vol.mount_path.clone(),
+            name: vol.name.clone(),
+            read_only: Some(vol.access_mode == AccessMode::RO),
+            ..Default::default()
         }
     }
 }
@@ -517,12 +522,12 @@ impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
 
-        self.cpu.clone().and_then(|cpu|{
-            requests.insert("cpu".to_string(), Quantity(cpu.required.clone()))
-        });
-        self.memory.clone().and_then(|mem|{
-            requests.insert("memory".to_string(), Quantity(mem.required.clone()))
-        });
+        self.cpu
+            .clone()
+            .and_then(|cpu| requests.insert("cpu".to_string(), Quantity(cpu.required.clone())));
+        self.memory
+            .clone()
+            .and_then(|mem| requests.insert("memory".to_string(), Quantity(mem.required.clone())));
 
         // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
         core::ResourceRequirements {
