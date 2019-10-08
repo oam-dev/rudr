@@ -20,10 +20,7 @@ impl KubeName for ReplicatedTask {
 
 impl ReplicatedTask {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "Task".to_string());
-        labels
+        self.meta.labels("Task")
     }
 }
 
@@ -83,10 +80,7 @@ impl KubeName for SingletonTask {
 }
 impl SingletonTask {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "SingletonTask".to_string());
-        labels
+        self.meta.labels("SingletonTask")
     }
 }
 impl WorkloadType for SingletonTask {

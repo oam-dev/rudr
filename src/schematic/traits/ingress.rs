@@ -46,7 +46,7 @@ impl Ingress {
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {
         let mut labels = trait_labels();
-        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         ext::Ingress {
             metadata: Some(meta::ObjectMeta {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),

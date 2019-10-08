@@ -15,10 +15,7 @@ pub struct ReplicatedService {
 
 impl ReplicatedService {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "Service".to_string());
-        labels
+        self.meta.labels("Service")
     }
 }
 
@@ -58,7 +55,9 @@ impl WorkloadType for ReplicatedService {
         self.meta.create_config_maps("Service")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -71,7 +70,9 @@ impl WorkloadType for ReplicatedService {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
@@ -126,10 +127,7 @@ pub struct SingletonService {
 }
 impl SingletonService {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "SingletonService".to_string());
-        labels
+        self.meta.labels("SingletonService")
     }
 }
 
@@ -145,7 +143,9 @@ impl WorkloadType for SingletonService {
 
         // Create deployment
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .replicas(1)
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;

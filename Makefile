@@ -1,5 +1,5 @@
-REPO=hydraoss/scylla
-TAG=latest
+REPO = hydraoss/scylla
+TAG ?= latest
 
 .PHONY: build
 build:
@@ -29,7 +29,7 @@ kind-e2e:
 	kubectl get trait && \
 	kubectl apply -f examples/components.yaml && \
 	kubectl get componentschematics && \
-	kubectl get componentschematic alpine-task -o yaml
+	kubectl get componentschematic alpine-task-v1 -o yaml
 
 docker-build-cx:
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes

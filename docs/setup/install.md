@@ -76,10 +76,10 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 
 ### Verifying the Install
 
-You can verify that Scylla is installed by running `kubectl get crds`:
+You can verify that Scylla is installed by fetching the CRDs:
 
 ```console
-$ kubectl get crds
+$ kubectl get crds -l apps.kubernetes.io/part-of=core.hydra.io
 NAME                                      CREATED AT
 applicationconfigurations.core.hydra.io   2019-10-02T19:57:32Z
 componentinstances.core.hydra.io          2019-10-02T19:57:32Z
@@ -116,7 +116,7 @@ $ helm delete scylla
 
 This will leave the CRDs intact.
 
-**NOTE: When you delete the CRDs, it will delete everything touching Hydra from configurations to secrets.**
+**NOTE: When you delete the CRDs, it will delete everything touching Open Application Model from configurations to secrets.**
 
 ## Installing Implementations for Traits
 

@@ -175,8 +175,8 @@ fn test_container_deserialize() {
 
     let res = &container.resources;
 
-    assert_eq!("2G", res.memory.required);
-    assert_eq!("1", res.cpu.required);
+    assert_eq!("2G", res.memory.as_ref().expect("memory should be set").required);
+    assert!(res.cpu.is_none());
 
     let vols = res.volumes.clone().expect("expected volumes");
     let path1 = vols.get(0).expect("expect a first volume");
@@ -505,8 +505,8 @@ fn test_to_volume_mounts() {
         name: "test_container".into(),
         image: "test/image".into(),
         resources: Resources{
-            cpu: CPU {required: "1".into()},
-            memory: Memory {required: "128".into()},
+            cpu: Some(CPU {required: "1".into()}),
+            memory: Some(Memory {required: "128".into()}),
             gpu: Some(GPU {required: "0".into()}),
             volumes: Some(vec![Volume{
                 name: "myvol".into(),
@@ -688,7 +688,7 @@ fn test_to_deployment_spec() {
     );
     let comp = comp_res.as_ref().expect("component should exist");
     let mut labels = BTreeMap::new();
-    labels.insert("app".to_string(), "test_deploy".to_string());
+    labels.insert("app.kubernetes.io/name".to_string(), "test_deploy".to_string());
     let resloved_val =
         resolve_parameters(comp.parameters.clone(), BTreeMap::new()).expect("resolved parameter");
     let deploy = comp.to_deployment_spec(resloved_val, Some(labels.clone()), None);

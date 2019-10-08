@@ -11,10 +11,7 @@ pub struct ReplicatedWorker {
 
 impl ReplicatedWorker {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "Worker".to_string());
-        labels
+        self.meta.labels("Worker")
     }
 }
 
@@ -30,7 +27,9 @@ impl WorkloadType for ReplicatedWorker {
         self.meta.create_config_maps("Worker")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -39,7 +38,9 @@ impl WorkloadType for ReplicatedWorker {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),
@@ -72,10 +73,7 @@ pub struct SingletonWorker {
 
 impl SingletonWorker {
     fn labels(&self) -> BTreeMap<String, String> {
-        let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.meta.name.clone());
-        labels.insert("workload-type".to_string(), "SingletonWorker".to_string());
-        labels
+        self.meta.labels("SingletonWorker")
     }
 }
 
@@ -91,7 +89,9 @@ impl WorkloadType for SingletonWorker {
         self.meta.create_config_maps("SingletonWorker")?;
 
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -100,7 +100,9 @@ impl WorkloadType for SingletonWorker {
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
             .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(
                 self.meta.client.clone(),

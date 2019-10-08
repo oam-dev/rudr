@@ -2,6 +2,8 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   name: componentinstances.core.hydra.io
+  labels:
+    app.kubernetes.io/part-of: core.hydra.io
 spec:
   group: core.hydra.io
   versions:

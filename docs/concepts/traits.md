@@ -1,56 +1,130 @@
 # Traits
 
-A trait is a discretionary runtime overlay that augments a component workload type (`workloadType`) with additional features.
+A [*trait*](https://github.com/microsoft/hydra-spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Scylla-defined Kubernetes CRDs.
 
-In terms of implementation details, traits are a kind of CRD defined by Scylla. The specification of trait defines two major things:
+Currently, Scylla supports the following traits:
 
-1. The list of workload types to which this trait applies.
-2. The list of configurable parameters on this trait.
+ - [Manual Scaler](#manual-scaler-trait)
+ - [Autoscaler](#autoscaler-trait)
+ - [Ingress](#ingress-trait)
 
-In Scylla we have three traits now. They are introduced one by one below. 
+An [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
 
-## Autoscaler Trait
+<pre>
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: first-app
+spec:
+  components:
+  - name: nginx-component
+    instanceName: first-app-nginx
+    parameterValues:
+           - name: poet
+           value: Eliot
+           - name: poem
+           value: The Wasteland
+    <b style="color:blue;">traits:</b>
+           - <b style="color:blue;">name:</b> ingress
+             <b style="color:blue;">parameterValues:</b>
+                    - name: hostname
+                      value: example.com
+                    - name: path
+                      value: /
+                    - name: service_port
+                      value: 80
+</pre>
 
-Autoscaler trait is used autoscale components with replicable workloads. This is implemented by the Kubernetes [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
+You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **`parameterValues`** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
 
-You can find more details about the autoscaler trait in the [charts templates directory](../charts/scylla/templates/traits.yaml), 
-or you can use `kubectl get traits autoscaler -o yaml` to get details from your cluster if you have installed Scylla.
+## Supported traits
 
-Now autoscaler trait can be used on components with Service and Task workload types.
+Currently Scylla supports three traits (with more rolling out in the future, including support for defining custom traits). In order provide maximum flexibility to [Infrastructure operators](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities), however, Scylla does not install default implementations for some of these these traits. Specifically, the *Autoscaler* and *Ingress* traits require you to select and install a Kubernetes controller before you can use them in your Scylla application, since they map to primitive Kubernetes features that can be fulfilled by different controllers. You can search for implementations for your traits at [Helm Hub](https://hub.helm.sh/).
 
-We currently support four configurable fields in autoscaler trait:
+Here's how to get info on the traits supported on your Scylla installation.
 
-* minimum: This represents the lower limit for the number of replicas to which the autoscaler can scale down. It defaults to 1 component.
-* maximum: This represents the upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.
-* memory: This represents the memory consumption threshold (as percent) that will cause a scale.
-* cpu: This represents the CPU consumption threshold (as percent) that will cause a scale.
+**List supported traits**:
 
+```console
+$ kubectl get traits
+```
 
-## Ingress Trait
+**Show the schema details of a trait:**
 
-Ingress trait is used for ccomponents with service workloads. It can provide load balancing, SSL termination and name-based virtual hosting.
+```console
+$ kubectl get trait <trait-name> -o yaml
+````
 
-You can find more details about the ingress trait in the [charts templates directory](../charts/scylla/templates/traits.yaml), 
-or you can use `kubectl get traits ingress -o yaml` to get from your cluster if you have installed Scylla.
-
-Currently the ingress trait can be used on components with Service and SingletonService workload types.
-
-Currently, three configurable fields are supported for the ingress trait: 
-
-* hostname: This represents the host name for the ingress.
-* service_port: This represents the port number on the service which will be bind to the ingress.
-* path: This represents the path to expose by the ingress. Default is '/'.
-
-
-## Manual Scaler Trait
+## Manual Scaler trait
 
 Manual Scaler trait is used to manually scale components with replicable workload types.
 
-You can find further details about the manual scaler trait in the [charts templates directory](../charts/scylla/templates/traits.yaml), 
-or you can use `kubectl get traits manual-scaler -o yaml` to get information from your cluster if you have installed Scylla.
+### Installation
 
-Currently the Manual Scaler trait can be used on Components with Service and Task workload types.
+None. *The manual scaler trait has no external dependencies.*
 
-Currently we support only one field for the Manual Scaler trait:
+### Supported workload types
 
-* replicaCount: This represents the number of replicas the workload is expected to run at all times. 
+- Service
+- Task
+
+
+### Properties
+
+| Name | Description | Type | Required | Default
+| :-- | :--| :-- | :-- | :-- |
+| **replicaCount** | Number of replicas to run. | int | True | -- |
+
+## Autoscaler trait
+
+Autoscaler trait is used autoscale components with replicable workloads. This is implemented by the Kubernetes [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
+
+### Installation
+
+To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`. We recommend using the [Kubernetes-based Event Driven Autoscaling](https://hub.helm.sh/charts/kedacore/keda-edge) (KEDA) controller:
+
+```console
+$ helm install keda stable/keda
+```
+
+### Supported workload types
+
+- Service
+- Task
+
+### Properties
+
+| Name | Description | Type | Required | Default |
+| :-- | :--| :-- | :-- | :-- |
+| **minimum** | Lower threshold of replicas to run. | int | False | `1`
+| **maximum** | Higher threshold of replicas to run. Cannot be less than `minimum` value. | int | False | `10`
+| **memory** | Memory consumption threshold (as percent) that will cause a scale event. | int | False | --
+| **cpu** | CPU consumption threshold (as percent) that will cause a scale event. | int | False | --
+
+## Ingress trait
+
+Ingress trait is used for components with service workloads and provides load balancing, SSL termination and name-based virtual hosting.
+
+### Installation
+
+To successfully use an `ingress` trait, you will need to install one of the Kubernetes Ingress controllers. We recommend [nginx-ingress](https://hub.helm.sh/charts/stable/nginx-ingress):
+
+```console
+$ helm install nginx-ingress stable/nginx-ingress
+```
+
+*Note:* You still must manage your DNS configuration as well. Mapping an ingress to `example.com` will not work if you do not also control the domain mapping for `example.com`.
+
+### Supported workload types
+
+- Service
+- SingletonService
+
+### Properties
+
+| Name | Description | Type | Required | Default |
+| :-- | :--| :-- | :-- | :-- |
+| **hostname** | Host name for the ingress. | string | True | --
+| **service_port** | Port number on the service to bind to the ingress. | int | True | --
+| **path** | Path to expose. | string | False | `/`
+

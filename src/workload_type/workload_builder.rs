@@ -39,15 +39,15 @@ pub struct WorkloadMetadata {
 }
 
 impl WorkloadMetadata {
-    fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
+    pub fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         labels.insert("workload-type".to_string(), workload_type.to_string());
         labels
     }
     pub fn select_labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
-        labels.insert("app".to_string(), self.name.clone());
+        labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         labels
     }
 
@@ -179,12 +179,7 @@ impl DeploymentBuilder {
     pub fn to_deployment(&self) -> apps::Deployment {
         apps::Deployment {
             // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta {
-                name: Some(self.name.clone()),
-                labels: Some(self.labels.clone()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
+            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
             spec: Some(apps::DeploymentSpec {
                 replicas: self.replicas,
                 selector: meta::LabelSelector {
@@ -308,13 +303,7 @@ impl JobBuilder {
 
     fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
-            // TODO: Could make this generic.
-            metadata: Some(meta::ObjectMeta {
-                name: Some(self.name.clone()),
-                labels: Some(self.labels.clone()),
-                owner_references: self.owner_ref.clone(),
-                ..Default::default()
-            }),
+            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
             spec: Some(batchapi::JobSpec {
                 backoff_limit: Some(4),
                 parallelism: self.parallelism,
@@ -433,12 +422,7 @@ impl ServiceBuilder {
     fn to_service(&self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
-                metadata: Some(meta::ObjectMeta {
-                    name: Some(self.name.clone()),
-                    labels: Some(self.labels.clone()),
-                    owner_references: self.owner_ref.clone(),
-                    ..Default::default()
-                }),
+                metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
                 spec: Some(api::ServiceSpec {
                     selector: Some(self.selector.clone()),
                     ports: Some(vec![port.to_service_port()]),
@@ -512,6 +496,7 @@ mod test {
         annotations.insert("key1".to_string(), "val1".to_string());
         annotations.insert("key2".to_string(), "val2".to_string());
         let deployment = DeploymentBuilder::new("test".into(), skeleton_component())
+            .parameter_map(BTreeMap::new())
             .labels(skeleton_labels())
             .annotations(Some(annotations))
             .replicas(3)
