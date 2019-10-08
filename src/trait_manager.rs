@@ -2,6 +2,7 @@ use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 use log::{debug, error};
+use std::collections::BTreeMap;
 
 use crate::{
     lifecycle::Phase,
@@ -115,5 +116,20 @@ impl TraitManager {
             }
         }
         Ok(())
+    }
+    pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let mut all_status = BTreeMap::new();
+        for imp in &self.traits {
+            if let Some(status) = imp.status(ns, client.clone()) {
+                for (name, state) in status {
+                    //we don't need to worry about name conflict as K8s wouldn't allow this happen in the same namespace.
+                    all_status.insert(name, state);
+                }
+            };
+        }
+        if all_status.is_empty() {
+            return None;
+        }
+        Some(all_status)
     }
 }

@@ -80,6 +80,7 @@ impl HydraTrait {
             HydraTrait::Ingress(i) => i.status(ns, client),
             HydraTrait::ManualScaler(m) => m.status(ns, client),
             HydraTrait::Empty(e) => e.status(ns, client),
+            HydraTrait::VolumeMounter(v) => v.status(ns, client),
         }
     }
 }

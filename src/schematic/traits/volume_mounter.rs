@@ -164,6 +164,36 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req)?;
         Ok(())
     }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let pvc_name = self.volume_name.as_str();
+        let key = format!("persistentvolumeclaim/{}", pvc_name);
+        let mut resource = BTreeMap::new();
+        let req = core::PersistentVolumeClaim::read_namespaced_persistent_volume_claim_status(
+            pvc_name,
+            ns,
+            Default::default(),
+        );
+        if req.is_err() {
+            resource.insert(key, req.unwrap_err().to_string());
+            return Some(resource);
+        }
+
+        let (raw_req, _) = req.unwrap();
+        match client.request::<core::PersistentVolumeClaim>(raw_req) {
+            Ok(pvc) => {
+                resource.insert(
+                    key,
+                    pvc.status
+                        .and_then(|s| s.phase)
+                        .unwrap_or_else(|| "unknown phase".to_string()),
+                );
+            }
+            Err(e) => {
+                resource.insert(key, e.to_string());
+            }
+        };
+        Some(resource)
+    }
 }
 
 #[cfg(test)]
