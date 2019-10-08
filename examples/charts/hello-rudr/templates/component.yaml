@@ -1,0 +1,24 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: "{{.Release.Name}}-nginx-{{.Values.appVersion}}"
+spec:
+  workloadType: core.hydra.io/v1alpha1.SingletonServer
+  parameters:
+    - name: message
+      type: string
+      required: false
+    - name: unused_integer
+      type: number
+      required: false
+      default: 5678
+  containers:
+    - name: runner
+      image: technosophos/alpine-forever:latest
+      env:
+        - name: FOO
+          value: bar
+          fromParam: message
+        - name: UNUSED
+          value: "1234"
+          fromParam: unused_integer

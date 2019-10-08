@@ -1,0 +1,11 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: "{{ .Release.Name }}"
+spec:
+  components:
+    - name: alpine-forever-v1
+      instanceName: example-alpine-forever
+      parameterValues:
+        - name: message
+          value: "{{ .Values.message }}"
