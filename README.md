@@ -4,47 +4,47 @@ Scylla is an implementation of the [Open App Model (OAM)](https://github.com/mic
 
 **Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
-## Quickstart: Deploy an app with Ingress 
+## Quickstart: Deploy an app with Ingress
 
-Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl. 
+Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl.
 
-Ensure you have a Kubernetes cluster. 
+Ensure you have a Kubernetes cluster.
 - [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
 - [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
 - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
 - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
 - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-1. Install Scylla on the cluster. 
+1. Install Scylla on the cluster.
 
-    ```bash
-    helm install scylla ./charts/scylla --wait
-    ```
+```bash
+helm install scylla ./charts/scylla --wait
+```
 
-2. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components. 
+2. Install NGINX ingress on your cluster. Currently, Scylla doesn't have any opinions on how to accomplish tasks but rather leverages existing components.
 
-    ```bash
-    helm install stable/nginx-ingress
-    ```
+```bash
+helm install nginx-ingress stable/nginx-ingress
+```
 
-3. Register the components on your cluster. 
+3. Register the NGINX component.
 
-    ```bash
-    kubectl apply -f examples/nginx-component.yaml
-    ```
+```bash
+kubectl apply -f examples/nginx-component.yaml
+```
 
-4. Apply the configuration to add the Ingress trait to your component. 
+4. Install your first application. This application is an NGINX server running as a container, exposing port 80 on an ingress route using the hostname `example.com`.
 
-    ```bash
-    kubectl apply -f examples/first-app-config.yaml
-    ```
+```bash
+kubectl apply -f examples/first-app-config.yaml
+```
 
-5. Hitting the public endpoint of your ingress service, should reveal the nginx component. 
+5. Hitting the public endpoint of your ingress service should reveal the "Welcome to nginx!" web page.
 
 
 ![Alt Text](./docs/media/readme.gif)
 
-## The Problem Space: Building cloud native applications is difficult 
+## The Problem Space: Building cloud native applications is difficult
 
 Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixed together application primitives with infrastructure primitives. Different roles like developers and operators have to concern with problems from domains of each other and adjust themselves to understand the whole picture of the underlying infrastructure.
 
@@ -53,8 +53,8 @@ Users want to focus on describing and building applications easily but achieving
 The requirement to deep understand the container infrastructure has introduced the following problems for application deployment and management:
 
 - There is no standard definition for a cloud native application which makes it difficult for users looking for an easier way to modernize.
-- There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.  
-- It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs out of their domain that they have to learn to accomplish day-to-day tasks. 
+- There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.
+- It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs out of their domain that they have to learn to accomplish day-to-day tasks.
 
 ## The approach: Let's take things one step at a time
 
@@ -62,19 +62,19 @@ Scylla takes an incremental approach to solving the problems. The current archit
 
 ![oar arch](./docs/media/how_oar_works.png)
 
-- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes. 
+- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes.
 
-- By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters. 
+- By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters.
 
-- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait. 
+- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait.
 
-## Try things out yourself 
+## Try things out yourself
 
 Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
 
 ## Contributing
 
-This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details. Below are links to join the bi-weekly community meetings and our meeting notes. Community Slack channels & mailing lists will be added shortly (~ 10/1). 
+This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details. Below are links to join the bi-weekly community meetings and our meeting notes. Community Slack channels & mailing lists will be added shortly (~ 10/1).
 
 | Item        | Value  |
 |---------------------|---|
