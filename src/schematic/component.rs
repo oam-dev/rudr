@@ -258,16 +258,17 @@ pub struct Container {
 impl Container {
     /// Generate volume mounts for a container.
     pub fn volume_mounts(&self) -> Option<Vec<core::VolumeMount>> {
-        let configured_volumes: std::vec::Vec<core::VolumeMount> = self.config.clone().map_or(vec![], |p| {
-            p.iter().enumerate().map(|(i, v)| {
-                self.configured_volume(i, v)
-            }).collect()
-        });
-        let resource_volumes: std::vec::Vec<core::VolumeMount> = self.resources.volumes.clone().map_or(vec![], |vols| {
-            vols.iter().map(|vol| {
-                self.resource_volume(vol)
-            }).collect()
-        });
+        let configured_volumes: std::vec::Vec<core::VolumeMount> =
+            self.config.clone().map_or(vec![], |p| {
+                p.iter()
+                    .enumerate()
+                    .map(|(i, v)| self.configured_volume(i, v))
+                    .collect()
+            });
+        let resource_volumes: std::vec::Vec<core::VolumeMount> =
+            self.resources.volumes.clone().map_or(vec![], |vols| {
+                vols.iter().map(|vol| self.resource_volume(vol)).collect()
+            });
         let volumes = [configured_volumes, resource_volumes].concat();
         match volumes.len() {
             0 => None,
@@ -521,12 +522,12 @@ impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
 
-        self.cpu.clone().and_then(|cpu|{
-            requests.insert("cpu".to_string(), Quantity(cpu.required.clone()))
-        });
-        self.memory.clone().and_then(|mem|{
-            requests.insert("memory".to_string(), Quantity(mem.required.clone()))
-        });
+        self.cpu
+            .clone()
+            .and_then(|cpu| requests.insert("cpu".to_string(), Quantity(cpu.required.clone())));
+        self.memory
+            .clone()
+            .and_then(|mem| requests.insert("memory".to_string(), Quantity(mem.required.clone())));
 
         // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
         core::ResourceRequirements {
