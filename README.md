@@ -21,7 +21,7 @@ Ensure you have a Kubernetes cluster.
 helm install scylla ./charts/scylla --wait
 ```
 
-2. Install NGINX ingress on your cluster. Currently, Scylla does take any opinions on how to accomplish tasks but rather leverages existing components.
+2. Install NGINX ingress on your cluster. Currently, Scylla does have any opinions on how to accomplish tasks but rather leverages existing components.
 
 ```bash
 helm install nginx-ingress stable/nginx-ingress
