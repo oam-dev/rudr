@@ -70,7 +70,7 @@ fn main() -> Result<(), Error> {
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
-        let client = APIClient::new(cfg_watch);
+        let client = APIClient::new(cfg_watch.clone());
         let resource = RawApi::customResource(CONFIG_CRD)
             .within(ns.as_str())
             .group(CONFIG_GROUP)
@@ -107,6 +107,30 @@ fn main() -> Result<(), Error> {
         }
     });
 
+    // Sync status will periodically sync all the configuration status from their workload.
+    let sync_status = std::thread::spawn(move || {
+        loop {
+            let ns =
+                std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
+            let cfg_watch = kubeconfig().expect("Load default kubeconfig");
+            let client = APIClient::new(cfg_watch.clone());
+            let resource = RawApi::customResource(CONFIG_CRD)
+                .within(ns.as_str())
+                .group(CONFIG_GROUP)
+                .version(CONFIG_VERSION);
+            //get all the configuration object and sync status
+            let req = resource.list(&ListParams::default()).unwrap();
+            if let Ok(cfgs) = client.request::<ObjectList<KubeOpsConfig>>(req) {
+                for cfg in cfgs.items {
+                    if let Err(res) = sync_status(&client, cfg, ns.clone()) {
+                        error!("Error sync status: {:?}", res)
+                    };
+                }
+            }
+            std::thread::sleep(std::time::Duration::from_secs(10));
+        }
+    });
+
     // Cache all of the components.
     let component_watch = std::thread::spawn(move || loop {
         if let Err(res) = reflector.poll() {
@@ -137,7 +161,7 @@ fn main() -> Result<(), Error> {
     })
     .join()
     .unwrap();
-
+    sync_status.join().expect("status syncer crashed");
     component_watch.join().expect("component watcher crashed");
     configuration_watch.join().unwrap()
 }
@@ -155,6 +179,11 @@ fn handle_event(
         WatchEvent::Deleted(o) => inst.delete(o),
         WatchEvent::Error(e) => Err(format_err!("APIError: {:?}", e)),
     }
+}
+
+fn sync_status(cli: &APIClient, event: KubeOpsConfig, namespace: String) -> Result<(), Error> {
+    let inst = Instigator::new(cli.clone(), namespace);
+    inst.sync_status(event)
 }
 
 type CrdObj = Object<CrdSpec, CrdStatus>;

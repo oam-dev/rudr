@@ -1,8 +1,9 @@
+use failure::Error;
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{DeleteParams, PatchParams, PostParams};
+use kube::api::{DeleteParams, Object, PatchParams, PostParams};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
@@ -75,6 +76,30 @@ impl WorkloadMetadata {
             self.client.request::<api::ConfigMap>(req)?;
         }
         Ok(())
+    }
+
+    pub fn deployment_status(&self) -> Result<String, Error> {
+        let deploy: Object<_, apps::DeploymentStatus> =
+            match kube::api::Api::v1Deployment(self.client.clone())
+                .within(self.namespace.as_str())
+                .get_status(self.kube_name().as_str())
+            {
+                Ok(deploy) => deploy,
+                Err(e) => {
+                    return Ok(e.to_string());
+                }
+            };
+        let status: apps::DeploymentStatus = deploy.status.unwrap();
+        let replica = status.replicas.unwrap_or(0);
+        let available_replicas = status.available_replicas.unwrap_or(0);
+        let unavailable_replicas = status.unavailable_replicas.unwrap_or(0);
+        let mut state = "updating".to_string();
+        if available_replicas == replica {
+            state = "running".to_string()
+        } else if unavailable_replicas > 0 {
+            state = "unavailable".to_string();
+        }
+        Ok(state)
     }
 }
 
@@ -300,6 +325,31 @@ impl JobBuilder {
             ..Default::default()
         }
     }
+
+    pub fn get_status(self, client: APIClient, namespace: String) -> String {
+        let job: Object<_, batchapi::JobStatus> = match kube::api::Api::v1Job(client)
+            .within(namespace.as_str())
+            .get_status(self.name.as_str())
+        {
+            Ok(job) => job,
+            Err(e) => return e.to_string(),
+        };
+        let status: batchapi::JobStatus = job.status.unwrap();
+
+        //just a simple way to give the job status
+        if let Some(sts) = status.active {
+            if sts > 0 {
+                return "running".to_string();
+            }
+        }
+        if let Some(sts) = status.failed {
+            if sts > 0 {
+                return "failed".to_string();
+            }
+        }
+        "succeeded".to_string()
+    }
+
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
         match phase {
@@ -381,6 +431,21 @@ impl ServiceBuilder {
                 ..Default::default()
             })
         })
+    }
+    pub fn get_status(self, client: APIClient, namespace: String) -> String {
+        match kube::api::Api::v1Service(client)
+            .within(namespace.as_str())
+            .get_status(self.name.as_str())
+        {
+            Ok(status) => {
+                let svc_status: Object<api::ServiceSpec, api::ServiceStatus> = status;
+                if let Some(_state) = svc_status.status {
+                    return "created".to_string();
+                }
+                "not existed".to_string()
+            }
+            Err(e) => e.to_string(),
+        }
     }
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         match self.to_service() {

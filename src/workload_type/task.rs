@@ -1,6 +1,6 @@
 use crate::workload_type::{
     workload_builder::{JobBuilder, WorkloadMetadata},
-    InstigatorResult, KubeName, WorkloadType,
+    InstigatorResult, KubeName, StatusResult, WorkloadType,
 };
 
 use std::collections::BTreeMap;
@@ -56,6 +56,15 @@ impl WorkloadType for ReplicatedTask {
             "delete",
         )
     }
+    fn status(&self) -> StatusResult {
+        let mut resources = BTreeMap::new();
+        let key = "job/".to_string() + self.kube_name().as_str();
+        let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        resources.insert(key.clone(), state);
+
+        Ok(resources)
+    }
 }
 
 /// SingletonTask represents a non-daemon process.
@@ -103,6 +112,15 @@ impl WorkloadType for SingletonTask {
             self.meta.namespace.clone(),
             "delete",
         )
+    }
+    fn status(&self) -> StatusResult {
+        let mut resources = BTreeMap::new();
+        let key = "job/".to_string() + self.kube_name().as_str();
+        let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        resources.insert(key.clone(), state);
+
+        Ok(resources)
     }
 }
 

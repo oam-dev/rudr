@@ -3,6 +3,7 @@ use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
+use std::collections::BTreeMap;
 
 #[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
@@ -157,5 +158,34 @@ impl TraitImplementation for Autoscaler {
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
+    }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let mut resource = BTreeMap::new();
+        let key = "horizontalpodautoscaler/".to_string() + self.kube_name().as_str();
+        let (req, _) =
+            match hpa::HorizontalPodAutoscaler::read_namespaced_horizontal_pod_autoscaler_status(
+                self.kube_name().as_str(),
+                ns,
+                Default::default(),
+            ) {
+                Ok(req) => req,
+                Err(e) => {
+                    resource.insert(key, e.to_string());
+                    return Some(resource);
+                }
+            };
+        let resp: hpa::HorizontalPodAutoscaler =
+            match client.request::<hpa::HorizontalPodAutoscaler>(req) {
+                Ok(hpa) => hpa,
+                Err(e) => {
+                    resource.insert(key, e.to_string());
+                    return Some(resource);
+                }
+            };
+        if let Some(status) = resp.status {
+            resource.insert(key.clone(), status.current_replicas.to_string());
+            return Some(resource);
+        }
+        None
     }
 }

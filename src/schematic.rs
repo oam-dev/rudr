@@ -1,4 +1,5 @@
 use failure::err_msg;
+use std::collections::BTreeMap;
 
 pub mod component;
 pub mod component_instance;
@@ -29,15 +30,22 @@ pub struct Application {}
 #[serde(rename_all = "camelCase")]
 pub struct HydraStatus {
     pub phase: Option<String>,
+    pub components: Option<BTreeMap<String, BTreeMap<String, String>>>,
 }
 impl Default for HydraStatus {
     fn default() -> Self {
-        HydraStatus { phase: None }
+        HydraStatus {
+            phase: None,
+            components: None,
+        }
     }
 }
 impl HydraStatus {
-    pub fn new(phase: Option<String>) -> HydraStatus {
-        HydraStatus { phase }
+    pub fn new(
+        phase: Option<String>,
+        components: Option<BTreeMap<String, BTreeMap<String, String>>>,
+    ) -> HydraStatus {
+        HydraStatus { phase, components }
     }
 }
 

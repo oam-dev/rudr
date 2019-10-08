@@ -1,11 +1,9 @@
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
-use crate::workload_type::workload_builder::{
-    ServiceBuilder, DeploymentBuilder
-};
+use crate::workload_type::workload_builder::{DeploymentBuilder, ServiceBuilder};
 use crate::workload_type::{
-    InstigatorResult, KubeName, WorkloadMetadata, WorkloadType,
+    InstigatorResult, KubeName, StatusResult, WorkloadMetadata, WorkloadType,
 };
 
 use std::collections::BTreeMap;
@@ -98,12 +96,26 @@ impl WorkloadType for ReplicatedService {
             self.meta.namespace.clone(),
             "delete",
         )?;
-        
+
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
         )
+    }
+    fn status(&self) -> StatusResult {
+        let mut resources = BTreeMap::new();
+
+        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let state = self.meta.deployment_status()?;
+        resources.insert(key.clone(), state);
+
+        let svc_state = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        let svc_key = "service/".to_string() + self.kube_name().as_str();
+        resources.insert(svc_key.clone(), svc_state);
+
+        Ok(resources)
     }
 }
 
@@ -167,6 +179,20 @@ impl WorkloadType for SingletonService {
             "delete",
         )
     }
+    fn status(&self) -> StatusResult {
+        let mut resources = BTreeMap::new();
+
+        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let state = self.meta.deployment_status()?;
+        resources.insert(key.clone(), state);
+
+        let svc_state = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+        let svc_key = "service/".to_string() + self.kube_name().as_str();
+        resources.insert(svc_key.clone(), svc_state);
+
+        Ok(resources)
+    }
 }
 
 #[cfg(test)]
@@ -174,9 +200,7 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{
-        service::*, KubeName, WorkloadMetadata,
-    };
+    use crate::workload_type::{service::*, KubeName, WorkloadMetadata};
 
     use std::collections::BTreeMap;
 

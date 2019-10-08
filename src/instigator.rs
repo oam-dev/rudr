@@ -12,9 +12,9 @@ use crate::{
         component_instance::KubeComponentInstance,
         configuration::ApplicationConfiguration,
         configuration::ComponentConfiguration,
-        variable::{resolve_variables, get_variable_values},
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         traits::{self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding},
+        variable::{get_variable_values, resolve_variables},
         HydraStatus, Status,
     },
     workload_type::{
@@ -90,6 +90,85 @@ impl Instigator {
         Instigator { client, namespace }
     }
 
+    pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
+        let mut component_status = BTreeMap::new();
+        let name = event.metadata.name.clone();
+        for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
+            let comp_def: KubeComponent = get_component_def(
+                self.namespace.clone(),
+                component.name.clone(),
+                self.client.clone(),
+            )?;
+            // Resolve variables/parameters
+            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
+            let parent = get_variable_values(Some(variables.clone()));
+
+            let child = component
+                .parameter_values
+                .clone()
+                .map(|values| resolve_variables(values, variables))
+                .unwrap_or_else(|| Ok(vec![]))?;
+
+            let params = resolve_parameters(
+                comp_def.spec.parameters.clone(),
+                resolve_values(child, vec![])?,
+            )?;
+
+            let inst_name = component.instance_name.clone();
+
+            // Instantiate components
+            let workload =
+                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
+            let mut status = workload.status()?;
+            debug!(
+                "Sync component {}, got status {:?}",
+                component.name.clone(),
+                status.clone()
+            );
+
+            // Load all of the traits related to this component.
+            let mut trait_manager = TraitManager {
+                config_name: name.clone(),
+                instance_name: inst_name.clone(),
+                component: component.clone(),
+                parent_params: parent.clone(),
+                owner_ref: None,
+                workload_type: comp_def.spec.workload_type.clone(),
+                traits: vec![], // Always starts empty.
+            };
+            trait_manager.load_traits()?;
+            if let Some(trait_status) =
+                trait_manager.status(self.namespace.as_str(), self.client.clone())
+            {
+                for (key, state) in trait_status {
+                    status.insert(key, state);
+                }
+            };
+            component_status.insert(component.name.clone(), status.clone());
+        }
+        let mut new_event = event.clone();
+        new_event.status = Some(Some(HydraStatus::new(
+            Some("synced".to_string()),
+            Some(component_status),
+        )));
+        let config_resource = RawApi::customResource(CONFIG_CRD)
+            .version(CONFIG_VERSION)
+            .group(CONFIG_GROUP)
+            .within(&self.namespace);
+
+        let patch_params = PatchParams::default();
+        let req = config_resource.patch(
+            &event.metadata.name,
+            &patch_params,
+            serde_json::to_vec(&new_event)?,
+        )?;
+        let o = self
+            .client
+            .request::<Object<ApplicationConfiguration, Status>>(req)?;
+        debug!("Patched status {:?} for {}", o.status, o.metadata.name);
+        Ok(())
+    }
+
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
@@ -133,12 +212,14 @@ impl Instigator {
 
             component_updated = true;
             // Resolve variables/parameters
-            let variables = event.spec.variables.clone().unwrap_or(vec![]);
+            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
             let parent = get_variable_values(Some(variables.clone()));
 
-            let child = component.parameter_values.clone()
+            let child = component
+                .parameter_values
+                .clone()
                 .map(|values| resolve_variables(values, variables))
-                .unwrap_or(Ok(vec![]))?;
+                .unwrap_or_else(|| Ok(vec![]))?;
 
             let params = resolve_parameters(
                 comp_def.spec.parameters.clone(),
@@ -289,9 +370,16 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let status = HydraStatus::new(Some(phase.to_string()));
+        let default_status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+        let status = event.status.clone().map_or(default_status.clone(), |s| {
+            s.map_or(default_status, |mut hs| {
+                hs.phase = Some(phase.to_string());
+                Some(Some(hs))
+            })
+        });
+
         let mut new_event = event.clone();
-        new_event.status = Some(Some(status));
+        new_event.status = status;
         new_event.metadata.annotations = annotation;
         debug!("spec: {:?}, status: {:?}", new_event.spec, new_event.status);
         let config_resource = RawApi::customResource(CONFIG_CRD)
@@ -645,5 +733,20 @@ impl TraitManager {
             }
         }
         Ok(())
+    }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let mut all_status = BTreeMap::new();
+        for imp in &self.traits {
+            if let Some(status) = imp.status(ns, client.clone()) {
+                for (name, state) in status {
+                    //we don't need to worry about name conflict as K8s wouldn't allow this happen in the same namespace.
+                    all_status.insert(name, state);
+                }
+            };
+        }
+        if all_status.is_empty() {
+            return None;
+        }
+        Some(all_status)
     }
 }

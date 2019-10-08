@@ -3,6 +3,7 @@ use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 use kube::client::APIClient;
 use log::info;
+use std::collections::BTreeMap;
 
 /// A manual scaler provides a way to manually scale replicable objects.
 #[derive(Clone, Debug)]
@@ -137,5 +138,8 @@ impl TraitImplementation for ManualScaler {
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
+    }
+    fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+        None
     }
 }

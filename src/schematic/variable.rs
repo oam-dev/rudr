@@ -1,8 +1,8 @@
 use super::parameter::ParameterValue;
-use std::collections::BTreeMap;
-use std::cmp::Ordering;
 use failure::Error;
 use regex::Regex;
+use std::cmp::Ordering;
+use std::collections::BTreeMap;
 
 fn parse_from_variable(input: String) -> Option<String> {
     lazy_static! {
@@ -55,19 +55,24 @@ impl Ord for Variable {
 impl Eq for Variable {}
 
 /// Expand any variables in current values using the variables defined in the configuration.
-/// 
+///
 /// If a variable is referenced but undefined, the parameter value will be set to None.
-pub fn expand_variables(values: &mut Vec<ParameterValue>, vars: BTreeMap<String, serde_json::Value>) -> Result<(), Error> {
+pub fn expand_variables(
+    values: &mut Vec<ParameterValue>,
+    vars: BTreeMap<String, serde_json::Value>,
+) -> Result<(), Error> {
     for param in values.iter_mut() {
         if let Some(value) = &param.value {
             if let serde_json::Value::String(s) = value {
                 if let Some(ref var) = parse_from_variable(s.clone()) {
-                    param.value = vars.get(var).map(|var| var.clone());
-                    ensure!(param.value.is_some(), format!(
-                        "parameter `{:?}` references undefined variable `{:?}`",
-                        &param.name,
-                        &var,
-                    ));
+                    param.value = vars.get(var).cloned();
+                    ensure!(
+                        param.value.is_some(),
+                        format!(
+                            "parameter `{:?}` references undefined variable `{:?}`",
+                            &param.name, &var,
+                        )
+                    );
                 }
             }
         }
@@ -76,24 +81,24 @@ pub fn expand_variables(values: &mut Vec<ParameterValue>, vars: BTreeMap<String,
 }
 
 /// Resolve parameter values containing variables.
-pub fn resolve_variables(values: Vec<ParameterValue>, vars: Vec<Variable>) -> Result<Vec<ParameterValue>, Error> {
+pub fn resolve_variables(
+    values: Vec<ParameterValue>,
+    vars: Vec<Variable>,
+) -> Result<Vec<ParameterValue>, Error> {
     expand_variables(
         &mut values.clone(),
-        vars
-            .into_iter()
+        vars.into_iter()
             .map(|var| (var.name.clone(), var.value.clone()))
-            .collect::<BTreeMap<String, serde_json::Value>>())?;
+            .collect::<BTreeMap<String, serde_json::Value>>(),
+    )?;
     Ok(values.to_vec())
-
 }
 
 /// Transform a vector of variables into parameter values.
 pub fn get_variable_values(vars: Option<Vec<Variable>>) -> Vec<ParameterValue> {
-    let mut vars = vars.unwrap_or(vec![]);
+    let mut vars = vars.unwrap_or_else(|| vec![]);
     dedup(&mut vars);
-    vars.into_iter()
-        .map(|var| var.into())
-        .collect()
+    vars.into_iter().map(|var| var.into()).collect()
 }
 
 // TODO: variables are unique per config should redefinition should be an error.
@@ -104,8 +109,8 @@ pub fn dedup<T: Ord>(values: &mut Vec<T>) {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::json;
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_resolve_variables() {
@@ -123,23 +128,28 @@ mod tests {
                 },
             ],
             vec![
-                Variable{name: "pet1".into(), value: json!("cat")},
-                Variable{name: "pet2".into(), value: json!("dog")},
+                Variable {
+                    name: "pet1".into(),
+                    value: json!("cat"),
+                },
+                Variable {
+                    name: "pet2".into(),
+                    value: json!("dog"),
+                },
             ],
         )
         .expect("resolve variables");
 
         // test parameter value referencing undefine variable should error.
         resolve_variables(
-            vec![
-                ParameterValue {
-                    name: "dinner".into(),
-                    value: Some(json!("[fromVariable(cereal)]")),
-                    from_param: None,
-                },
-            ],
+            vec![ParameterValue {
+                name: "dinner".into(),
+                value: Some(json!("[fromVariable(cereal)]")),
+                from_param: None,
+            }],
             vec![],
-        ).expect_err(r#"undefined variable `"cereal"`"#);
+        )
+        .expect_err(r#"undefined variable `"cereal"`"#);
     }
 
     #[test]
