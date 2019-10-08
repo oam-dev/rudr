@@ -22,6 +22,8 @@ my-cluster
 
 The fastest way to install Scylla is with Helm 3.
 
+> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/scylla/crds`
+
 ```console
 $ helm install scylla charts/scylla
 NAME: scylla
