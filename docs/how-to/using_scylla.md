@@ -6,7 +6,7 @@ If you are just getting started and want a quick entry point to Scylla, you may 
 
 ## Four Concepts with One Action
 
-Scylla is a reference implementation of the [Hydra specification](https://github.com/microsoft/hydra-spec) for Kubernetes. So before using Scylla, you may need to understand some concepts of Hydra. If you're interested to learn more, you can directly read the [Hydra specification](https://github.com/microsoft/hydra-spec). 
+Scylla is a reference implementation of the [Open Application Model specification](https://github.com/microsoft/hydra-spec) for Kubernetes. So before using Scylla, you may need to understand some concepts of Open Application Model. If you're interested to learn more, you can directly read the [Open Application Model specification](https://github.com/microsoft/hydra-spec). 
 
 ### Component schematics
  
@@ -60,7 +60,7 @@ Use `kubectl get component <component-name> -o yaml` to find details of the comp
 
 A workload type is an indicator to the runtime as to how it should execute the given workload. In other words, it provides a single field by which the developer can indicate to the runtime how they intend for this component to be executed.
 
-The Hydra Spec defines two broad categories of workloads:
+The Open Application Model Spec defines two broad categories of workloads:
 
 * Core workload types
 * Extended workload types
@@ -80,7 +80,7 @@ A trait can be any application configuration of a distributed application that a
 
 Traits can be selected by the application operator as they are implemented as CRDs predefined by the platform operator.
 
-Currently we only have three traits but have plans add more in the near future. We encourage submitting PRs on Hydra if you feel like you have a good idea for a trait that could be broadly used by others. 
+Currently we only have three traits but have plans add more in the near future. We encourage submitting PRs on Open Application Model if you feel like you have a good idea for a trait that could be broadly used by others. 
 
 `kubectl get traits` returns the traits the platform supports. 
 
