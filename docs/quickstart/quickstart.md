@@ -1,6 +1,6 @@
 # Quickstart Guide
 
-This guide covers how to install and configure a basic Scylla installation. For more a more detailed walk-through, see the [Installation Guide](install.md)
+This guide covers how to install and configure a basic Scylla installation. For more a more detailed walk-through, see the [Installation Guide](../setup/install.md)
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ You can watch the status by running 'kubectl --namespace default get services -o
 ...
 ```
 
-This will give you a basic implementation of Kubernetes ingresses. See the [Installation Guide](install.md) for more about ingresses and other traits.
+This will give you a basic implementation of Kubernetes ingresses. See the [Installation Guide](../setup/install.md) for more about ingresses and other traits.
 
 ## Using Scylla
 
@@ -267,4 +267,4 @@ If you want to clean up your test environment and uninstall Scylla, you could do
 
 ## Learn more...
 
-Read how to [use Scylla](using_scylla.md) for more details.
+Read how to [use Scylla](../how-to/using_scylla.md) for more details.

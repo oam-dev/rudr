@@ -17,36 +17,7 @@ You will need both `kubectl` and `Helm 3` to install Scylla.
     3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv macos-amd64/helm /usr/local/bin/helm`)
     4. From there, you should be able to run the client: helm help.
 
-3. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16.
-
-### Installing a Compatible Version of Kubernetes on AKS
-
-On AKS you may install a particular version of Kubernetes. However, you need to choose a recent version of Kubernetes. Often, the default is an older release (currently, 1.13.10).
-
-```console
-$ az aks get-versions -l eastus -o table
-Unable to load extension 'eventgrid'. Use --debug for more information.
-KubernetesVersion    Upgrades
--------------------  ------------------------
-1.15.3(preview)      None available
-1.14.6               1.15.3(preview)
-1.14.5               1.14.6, 1.15.3(preview)
-1.13.10              1.14.5, 1.14.6
-1.13.9               1.13.10, 1.14.5, 1.14.6
-1.12.8               1.13.9, 1.13.10
-1.12.7               1.12.8, 1.13.9, 1.13.10
-1.11.10              1.12.7, 1.12.8
-1.11.9               1.11.10, 1.12.7, 1.12.8
-1.10.13              1.11.9, 1.11.10
-1.10.12              1.10.13, 1.11.9, 1.11.10
-$ az group create -l eastus -n scylla
-...
-$ az aks create --kubernetes-version 1.15.3 -n scylla -g scylla
-...
-$ az aks get-credentials -n scylla -g scylla
-```
-
-At the end of this process, verify that you are connected to this cluster with `kubectl config current-context`.
+3. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version.
 
 ## Installing Scylla Using Helm 3
 
@@ -159,3 +130,7 @@ Developers may prefer to run a local copy of the Scylla daemon. To do so:
 1. Make sure the CRDs are installed on your target cluster
 2. Make sure your current Kubernetes context is set to your target cluster. Scylla will inherit the credentials from this context entry.
 3. From the base directory of the code, run `make run`. This will start Scylla in the foreground, running locally, but listening on the remote cluster.
+
+## Appendix
+
+You could check the [appendix doc](appendix.md) to find more information.

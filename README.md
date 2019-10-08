@@ -6,43 +6,7 @@ Scylla is an implementation of the [Open Application Model (OAM)](https://github
 
 ## Quickstart: Deploy an app with Ingress
 
-Follow the set up instructions in the [Prerequisites section](./docs/setup/install.md) to install Helm 3 and kubectl.
-
-Ensure you have a Kubernetes cluster.
-- [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
-- [Alibaba Kubernetes Service](https://www.alibabacloud.com/zh/product/kubernetes)
-- [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
-- [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
-- [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
-
-1. Install Scylla on the cluster.
-
-```bash
-helm install scylla ./charts/scylla --wait
-```
-
-2. Install NGINX ingress on your cluster. Currently, Scylla doesn't have any opinions on how to accomplish tasks but rather leverages existing components.
-
-```bash
-helm install nginx-ingress stable/nginx-ingress
-```
-
-3. Register the NGINX component.
-
-```bash
-kubectl apply -f examples/nginx-component.yaml
-```
-
-4. Install your first application. This application is an NGINX server running as a container, exposing port 80 on an ingress route using the hostname `example.com`.
-
-```bash
-kubectl apply -f examples/first-app-config.yaml
-```
-
-5. Hitting the public endpoint of your ingress service should reveal the "Welcome to nginx!" web page.
-
-
-![Alt Text](./docs/media/readme.gif)
+Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide.
 
 ## The Problem Space: Building cloud native applications is difficult
 
@@ -68,9 +32,9 @@ Scylla takes an incremental approach to solving the problems. The current archit
 
 - Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait.
 
-## Try things out yourself
+## Try more things out yourself 
 
-Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide or read the [documentation list](./docs/README.md) for more options.
+Read the [documentation list](./docs/README.md) for more options.
 
 ## Contributing
 
