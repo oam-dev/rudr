@@ -9,3 +9,8 @@ spec:
       parameterValues:
         - name: message
           value: Hello World
+      traits:
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: 3
