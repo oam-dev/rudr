@@ -31,8 +31,8 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 1. Helm install Rudr
 
 ```console
-$ helm install scylla ./charts/scylla --wait --set image.tag=v0.8.0
-NAME: scylla
+$ helm install rudr ./charts/rudr --wait --set image.tag=v0.8.0
+NAME: rudr
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
 STATUS: deployed
@@ -64,9 +64,9 @@ traits.core.oam.dev                      2019-10-02T19:57:32Z
 You should see at least those five CRDs. You can also verify that the Rudr deployment is running:
 
 ```console
-$ kubectl get deployment scylla
+$ kubectl get deployment rudr
 NAME     READY   UP-TO-DATE   AVAILABLE   AGE
-scylla   1/1     1            1           2m47s
+rudr   1/1     1            1           2m47s
 ```
 
 ### Upgrading
@@ -76,7 +76,7 @@ To upgrade Rudr, typically you only need to use Helm.
 > Tip: During the Alpha and Beta phase of Rudr, we recommend also deleting your CRDs manually. You must do this with `kubectl delete crd`.
 
 ```console
-$ helm upgrade scylla charts/scylla
+$ helm upgrade rudr charts/rudr
 ```
 
 The above will update your Rudr to the latest version.
@@ -84,7 +84,7 @@ The above will update your Rudr to the latest version.
 ### Uninstalling
 
 ```console
-$ helm delete scylla
+$ helm delete rudr
 ```
 
 This will leave the CRDs and configurations intact.

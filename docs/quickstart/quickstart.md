@@ -6,7 +6,7 @@ This guide covers how to install and configure a basic Rudr installation. For mo
 
 The following prerequisites are required for a successful use of Rudr.
 
-1. A copy of this repo (`git clone https://github.com/microsoft/scylla.git`)
+1. A copy of this repo (`git clone https://github.com/microsoft/rudr.git`)
 2. A Kubernetes cluster version 1.15 or greater
 3. `kubectl` installed and pointed at the cluster
 4. [Helm 3](https://v3.helm.sh/)
@@ -22,11 +22,11 @@ my-cluster
 
 The fastest way to install Rudr is with Helm 3.
 
-> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/scylla/crds`
+> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/rudr/crds`
 
 ```console
-$ helm install scylla charts/scylla
-NAME: scylla
+$ helm install rudr charts/rudr
+NAME: rudr
 LAST DEPLOYED: 2019-10-02 13:57:33.158655 -0600 MDT m=+5.183858344
 NAMESPACE: default
 STATUS: deployed
@@ -458,7 +458,7 @@ component.core.oam.dev/nginx-singleton          19h
 If you want to clean up your test environment and uninstall Rudr, you could do the following:
 
  ```console
- $ helm delete scylla
+ $ helm delete rudr
  ```
  
  This will leave the CRDs and configurations intact.
@@ -473,4 +473,4 @@ If you want to clean up your test environment and uninstall Rudr, you could do t
 
 ## Learn more...
 
-Read how to [use Rudr](../how-to/using_scylla.md) for more details.
+Read how to [use Rudr](../how-to/using_rudr.md) for more details.

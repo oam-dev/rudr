@@ -21,14 +21,14 @@ This section goes over how to build the source code for Rudr.
 To build:
 
 - Clone this repository
-- Go into the main directory: `cd scylla`
+- Go into the main directory: `cd rudr`
 - Install the CRDs
 ```bash
-kubectl apply -f charts/scylla/crds/appconfigs.yaml
-kubectl apply -f charts/scylla/crds/componentinstances.yaml
-kubectl apply -f charts/scylla/crds/componentschematics.yaml
-kubectl apply -f charts/scylla/crds/scopes.yaml
-kubectl apply -f charts/scylla/crds/traits.yaml
+kubectl apply -f charts/rudr/crds/appconfigs.yaml
+kubectl apply -f charts/rudr/crds/componentinstances.yaml
+kubectl apply -f charts/rudr/crds/componentschematics.yaml
+kubectl apply -f charts/rudr/crds/scopes.yaml
+kubectl apply -f charts/rudr/crds/traits.yaml
 ```
 - Run `cargo build`
 - To run the server: `make run`, this will run Rudr controller locally, and use the cluster by your `~/.kube/config`.
@@ -75,7 +75,7 @@ To delete this, run `kubectl delete configuration first-app` and it will cascade
 
 ## Contributing via pull requests
 
-Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/scylla/labels) page. 
+Like any good open source project, we use Pull Requests (PRs) to track code changes. Please familiarize yourself with the **Status** labels on the [labels](https://github.com/microsoft/rudr/labels) page. 
 
 1. Fork the repo, modify to address the issue.
 2. Link the PR to the issue. 
@@ -116,7 +116,7 @@ There are more ways to contribute to open source projects than pull requests. We
 
 ### Issue Types
 
-To learn about issue types, please read the [labels](https://github.com/microsoft/scylla/labels) page. 
+To learn about issue types, please read the [labels](https://github.com/microsoft/rudr/labels) page. 
 
 ### Issue Lifecycle
 

@@ -44,7 +44,7 @@ spec:
       required: true
 ```
 
-The YAML above belongs at the bottom of `charts/scylla/templates/traits.yaml`.
+The YAML above belongs at the bottom of `charts/rudr/templates/traits.yaml`.
 
 ## Step 2: Writing a Trait Struct
 

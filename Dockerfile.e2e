@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 WORKDIR /usr/app
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-COPY debug/scylla .
-ENV RUST_LOG scylla=info
-CMD ["./scylla"]
+COPY debug/rudr .
+ENV RUST_LOG rudr=info
+CMD ["./rudr"]
