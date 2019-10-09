@@ -42,10 +42,10 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 
 | Item        | Value  |
 |---------------------|---|
-| Mailing List | TBD |
-| Meeting Information | Bi-weekly (Starting Sept 24th), Tuesdays 10:30AM PST  |
-| Meeting Link | https://zoom.us/j/623691799?pwd=ZWc4SHFNdWpRUVVNYkdJWE9zVHpjZz09   |
-| Slack Channel       | TBD  |
+| Mailing List | https://groups.google.com/forum/#!forum/oam-dev |
+| Meeting Information | Bi-weekly (Starting October 23rd), Tuesdays 10:30AM PST  |
+| Meeting Link | https://zoom.us/j/271516061  |
+| IM Channel       | https://gitter.im/oam-dev/  |
 | Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
 
 ## Governance
