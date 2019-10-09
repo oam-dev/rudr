@@ -42,3 +42,8 @@ Currently, no. Scopes are fixed according to the Open Application Model spec.
 ## Does Scylla support "extended workload types" as described in the Open Application Model specification
 
 No. That section of the specification is a draft, and we are not yet supporting it.
+
+
+## Why Rust?
+
+On occasion, we have been asked why Scylla is written in Rust instead of Go. There is no requirement in the Kubernetes world that Kubernetes controllers be written in Go. Many languages implement the Kubernetes API and can be used for creating controllers. We decided to write Scylla in Rust because the language allows us to write Kubernetes controllers with far less code. Rust's generics make it possible to quickly and succinctly describe custom Kubernetes API resources without requiring developers to run code generators. And Rust's Kubernetes library can easily switch between Kubernetes versions with ease. We recognize that Rust might not be to everyone's taste (and neither is Go). However, we are confident that Rust is a solid choice for writing maintainable and concise Kubernetes applications.
