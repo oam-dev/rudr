@@ -64,7 +64,7 @@ To start, install an example component:
 $ kubectl apply -f examples/helloworld-python-component.yaml
 ```
 
-This component declares a simple web app written in Python. You can read the [Create Component from Scratch] doc to know how we build it.
+This component declares a simple web app written in Python. You can read the [Create Component from Scratch](../how-to/create_component_from_scratch.md) doc to know how we build it.
 
 After that, you can list all available components using `kubectl`:
 
