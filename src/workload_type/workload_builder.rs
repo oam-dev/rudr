@@ -43,11 +43,13 @@ impl WorkloadMetadata {
         let mut labels = BTreeMap::new();
         labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
         labels.insert("workload-type".to_string(), workload_type.to_string());
+        labels.insert("instance-name".to_string(), self.instance_name.clone());
         labels
     }
     pub fn select_labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
+        labels.insert("instance-name".to_string(), self.instance_name.clone());
         labels
     }
 
@@ -179,7 +181,11 @@ impl DeploymentBuilder {
     pub fn to_deployment(&self) -> apps::Deployment {
         apps::Deployment {
             // TODO: Could make this generic.
-            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+            metadata: form_metadata(
+                self.name.clone(),
+                self.labels.clone(),
+                self.owner_ref.clone(),
+            ),
             spec: Some(apps::DeploymentSpec {
                 replicas: self.replicas,
                 selector: meta::LabelSelector {
@@ -303,7 +309,11 @@ impl JobBuilder {
 
     fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
-            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+            metadata: form_metadata(
+                self.name.clone(),
+                self.labels.clone(),
+                self.owner_ref.clone(),
+            ),
             spec: Some(batchapi::JobSpec {
                 backoff_limit: Some(4),
                 parallelism: self.parallelism,
@@ -422,7 +432,11 @@ impl ServiceBuilder {
     fn to_service(&self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
-                metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+                metadata: form_metadata(
+                    self.name.clone(),
+                    self.labels.clone(),
+                    self.owner_ref.clone(),
+                ),
                 spec: Some(api::ServiceSpec {
                     selector: Some(self.selector.clone()),
                     ports: Some(vec![port.to_service_port()]),
