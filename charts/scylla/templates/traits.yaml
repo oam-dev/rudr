@@ -65,7 +65,7 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:
-  name: volumeMounter
+  name: volume-mounter
 spec:
   appliesTo:
     - core.hydra.io/v1alpha1.Service

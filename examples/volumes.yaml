@@ -25,7 +25,7 @@ spec:
     - name: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volumeMounter
+        - name: volume-mounter
           parameterValues:
             - name: volumeName
               value: myvol

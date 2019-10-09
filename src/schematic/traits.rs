@@ -30,7 +30,7 @@ mod util_test;
 pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "autoscaler";
 pub const MANUAL_SCALER: &str = "manual-scaler";
-pub const VOLUME_MOUNTER: &str = "volumeMounter";
+pub const VOLUME_MOUNTER: &str = "volume-mounter";
 pub const EMPTY: &str = "empty";
 
 /// Trait describes Hydra traits.
