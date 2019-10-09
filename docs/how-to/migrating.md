@@ -9,14 +9,14 @@ The terms here are described elsewhere, particularly in the [specification](http
 - Component: A component describes a particular workload (or microservice) that can be deployed.
 - Component Instance: A particular instance of a component. If one Component is deployed in two Application Configurations, it will create two Component Instances, each of which is managed by its Application Configuration
 - Workload type: Open Application Model describes the basic behavior of a Component using workload types. There are 6 core workload types:
-  - SingletonService: This service listens on a network interface. Only one instance of the component's pod can run at a time.
-  - ReplicableService: This service listens on a network interface, but multiple replicas of the component's pod can be running concurrently.
+  - SingletonServer: This service listens on a network interface. Only one instance of the component's pod can run at a time.
+  - Server: This service listens on a network interface, but multiple replicas of the component's pod can be running concurrently.
   - SingletonTask: This component only runs for a short period of time (it is not a daemon). It does not listen on a network interface. And at any given time, only one of these may run per application.
-  - ReplicableTask: This component only runs for a short period of time (it is not a daemon). It does not listen on a network interface. Many replicas of this task may run concurrently.
-  - SingletoneWorker: This component is long-running, but does not listen on a network interface. Only one pod can be running per application.
-  - ReplicableWorker: This component is long-running, but does not listen on a network interface. Multiple workers may run concurrently.
+  - Task: This component only runs for a short period of time (it is not a daemon). It does not listen on a network interface. Many replicas of this task may run concurrently.
+  - SingletonWorker: This component is long-running, but does not listen on a network interface. Only one pod can be running per application.
+  - Worker: This component is long-running, but does not listen on a network interface. Multiple workers may run concurrently.
 - Application Configuration: This resource describes an application as a list of components. Configuration information (parameter values) may be passed into components via the application configuration. Traits and scopes are attached to components in the Application Configuration
-- Traits: A trait describes an operational behavior that should be attached to a component at runtime. For example, a ReplicableService may have an Autoscaler trait attached.
+- Traits: A trait describes an operational behavior that should be attached to a component at runtime. For example, a Server may have an Autoscaler trait attached.
 - Scopes: A scope is an arbitrary group of Component Instances that share a behavior. For example, the health check scope facilitates an aggregate health check of all Component Instances in that Scope. If any Component Instance's health check fails, the Scope's health check fails.
 
 ## Separation of Concerns
@@ -52,9 +52,9 @@ A major goal of the Open Application Model specification is to separate operatio
 To convert a Kubernetes application to Scylla, you can follow these steps:
 
 1. Describe your workloads (microservices) as Components.
-    - A `Deployment` or `ReplicaSet` can be converted to one of `SingletonService`, `ReplicableService`, `SingletonWorker`, or `ReplicableWorker` depending on its runtime requirements
+    - A `Deployment` or `ReplicaSet` can be converted to one of `SingletonServer`, `Server`, `SingletonWorker`, or `ReplicableWorker` depending on its runtime requirements
     - A `Job` can be converted to one of `SingletonTask` or `ReplicableTask`
-    - A `Pod` can be converted to `SingletonService` or `SingletonWorker`
+    - A `Pod` can be converted to `SingletonServer` or `SingletonWorker`
     - At this time, `StatefulSets` and `DaemonSets` do not have Open Application Model equivalents.
     - Expose parameters. For example, if your container image takes `FOO` as an environment variable, you may expose a parameter that allows an operator to set `FOO`'s value.
 2. Create an `ApplicationConfiguration` YAML file

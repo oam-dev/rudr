@@ -36,7 +36,7 @@ pub const EMPTY: &str = "empty";
 /// Trait describes OAM traits.
 ///
 /// OAM traits are ops-oriented "add-ons" that can be attached to Components of the appropriate workloadType.
-/// For example, an autoscaler trait can attach to a workloadType (such as ReplicableService) that can be
+/// For example, an autoscaler trait can attach to a workloadType (such as Server) that can be
 /// scaled up and down.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]

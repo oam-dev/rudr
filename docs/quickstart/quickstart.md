@@ -124,8 +124,8 @@ metadata:
   uid: 9f82c346-c8c6-4780-9949-3ecfd47879f9
 spec:
   appliesTo:
-  - core.hydra.io/v1alpha1.Service
-  - core.hydra.io/v1alpha1.SingletonService
+  - core.hydra.io/v1alpha1.Server
+  - core.hydra.io/v1alpha1.SingletonServer
   properties:
   - description: Host name for the ingress
     name: hostname

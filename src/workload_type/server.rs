@@ -8,12 +8,12 @@ use crate::workload_type::{
 
 use std::collections::BTreeMap;
 
-/// A Replicated Service can take one component and scale it up or down.
-pub struct ReplicatedService {
+/// A Replicated Server can take one component and scale it up or down.
+pub struct ReplicatedServer {
     pub meta: WorkloadMetadata,
 }
 
-impl ReplicatedService {
+impl ReplicatedServer {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("Service")
     }
@@ -43,13 +43,13 @@ pub fn to_config_maps(
     new_configs
 }
 
-impl KubeName for ReplicatedService {
+impl KubeName for ReplicatedServer {
     fn kube_name(&self) -> String {
         self.meta.instance_name.to_string()
     }
 }
 
-impl WorkloadType for ReplicatedService {
+impl WorkloadType for ReplicatedServer {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("Service")?;
@@ -122,21 +122,21 @@ impl WorkloadType for ReplicatedService {
 /// Singleton represents the Singleton Workload Type, as defined in the OAM specification.
 ///
 /// It is currently implemented as a Kubernetes Pod with a Service in front of it.
-pub struct SingletonService {
+pub struct SingletonServer {
     pub meta: WorkloadMetadata,
 }
-impl SingletonService {
+impl SingletonServer {
     fn labels(&self) -> BTreeMap<String, String> {
-        self.meta.labels("SingletonService")
+        self.meta.labels("SingletonServer")
     }
 }
 
-impl KubeName for SingletonService {
+impl KubeName for SingletonServer {
     fn kube_name(&self) -> String {
         self.meta.instance_name.to_string()
     }
 }
-impl WorkloadType for SingletonService {
+impl WorkloadType for SingletonServer {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("singleton-service")?;
@@ -159,10 +159,10 @@ impl WorkloadType for SingletonService {
     }
 
     //TODO: because pod upgrade have many restrictions and very complicated, so we don't support now.
-    //User should delete and create a new SingletonService to solve this.
+    //User should delete and create a new SingletonServer to solve this.
     fn modify(&self) -> InstigatorResult {
         Err(format_err!(
-            "we don't support SingletonService {} modify",
+            "we don't support SingletonServer {} modify",
             self.kube_name(),
         ))
     }
@@ -200,7 +200,7 @@ mod test {
     use kube::{client::APIClient, config::Configuration};
 
     use crate::schematic::component::Component;
-    use crate::workload_type::{service::*, KubeName, WorkloadMetadata};
+    use crate::workload_type::{server::*, KubeName, WorkloadMetadata};
 
     use std::collections::BTreeMap;
 
@@ -208,7 +208,7 @@ mod test {
     fn test_singleton_service_kube_name() {
         let cli = APIClient::new(mock_kube_config());
 
-        let sing = SingletonService {
+        let sing = SingletonServer {
             meta: WorkloadMetadata {
                 name: "de".into(),
                 component_name: "hydrate".into(),
@@ -226,7 +226,7 @@ mod test {
 
         assert_eq!("squidgy", sing.kube_name().as_str());
         assert_eq!(
-            "SingletonService",
+            "SingletonServer",
             sing.labels().get("workload-type").unwrap()
         );
     }
@@ -235,7 +235,7 @@ mod test {
     fn test_replicated_service_kube_name() {
         let cli = APIClient::new(mock_kube_config());
 
-        let rs = ReplicatedService {
+        let rs = ReplicatedServer {
             meta: WorkloadMetadata {
                 name: "de".into(),
                 component_name: "hydrate".into(),

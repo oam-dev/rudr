@@ -4,33 +4,33 @@ Now Scylla has all the core workload type, they are as belows:
 
 |Name|Type|Service endpoint|Replicable|Daemonized|
 |-|-|-|-|-|
-|Service|core.hydra.io/v1alpha1.Service|Yes|Yes|Yes
-|Singleton Service|core.hydra.io/v1alpha1.SingletonService|Yes|No|Yes
+|Server|core.hydra.io/v1alpha1.Server|Yes|Yes|Yes
+|Singleton Server|core.hydra.io/v1alpha1.SingletonServer|Yes|No|Yes
 |Task|core.hydra.io/v1alpha1.Task|No|Yes|No
 |Singleton Task|core.hydra.io/v1alpha1.SingletonTask|No|No|No
 |Worker|core.hydra.io/v1alpha1.Worker|No|Yes|Yes
 |Singleton Worker|core.hydra.io/v1alpha1.SingletonWorker|No|No|Yes
 
-## Service
+## Server
 
-A Service is used for long-running, scalable workload that have a network endpoint with a stable name to receive network traffic for the component as a whole. 
-Common use cases include web applications and services that expose APIs. 
+A Server is used for long-running, scalable workload that have a network endpoint with a stable name to receive network traffic for the component as a whole. 
+Common use cases include web applications and services that expose APIs.
 
-The name is a little confusing with Kubernetes Service, so maybe we'll name it by Server or ReplicabeService, it's all depending on the Open Application Model Spec.
-
-The Service Workload in Scylla is implemented by a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) binding with a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/).
+The Server workload in Scylla is implemented by a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) binding with a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/).
 
 So you can use Ingress, Autoscaler or Manual Scaler trait binding with it in a configuration.
 
-## Singleton Service
+## Singleton Server
 
-A Singleton Service is a special kind of Service, just like the name pointed out, the only difference is this is a singleton.
+A Singleton Server is a special kind of Server, just like the name pointed out, the only difference is this is a singleton.
 
-The Singleton Service in Scylla is implemented by a [Kubernetes Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) binding with a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/).
+The Singleton Server in Scylla is implemented by a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) binding with a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/).
+
+> Operators should not attempt to modify the `replicaCount` on a `Deployment` created by a `SingletonServer`.
 
 This is a singleton, so you can't use Autoscaler or Manual Scaler trait.
 
-Of course binding an Ingress trait is OK just like the Service Workload. 
+Of course binding an Ingress trait is OK just like the Server Workload. 
 
 ## Task
 

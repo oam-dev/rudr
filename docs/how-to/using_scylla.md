@@ -20,7 +20,7 @@ kind: ComponentSchematic
 metadata:
   name: nginx-replicated
 spec:
-  workloadType: core.hydra.io/v1alpha1.ReplicatedService
+  workloadType: core.hydra.io/v1alpha1.Server
   osType: linux
   arch: amd64
   containers:
@@ -65,7 +65,7 @@ The Open Application Model Spec defines two broad categories of workloads:
 * Core workload types
 * Extended workload types
 
-Within these these two categories of workloads, there are several workload types. A non-exhaustive list of workload types might include a service, replicated Service, and Task. Currently Scylla only has all of the six core workload types, you can find more details in [workloads documentation](workloads.md).
+Within these these two categories of workloads, there are several workload types. A non-exhaustive list of workload types might include a server, singleton server, and task. Currently Scylla only has all of the six core workload types, you can find more details in [workloads documentation](workloads.md).
 
 It's important to understand that workload types don't have any CRDs. They are simply just a field within a component. Platform users can't define custom workload types. 
 They can only choose workload types predefined by the platform runtime.  

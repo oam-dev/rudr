@@ -65,7 +65,7 @@ None. *The manual scaler trait has no external dependencies.*
 
 ### Supported workload types
 
-- Service
+- Server
 - Task
 
 
@@ -89,7 +89,7 @@ $ helm install keda stable/keda
 
 ### Supported workload types
 
-- Service
+- Server
 - Task
 
 ### Properties
@@ -117,8 +117,8 @@ $ helm install nginx-ingress stable/nginx-ingress
 
 ### Supported workload types
 
-- Service
-- SingletonService
+- Server
+- SingletonServer
 
 ### Properties
 
