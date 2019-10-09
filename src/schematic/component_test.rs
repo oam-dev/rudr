@@ -605,6 +605,10 @@ fn test_to_pod_spec_with_policy() {
                 .get("kubernetes.io/arch")
                 .expect("an arch should be present")
         );
+        
+        pod.containers.clone().iter().for_each(|c| {
+            assert_eq!(Some("Always".to_string()), c.image_pull_policy);
+        });
     }
 
     {

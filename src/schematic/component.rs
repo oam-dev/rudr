@@ -161,6 +161,7 @@ impl Component {
             .map(|c| core::Container {
                 name: c.name.clone(),
                 image: Some(c.image.clone()),
+                image_pull_policy: Some("Always".to_string()),
                 resources: Some(c.resources.to_resource_requirements()),
                 ports: Some(c.ports.iter().map(|p| p.to_container_port()).collect()),
                 command: c.cmd.clone(),
