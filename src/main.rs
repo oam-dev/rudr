@@ -5,7 +5,7 @@ use hyper::rt::Future;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
 use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, Reflector, WatchEvent};
-use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
+use kube::{client::APIClient, config::incluster_config, config::load_kube_config, ApiError};
 use log::{debug, error, info};
 
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
@@ -177,7 +177,20 @@ fn handle_event(
         WatchEvent::Added(o) => inst.add(o),
         WatchEvent::Modified(o) => inst.modify(o),
         WatchEvent::Deleted(o) => inst.delete(o),
-        WatchEvent::Error(e) => Err(format_err!("APIError: {:?}", e)),
+        WatchEvent::Error(ref e) => match e {
+            ApiError { reason, .. } if reason == "AlreadyExists" => {
+                // TODO: The configuration watch code above (lines: [71:108]) appears
+                // to create k8s resources initially and then poll for events.
+                //
+                // The initial events created, perpetuate ADDED watch events which
+                // we react on trying to re-create the already created resources.
+                //
+                // For now, as this to be an innocuous albeit annoying error displayed
+                // in the logs, we just filter "AlreadyExists" errors to reduce confusion.
+                Ok(())
+            },
+            _ => Err(format_err!("APIError: {:?}", e)),
+        },
     }
 }
 
