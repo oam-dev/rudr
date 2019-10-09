@@ -15,7 +15,7 @@ kind: Trait
 metadata:
   # Define the name of the trait. This will be the reference by which ApplicationConfigurations
   # reference this trait.
-  name: volumeMounter
+  name: volume-mounter
 spec:
   # The appliesTo field lists all of the Workload Types that this trait can be added to.
   # In this case, all of the core workload types are supported.
@@ -97,7 +97,7 @@ pub use crate::schematic::traits::manual_scaler::ManualScaler;
 // Our new trait
 mod volume_mounter;
 pub use crate::schematic::traits::volume_mounter::VolumeMounter;
-pub const VOLUME_MOUNTER: &str = "volumeMounter";
+pub const VOLUME_MOUNTER: &str = "volume-mounter";
 
 // Then more code...
 

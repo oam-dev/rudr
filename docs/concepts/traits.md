@@ -188,7 +188,7 @@ spec:
     - name: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volumeMounter
+        - name: volume-mounter
           parameterValues:
             - name: volumeName
               value: myvol
@@ -196,7 +196,7 @@ spec:
               value: default
 ```
 
-The `volumeMounter` trait ensures that a PVC is created with the given name (`myvol`) using the given storage class (`default`). Typically, the `volumeName` should match the `resources.volumes[].name` field from the `ComponentSchematic`. Thus `myvol` above will match the volume declared in the `volumes` section of `server-with-volume-v1`.
+The `volume-mounter` trait ensures that a PVC is created with the given name (`myvol`) using the given storage class (`default`). Typically, the `volumeName` should match the `resources.volumes[].name` field from the `ComponentSchematic`. Thus `myvol` above will match the volume declared in the `volumes` section of `server-with-volume-v1`.
 
 When this request is processed by Scylla, it will first create the Kubernetes PVC named `myvol` and then create a Kubernetes pod that attaches that PVC as a `volumeMount`.
 
