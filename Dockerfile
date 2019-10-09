@@ -8,7 +8,7 @@ COPY Cargo.toml .
 COPY Cargo.lock .
 
 # Create dummy files to build the dependencies, cargo won't build without src/main.rs and src/lib.rs
-# then remove Scylla fingerprint for following rebuild
+# then remove Rudr fingerprint for following rebuild
 RUN mkdir -p ./src/ && \
     echo 'fn main() {}' > ./src/main.rs && \
     echo '' > ./src/lib.rs
