@@ -1,4 +1,4 @@
-# Build Component From Source
+# Create Component from Scratch
 
 In this tutorial, we will build a simple web app component written in Python that you can use for testing.
 It reads in an env variable TARGET and prints “Hello \${TARGET}!“.
@@ -86,3 +86,92 @@ helloworld-python-v1   15s
 ```
 
 Yeah, we have successfully built a component from source now.
+
+## Upgrade the component
+
+We assume component is a kind of immutable facilities, so if we want to upgrade the component.
+The easiest way is to modify the component and change the name suffix with a new version.
+
+### Change the code 
+
+For example, we change the code from `Hello` to `Goodbye`.
+
+```shell script
+import os
+
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    target = os.environ.get('TARGET', 'World')
+-   return 'Hello {}!\n'.format(target)
++   return 'Goodbye {}!\n'.format(target)
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', "8080")))
+```
+
+Build and create image with a new tag.
+
+```shell script
+docker build -t hydraoss/helloworld-python:v2 .
+docker push hydraoss/helloworld-python:v2
+``` 
+
+### Change the component
+
+Change the component with a new name.
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+- name: helloworld-python-v1
+- name: helloworld-python-v2
+spec:
+  name: helloworld-python
+  workloadType: core.hydra.io/v1alpha1.Server
+  containers:
+    - name: foo
+-     image: hydraoss/helloworld-python:v1
++     image: hydraoss/helloworld-python:v2
+
+      env:
+        - name: TARGET
+          fromParam: target
+        - name: PORT
+          fromParam: port
+      ports:
+        - type: tcp
+          containerPort: 9999
+          name: http
+  parameters:
+    - name: target
+      type: string
+      default: World
+    - name: port
+      type: string
+      default: '9999'
+```
+
+Apply the changed component:
+
+```console
+$ kubectl apply -f examples/helloworld-python-component.yaml
+componentschematic.core.hydra.io/helloworld-python-v2 created
+```
+
+### Check the result
+
+Now we have two components:
+
+```console
+$ kubectl get comp
+NAME                   AGE
+helloworld-python-v1   1h
+helloworld-python-v2   27s
+```
+
+They could be used by operator in application configuration.  

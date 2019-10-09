@@ -61,42 +61,45 @@ Once you have installed Scylla, you can start creating and deploying apps.
 To start, install an example component:
 
 ```console
-$ kubectl apply -f examples/nginx-component.yaml
+$ kubectl apply -f examples/helloworld-python-component.yaml
 ```
 
-This component declares a basic NGINX container. You can list all available components using `kubectl`:
+This component declares a simple web app written in Python. You can read the [Create Component from Scratch] doc to know how we build it.
+
+After that, you can list all available components using `kubectl`:
 
 ```console
 $ kubectl get componentschematics
 NAME              AGE
-nginx-component   14s
+helloworld-python-v1   14s
 ```
 
 You can look at an individual component:
 
 ```console
-$ kubectl get componentschematic nginx-component -o yaml
+$ kubectl get componentschematic helloworld-python-v1 -o yaml
 apiVersion: core.hydra.io/v1alpha1
 kind: ComponentSchematic
 metadata:
-  creationTimestamp: "2019-10-02T20:10:36Z"
+  creationTimestamp: "2019-10-08T13:02:23Z"
   generation: 1
-  name: nginx-component-v1
+  name: helloworld-python-v1
   namespace: default
-  resourceVersion: "119193"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/componentschematics/nginx-component
-  uid: a0024b12-8d56-4c4c-8fff-4092892fce76
+  resourceVersion: "1989944"
+  ...
 spec:
-  arch: amd64
   containers:
-  - args:
-    - -g
+  - env:
+    - fromParam: target
+      name: TARGET
 # ... more YAML
 ```
 
 ### Viewing Traits
 
-Scylla provides a way to attach operational features at install time. This allows application operations an opportunity to provide functionality like autoscaling, caching, or ingress control at install time, without requiring the developer to change anything in the component.
+Scylla provides a way to attach operational features at install time.
+This allows application operations an opportunity to provide functionality like autoscaling,
+caching, or ingress control at install time, without requiring the developer to change anything in the component.
 
 You can also list the traits that are available on Scylla:
 
@@ -154,25 +157,25 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-component-v1
-    instanceName: first-app-nginx
-    parameterValues:
-      - name: poet
-        value: Eliot
-      - name: poem
-        value: The Wasteland
-    traits:
-      - name: ingress
-        parameterValues:
-          - name: hostname
-            value: example.com
-          - name: path
-            value: /
-          - name: service_port
-            value: 80
+    - name: helloworld-python-v1
+      instanceName: first-app-helloworld-python-v1
+      parameterValues:
+        - name: target
+          value: Scylla
+        - name: port
+          value: '9999'
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 9999
 ```
 
-This is an example of an application composed of a singular component that has an ingress trait with an address of `example.com` and a service port of `80`. 
+This is an example of an application composed of a singular component that has an ingress trait with an address of `example.com` and a service port of `9999`. 
 
 To install this application configuration, use `kubectl`:
 
@@ -191,24 +194,26 @@ NAME        AGE
 first-app   4m23s
 $ kubectl get configuration first-app -o yaml
 apiVersion: core.hydra.io/v1alpha1
-kind: Configuration
+kind: ApplicationConfiguration
 metadata:
-  creationTimestamp: "2019-08-08T22:49:29Z"
-  generation: 1
+  annotations:
+     ...
+  creationTimestamp: "2019-10-08T12:39:07Z"
+  generation: 6
   name: first-app
   namespace: default
-  resourceVersion: "40006"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/configurations/first-app
-  uid: 7fcb2f3f-2339-4242-8a54-6bed11d4bf86
+  resourceVersion: "2020150"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  uid: 2ea9f384-993c-42b0-803a-43a1c273d291
 spec:
   components:
-  - instanceName: first-app-nginx
-    name: nginx-singleton-v1
+  - instanceName: first-app-helloworld-python-v1
+    name: helloworld-python-v1
     parameterValues:
-    - name: poet
-      value: Eliot
-    - name: poem
-      value: The Wasteland
+    - name: target
+      value: Scylla
+    - name: port
+      value: "9999"
     traits:
     - name: ingress
       parameterValues:
@@ -216,7 +221,208 @@ spec:
         value: example.com
       - name: path
         value: /
+      - name: service_port
+        value: 9999
+status:
+  components:
+    helloworld-python-v1:
+      deployment/first-app-helloworld-python-v1: running
+      ingress/first-app-helloworld-python-v1-trait-ingress: Created
+      service/first-app-helloworld-python-v1: created
+  phase: synced
 ```
+
+## Visit the web app
+
+The way to visit the web app could be different with different platforms.
+Assuming you are using [minikube](https://github.com/kubernetes/minikube),
+you can view your web app from following steps:
+
+1. Get the IP of minikube.
+    ```shell script
+    $ minikube ip
+    192.168.99.101
+    ``` 
+2. Append hostname with IP to your hosts file, you can directly edit the file with `vim` or other tools.
+   ```shell script
+   echo "192.168.99.101 example.com" >> /etc/hosts
+   ```
+3. Then you can directly find what you want by `curl`
+    ```shell script
+    $ curl example.com
+    Hello Scylla!
+    ```
+
+## Upgrade the Application Configuration file
+
+Now we have successfully installed our web app and checked the result, the application worked well.
+But someday, the operator may want to change something. For example:
+
+1. the hostname: maybe because of there's conflict with other app, assume we change the hostname to `example2.com`.
+2. env(target): this could represent some normal case of update, assume we change value of `target` to `World`.
+
+### Change the Application Configuration file
+
+So you could change `first-app-config.yaml` like below:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: first-app
+spec:
+  components:
+    - name: helloworld-python-v1
+      instanceName: first-app-helloworld-python-v1
+      parameterValues:
+        - name: target
+-         value: Scylla
++         value: World
+        - name: port
+          value: '9999'
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+-             value: example.com
++             value: example2.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 9999
+```
+
+### Apply the changed file
+
+Again we apply this yaml:
+
+```console
+$ kubectl apply -f examples/first-app-config.yaml
+applicationconfiguration.core.hydra.io/first-app configured
+```
+
+### Check the updated app
+
+Then check the applied yaml first:
+
+```console
+$ kubectl get configuration first-app -o yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  annotations:
+    ...
+  creationTimestamp: "2019-10-08T12:39:07Z"
+  generation: 9
+  name: first-app
+  namespace: default
+  resourceVersion: "2022598"
+  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  uid: 2ea9f384-993c-42b0-803a-43a1c273d291
+spec:
+  components:
+  - instanceName: first-app-helloworld-python-v1
+    name: helloworld-python-v1
+    parameterValues:
+    - name: target
+      value: World
+    - name: port
+      value: "9999"
+    traits:
+    - name: ingress
+      parameterValues:
+      - name: hostname
+        value: example2.com
+      - name: path
+        value: /
+      - name: service_port
+        value: 9999
+status:
+  components:
+    helloworld-python-v1:
+      deployment/first-app-helloworld-python-v1: running
+      ingress/first-app-helloworld-python-v1-trait-ingress: Created
+      service/first-app-helloworld-python-v1: created
+  phase: synced
+``` 
+
+You can see fields have been changed.
+
+As we changed the hostname, we may set the hosts file again:
+
+```shell script
+echo "192.168.99.101 example2.com" >> /etc/hosts
+```
+
+Let's visit the web app again with the new hostname:
+
+```console
+$ curl example2.com
+Hello World!
+```
+
+The response from the url indicates our change of environment has successfully went into effect.
+
+## Upgrade with Component Changed
+
+Assume several days have gone and the developer have developed a new version of the web app.
+
+For example we change prefix of the response from `Hello` to `Goodbye`, and make a new component called `helloworld-python-v2`.
+You can find more details about how we create it in [Upgrade Component](../how-to/create_component_from_scratch.md#Upgrade the component).
+
+### Change and Apply the Application Configuration file
+
+We need to change and apply the configuration file to make the component upgrade work.
+ 
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: first-app
+spec:
+  components:
+-   - name: helloworld-python-v1
++   - name: helloworld-python-v2
+-     instanceName: first-app-helloworld-python-v1
++     instanceName: first-app-helloworld-python-v2
+      parameterValues:
+        - name: target
+          value: World
+        - name: port
+          value: '9999'
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example2.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 9999
+```
+
+Apply it:
+ 
+```shell script
+$ kubectl apply -f examples/first-app-config.yaml
+applicationconfiguration.core.hydra.io/first-app configured
+```
+
+### Check the upgrade result
+
+You could check the applied yaml again by yourself. You should find the component name has been changed.
+
+Let's visit the website directly:
+
+```console
+$ curl example2.com
+Goodbye World!
+```
+
+Yeah, the updated web app worked very well!
+
+Now we have successfully made our new component work.
+This could be easier as the developer only need to care about component update while the operator only need to care about application configuration.
 
 ## Uninstalling Applications
 
