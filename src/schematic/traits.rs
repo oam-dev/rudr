@@ -14,6 +14,8 @@ mod manual_scaler;
 pub use crate::schematic::traits::manual_scaler::ManualScaler;
 mod volume_mounter;
 pub use crate::schematic::traits::volume_mounter::VolumeMounter;
+mod traffic_split;
+pub use crate::schematic::traits::traffic_split::TrafficSplit;
 mod util;
 use crate::schematic::traits::util::*;
 use std::collections::BTreeMap;
@@ -31,6 +33,7 @@ pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "autoscaler";
 pub const MANUAL_SCALER: &str = "manual-scaler";
 pub const VOLUME_MOUNTER: &str = "volume-mounter";
+pub const TRAFFIC_SPLIT: &str = "traffic-split";
 pub const EMPTY: &str = "empty";
 
 /// Trait describes OAM traits.
@@ -62,6 +65,7 @@ pub enum OAMTrait {
     ManualScaler(ManualScaler),
     Ingress(Ingress),
     VolumeMounter(VolumeMounter),
+    TrafficSplit(TrafficSplit),
     Empty(Empty),
 }
 impl OAMTrait {
@@ -72,6 +76,7 @@ impl OAMTrait {
             OAMTrait::ManualScaler(m) => m.exec(ns, client, phase),
             OAMTrait::VolumeMounter(v) => v.exec(ns, client, phase),
             OAMTrait::Empty(e) => e.exec(ns, client, phase),
+            OAMTrait::TrafficSplit(t) => t.exec(ns, client, phase),
         }
     }
     pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
@@ -81,6 +86,7 @@ impl OAMTrait {
             OAMTrait::ManualScaler(m) => m.status(ns, client),
             OAMTrait::Empty(e) => e.status(ns, client),
             OAMTrait::VolumeMounter(v) => v.status(ns, client),
+            OAMTrait::TrafficSplit(t) => t.status(ns, client),
         }
     }
 }

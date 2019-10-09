@@ -87,6 +87,27 @@ spec:
 apiVersion: core.hydra.io/v1alpha1
 kind: Trait
 metadata:
+  name: traffic-split
+spec:
+  appliesTo:
+    - core.hydra.io/v1alpha1.Server
+    - core.hydra.io/v1alpha1.SingletonServer
+    - core.hydra.io/v1alpha1.Worker
+    - core.hydra.io/v1alpha1.SingletonWorker
+  properties:
+    - name: splitterName
+      description: The name of the splitter that this should join. If no such splitter exists, it will be created.
+      type: string
+      required: true
+    - name: weight
+      description: The weight used for routing traffic. The "heavier" the wait, the more traffic will be directed to this splitter.
+      type: int
+      required: false
+      default: 0
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: Trait
+metadata:
   name: empty
 spec:
   appliesTo:

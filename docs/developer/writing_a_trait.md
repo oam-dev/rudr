@@ -119,6 +119,15 @@ impl OAMTrait {
             OAMTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
+    pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        match self {
+            OAMTrait::Autoscaler(a) => a.status(ns, client),
+            OAMTrait::Ingress(i) => i.status(ns, client),
+            OAMTrait::ManualScaler(m) => m.status(ns, client),
+            OAMTrait::Empty(e) => e.status(ns, client),
+            OAMTrait::VolumeMounter(v) => v.status(ns, client),
+        }
+    }
 }
 ```
 
@@ -272,6 +281,36 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req)?;
         Ok(())
     }
+    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+        let pvc_name = self.volume_name.as_str();
+        let key = format!("persistentvolumeclaim/{}", pvc_name);
+        let mut resource = BTreeMap::new();
+        let req = core::PersistentVolumeClaim::read_namespaced_persistent_volume_claim_status(
+            pvc_name,
+            ns,
+            Default::default(),
+        );
+        if req.is_err() {
+            resource.insert(key, req.unwrap_err().to_string());
+            return Some(resource);
+        }
+
+        let (raw_req, _) = req.unwrap();
+        match client.request::<core::PersistentVolumeClaim>(raw_req) {
+            Ok(pvc) => {
+                resource.insert(
+                    key,
+                    pvc.status
+                        .and_then(|s| s.phase)
+                        .unwrap_or_else(|| "unknown phase".to_string()),
+                );
+            }
+            Err(e) => {
+                resource.insert(key, e.to_string());
+            }
+        };
+        Some(resource)
+    }
 }
 ```
 
@@ -287,7 +326,19 @@ The `src/instigator.rs` file has the trait manager. Find `impl TraitManager` and
 impl TraitManager {
     // ... ignore some stuff
     fn load_trait(&self, binding: &TraitBinding) -> Result<OAMTrait, Error> {
-
+        match ... {
+            traits::VOLUME_MOUNTER => {
+                let volmount = VolumeMounter::from_params(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.name.clone(),
+                    trait_values,
+                    self.owner_ref.clone(),
+                    self.component_schematic.clone(),
+                );
+                Ok(OAMTrait::VolumeMounter(volmount))
+            }
+        }
     }
 }
 

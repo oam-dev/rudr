@@ -11,7 +11,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_values, ParameterValue},
         traits::{
-            self, Autoscaler, Empty, OAMTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
+            self, Autoscaler, Empty, OAMTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter, TrafficSplit,
         },
     },
 };
@@ -92,6 +92,17 @@ impl TraitManager {
                     self.workload_type.clone(),
                 );
                 Ok(OAMTrait::ManualScaler(scaler))
+            }
+            traits::TRAFFIC_SPLIT => {
+                let splitter = TrafficSplit::from_params(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.name.clone(),
+                    trait_values,
+                    self.owner_ref.clone(),
+                    //self.workload_type.clone(),
+                );
+                Ok(OAMTrait::TrafficSplit(splitter))
             }
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
