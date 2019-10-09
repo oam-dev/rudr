@@ -503,6 +503,31 @@ mod test {
     use crate::schematic::component::{Component, Container, Port, PortProtocol};
     use crate::workload_type::workload_builder::*;
     use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
+    use kube::config::Configuration;
+
+    #[test]
+    fn test_workload_metadata() {
+        let wmd = WorkloadMetadata{
+            name: "name".into(),
+            component_name: "component_name".into(),
+            instance_name: "instance name".into(),
+            namespace: "namespace".into(),
+            client: APIClient::new(mock_kube_config()),
+            annotations: None,
+            params: BTreeMap::new(),
+            definition: skeleton_component(),
+            owner_ref: skeleton_owner_ref(),
+        };
+
+        let labels = wmd.labels("type");
+        assert_eq!("instance name", labels.get("instance-name").expect("expect an instance name"));
+        assert_eq!("name", labels.get("app.kubernetes.io/name").expect("app name"));
+        assert_eq!("type", labels.get("workload-type").expect("expect a workload type"));
+
+        let select_labels = wmd.select_labels();
+        assert_eq!("instance name", select_labels.get("instance-name").expect("expect an instance name"));
+        assert_eq!("name", select_labels.get("app.kubernetes.io/name").expect("app name"));
+    }
 
     #[test]
     fn test_deployment_builder() {
@@ -740,5 +765,11 @@ mod test {
         Some(vec![OwnerReference {
             ..Default::default()
         }])
+    }
+    fn mock_kube_config() -> Configuration {
+        Configuration {
+            base_path: ".".into(),
+            client: reqwest::Client::new(),
+        }
     }
 }
