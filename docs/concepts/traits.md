@@ -173,6 +173,8 @@ spec:
               value: 80                # <-- set this to the value in the component
 ```
 
+Because each component may have multiple ports, the specific port must be defined in the `ApplicationCinfiguration`.
+
 ## Volume Mounter Trait
 
 The Volume Mounter trait is responsible for attaching Kubernetes Persistent Volume Claims to components.
