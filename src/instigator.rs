@@ -14,12 +14,12 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         variable::{get_variable_values, resolve_variables},
-        HydraStatus, Status,
+        OAMStatus, Status,
     },
     trait_manager::TraitManager,
     workload_type::{
         self, CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker,
-        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
+        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
     },
 };
 
@@ -57,8 +57,8 @@ pub struct ComponentNotFoundError {
 /// Instigator will examine the Traits and Scopes requirements, and delegate those
 /// processes to the appropriate Scope or TraitImpl.
 ///
-/// (Terminological note: Hydra Traits are distinct from Rust traits. TraitImpl is the
-/// Rust trait that represents a Hydra Trait)
+/// (Terminological note: Open Application Model Traits are distinct from Rust traits.
+/// TraitImpl is the Rust trait that represents an OAM Trait)
 ///
 /// Instigators know how to deal with the following operations:
 /// - Add
@@ -148,7 +148,7 @@ impl Instigator {
             component_status.insert(component.name.clone(), status.clone());
         }
         let mut new_event = event.clone();
-        new_event.status = Some(Some(HydraStatus::new(
+        new_event.status = Some(Some(OAMStatus::new(
             Some("synced".to_string()),
             Some(component_status),
         )));
@@ -373,7 +373,7 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let default_status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+        let default_status = Some(Some(OAMStatus::new(Some(phase.to_string()), None)));
         let status = event.status.clone().map_or(default_status.clone(), |s| {
             s.map_or(default_status, |mut hs| {
                 hs.phase = Some(phase.to_string());
@@ -508,12 +508,12 @@ impl Instigator {
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let comp_inst = json!({
-            "apiVersion": HYDRA_API_VERSION,
+            "apiVersion": OAM_API_VERSION,
             "kind": "ComponentInstance",
             "metadata": {
                 "name": name.clone(),
                 "ownerReferences": [{
-                    "apiVersion": HYDRA_API_VERSION,
+                    "apiVersion": OAM_API_VERSION,
                     "kind": "ApplicationConfiguration",
                     "controller": true,
                     "blockOwnerDeletion": true,
@@ -549,7 +549,7 @@ impl Instigator {
         info!("UID: {}", res.metadata.uid.clone().unwrap());
 
         let new_owner = meta::OwnerReference {
-            api_version: HYDRA_API_VERSION.into(),
+            api_version: OAM_API_VERSION.into(),
             kind: "ComponentInstance".into(),
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
@@ -573,7 +573,7 @@ impl Instigator {
         let res: KubeComponentInstance = self.client.request(req)?;
 
         let owner = meta::OwnerReference {
-            api_version: HYDRA_API_VERSION.into(),
+            api_version: OAM_API_VERSION.into(),
             kind: "ComponentInstance".into(),
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
@@ -598,7 +598,7 @@ pub fn config_owner_reference(
     match parent_uid {
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
-                api_version: HYDRA_API_VERSION.into(),
+                api_version: OAM_API_VERSION.into(),
                 kind: "ApplicationConfiguration".into(),
                 uid,
                 controller: Some(true),

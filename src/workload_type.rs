@@ -14,7 +14,7 @@ pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 mod workload_builder;
 pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
-pub const HYDRA_API_VERSION: &str = "core.hydra.io/v1alpha1";
+pub const OAM_API_VERSION: &str = "core.hydra.io/v1alpha1";
 
 /// Server is a replicable server
 pub const SERVER_NAME: &str = "core.hydra.io/v1alpha1.Server";
@@ -38,7 +38,7 @@ pub type ParamMap = BTreeMap<String, serde_json::Value>;
 /// KubeName describes anything that can produce its own Kubernetes name.
 ///
 /// Most Kubernetes objects have their own name, and workload types, traits, and
-/// other Hydra objects are capable of autogenerating their own names in a
+/// other OAM objects are capable of autogenerating their own names in a
 /// repeatable fashion. This trait describes the ability to repeatably create
 /// a name.
 ///

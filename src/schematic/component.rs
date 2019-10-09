@@ -12,7 +12,7 @@ use crate::schematic::parameter::{resolve_value, ParameterList, ParameterType, R
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.hydra.io/v1alpha1.Singleton";
 
-/// Component describes the "spec" of a Hydra component schematic.
+/// Component describes the "spec" of an OAM component schematic.
 ///
 /// The wrapper of the schematic is provided by the Kubernetes library natively.
 ///

@@ -17,9 +17,9 @@ fn test_autoscaler_workload_types() {
 
 #[test]
 fn test_traits_exec() {
-    let emptytrait = HydraTrait::Empty(Empty {});
+    let emptytrait = OAMTrait::Empty(Empty {});
     match emptytrait {
-        HydraTrait::Empty(empty) => assert!(empty.exec("test", mock_client(), Phase::Add).is_ok()),
+        OAMTrait::Empty(empty) => assert!(empty.exec("test", mock_client(), Phase::Add).is_ok()),
         _ => panic!("Should be empty"),
     }
 }

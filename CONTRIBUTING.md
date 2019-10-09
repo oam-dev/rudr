@@ -47,7 +47,7 @@ nginx-replicated   17s
 nginx-singleton    17s
 ```
 
-Next, create a new application that uses the component. In Hydra, which follows the 12-factor model, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
+Next, create a new application that uses the component. In Open Application Model, which follows the 12-factor model, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
@@ -144,6 +144,6 @@ To get an overview of the milestones that are being tracked for Scylla please vi
 
 ### Triaging 
 
-Each day, someone from a Hydra related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or voluteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
+Each day, someone from a Open Application Model related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or voluteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
 
 Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call.

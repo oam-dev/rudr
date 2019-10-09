@@ -33,9 +33,9 @@ pub const MANUAL_SCALER: &str = "manual-scaler";
 pub const VOLUME_MOUNTER: &str = "volumeMounter";
 pub const EMPTY: &str = "empty";
 
-/// Trait describes Hydra traits.
+/// Trait describes OAM traits.
 ///
-/// Hydra traits are ops-oriented "add-ons" that can be attached to Components of the appropriate workloadType.
+/// OAM traits are ops-oriented "add-ons" that can be attached to Components of the appropriate workloadType.
 /// For example, an autoscaler trait can attach to a workloadType (such as ReplicableService) that can be
 /// scaled up and down.
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -52,42 +52,42 @@ pub struct TraitBinding {
     pub parameter_values: Option<Vec<ParameterValue>>,
 }
 
-/// HydraTrait is an enumeration of the known traits.
+/// OAMTrait is an enumeration of the known traits.
 ///
 /// This is a temporary solution. In the future, we really want to be able to proxy
 /// trait fulfillment down into Kubernetes and let individual trait controllers
 /// fulfill the contract.
-pub enum HydraTrait {
+pub enum OAMTrait {
     Autoscaler(Autoscaler),
     ManualScaler(ManualScaler),
     Ingress(Ingress),
     VolumeMounter(VolumeMounter),
     Empty(Empty),
 }
-impl HydraTrait {
+impl OAMTrait {
     pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match self {
-            HydraTrait::Autoscaler(a) => a.exec(ns, client, phase),
-            HydraTrait::Ingress(i) => i.exec(ns, client, phase),
-            HydraTrait::ManualScaler(m) => m.exec(ns, client, phase),
-            HydraTrait::VolumeMounter(v) => v.exec(ns, client, phase),
-            HydraTrait::Empty(e) => e.exec(ns, client, phase),
+            OAMTrait::Autoscaler(a) => a.exec(ns, client, phase),
+            OAMTrait::Ingress(i) => i.exec(ns, client, phase),
+            OAMTrait::ManualScaler(m) => m.exec(ns, client, phase),
+            OAMTrait::VolumeMounter(v) => v.exec(ns, client, phase),
+            OAMTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
     pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         match self {
-            HydraTrait::Autoscaler(a) => a.status(ns, client),
-            HydraTrait::Ingress(i) => i.status(ns, client),
-            HydraTrait::ManualScaler(m) => m.status(ns, client),
-            HydraTrait::Empty(e) => e.status(ns, client),
-            HydraTrait::VolumeMounter(v) => v.status(ns, client),
+            OAMTrait::Autoscaler(a) => a.status(ns, client),
+            OAMTrait::Ingress(i) => i.status(ns, client),
+            OAMTrait::ManualScaler(m) => m.status(ns, client),
+            OAMTrait::Empty(e) => e.status(ns, client),
+            OAMTrait::VolumeMounter(v) => v.status(ns, client),
         }
     }
 }
 
-/// A TraitImplementation is an implementation of a Hydra Trait.
+/// A TraitImplementation is an implementation of an OAM Trait.
 ///
-/// For example, Ingress is an implementation of a Hydra Trait.
+/// For example, Ingress is an implementation of an OAM Trait.
 pub trait TraitImplementation {
     fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match phase {
