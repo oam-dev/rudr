@@ -9,7 +9,7 @@ use log::info;
 use std::collections::BTreeMap;
 
 use crate::schematic::component::Component;
-use crate::workload_type::{service::to_config_maps, InstigatorResult, ParamMap};
+use crate::workload_type::{server::to_config_maps, InstigatorResult, ParamMap};
 
 /// WorkloadMetadata contains common data about a workload.
 ///

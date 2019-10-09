@@ -4,7 +4,7 @@ metadata:
   name: autoscaler
 spec:
   appliesTo:
-    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.Server
     - core.hydra.io/v1alpha1.Task
   properties:
     - name: minimum
@@ -30,7 +30,7 @@ metadata:
   name: manual-scaler
 spec:
   appliesTo:
-    - core.hydra.io/v1alpha1.Service
+    - core.hydra.io/v1alpha1.Server
     - core.hydra.io/v1alpha1.Task
   properties:
     - name: replicaCount
@@ -45,8 +45,8 @@ metadata:
   name: ingress
 spec:
   appliesTo:
-    - core.hydra.io/v1alpha1.Service
-    - core.hydra.io/v1alpha1.SingletonService
+    - core.hydra.io/v1alpha1.Server
+    - core.hydra.io/v1alpha1.SingletonServer
   properties:
     - name: hostname
       description: Host name for the ingress
@@ -68,8 +68,8 @@ metadata:
   name: volume-mounter
 spec:
   appliesTo:
-    - core.hydra.io/v1alpha1.Service
-    - core.hydra.io/v1alpha1.SingletonService
+    - core.hydra.io/v1alpha1.Server
+    - core.hydra.io/v1alpha1.SingletonServer
     - core.hydra.io/v1alpha1.Worker
     - core.hydra.io/v1alpha1.SingletonWorker
     - core.hydra.io/v1alpha1.Task

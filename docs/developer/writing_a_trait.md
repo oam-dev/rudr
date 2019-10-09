@@ -20,8 +20,8 @@ spec:
   # The appliesTo field lists all of the Workload Types that this trait can be added to.
   # In this case, all of the core workload types are supported.
   appliesTo:
-    - core.hydra.io/v1alpha1.Service
-    - core.hydra.io/v1alpha1.SingletonService
+    - core.hydra.io/v1alpha1.Server
+    - core.hydra.io/v1alpha1.SingletonServer
     - core.hydra.io/v1alpha1.Worker
     - core.hydra.io/v1alpha1.SingletonWorker
     - core.hydra.io/v1alpha1.Task

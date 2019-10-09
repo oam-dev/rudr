@@ -18,8 +18,8 @@ use crate::{
     },
     trait_manager::TraitManager,
     workload_type::{
-        self, CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker,
-        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
+        self, CoreWorkloadType, ReplicatedServer, ReplicatedTask, ReplicatedWorker,
+        SingletonServer, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
     },
 };
 
@@ -47,7 +47,7 @@ pub struct ComponentNotFoundError {
 /// An Instigator takes an inbound object and manages the reconcilliation with the desired objects.
 ///
 /// Any given Component may, underneath the hood, be composed of multiple Kubernetes objects.
-/// For example, a ReplicableService will create (at least) a Deployment and a Service
+/// For example, a Server will create (at least) a Deployment and a Service
 /// (and probably a Secret or ConfigMap as well as some RBACs). The individual pieces are
 /// managed by their respective WorkloadType. The Instigator's job is to read a component,
 /// and then delegate to the correct WorkloadType.
@@ -438,12 +438,12 @@ impl Instigator {
         };
         match comp.spec.workload_type.as_str() {
             workload_type::SERVER_NAME => {
-                let rs = ReplicatedService { meta };
-                Ok(CoreWorkloadType::ReplicatedServiceType(rs))
+                let rs = ReplicatedServer { meta };
+                Ok(CoreWorkloadType::ReplicatedServerType(rs))
             }
             workload_type::SINGLETON_SERVER_NAME => {
-                let sing = SingletonService { meta };
-                Ok(CoreWorkloadType::SingletonServiceType(sing))
+                let sing = SingletonServer { meta };
+                Ok(CoreWorkloadType::SingletonServerType(sing))
             }
             workload_type::SINGLETON_TASK_NAME => {
                 let task = SingletonTask { meta };
