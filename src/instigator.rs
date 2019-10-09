@@ -19,7 +19,7 @@ use crate::{
     trait_manager::TraitManager,
     workload_type::{
         self, CoreWorkloadType, ReplicatedService, ReplicatedTask, ReplicatedWorker,
-        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, HYDRA_API_VERSION,
+        SingletonService, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
     },
 };
 
@@ -508,12 +508,12 @@ impl Instigator {
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let comp_inst = json!({
-            "apiVersion": HYDRA_API_VERSION,
+            "apiVersion": OAM_API_VERSION,
             "kind": "ComponentInstance",
             "metadata": {
                 "name": name.clone(),
                 "ownerReferences": [{
-                    "apiVersion": HYDRA_API_VERSION,
+                    "apiVersion": OAM_API_VERSION,
                     "kind": "ApplicationConfiguration",
                     "controller": true,
                     "blockOwnerDeletion": true,
@@ -549,7 +549,7 @@ impl Instigator {
         info!("UID: {}", res.metadata.uid.clone().unwrap());
 
         let new_owner = meta::OwnerReference {
-            api_version: HYDRA_API_VERSION.into(),
+            api_version: OAM_API_VERSION.into(),
             kind: "ComponentInstance".into(),
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
@@ -573,7 +573,7 @@ impl Instigator {
         let res: KubeComponentInstance = self.client.request(req)?;
 
         let owner = meta::OwnerReference {
-            api_version: HYDRA_API_VERSION.into(),
+            api_version: OAM_API_VERSION.into(),
             kind: "ComponentInstance".into(),
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
@@ -598,7 +598,7 @@ pub fn config_owner_reference(
     match parent_uid {
         Some(uid) => {
             let owner_ref = meta::OwnerReference {
-                api_version: HYDRA_API_VERSION.into(),
+                api_version: OAM_API_VERSION.into(),
                 kind: "ApplicationConfiguration".into(),
                 uid,
                 controller: Some(true),

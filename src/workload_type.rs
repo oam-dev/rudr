@@ -14,7 +14,7 @@ pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 mod workload_builder;
 pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
-pub const HYDRA_API_VERSION: &str = "core.hydra.io/v1alpha1";
+pub const OAM_API_VERSION: &str = "core.hydra.io/v1alpha1";
 
 /// Server is a replicable server
 pub const SERVER_NAME: &str = "core.hydra.io/v1alpha1.Server";
