@@ -15,4 +15,4 @@ spec:
         - name: manual-scaler
           parameterValues:
             - name: replicaCount
-              value: 1
+              value: 2

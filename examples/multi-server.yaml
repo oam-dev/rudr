@@ -1,0 +1,17 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: example-multi-server
+spec:
+  components:
+    - name: nginx-singleton-v1
+      instanceName: multi-singleton-1
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+    - name: nginx-singleton-v1
+      instanceName: multi-singleton-2
