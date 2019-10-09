@@ -8,7 +8,7 @@
 ## 3. How-To's
 * ### [Use Scylla](./how-to/using_scylla.md) - Learn how to use Scylla.
 * ### [Use Core Workloads](./how-to/workloads.md) - Learn how to use core workload type.
-* ### [Build Component From Source](./how-to/build_component_from_source.md) - Learn how to build component from source code.
+* ### [Create Component from Scratch](how-to/create_component_from_scratch.md) - Learn how to build component from source code.
 * ### [Migrate existing Kubernetes resources](./how-to/migrating.md) - Learn how to migrate existing K8s resources
 
 ## 4. Tutorials 
