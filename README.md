@@ -8,7 +8,7 @@ Scylla is an implementation of the [Open Application Model (OAM)](https://github
 
 Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide.
 
-## The Problem Space: Building cloud native applications is difficult
+## We believe creating cloud native applications should not be hard
 
 Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixed together application primitives with infrastructure primitives. Different roles like developers and operators have to concern with problems from domains of each other and adjust themselves to understand the whole picture of the underlying infrastructure.
 
