@@ -1,0 +1,26 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: helloworld-python-v1
+spec:
+  name: helloworld-python
+  workloadType: core.hydra.io/v1alpha1.Server
+  containers:
+    - name: foo
+      image: hydraoss/helloworld-python:v1
+      env:
+        - name: TARGET
+          fromParam: target
+        - name: PORT
+          fromParam: port
+      ports:
+        - type: tcp
+          containerPort: 9999
+          name: http
+  parameters:
+    - name: target
+      type: string
+      default: World
+    - name: port
+      type: string
+      default: '9999'
