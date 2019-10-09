@@ -10,7 +10,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## Building from Source
 
-This section goes over how to build the source code for Scylla. 
+This section goes over how to build the source code for Rudr. 
 
 ### Prerequisites 
 
@@ -31,9 +31,9 @@ kubectl apply -f charts/scylla/crds/scopes.yaml
 kubectl apply -f charts/scylla/crds/traits.yaml
 ```
 - Run `cargo build`
-- To run the server: `make run`, this will run Scylla controller locally, and use the cluster by your `~/.kube/config`.
+- To run the server: `make run`, this will run Rudr controller locally, and use the cluster by your `~/.kube/config`.
 
-At this point, you will be running a local controller attached to the cluster to which your kubeconfig is pointing.
+At this point, you will be running a local controller attached to the cluster to which your `$KUBECONFIG` is pointing.
 
 To get started, define some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
 
@@ -97,7 +97,7 @@ Like any good open source project, we use Pull Requests (PRs) to track code chan
     - All PRs require 1 review approval from a maintainer before being merged. 
 4. Reviewing/Discussion
     - All reviews will be completed using Github review tool.
-    - A "Comment" review should be used when there are questions about Scylla. This type of review does not count as approval.
+    - A "Comment" review should be used when there are questions about Rudr. This type of review does not count as approval.
     - A "Changes Requested" review indicates that changes need to be made before they will be
     merged.
     - Reviewers should update labels as needed (such as `Status: Needs rebase`).
@@ -121,7 +121,7 @@ To learn about issue types, please read the [labels](https://github.com/microsof
 ### Issue Lifecycle
 
 The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Scylla. All issue types follow the same general lifecycle.
+contributing to Rudr. All issue types follow the same general lifecycle.
 
 1. Issue creation. 
 2. Triage
@@ -140,10 +140,10 @@ contributing to Scylla. All issue types follow the same general lifecycle.
 
 ### Milestones
 
-To get an overview of the milestones that are being tracked for Scylla please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
+To get an overview of the milestones that are being tracked for Rudr please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
 
 ### Triaging 
 
-Each day, someone from a Open Application Model related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or voluteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from Steelthread will triage. 
+Each day, someone from a Open Application Model related team should act as the triager. This person will be in charge triaging new PRs and issues throughout the day. Anyone can volunteer as the triager by posting on the Slack channel or volunteering in advance during our community calls. If no one has volunteered by 10:00 AM PST, someone from our team will triage. 
 
 Broader discussion of any issues can be raised during the bi-weekly community call. Issues might be brought into milestones, removed from milestones or moved between milestones during the call.

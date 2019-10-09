@@ -1,8 +1,8 @@
-# Scylla: A Kubernetes Implementation of the Open Application Model
+# Rudr: A Kubernetes Implementation of the Open Application Model
 
-Scylla is an implementation of the [Open Application Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
+Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
-**Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
+**Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
 ## Quickstart: Deploy an app with Ingress
 
@@ -15,13 +15,13 @@ Ensure you have a Kubernetes cluster.
 - [Elastic Kubernetes  Service](https://aws.amazon.com/quickstart/architecture/amazon-eks/)
 - [Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-1. Install Scylla on the cluster.
+1. Install Rudr on the cluster.
 
 ```bash
 helm install scylla ./charts/scylla --wait
 ```
 
-2. Install NGINX ingress on your cluster. Currently, Scylla doesn't have any opinions on how to accomplish tasks but rather leverages existing components.
+2. Install NGINX ingress on your cluster. Currently, Rudr doesn't have any opinions on how to accomplish tasks but rather leverages existing components.
 
 ```bash
 helm install nginx-ingress stable/nginx-ingress
@@ -58,7 +58,7 @@ The requirement to deep understand the container infrastructure has introduced t
 
 ## The approach: Let's take things one step at a time
 
-Scylla takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
+Rudr takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
 
 ![oar arch](./docs/media/how_oar_works.png)
 
@@ -66,7 +66,7 @@ Scylla takes an incremental approach to solving the problems. The current archit
 
 - By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters.
 
-- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait.
+- Currently, Rudr will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Rudr might provide a set of default technologies to provide the functionality desired by a trait.
 
 ## Try things out yourself
 
@@ -90,11 +90,11 @@ This project follows governance structure of numerous other open source projects
 
 ## About the Name
 
-Scylla is one of the monsters in Homer's Odyssey. Odysseus must steer his ship between Scylla and Charybdis. Scylla is sometimes portrayed as a hydra.
+Rudr is one of the monsters in Homer's Odyssey. Odysseus must steer his ship between Rudr and Charybdis. Rudr is sometimes portrayed as a hydra.
 
 ## Why Rust?
 
-On occasion, we have been asked why Scylla is written in Rust instead of Go. There is no requirement in the Kubernetes world that Kubernetes controllers be written in Go. Many languages implement the Kubernetes API and can be used for creating controllers. We decided to write Scylla in Rust because the language allows us to write Kubernetes controllers with far less code. Rust's generics make it possible to quickly and succinctly describe custom Kubernetes API resources without requiring developers to run code generators. And Rust's Kubernetes library can easily switch between Kubernetes versions with ease. We recognize that Rust might not be to everyone's taste (and neither is Go). However, we are confident that Rust is a solid choice for writing maintainable and concise Kubernetes applications.
+On occasion, we have been asked why Rudr is written in Rust instead of Go. There is no requirement in the Kubernetes world that Kubernetes controllers be written in Go. Many languages implement the Kubernetes API and can be used for creating controllers. We decided to write Rudr in Rust because the language allows us to write Kubernetes controllers with far less code. Rust's generics make it possible to quickly and succinctly describe custom Kubernetes API resources without requiring developers to run code generators. And Rust's Kubernetes library can easily switch between Kubernetes versions with ease. We recognize that Rust might not be to everyone's taste (and neither is Go). However, we are confident that Rust is a solid choice for writing maintainable and concise Kubernetes applications.
 
 ## License
 

@@ -1,26 +1,26 @@
 # Quickstart Guide
 
-This guide covers how to install and configure a basic Scylla installation. For more a more detailed walk-through, see the [Installation Guide](install.md)
+This guide covers how to install and configure a basic Rudr installation. For more a more detailed walk-through, see the [Installation Guide](install.md)
 
 ## Prerequisites
 
-The following prerequisites are required for a successful use of Scylla.
+The following prerequisites are required for a successful use of Rudr.
 
 1. A copy of this repo (`git clone https://github.com/microsoft/scylla.git`)
 2. A Kubernetes cluster version 1.15 or greater
 3. `kubectl` installed and pointed at the cluster
 4. [Helm 3](https://v3.helm.sh/)
 
-To find out which cluster Scylla would install to, you can run `kubectl config current-context` or `kubectl cluster-info`.
+To find out which cluster Rudr would install to, you can run `kubectl config current-context` or `kubectl cluster-info`.
 
 ```console
 $ kubectl config current-context
 my-cluster
 ```
 
-## Install Scylla and Dependencies
+## Install Rudr and Dependencies
 
-The fastest way to install Scylla is with Helm 3.
+The fastest way to install Rudr is with Helm 3.
 
 > make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/scylla/crds`
 
@@ -31,12 +31,12 @@ LAST DEPLOYED: 2019-10-02 13:57:33.158655 -0600 MDT m=+5.183858344
 NAMESPACE: default
 STATUS: deployed
 NOTES:
-Scylla is a Kubernetes controller to manage Configuration CRDs.
+Rudr is a Kubernetes controller to manage Configuration CRDs.
 
 It has been successfully installed.
 ```
 
-This will give you a basic installation of Scylla. For the following examples, you should also install the NGINX ingress into Kubernetes:
+This will give you a basic installation of Rudr. For the following examples, you should also install the NGINX ingress into Kubernetes:
 
 ```console
 $ helm install nginx-ingress stable/nginx-ingress
@@ -54,9 +54,9 @@ You can watch the status by running 'kubectl --namespace default get services -o
 
 This will give you a basic implementation of Kubernetes ingresses. See the [Installation Guide](install.md) for more about ingresses and other traits.
 
-## Using Scylla
+## Using Rudr
 
-Once you have installed Scylla, you can start creating and deploying apps.
+Once you have installed Rudr, you can start creating and deploying apps.
 
 To start, install an example component:
 
@@ -96,9 +96,9 @@ spec:
 
 ### Viewing Traits
 
-Scylla provides a way to attach operational features at install time. This allows application operations an opportunity to provide functionality like autoscaling, caching, or ingress control at install time, without requiring the developer to change anything in the component.
+Rudr provides a way to attach operational features at install time. This allows application operations an opportunity to provide functionality like autoscaling, caching, or ingress control at install time, without requiring the developer to change anything in the component.
 
-You can also list the traits that are available on Scylla:
+You can also list the traits that are available on Rudr:
 
 ```console
 $ kubectl get traits
@@ -181,7 +181,7 @@ $ kubectl apply -f examples/first-app-config.yaml
 configuration.core.hydra.io/first-app created
 ```
 
-You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Scylla is creating all the necessary objects.
+You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Rudr is creating all the necessary objects.
 
 Once it is fully deployed, you can see your configuration:
 
@@ -247,9 +247,9 @@ component.core.hydra.io/nginx-replicated         19h
 component.core.hydra.io/nginx-singleton          19h
 ```
 
-## Uninstall Scylla
+## Uninstall Rudr
 
-If you want to clean up your test environment and uninstall Scylla, you could do the following:
+If you want to clean up your test environment and uninstall Rudr, you could do the following:
 
  ```console
  $ helm delete scylla
@@ -267,4 +267,4 @@ If you want to clean up your test environment and uninstall Scylla, you could do
 
 ## Learn more...
 
-Read how to [use Scylla](using_scylla.md) for more details.
+Read how to [use Rudr](using_scylla.md) for more details.

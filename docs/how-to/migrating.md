@@ -1,4 +1,4 @@
-# Migrating Kubernetes Resources to Scylla
+# Migrating Kubernetes Resources to Rudr
 
 This document explains, at a high level, how to represent your Kubernetes applications using the Open Application Model specification.
 
@@ -31,25 +31,25 @@ But Open Application Model attempts to start with a different premise, and then 
 
 Each of these roles has a different job, and different concerns. A developer is responsible for producing a runnable workload. An application operator is responsible for executing an application inside of Kubernetes. An infrastructure operator is responsible for configuring and running Kubernetes itself.
 
-In our view, the developer is responsible for creating and maintaining Components. The application operator takes responsibility for the Application Configuration. And the infrastructure operator runs Scylla, and decides how Open Application Model's Traits and Scopes are used in practice. And Scylla's job is to take these various inputs and transform them into underlying Kubernetes types.
+In our view, the developer is responsible for creating and maintaining Components. The application operator takes responsibility for the Application Configuration. And the infrastructure operator runs Rudr, and decides how Open Application Model's Traits and Scopes are used in practice. And Rudr's job is to take these various inputs and transform them into underlying Kubernetes types.
 
 ## Workflow
 
-Traits and Scopes are provided by Scylla. You can list them with `kubectl get traits` and `kubectl get scopes`.
+Traits and Scopes are provided by Rudr. You can list them with `kubectl get traits` and `kubectl get scopes`.
 
 You may install your own components.
 
-To create a new Scylla application, create an `ApplicationConfiguration` YAML file and specify the components, traits, scopes, and parameters.
+To create a new Rudr application, create an `ApplicationConfiguration` YAML file and specify the components, traits, scopes, and parameters.
 
-Scylla watches for new Application Configurations. When one is created, Scylla will read it, load the component, trait, and scope definitions, and then create new resources in Kubernetes.
+Rudr watches for new Application Configurations. When one is created, Rudr will read it, load the component, trait, and scope definitions, and then create new resources in Kubernetes.
 
-Likewise, when Application Configurations are modified or deleted, Scylla will respond to those events, managing the resources for those components, scopes, and traits.
+Likewise, when Application Configurations are modified or deleted, Rudr will respond to those events, managing the resources for those components, scopes, and traits.
 
-## Converting a Kubernetes Application to Scylla
+## Converting a Kubernetes Application to Rudr
 
 A major goal of the Open Application Model specification is to separate operational concerns from developer concerns. So a `ComponentSchematic` describes a component from a developer's view, while an `ApplicationConfiguration` creates instances of Components, and attaches configuration data to them.
 
-To convert a Kubernetes application to Scylla, you can follow these steps:
+To convert a Kubernetes application to Rudr, you can follow these steps:
 
 1. Describe your workloads (microservices) as Components.
     - A `Deployment` or `ReplicaSet` can be converted to one of `SingletonServer`, `Server`, `SingletonWorker`, or `ReplicableWorker` depending on its runtime requirements
@@ -61,7 +61,7 @@ To convert a Kubernetes application to Scylla, you can follow these steps:
 3. Compose your application by listing which Components (defined above) should be instantiated as part of your application.
     - For each component...
         1. Determine if any Traits need to be applied
-            - `Ingress` and `HorizontalPodAutoscaler` have direct equivalents in Scylla, using the `Ingress` and `Autoscaler` traits
+            - `Ingress` and `HorizontalPodAutoscaler` have direct equivalents in Rudr, using the `Ingress` and `Autoscaler` traits
             - Use `kubectl get traits` to see what other traits may apply
         2. Determine what Scopes need to be applied
             - Use `kubectl get scopes` to see what scopes may apply

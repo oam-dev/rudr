@@ -1,8 +1,8 @@
 # Writing a Trait
 
-This guide explains how to write a trait for Scylla, using the VolumeMounter trait as an example.
+This guide explains how to write a trait for Rudr, using the VolumeMounter trait as an example.
 
-> Note: The process for adding a new trait is currently more difficult than it needs to be. In future versions of Scylla, we will be streamlining this process considerably.
+> Note: The process for adding a new trait is currently more difficult than it needs to be. In future versions of Rudr, we will be streamlining this process considerably.
 
 ## Step 1: Defining the Trait Resource
 
@@ -279,7 +279,7 @@ In a nutshell, all we are doing above is declaring how to add, modify, and remov
 
 ## Registering the Trait with the Trait Manager
 
-Now that we have our trait written, the last step is to register it with the trait manager. This process tells Scylla to handle requests for our new trait.
+Now that we have our trait written, the last step is to register it with the trait manager. This process tells Rudr to handle requests for our new trait.
 
 The `src/instigator.rs` file has the trait manager. Find `impl TraitManager` and edit the `load_trait` function:
 

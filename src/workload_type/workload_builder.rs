@@ -118,10 +118,10 @@ fn form_metadata(
 
 type Labels = BTreeMap<String, String>;
 
-/// DeploymentBuilder builds new deployments specific to Scylla
+/// DeploymentBuilder builds new deployments specific to Rudr
 ///
 /// This hides many of the details of building a Deployment, exposing only
-/// parameters common to Scylla workload types.
+/// parameters common to Rudr workload types.
 pub(crate) struct DeploymentBuilder {
     component: Component,
     labels: Labels,
@@ -179,7 +179,11 @@ impl DeploymentBuilder {
     pub fn to_deployment(&self) -> apps::Deployment {
         apps::Deployment {
             // TODO: Could make this generic.
-            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+            metadata: form_metadata(
+                self.name.clone(),
+                self.labels.clone(),
+                self.owner_ref.clone(),
+            ),
             spec: Some(apps::DeploymentSpec {
                 replicas: self.replicas,
                 selector: meta::LabelSelector {
@@ -233,10 +237,10 @@ impl DeploymentBuilder {
     }
 }
 
-/// JobBuilder builds new jobs specific to Scylla
+/// JobBuilder builds new jobs specific to Rudr
 ///
 /// This hides many of the details of building a Job, exposing only
-/// parameters common to Scylla workload types.
+/// parameters common to Rudr workload types.
 pub(crate) struct JobBuilder {
     component: Component,
     labels: Labels,
@@ -303,7 +307,11 @@ impl JobBuilder {
 
     fn to_job(&self) -> batchapi::Job {
         batchapi::Job {
-            metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+            metadata: form_metadata(
+                self.name.clone(),
+                self.labels.clone(),
+                self.owner_ref.clone(),
+            ),
             spec: Some(batchapi::JobSpec {
                 backoff_limit: Some(4),
                 parallelism: self.parallelism,
@@ -422,7 +430,11 @@ impl ServiceBuilder {
     fn to_service(&self) -> Option<api::Service> {
         self.component.clone().listening_port().and_then(|port| {
             Some(api::Service {
-                metadata: form_metadata(self.name.clone(), self.labels.clone(), self.owner_ref.clone()),
+                metadata: form_metadata(
+                    self.name.clone(),
+                    self.labels.clone(),
+                    self.owner_ref.clone(),
+                ),
                 spec: Some(api::ServiceSpec {
                     selector: Some(self.selector.clone()),
                     ports: Some(vec![port.to_service_port()]),
