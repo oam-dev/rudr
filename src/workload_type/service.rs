@@ -119,7 +119,7 @@ impl WorkloadType for ReplicatedService {
     }
 }
 
-/// Singleton represents the Singleton Workload Type, as defined in the Hydra specification.
+/// Singleton represents the Singleton Workload Type, as defined in the OAM specification.
 ///
 /// It is currently implemented as a Kubernetes Pod with a Service in front of it.
 pub struct SingletonService {

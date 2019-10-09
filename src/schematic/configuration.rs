@@ -2,7 +2,7 @@ use crate::schematic::{parameter::ParameterValue, traits::TraitBinding, variable
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
 ///
-/// In Hydra, an instance is a Component definition plus a Configuration. Practically speaking, a
+/// In OAM, an instance is a Component definition plus a Configuration. Practically speaking, a
 /// Configuration says "Create a component of type X in scopes A, B, and C, set the following
 /// parameters, and attach these traits"
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -18,7 +18,7 @@ pub struct ComponentConfiguration {
     pub traits: Option<Vec<TraitBinding>>,
 }
 
-/// ApplicationConfiguration is the top-level configuration object in Hydra.
+/// ApplicationConfiguration is the top-level configuration object in OAM.
 ///
 /// An ApplicationConfiguration can describe one or more components, a collection
 /// of related parameters, and the associated traits and scopes.

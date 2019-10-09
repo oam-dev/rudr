@@ -11,7 +11,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_values, ParameterValue},
         traits::{
-            self, Autoscaler, Empty, HydraTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
+            self, Autoscaler, Empty, OAMTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
         },
     },
 };
@@ -30,12 +30,12 @@ pub struct TraitManager {
     pub workload_type: String,
     // Component schematic loaded from cluster.
     pub component_schematic: Component,
-    pub traits: Vec<HydraTrait>,
+    pub traits: Vec<OAMTrait>,
 }
 
 impl TraitManager {
     pub fn load_traits(&mut self) -> Result<(), failure::Error> {
-        let mut traits: Vec<HydraTrait> = vec![];
+        let mut traits: Vec<OAMTrait> = vec![];
         for t in self.component.traits.as_ref().unwrap_or(&vec![]).iter() {
             // Load all of the traits into the manager.
             let imp = self.load_trait(&t)?;
@@ -44,7 +44,7 @@ impl TraitManager {
         self.traits = traits;
         Ok(())
     }
-    fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, failure::Error> {
+    fn load_trait(&self, binding: &TraitBinding) -> Result<OAMTrait, failure::Error> {
         let trait_values = resolve_values(
             binding.parameter_values.clone().unwrap_or_else(|| vec![]),
             self.parent_params.clone(),
@@ -59,7 +59,7 @@ impl TraitManager {
                     trait_values,
                     self.owner_ref.clone(),
                 );
-                Ok(HydraTrait::Ingress(ing))
+                Ok(OAMTrait::Ingress(ing))
             }
             traits::VOLUME_MOUNTER => {
                 let volmount = VolumeMounter::from_params(
@@ -70,7 +70,7 @@ impl TraitManager {
                     self.owner_ref.clone(),
                     self.component_schematic.clone(),
                 );
-                Ok(HydraTrait::VolumeMounter(volmount))
+                Ok(OAMTrait::VolumeMounter(volmount))
             }
             traits::AUTOSCALER => {
                 let auto = Autoscaler::from_params(
@@ -80,7 +80,7 @@ impl TraitManager {
                     trait_values,
                     self.owner_ref.clone(),
                 );
-                Ok(HydraTrait::Autoscaler(auto))
+                Ok(OAMTrait::Autoscaler(auto))
             }
             traits::MANUAL_SCALER => {
                 let scaler = ManualScaler::from_params(
@@ -91,13 +91,13 @@ impl TraitManager {
                     self.owner_ref.clone(),
                     self.workload_type.clone(),
                 );
-                Ok(HydraTrait::ManualScaler(scaler))
+                Ok(OAMTrait::ManualScaler(scaler))
             }
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
             traits::EMPTY => {
                 let empty = Empty {};
-                Ok(HydraTrait::Empty(empty))
+                Ok(OAMTrait::Empty(empty))
             }
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }

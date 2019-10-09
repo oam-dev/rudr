@@ -12,7 +12,7 @@ use crate::workload_type::ParamMap;
 
 use std::collections::BTreeMap;
 
-/// PVCs must have a minimum size. However, the Hydra model
+/// PVCs must have a minimum size. However, the OAM model
 /// does not require volume size be specified. This is the
 /// default if no size is specified.
 pub const DEFAULT_VOLUME_SIZE: &str = "200M";

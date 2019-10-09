@@ -38,7 +38,7 @@ pub type ParamMap = BTreeMap<String, serde_json::Value>;
 /// KubeName describes anything that can produce its own Kubernetes name.
 ///
 /// Most Kubernetes objects have their own name, and workload types, traits, and
-/// other Hydra objects are capable of autogenerating their own names in a
+/// other OAM objects are capable of autogenerating their own names in a
 /// repeatable fashion. This trait describes the ability to repeatably create
 /// a name.
 ///

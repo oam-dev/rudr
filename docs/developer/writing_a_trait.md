@@ -102,21 +102,21 @@ pub const VOLUME_MOUNTER: &str = "volumeMounter";
 // Then more code...
 
 // Then a little further down:
-pub enum HydraTrait {
+pub enum OAMTrait {
     Autoscaler(Autoscaler),
     ManualScaler(ManualScaler),
     Ingress(Ingress),
     VolumeMounter(VolumeMounter), // <-- add this
     Empty(Empty),
 }
-impl HydraTrait {
+impl OAMTrait {
     pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match self {
-            HydraTrait::Autoscaler(a) => a.exec(ns, client, phase),
-            HydraTrait::Ingress(i) => i.exec(ns, client, phase),
-            HydraTrait::ManualScaler(m) => m.exec(ns, client, phase),
-            HydraTrait::VolumeMounter(m) => m.exec(ns, client, phase), // <-- add this
-            HydraTrait::Empty(e) => e.exec(ns, client, phase),
+            OAMTrait::Autoscaler(a) => a.exec(ns, client, phase),
+            OAMTrait::Ingress(i) => i.exec(ns, client, phase),
+            OAMTrait::ManualScaler(m) => m.exec(ns, client, phase),
+            OAMTrait::VolumeMounter(m) => m.exec(ns, client, phase), // <-- add this
+            OAMTrait::Empty(e) => e.exec(ns, client, phase),
         }
     }
 }
@@ -235,7 +235,7 @@ Note that we use the `..Default::default()` pattern as frequently as possible ra
 
 The last part of writing a trait is implementing the `TraitImplementation`. This is a straightforward process of describing how the trait deals with install, upgrade, and delete requests.
 
-> Why is it called `TraitImplementation` instead of just `Trait`? Because Rust uses `Trait` as a reserved word. Though the original versions of Hydra were not written in Rust, the Hydra trait system was inspired by Rust traits.
+> Why is it called `TraitImplementation` instead of just `Trait`? Because Rust uses `Trait` as a reserved word. Though the original versions of Open Application Model were not written in Rust, the Open Application Model trait system was inspired by Rust traits.
 
 In this part, we need to write an `impl TraitImplementation for VolumeMounter`:
 
@@ -286,7 +286,7 @@ The `src/instigator.rs` file has the trait manager. Find `impl TraitManager` and
 ```rust
 impl TraitManager {
     // ... ignore some stuff
-    fn load_trait(&self, binding: &TraitBinding) -> Result<HydraTrait, Error> {
+    fn load_trait(&self, binding: &TraitBinding) -> Result<OAMTrait, Error> {
 
     }
 }

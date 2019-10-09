@@ -14,7 +14,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         variable::{get_variable_values, resolve_variables},
-        HydraStatus, Status,
+        OAMStatus, Status,
     },
     trait_manager::TraitManager,
     workload_type::{
@@ -57,8 +57,8 @@ pub struct ComponentNotFoundError {
 /// Instigator will examine the Traits and Scopes requirements, and delegate those
 /// processes to the appropriate Scope or TraitImpl.
 ///
-/// (Terminological note: Hydra Traits are distinct from Rust traits. TraitImpl is the
-/// Rust trait that represents a Hydra Trait)
+/// (Terminological note: Open Application Model Traits are distinct from Rust traits.
+/// TraitImpl is the Rust trait that represents an OAM Trait)
 ///
 /// Instigators know how to deal with the following operations:
 /// - Add
@@ -148,7 +148,7 @@ impl Instigator {
             component_status.insert(component.name.clone(), status.clone());
         }
         let mut new_event = event.clone();
-        new_event.status = Some(Some(HydraStatus::new(
+        new_event.status = Some(Some(OAMStatus::new(
             Some("synced".to_string()),
             Some(component_status),
         )));
@@ -373,7 +373,7 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let default_status = Some(Some(HydraStatus::new(Some(phase.to_string()), None)));
+        let default_status = Some(Some(OAMStatus::new(Some(phase.to_string()), None)));
         let status = event.status.clone().map_or(default_status.clone(), |s| {
             s.map_or(default_status, |mut hs| {
                 hs.phase = Some(phase.to_string());

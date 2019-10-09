@@ -1,6 +1,6 @@
 # Voting Example
 
-This is the Docker voting application exhibited as a Hydra application.
+This is the Docker voting application exhibited using the OAM schematics.
 
 ## Installation
 

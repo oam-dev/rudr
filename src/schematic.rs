@@ -17,7 +17,7 @@ mod parameter_test;
 #[cfg(test)]
 mod traits_test;
 
-/// Application defines a Hydra application
+/// Application defines an OAM application
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Application {}
@@ -25,32 +25,32 @@ pub struct Application {}
 // TODO: This part is not specified in the spec b/c it is considered a runtime
 // detail of Kubernetes. Need to fill this in as we go.
 
-/// HydraStatus is the status of a Hydra object, per Kubernetes.
+/// OAMStatus is the status of an Open Application Model object, per Kubernetes.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct HydraStatus {
+pub struct OAMStatus {
     pub phase: Option<String>,
     pub components: Option<BTreeMap<String, BTreeMap<String, String>>>,
 }
-impl Default for HydraStatus {
+impl Default for OAMStatus {
     fn default() -> Self {
-        HydraStatus {
+        OAMStatus {
             phase: None,
             components: None,
         }
     }
 }
-impl HydraStatus {
+impl OAMStatus {
     pub fn new(
         phase: Option<String>,
         components: Option<BTreeMap<String, BTreeMap<String, String>>>,
-    ) -> HydraStatus {
-        HydraStatus { phase, components }
+    ) -> OAMStatus {
+        OAMStatus { phase, components }
     }
 }
 
-/// Status is a convenience for an optional HydraStatus.
-pub type Status = Option<HydraStatus>;
+/// Status is a convenience for an optional OAMStatus.
+pub type Status = Option<OAMStatus>;
 
 /// GroupVersionKind represents a fully qualified identifier for a resource type.
 ///
