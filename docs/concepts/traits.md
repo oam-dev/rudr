@@ -128,6 +128,51 @@ $ helm install nginx-ingress stable/nginx-ingress
 | **service_port** | Port number on the service to bind to the ingress. | int | True | --
 | **path** | Path to expose. | string | False | `/`
 
+To find your service port, you can do one of two things:
+
+- find the port on the `ComponentSchematic`
+- find the port on the desired Kubernetes `Service` object
+
+For example, here's how to find the port on a `ComponentSchematic`:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: nginx-replicated-v1
+spec:
+  containers:
+  - image: nginx:latest
+    name: server
+    ports:
+    - containerPort: 80                  # <-- this is the service port
+      name: http
+      protocol: TCP
+  workloadType: core.hydra.io/v1alpha1.Server
+```
+
+So to use this on an ingress, you would need to add this to your `ApplicationConfiguration`:
+
+```yaml
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: example
+spec:
+  components:
+    - name: nginx-replicated-v1
+      instanceName: example-app
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port       # <-- service_port
+              value: 80                # <-- set this to the value in the component
+```
+
 ## Volume Mounter Trait
 
 The Volume Mounter trait is responsible for attaching Kubernetes Persistent Volume Claims to components.
