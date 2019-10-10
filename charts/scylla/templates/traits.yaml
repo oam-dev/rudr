@@ -96,7 +96,7 @@ spec:
     - core.hydra.io/v1alpha1.SingletonWorker
   properties:
     - name: splitterName
-      description: The name of the splitter that this should join. If no such splitter exists, it will be created.
+      description: The name of the traffic splitter that this should join. If no such splitter exists, it will be created.
       type: string
       required: true
     - name: weight
