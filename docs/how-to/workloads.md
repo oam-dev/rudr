@@ -4,12 +4,12 @@ Now Scylla has all the core workload type, they are as belows:
 
 |Name|Type|Service endpoint|Replicable|Daemonized|
 |-|-|-|-|-|
-|Server|core.hydra.io/v1alpha1.Server|Yes|Yes|Yes
-|Singleton Server|core.hydra.io/v1alpha1.SingletonServer|Yes|No|Yes
-|Task|core.hydra.io/v1alpha1.Task|No|Yes|No
-|Singleton Task|core.hydra.io/v1alpha1.SingletonTask|No|No|No
-|Worker|core.hydra.io/v1alpha1.Worker|No|Yes|Yes
-|Singleton Worker|core.hydra.io/v1alpha1.SingletonWorker|No|No|Yes
+|Server|core.oam.dev/v1alpha1.Server|Yes|Yes|Yes
+|Singleton Server|core.oam.dev/v1alpha1.SingletonServer|Yes|No|Yes
+|Task|core.oam.dev/v1alpha1.Task|No|Yes|No
+|Singleton Task|core.oam.dev/v1alpha1.SingletonTask|No|No|No
+|Worker|core.oam.dev/v1alpha1.Worker|No|Yes|Yes
+|Singleton Worker|core.oam.dev/v1alpha1.SingletonWorker|No|No|Yes
 
 ## Server
 

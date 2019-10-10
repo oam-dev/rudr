@@ -33,20 +33,20 @@ The following instructions will lead you to build a image from source, you can g
 
 Now we have a docker image named `hydraoss/helloworld-python:v1`, so we can use this image to create a component schematics file.
 
-1. Choose the workloadType: the `helloworld-python` is very typical web application, it is stateless, always running as a service, can be replicated. So we use `core.hydra.io/v1alpha1.Server` without doubt.
+1. Choose the workloadType: the `helloworld-python` is very typical web application, it is stateless, always running as a service, can be replicated. So we use `core.oam.dev/v1alpha1.Server` without doubt.
 2. Fill the container spec and make ENV configurable: obviously we have two major environment variables in the image, one is TARGET and the other is PORT.
 3. Make parameters so we could let Application Configuration configure these environments.
 
 After these three concerns, we could figure out this basic component schematic yaml like below: 
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: helloworld-python-v1
 spec:
   name: helloworld-python
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
       image: hydraoss/helloworld-python:v1
@@ -74,7 +74,7 @@ Finally we could apply this yaml to the platform and let our operators to deploy
 
 ```shell script
 $ kubectl apply -f examples/helloworld-python-component.yaml
-componentschematic.core.hydra.io/helloworld-python-v1 created
+componentschematic.core.oam.dev/helloworld-python-v1 created
 ```
 
 You can check if your component schematic is OK with:
@@ -125,14 +125,14 @@ docker push hydraoss/helloworld-python:v2
 Change the component with a new name.
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
 - name: helloworld-python-v1
 - name: helloworld-python-v2
 spec:
   name: helloworld-python
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
 -     image: hydraoss/helloworld-python:v1
@@ -160,7 +160,7 @@ Apply the changed component:
 
 ```console
 $ kubectl apply -f examples/helloworld-python-component.yaml
-componentschematic.core.hydra.io/helloworld-python-v2 created
+componentschematic.core.oam.dev/helloworld-python-v2 created
 ```
 
 ### Check the result

@@ -15,12 +15,12 @@ The component schematics is where developers declare the operational characteris
 In Scylla, the schema of component schematics is something like below:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: nginx-replicated
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   osType: linux
   arch: amd64
   containers:
@@ -104,7 +104,7 @@ So this is the **action** that will make the real application run in Kubernetes.
 The configuration schema is like below:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app

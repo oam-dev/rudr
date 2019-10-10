@@ -1,6 +1,6 @@
 # This is a single-shot configuration that creates the entire Docker Voting app
 # all in one go.
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: voter-app
