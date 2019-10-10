@@ -85,7 +85,7 @@ impl Autoscaler {
             metadata: Some(meta::ObjectMeta {
                 //name: Some(format!("{}-trait-ingress", self.name.clone())),
                 name: Some(self.kube_name()),
-                labels: Some(trait_labels()),
+                labels: Some(trait_labels(self.name.clone(), self.instance_name.clone())),
                 owner_references: self.owner_ref.clone(),
                 ..Default::default()
             }),
