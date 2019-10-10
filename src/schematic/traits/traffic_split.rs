@@ -71,7 +71,7 @@ impl TrafficSplit {
             splitter_name: params
                 .get("splitterName")
                 .and_then(|v| v.as_str())
-                .unwrap_or("")
+                .unwrap_or("fooooo")
                 .to_string(),
             weight: params
                 .get("weight")
@@ -94,19 +94,24 @@ impl TrafficSplit {
     /// splitter exists and needs to be created, as well as a situation where the
     /// splitter does not exist.
     fn create_or_update_splitter(&self, ns: &str, client: APIClient) -> TraitResult {
+        info!("Splitter trait for {} with weight {}", self.splitter_name.as_str(), self.weight);
         let splitter = RawApi::customResource("trafficsplits").version("v1alpha1").group("split.smi-spec.io").within(ns);
         // First, see if splitter already exists
         match client.request::<TrafficSplitCR>(splitter.get(self.splitter_name.as_str())?) {
             Ok(current) => {
                 // If found, patch it.
+                let mut backends = current.spec.backends.clone();
+                backends.push(Backend{
+                    service: self.instance_name.clone(),
+                    weight: self.weight,
+                });
+
+                // TODO: How should we handle owner references? Right now, the one that
+                // creates the group owns the group.
+
                 let modified_def = json!({
                     "spec": {
-                        "backends": [
-                            {
-                                "service": self.instance_name.as_str(),
-                                "weight": self.weight,
-                            }
-                        ]
+                        "backends": backends
                     }
                 });
                 let pp = PatchParams::default();
@@ -117,15 +122,18 @@ impl TrafficSplit {
                 //debug!("TrafficSplitter: {:?}", res);
             },
             // We want to catch the case where an error comes back saying the resource does not exist.
-            Err(ref e) if e.api_error().map_or(false, |err| err.code == 404 ) => {
-                info!("Error code: {}", e.api_error().unwrap().code);
+            //Err(ref e) if e.api_error().map_or(false, |err| err.code == 404 ) => {
+            Err(e) => {
+                //info!("Error code: {}", e.api_error().unwrap().code);
                 // If not found, create it
                 log::info!("found no splitter to modify");
                 let splitter_def = json!({
                     "apiVersion": "split.smi-spec.io/v1alpha1",
                     "kind": "TrafficSplit",
                     "metadata": {
+                        "name": self.splitter_name.as_str(),
                         "labels": self.labels(),
+                        "ownerReferences": self.owner_ref
                     },
                     "spec": {
                         "service": self.splitter_name.as_str(),
@@ -143,12 +151,6 @@ impl TrafficSplit {
                 let req = splitter.create(&pp, serde_json::to_vec(&splitter_def)?)?;
                 let res = client.request::<TrafficSplitCR>(req)?;
                 info!("Created new TrafficSplit {} for {}", self.splitter_name.clone(), self.instance_name.clone());
-                //debug!("TrafficSplitter: {:?}", res);
-            }
-            // All other errors result in failure to create an SMI site
-            Err(e) => {
-                error!("Unexpected response from API server: {}", e);
-                return Err(e.into())
             }
         }
         Ok(())
@@ -162,7 +164,9 @@ impl TraitImplementation for TrafficSplit {
     fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
         self.create_or_update_splitter(ns, client)
     }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+        // Right now, this is a no-op, since we don't want the instance to delete
+        // what is a shared resource.
         Ok(())
     }
     fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {

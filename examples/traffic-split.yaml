@@ -1,0 +1,24 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: example-multi-server
+spec:
+  components:
+    - name: nginx-singleton-v1
+      instanceName: multi-singleton-1
+      traits:
+        - name: traffic-split
+          parameterValues:
+            - name: splitterName
+              value: example-traffic-splitter # <-- Note, same as below
+            - name: weight
+              value: 30
+    - name: nginx-singleton-v1
+      instanceName: multi-singleton-2
+      traits:
+        - name: traffic-split
+          parameterValues:
+            - name: splitterName
+              value: example-traffic-splitter # <-- Note, same as above
+            - name: weight
+              value: 70
