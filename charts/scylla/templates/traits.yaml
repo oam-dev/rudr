@@ -100,7 +100,7 @@ spec:
       type: string
       required: true
     - name: weight
-      description: The weight used for routing traffic. The "heavier" the wait, the more traffic will be directed to this splitter.
+      description: The weight used for routing traffic. The "heavier" the weight, the more traffic will be directed to this splitter.
       type: int
       required: false
       default: 0
