@@ -14,6 +14,8 @@
 ## 4. Tutorials 
 
 ## 5. Concepts
+* ### [Application Configuration](./concepts/application-configuration.md) - Application Configuration guide
+* ### [Component Schematic](./concepts/component-schematic.md) - Component Schematic guide
 * ### [Traits](./concepts/traits.md) - Learn in more depth about traits in Scylla.
 
 ## 6. [FAQ](./faq.md)
