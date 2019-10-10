@@ -80,7 +80,7 @@ A trait can be any application configuration of a distributed application that a
 
 Traits can be selected by the application operator as they are implemented as CRDs predefined by the platform operator.
 
-Currently we only have three traits but have plans add more in the near future. We encourage submitting PRs on Open Application Model if you feel like you have a good idea for a trait that could be broadly used by others. 
+Currently we only have several traits but have plans add more in the near future. We encourage submitting PRs on Open Application Model if you feel like you have a good idea for a trait that could be broadly used by others. 
 
 `kubectl get traits` returns the traits the platform supports. 
 
