@@ -24,8 +24,6 @@ mod autoscaler_test;
 mod ingress_test;
 #[cfg(test)]
 mod manual_scaler_test;
-#[cfg(test)]
-mod util_test;
 
 pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "autoscaler";

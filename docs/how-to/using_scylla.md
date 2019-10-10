@@ -1,8 +1,8 @@
 # Using Scylla
 
-This guide explains the basics of using Scylla to install applications on your Kubernetes cluster. It assumes that you have already [installed Scylla](install.md).
+This guide explains the basics of using Scylla to install applications on your Kubernetes cluster. It assumes that you have already [installed Scylla](../setup/install.md).
 
-If you are just getting started and want a quick entry point to Scylla, you may wish to begin with the [Quickstart Guide](quickstart.md) - it covers how to use Scylla and install one simple example application.
+If you are just getting started and want a quick entry point to Scylla, you may wish to begin with the [Quickstart Guide](../quickstart/quickstart.md) - it covers how to use Scylla and install one simple example application.
 
 ## Four Concepts with One Action
 
@@ -86,7 +86,7 @@ Currently we only have three traits but have plans add more in the near future. 
 
 Use `kubectl get trait <trait-name> -o yaml` to find schema detail of the trait.
  
-You can find more information in [traits documentation](traits.md).
+You can find more information in [traits documentation](../concepts/traits.md).
 
 ### Application scopes
 

@@ -31,7 +31,7 @@ You will need both `kubectl` and `Helm 3` to install Scylla.
 1. Helm install Scylla
 
 ```console
-$ helm install scylla ./charts/scylla --wait
+$ helm install scylla ./charts/scylla --wait --set image.tag=v0.8.0
 NAME: scylla
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
@@ -44,6 +44,8 @@ It has been successfully installed.
 ```
 
 This will install the CRDs and the controller into your Kubernetes cluster.
+
+> Use the `--set image.tag=VERSION` to specify the version that you want installed. If you do not specify a version, the latest unstable developer release will be installed.
 
 ### Verifying the Install
 
