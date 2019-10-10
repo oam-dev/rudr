@@ -102,7 +102,14 @@ metadata:
 
 ## Variables
 
-The [variables](https://github.com/microsoft/hydra-spec/blob/master/6.application_configuration.md#variable) section provides a way for an application operator to specify common values that can be substituted into multiple other locations of the application configuration. To declare a variable, simply provide its `name` and `value`, then reference it using **`[fromVariable(<name>)]`** syntax as needed within your component `parameterValues`:
+The [variables](https://github.com/microsoft/hydra-spec/blob/master/6.application_configuration.md#variable) section provides a way for an application operator to specify common values that can be substituted into multiple other locations of the application configuration.
+
+| Name | Description | Allowable values | Required | Default
+| :-- | :--| :-- | :-- | :-- |
+| **name** | Name of the variable. | string. Must be unique per configuration. Includes Unicode letters, numeric characters, `_`, `-`, and `.` | &#9745; ||
+| **value** | Value of the variable. | string. Any sequence of printable Unicode characters. | &#9745; ||
+
+To declare a variable, simply provide its `name` and `value`, then reference it using **`[fromVariable(<name>)]`** syntax as needed within your component `parameterValues`:
 
 ```yaml
 # Example variable declaration/reference in application config
@@ -155,7 +162,9 @@ components:
 
 ## Traits
 
-For each of your components, you can optionally define one or more traits. A trait represents a piece of add-on functionality that attaches to a component workload, such as traffic routing rules or auto-scaling policies. See the [Traits](traits.md) topic guide for more on assigning and managing traits.
+For each of your components, you can optionally define one or more traits. A trait represents a piece of add-on functionality that attaches to a component workload, such as traffic routing rules or auto-scaling policies. 
+
+**See the [Traits](traits.md) topic guide for more on assigning and managing traits.**
 
 [Here's an example](../../examples/first-app-config.yaml) of an entry to the traits section:
 
