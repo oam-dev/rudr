@@ -1,0 +1,23 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: my-health-scope
+spec:
+  scopes:
+    - name: health
+      type: core.hydra.io/v1alpha1.HealthScope
+      properties:
+        - name: probe-method
+          value: "kube-get"
+        - name: probe-endpoint
+          value: ".status"
+        - name: probe-timeout
+          value: 30
+        - name: probe-interval
+          value: 60
+        - name: failure-rate-threshold
+          value: 0
+        - name: healthy-rate-threshold
+          value: 100.0
+        - name: healthThresholdPercentage
+          value: 100.0

@@ -20,3 +20,5 @@ spec:
               value: /
             - name: service_port
               value: 9999
+      applicationScopes:
+        - my-health-scope

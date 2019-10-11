@@ -1,3 +1,4 @@
+use crate::schematic::configuration::ComponentConfiguration;
 /// Network scope is defined as https://github.com/microsoft/hydra-spec/blob/master/4.application_scopes.md#network-scope
 /// Now we don't really implement network scope, this is just a framework as the spec describe.
 use crate::schematic::parameter::{extract_string_params, ParameterValue};
@@ -9,6 +10,7 @@ use kube::client::APIClient;
 #[derive(Clone)]
 pub struct Network {
     client: APIClient,
+    namespace: String,
     pub name: String,
     pub allow_component_overlap: bool,
     pub network_id: String,
@@ -19,6 +21,7 @@ pub struct Network {
 impl Network {
     pub fn from_params(
         name: String,
+        namespace: String,
         client: APIClient,
         params: Vec<ParameterValue>,
     ) -> Result<Self, Error> {
@@ -34,6 +37,7 @@ impl Network {
             network_id,
             subnet_id,
             name,
+            namespace,
             client,
             internet_gateway_type: extract_string_params("internet-gateway-type", params.clone()),
             allow_component_overlap: false,
@@ -45,14 +49,23 @@ impl Network {
     pub fn scope_type(&self) -> String {
         String::from(NETWORK_SCOPE)
     }
-    pub fn create(&self, _ns: &str, _owner: meta::OwnerReference) -> Result<(), Error> {
+    pub fn create(&self, _owner: meta::OwnerReference) -> Result<(), Error> {
         Err(format_err!("network scope create not implemented"))
     }
-    pub fn modify(&self, _ns: &str) -> Result<(), Error> {
+    pub fn modify(&self) -> Result<(), Error> {
         Err(format_err!("network scope modify not implemented"))
     }
-    pub fn delete(&self, _ns: &str) -> Result<(), Error> {
+    /// could let OwnerReference delete
+    pub fn delete(&self) -> Result<(), Error> {
         Err(format_err!("network scope delete not implemented"))
+    }
+    pub fn add(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
+        Err(format_err!("network scope add component not implemented"))
+    }
+    pub fn remove(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
+        Err(format_err!(
+            "network scope remove component not implemented"
+        ))
     }
 }
 
@@ -91,6 +104,7 @@ mod test {
         );
         let net = Network::from_params(
             "test-net".to_string(),
+            "namespace".to_string(),
             APIClient::new(mock_kube_config()),
             params,
         )

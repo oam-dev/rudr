@@ -1,10 +1,12 @@
+use crate::schematic::configuration::ComponentConfiguration;
 use crate::schematic::parameter::{
     self, extract_number_params, extract_string_params, ParameterValue,
 };
 use crate::schematic::scopes::HEALTH_SCOPE;
+use crate::schematic::traits::TraitBinding;
 use failure::Error;
-use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::RawApi, client::APIClient};
+use kube::{api::RawApi, client::APIClient, ApiError};
+use log::info;
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -22,12 +24,23 @@ pub struct HealthScope {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct ComponentInfo {
+    pub name: String,
+    pub instance_name: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct HealthStatus {
-    pub components: Option<BTreeMap<String, BTreeMap<String, String>>>,
+    pub aggregated: Option<BTreeMap<String, BTreeMap<String, String>>>,
+    pub components: Option<Vec<ComponentInfo>>,
 }
 impl Default for HealthStatus {
     fn default() -> Self {
-        HealthStatus { components: None }
+        HealthStatus {
+            aggregated: None,
+            components: None,
+        }
     }
 }
 
@@ -37,6 +50,7 @@ pub type HealthScopeObject = kube::api::Object<HealthScope, HealthStatus>;
 #[derive(Clone)]
 pub struct Health {
     client: APIClient,
+    namespace: String,
     pub name: String,
     pub allow_component_overlap: bool,
     pub probe_method: String,
@@ -52,6 +66,7 @@ pub struct Health {
 impl Health {
     pub fn from_params(
         name: String,
+        namespace: String,
         client: APIClient,
         params: Vec<ParameterValue>,
     ) -> Result<Self, Error> {
@@ -87,6 +102,7 @@ impl Health {
                 });
         Ok(Health {
             name,
+            namespace,
             client,
             allow_component_overlap: true,
             probe_method,
@@ -105,7 +121,7 @@ impl Health {
     pub fn scope_type(&self) -> String {
         String::from(HEALTH_SCOPE)
     }
-    pub fn create(&self, ns: &str, owner: kube::api::OwnerReference) -> Result<(), Error> {
+    pub fn create(&self, owner: kube::api::OwnerReference) -> Result<(), Error> {
         let pp = kube::api::PostParams::default();
         let mut owners = vec![];
         owners.insert(0, owner);
@@ -115,9 +131,9 @@ impl Health {
                 probe_endpoint: self.probe_endpoint.clone(),
                 probe_timeout: self.probe_timeout.clone(),
                 probe_interval: self.probe_interval,
-                failure_rate_threshold: self.failure_rate_threshold.clone(),
-                healthy_rate_threshold: self.healthy_rate_threshold.clone(),
-                health_threshold_percentage: self.health_threshold_percentage.clone(),
+                failure_rate_threshold: self.failure_rate_threshold,
+                healthy_rate_threshold: self.healthy_rate_threshold,
+                health_threshold_percentage: self.health_threshold_percentage,
                 required_healthy_components: self.required_healthy_components.clone(),
             },
             types: kube::api::TypeMeta {
@@ -131,19 +147,105 @@ impl Health {
             },
             status: None,
         };
-        let healthscope_resource = RawApi::customResource("healthscope")
+        let healthscope_resource = RawApi::customResource("healthscopes")
             .version("v1alpha1")
             .group("core.hydra.io")
-            .within(ns);
+            .within(self.namespace.as_str());
         let req = healthscope_resource.create(&pp, serde_json::to_vec(&scope)?)?;
-        self.client.request::<HealthScopeObject>(req)?;
+        let err = self
+            .client
+            .request::<HealthScopeObject>(req)
+            .err()
+            .and_then(|e| {
+                if e.api_error()
+                    .and_then(|api_err| {
+                        if api_err.reason == "AlreadyExists" {
+                            return Some(());
+                        }
+                        None
+                    })
+                    .is_some()
+                {
+                    return None;
+                }
+                return Some(e);
+            });
+        if err.is_some() {
+            return Err(err.unwrap().into());
+        }
+        info!("health scope {} created", self.name.clone());
         Ok(())
     }
-    pub fn modify(&self, _ns: &str) -> Result<(), Error> {
+    pub fn modify(&self) -> Result<(), Error> {
         Err(format_err!("health scope modify not implemented"))
     }
     /// let OwnerReference delete
-    pub fn delete(&self, _ns: &str) -> Result<(), Error> {
+    pub fn delete(&self) -> Result<(), Error> {
+        Ok(())
+    }
+    pub fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        let mut obj = self.get_obj()?;
+        let mut components = self.remove_one(spec.clone(), obj.status.clone());
+        components.insert(
+            components.len(),
+            ComponentInfo {
+                name: spec.name.clone(),
+                instance_name: spec.instance_name.clone(),
+            },
+        );
+        obj.status = Some(HealthStatus {
+            aggregated: obj.status.clone().and_then(|s| s.aggregated),
+            components: Some(components),
+        });
+        info!(
+            "add component {} to health scope {}",
+            spec.name.clone(),
+            self.name.clone()
+        );
+        self.patch_obj(obj)
+    }
+    pub fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        let mut obj = self.get_obj()?;
+        let components = self.remove_one(spec.clone(), obj.status.clone());
+        obj.status = Some(HealthStatus {
+            aggregated: obj.status.clone().and_then(|s| s.aggregated),
+            components: Some(components),
+        });
+        self.patch_obj(obj)
+    }
+
+    pub fn get_obj(&self) -> Result<HealthScopeObject, Error> {
+        let healthscope_resource = RawApi::customResource("healthscopes")
+            .version("v1alpha1")
+            .group("core.hydra.io")
+            .within(self.namespace.as_str());
+        let req = healthscope_resource.get(self.name.as_str())?;
+        Ok(self.client.request::<HealthScopeObject>(req)?)
+    }
+    fn remove_one(
+        &self,
+        spec: ComponentConfiguration,
+        status: Option<HealthStatus>,
+    ) -> Vec<ComponentInfo> {
+        let mut components = vec![];
+        if let Some(status) = status {
+            for comp in status.components.unwrap_or_else(|| vec![]).iter() {
+                if comp.name == spec.name && comp.instance_name == spec.instance_name {
+                    continue;
+                }
+                components.insert(components.len(), comp.clone())
+            }
+        }
+        components
+    }
+    fn patch_obj(&self, obj: HealthScopeObject) -> Result<(), Error> {
+        let pp = kube::api::PatchParams::default();
+        let healthscope_resource = RawApi::customResource("healthscopes")
+            .version("v1alpha1")
+            .group("core.hydra.io")
+            .within(self.namespace.as_str());
+        let req = healthscope_resource.patch(self.name.as_str(), &pp, serde_json::to_vec(&obj)?)?;
+        self.client.request::<HealthScopeObject>(req)?;
         Ok(())
     }
 }
@@ -210,6 +312,7 @@ mod test {
 
         let net = Health::from_params(
             "test-health".to_string(),
+            "namespace".to_string(),
             APIClient::new(mock_kube_config()),
             params,
         )

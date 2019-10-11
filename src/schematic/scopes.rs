@@ -2,12 +2,13 @@
 mod health;
 pub use crate::schematic::scopes::health::Health;
 mod network;
+use crate::schematic::configuration::ComponentConfiguration;
 pub use crate::schematic::scopes::network::Network;
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
-pub const HEALTH_SCOPE: &str = "core.hydra.io/v1alpha1.Health";
-pub const NETWORK_SCOPE: &str = "core.hydra.io/v1alpha1.Network";
+pub const HEALTH_SCOPE: &str = "core.hydra.io/v1alpha1.HealthScope";
+pub const NETWORK_SCOPE: &str = "core.hydra.io/v1alpha1.NetworkScope";
 
 /// Scopes describes Hydra application scopes.
 ///
@@ -44,24 +45,38 @@ impl OAMScope {
         }
     }
     /// create will create a real scope instance
-    pub fn create(&self, ns: &str, owner: meta::OwnerReference) -> Result<(), Error> {
+    pub fn create(&self, owner: meta::OwnerReference) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.create(ns, convert_owner_ref(owner.clone())),
-            OAMScope::Network(n) => n.create(ns, owner.clone()),
+            OAMScope::Health(h) => h.create(convert_owner_ref(owner.clone())),
+            OAMScope::Network(n) => n.create(owner.clone()),
         }
     }
     /// modify will modify the scope instance
-    pub fn modify(&self, ns: &str) -> Result<(), Error> {
+    pub fn modify(&self) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.modify(ns),
-            OAMScope::Network(n) => n.modify(ns),
+            OAMScope::Health(h) => h.modify(),
+            OAMScope::Network(n) => n.modify(),
         }
     }
     /// delete will delete the scope instance, we can depend on OwnerReference if only k8s objects were created
-    pub fn delete(&self, ns: &str) -> Result<(), Error> {
+    pub fn delete(&self) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.delete(ns),
-            OAMScope::Network(n) => n.delete(ns),
+            OAMScope::Health(h) => h.delete(),
+            OAMScope::Network(n) => n.delete(),
+        }
+    }
+    /// add will add a component to this scope
+    pub fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        match self {
+            OAMScope::Health(h) => h.add(spec),
+            OAMScope::Network(n) => n.add(spec),
+        }
+    }
+    /// remove will remove component from this scope
+    pub fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        match self {
+            OAMScope::Health(h) => h.remove(spec),
+            OAMScope::Network(n) => n.remove(spec),
         }
     }
 }
