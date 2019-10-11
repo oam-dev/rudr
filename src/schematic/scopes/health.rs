@@ -105,8 +105,10 @@ impl Health {
     pub fn scope_type(&self) -> String {
         String::from(HEALTH_SCOPE)
     }
-    pub fn create(&self, ns: &str, owner: meta::OwnerReference) -> Result<(), Error> {
+    pub fn create(&self, ns: &str, owner: kube::api::OwnerReference) -> Result<(), Error> {
         let pp = kube::api::PostParams::default();
+        let mut owners = vec![];
+        owners.insert(0, owner);
         let scope = HealthScopeObject {
             spec: HealthScope {
                 probe_method: self.probe_method.clone(),
@@ -124,6 +126,7 @@ impl Health {
             },
             metadata: kube::api::ObjectMeta {
                 name: self.name.clone(),
+                ownerReferences: owners,
                 ..Default::default()
             },
             status: None,
@@ -139,8 +142,9 @@ impl Health {
     pub fn modify(&self, _ns: &str) -> Result<(), Error> {
         Err(format_err!("health scope modify not implemented"))
     }
+    /// let OwnerReference delete
     pub fn delete(&self, _ns: &str) -> Result<(), Error> {
-        Err(format_err!("health scope delete not implemented"))
+        Ok(())
     }
 }
 

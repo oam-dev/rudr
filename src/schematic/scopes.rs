@@ -19,6 +19,17 @@ pub enum OAMScope {
     Network(Network),
 }
 
+fn convert_owner_ref(owner: meta::OwnerReference) -> kube::api::OwnerReference {
+    kube::api::OwnerReference {
+        controller: owner.controller.unwrap_or(false),
+        blockOwnerDeletion: owner.block_owner_deletion.unwrap_or(false),
+        name: owner.name,
+        apiVersion: owner.api_version,
+        kind: owner.kind,
+        uid: owner.uid,
+    }
+}
+
 impl OAMScope {
     pub fn allow_overlap(&self) -> bool {
         match self {
@@ -35,7 +46,7 @@ impl OAMScope {
     /// create will create a real scope instance
     pub fn create(&self, ns: &str, owner: meta::OwnerReference) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.create(ns, owner.clone()),
+            OAMScope::Health(h) => h.create(ns, convert_owner_ref(owner.clone())),
             OAMScope::Network(n) => n.create(ns, owner.clone()),
         }
     }
@@ -46,7 +57,7 @@ impl OAMScope {
             OAMScope::Network(n) => n.modify(ns),
         }
     }
-    /// delete will delete the scope instance
+    /// delete will delete the scope instance, we can depend on OwnerReference if only k8s objects were created
     pub fn delete(&self, ns: &str) -> Result<(), Error> {
         match self {
             OAMScope::Health(h) => h.delete(ns),

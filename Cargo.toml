@@ -5,8 +5,8 @@ authors = ["Matt Butcher <matt.butcher@microsoft.com>", "Jianbo Sun <jianbo.sjb@
 edition = "2018"
 
 [dependencies]
-kube = { version = "0.15.0", features = ["openapi"] }
-k8s-openapi = { version = "0.5.0", features = ["v1_15"] }
+kube = { version = "0.16.1", features = ["openapi"] }
+k8s-openapi = { version = "0.5.1", features = ["v1_15"] }
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
