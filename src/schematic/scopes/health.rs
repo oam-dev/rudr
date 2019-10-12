@@ -6,8 +6,11 @@ use crate::schematic::scopes::HEALTH_SCOPE;
 use failure::Error;
 use kube::{api::RawApi, client::APIClient};
 use log::info;
-use std::collections::BTreeMap;
 
+pub const HEALTH_SCOPE_CRD: &str = "healthscopes";
+pub const HEALTH_SCOPE_GROUP: &str = "core.hydra.io";
+pub const HEALTH_SCOPE_VERSION: &str = "v1alpha1";
+pub const HEALTH_SCOPE_KIND: &str = "HealthScope";
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HealthScope {
@@ -26,19 +29,20 @@ pub struct HealthScope {
 pub struct ComponentInfo {
     pub name: String,
     pub instance_name: String,
+    pub status: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HealthStatus {
-    pub aggregated: Option<BTreeMap<String, BTreeMap<String, String>>>,
     pub components: Option<Vec<ComponentInfo>>,
+    pub last_aggregate_timestamp: Option<String>,
 }
 impl Default for HealthStatus {
     fn default() -> Self {
         HealthStatus {
-            aggregated: None,
             components: None,
+            last_aggregate_timestamp: None,
         }
     }
 }
@@ -136,8 +140,8 @@ impl Health {
                 required_healthy_components: self.required_healthy_components.clone(),
             },
             types: kube::api::TypeMeta {
-                apiVersion: Some("core.hydra.io/v1alpha1".to_string()),
-                kind: Some("HealthScope".to_string()),
+                apiVersion: Some(HEALTH_SCOPE_GROUP.to_string() + "/" + HEALTH_SCOPE_VERSION),
+                kind: Some(HEALTH_SCOPE_KIND.to_string()),
             },
             metadata: kube::api::ObjectMeta {
                 name: self.name.clone(),
@@ -146,9 +150,9 @@ impl Health {
             },
             status: None,
         };
-        let healthscope_resource = RawApi::customResource("healthscopes")
-            .version("v1alpha1")
-            .group("core.hydra.io")
+        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+            .version(HEALTH_SCOPE_VERSION)
+            .group(HEALTH_SCOPE_GROUP)
             .within(self.namespace.as_str());
         let req = healthscope_resource.create(&pp, serde_json::to_vec(&scope)?)?;
         let err = self
@@ -190,11 +194,12 @@ impl Health {
             ComponentInfo {
                 name: spec.name.clone(),
                 instance_name: spec.instance_name.clone(),
+                status: None,
             },
         );
         obj.status = Some(HealthStatus {
-            aggregated: obj.status.clone().and_then(|s| s.aggregated),
             components: Some(components),
+            ..Default::default()
         });
         info!(
             "add component {} to health scope {}",
@@ -207,16 +212,16 @@ impl Health {
         let mut obj = self.get_obj()?;
         let components = self.remove_one(spec.clone(), obj.status.clone());
         obj.status = Some(HealthStatus {
-            aggregated: obj.status.clone().and_then(|s| s.aggregated),
             components: Some(components),
+            ..Default::default()
         });
         self.patch_obj(obj)
     }
 
     pub fn get_obj(&self) -> Result<HealthScopeObject, Error> {
-        let healthscope_resource = RawApi::customResource("healthscopes")
-            .version("v1alpha1")
-            .group("core.hydra.io")
+        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+            .version(HEALTH_SCOPE_VERSION)
+            .group(HEALTH_SCOPE_GROUP)
             .within(self.namespace.as_str());
         let req = healthscope_resource.get(self.name.as_str())?;
         Ok(self.client.request::<HealthScopeObject>(req)?)
@@ -239,9 +244,9 @@ impl Health {
     }
     fn patch_obj(&self, obj: HealthScopeObject) -> Result<(), Error> {
         let pp = kube::api::PatchParams::default();
-        let healthscope_resource = RawApi::customResource("healthscopes")
-            .version("v1alpha1")
-            .group("core.hydra.io")
+        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+            .version(HEALTH_SCOPE_VERSION)
+            .group(HEALTH_SCOPE_GROUP)
             .within(self.namespace.as_str());
         let req = healthscope_resource.patch(self.name.as_str(), &pp, serde_json::to_vec(&obj)?)?;
         self.client.request::<HealthScopeObject>(req)?;

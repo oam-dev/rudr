@@ -1,7 +1,7 @@
 // Re-exports
-mod health;
+pub mod health;
 pub use crate::schematic::scopes::health::Health;
-mod network;
+pub mod network;
 use crate::schematic::configuration::ComponentConfiguration;
 pub use crate::schematic::scopes::network::Network;
 use failure::Error;

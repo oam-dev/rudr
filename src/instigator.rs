@@ -662,6 +662,7 @@ impl Instigator {
         };
         Ok(vec![owner])
     }
+
     fn component_instance_set_status(
         &self,
         component_name: String,
