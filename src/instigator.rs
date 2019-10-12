@@ -126,7 +126,18 @@ impl Instigator {
                 component.name.clone(),
                 status.clone()
             );
-
+            let mut health_state = "healthy".to_string();
+            for (_, v) in status.clone() {
+                if v != "running" && v != "created" && v != "succeeded" {
+                    health_state = "unhealthy".to_string();
+                    break;
+                }
+            }
+            self.component_instance_set_status(
+                component.name.clone(),
+                inst_name.clone(),
+                health_state,
+            )?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -650,6 +661,28 @@ impl Instigator {
             name: res.metadata.name,
         };
         Ok(vec![owner])
+    }
+    fn component_instance_set_status(
+        &self,
+        component_name: String,
+        instance_name: String,
+        status: String,
+    ) -> Result<(), Error> {
+        let name = combine_name(component_name, instance_name);
+        let crd_req = RawApi::customResource("componentinstances")
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION)
+            .within(self.namespace.as_str());
+        let req = crd_req.get(name.as_str())?;
+        let mut res: KubeComponentInstance = self.client.request(req)?;
+        res.status = Some(status);
+        let req = crd_req.patch(
+            name.as_str(),
+            &PatchParams::default(),
+            serde_json::to_vec(&res)?,
+        )?;
+        let _: KubeComponentInstance = self.client.request(req)?;
+        Ok(())
     }
 }
 

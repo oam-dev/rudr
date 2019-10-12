@@ -3,9 +3,8 @@ use crate::schematic::parameter::{
     self, extract_number_params, extract_string_params, ParameterValue,
 };
 use crate::schematic::scopes::HEALTH_SCOPE;
-use crate::schematic::traits::TraitBinding;
 use failure::Error;
-use kube::{api::RawApi, client::APIClient, ApiError};
+use kube::{api::RawApi, client::APIClient};
 use log::info;
 use std::collections::BTreeMap;
 

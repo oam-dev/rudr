@@ -37,8 +37,16 @@ fn main() -> Result<(), Error> {
                 .default_value(":8080")
                 .help("The address the metric endpoint binds to."),
         )
+        .arg(
+            Arg::with_name("addr")
+                .short("p")
+                .long("endpoint-address")
+                .default_value(":80")
+                .help("The address the health scope endpoint binds to."),
+        )
         .get_matches();
     let metrics_addr = "0.0.0.0".to_owned() + flags.value_of("metrics-addr").unwrap();
+    let endpoint_addr = "0.0.0.0".to_owned() + flags.value_of("addr").unwrap();
 
     env_logger::init();
     info!("starting server");
@@ -52,7 +60,7 @@ fn main() -> Result<(), Error> {
     let client = APIClient::new(top_cfg);
 
     // Watch for configuration objects to be added, and react to those.
-    let configuration_watch = std::thread::spawn(move || {
+    let health_scope_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
         let client = APIClient::new(cfg_watch);
         let resource = RawApi::customResource(CONFIG_CRD)
@@ -114,7 +122,7 @@ fn main() -> Result<(), Error> {
     .join()
     .unwrap();
 
-    configuration_watch.join().unwrap()
+    health_scope_watch.join().unwrap()
 }
 
 /// This takes an event off the stream and delegates it to the instigator, calling the correct verb.
