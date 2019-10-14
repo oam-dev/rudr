@@ -31,7 +31,7 @@ Kompose is a tool for manipulating Kubernetes YAML documents. It is also compati
 
 ## How does this compare with CNAB?
 
-Cloud Native Application Bundles (CNAB) is a system for packaging and distributing distributed applications, including applications created using OAM. For its part, OAM does not define or prescribe a packaging format. But it works well with CNAB (as well as with Helm).
+Cloud Native Application Bundles (CNAB) is a format for packaging and distributing distributed applications, including applications created using OAM. For its part, OAM does not  prescribe a packaging format. It works well with CNAB (as well as with Helm) to distribute applications.
 
 When targeting more than one implementation of OAM, developers may find CNAB a better packaging fit than Helm.
 
