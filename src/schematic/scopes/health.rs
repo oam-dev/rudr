@@ -171,7 +171,7 @@ impl Health {
                 {
                     return None;
                 }
-                return Some(e);
+                Some(e)
             });
         if err.is_some() {
             return Err(err.unwrap().into());

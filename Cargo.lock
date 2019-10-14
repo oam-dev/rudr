@@ -422,6 +422,7 @@ dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.12.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "k8s-openapi 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "kube 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)",

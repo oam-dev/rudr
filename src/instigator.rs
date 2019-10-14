@@ -308,26 +308,27 @@ impl Instigator {
                         component.name.clone(),
                         inst_name.clone(),
                     );
-                    if ownref.is_err() {
-                        let e = ownref.unwrap_err().to_string();
-                        if !e.contains("NotFound") {
-                            // Wrap the error to make it clear where we failed
-                            // During deletion, this might indicate that something else
-                            // remove the component instance.
-                            return Err(format_err!(
-                                "{:?} on {}: {}",
-                                phase.clone(),
+                    match ownref {
+                        Err(err) => {
+                            let e = err.to_string();
+                            if !e.contains("NotFound") {
+                                // Wrap the error to make it clear where we failed
+                                // During deletion, this might indicate that something else
+                                // remove the component instance.
+                                return Err(format_err!(
+                                    "{:?} on {}: {}",
+                                    phase.clone(),
+                                    inst_name.clone(),
+                                    e
+                                ));
+                            }
+                            Some(self.create_component_instance(
+                                component.name.clone(),
                                 inst_name.clone(),
-                                e
-                            ));
+                                owner_ref.clone(),
+                            )?)
                         }
-                        Some(self.create_component_instance(
-                            component.name.clone(),
-                            inst_name.clone(),
-                            owner_ref.clone(),
-                        )?)
-                    } else {
-                        Some(ownref.unwrap())
+                        Ok(own) => Some(own),
                     }
                 }
                 _ => None,

@@ -2,9 +2,11 @@ use chrono::{DateTime, Utc};
 use clap::{App, Arg};
 use env_logger;
 use failure::{format_err, Error};
+use futures::task::{current, Task};
+use futures::{future, Async};
 use hyper::rt::Future;
-use hyper::service::service_fn_ok;
-use hyper::{Body, Method, Response, Server, StatusCode};
+use hyper::service::{service_fn, service_fn_ok};
+use hyper::{Body, Method, Request, Response, Server, StatusCode};
 use kube::api::{ListParams, ObjectList, RawApi};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
 use log::{debug, error, info};
@@ -53,11 +55,8 @@ fn main() -> Result<(), Error> {
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
 
-    // There is probably a better way to do this than to create two clones, but there is a potential
-    // thread safety issue here.
     let cfg_watch = top_cfg.clone();
 
-    // Watch for configuration objects to be added, and react to those.
     let health_scope_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
         let healthscope_resource = RawApi::customResource("healthscopes")
@@ -87,26 +86,13 @@ fn main() -> Result<(), Error> {
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     });
+
     let server = std::thread::spawn(move || {
         let addr = endpoint_addr.parse().unwrap();
         info!("Server is running on {}", addr);
         hyper::rt::run(
             Server::bind(&addr)
-                .serve(|| {
-                    service_fn_ok(|req| {
-                        let path = req.uri().path().to_owned();
-                        match (req.method(), path) {
-                            (&Method::GET, path) => {
-                                debug!("health scope requested");
-                                Response::new(Body::from(path.clone()))
-                            }
-                            _ => Response::builder()
-                                .status(StatusCode::NOT_FOUND)
-                                .body(Body::from(""))
-                                .unwrap(),
-                        }
-                    })
-                })
+                .serve(move || service_fn(serve_health))
                 .map_err(|e| eprintln!("server error: {}", e)),
         );
     });
@@ -138,7 +124,121 @@ fn main() -> Result<(), Error> {
     health_scope_watch.join().unwrap()
 }
 
-/// This takes an event off the stream and delegates it to the instigator, calling the correct verb.
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
+pub struct HealthFuture {
+    shared_state: Arc<Mutex<SharedState>>,
+}
+
+/// Shared state between the future and the waiting thread
+struct SharedState {
+    /// Whether or not the sleep time has elapsed
+    completed: bool,
+    resp: String,
+    task: Option<Task>,
+}
+
+impl Future for HealthFuture {
+    type Item = Response<Body>;
+    type Error = hyper::Error;
+    fn poll(&mut self) -> futures::Poll<Response<Body>, hyper::Error> {
+        // Look at the shared state to see if the timer has already completed.
+        let mut shared_state = self.shared_state.lock().unwrap();
+        if shared_state.completed {
+            Ok(Async::Ready(Response::new(Body::from(
+                shared_state.resp.clone(),
+            ))))
+        } else {
+            shared_state.task = Some(current());
+            Ok(Async::NotReady)
+        }
+    }
+}
+
+impl HealthFuture {
+    /// Create a new `TimerFuture` which will complete after the provided
+    /// timeout.
+    pub fn new(instance: String) -> Self {
+        let shared_state = Arc::new(Mutex::new(SharedState {
+            completed: false,
+            task: None,
+            resp: String::new(),
+        }));
+
+        // Spawn the new thread
+        let thread_shared_state = shared_state.clone();
+        thread::spawn(move || {
+            let res = match request_health(instance) {
+                Ok(status) => status.clone(),
+                Err(err) => {
+                    error!("{:?}", err);
+                    format!("{}", err)
+                }
+            };
+
+            let mut shared_state = thread_shared_state.lock().unwrap();
+            // Signal that the request has completed and wake up the last
+            // task on which the future was polled, if one exists.
+            shared_state.completed = true;
+            shared_state.resp = res;
+            if let Some(ref task) = shared_state.task {
+                task.notify()
+            }
+        });
+
+        HealthFuture { shared_state }
+    }
+}
+
+type BoxFut = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
+fn serve_health(req: Request<Body>) -> BoxFut {
+    let mut response = Response::new(Body::empty());
+    let path = req.uri().path().to_owned();
+    match (req.method(), path) {
+        (&Method::GET, path) => {
+            let instance = path.trim_start_matches('/').to_string();
+            debug!("{} health scope requested", instance);
+            return Box::new(HealthFuture::new(instance));
+        }
+        _ => *response.status_mut() = StatusCode::NOT_FOUND,
+    }
+    Box::new(future::ok(response))
+}
+
+fn request_health(instance_name: String) -> Result<String, Error> {
+    let namespace =
+        std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
+    let cfg = kubeconfig().unwrap();
+    println!(
+        "cfg {:?}, instance {}",
+        cfg.base_path.clone(),
+        instance_name
+    );
+    let client = &(APIClient::new(cfg));
+    println!("client namespace {}", namespace.clone());
+    let healthscope_resource = RawApi::customResource("healthscopes")
+        .version("v1alpha1")
+        .group("core.hydra.io")
+        .within(namespace.as_str());
+    let req = healthscope_resource.get(instance_name.as_str())?;
+    let obj = client.request::<HealthScopeObject>(req)?;
+    let mut health = "healthy";
+    obj.status.map(|status| {
+        status.clone().components.map(|comps| {
+            comps.iter().for_each(|c| {
+                if let Some(real_status) = c.status.as_ref() {
+                    if real_status != "healthy" {
+                        health = "unhealthy"
+                    }
+                };
+            })
+        })
+    });
+    Ok(health.to_string())
+}
+
 fn aggregate_health(
     client: &APIClient,
     mut event: HealthScopeObject,
@@ -185,13 +285,11 @@ fn aggregate_health(
             client.request::<HealthScopeObject>(req)?;
             Ok(())
         }
-        _ => {
-            return Err(format_err!(
-                "unknown probe-method {} and probe_endpoint {}",
-                event.spec.probe_method,
-                event.spec.probe_endpoint
-            ))
-        }
+        _ => Err(format_err!(
+            "unknown probe-method {} and probe_endpoint {}",
+            event.spec.probe_method,
+            event.spec.probe_endpoint
+        )),
     }
 }
 
@@ -209,7 +307,7 @@ fn get_health_from_component(client: &APIClient, info: ComponentInfo, namespace:
             return "unhealthy".to_string();
         }
     };
-    res.status.unwrap_or("unhealthy".to_string())
+    res.status.unwrap_or_else(|| "unhealthy".to_string())
 }
 
 fn time_to_aggregate(status: Option<HealthStatus>, interval: i64) -> bool {
@@ -237,8 +335,8 @@ fn time_to_aggregate(status: Option<HealthStatus>, interval: i64) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::time_to_aggregate;
-    use chrono::{DateTime, Duration, Utc};
+    use crate::{request_health, time_to_aggregate};
+    use chrono::{Duration, Utc};
     use scylla::schematic::scopes::health::HealthStatus;
 
     #[test]
@@ -261,5 +359,10 @@ mod test {
         assert_eq!(time_to_aggregate(status.clone(), 10), true);
         assert_eq!(time_to_aggregate(status.clone(), 15), false);
         assert_eq!(time_to_aggregate(status.clone(), 0), true);
+    }
+    #[test]
+    fn test_request_health() {
+        let res = request_health("my-health-scope".to_string()).unwrap();
+        assert_eq!(res, "healthy".to_string())
     }
 }
