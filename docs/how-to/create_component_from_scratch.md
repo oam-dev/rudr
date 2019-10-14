@@ -20,18 +20,18 @@ The following instructions will lead you to build a image from source, you can g
     ```
 2. Create a file named `app.py` and copy the code from [`app/app.py`](./app/app.py)
 3. Create a file named `Dockerfile` and copy the code from [`app/Dockerfile`](./app/Dockerfile), See [official Python docker image](https://hub.docker.com/_/python/) for more details.
-4. Use Docker to build the sample code into a container. To build and push with Docker Hub, run these commands replacing `hydraoss` with your Docker Hub username:
+4. Use Docker to build the sample code into a container. To build and push with Docker Hub, run these commands replacing `oamdev` with your Docker Hub username:
     ```shell script
    # Build the container on your local machine
-   docker build -t hydraoss/helloworld-python:v1 .
+   docker build -t oamdev/helloworld-python:v1 .
 
    # Push the container to docker registry
-   docker push hydraoss/helloworld-python:v1
+   docker push oamdev/helloworld-python:v1
     ```
    
 ## Create Component Schematics File
 
-Now we have a docker image named `hydraoss/helloworld-python:v1`, so we can use this image to create a component schematics file.
+Now we have a docker image named `oamdev/helloworld-python:v1`, so we can use this image to create a component schematics file.
 
 1. Choose the workloadType: the `helloworld-python` is very typical web application, it is stateless, always running as a service, can be replicated. So we use `core.oam.dev/v1alpha1.Server` without doubt.
 2. Fill the container spec and make ENV configurable: obviously we have two major environment variables in the image, one is TARGET and the other is PORT.
@@ -49,7 +49,7 @@ spec:
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
-      image: hydraoss/helloworld-python:v1
+      image: oamdev/helloworld-python:v1
       env:
         - name: TARGET
           fromParam: target
@@ -116,8 +116,8 @@ if __name__ == "__main__":
 Build and create image with a new tag.
 
 ```shell script
-docker build -t hydraoss/helloworld-python:v2 .
-docker push hydraoss/helloworld-python:v2
+docker build -t oamdev/helloworld-python:v2 .
+docker push oamdev/helloworld-python:v2
 ``` 
 
 ### Change the component
@@ -135,8 +135,8 @@ spec:
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
--     image: hydraoss/helloworld-python:v1
-+     image: hydraoss/helloworld-python:v2
+-     image: oamdev/helloworld-python:v1
++     image: oamdev/helloworld-python:v2
 
       env:
         - name: TARGET

@@ -1,4 +1,4 @@
-REPO = hydraoss/rudr
+REPO = oamdev/rudr
 TAG ?= latest
 
 .PHONY: build

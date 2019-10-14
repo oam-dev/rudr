@@ -6,7 +6,7 @@ replicaCount: 1
 logLevel: "rudr=info"
 
 image:
-  repository: hydraoss/rudr
+  repository: oamdev/rudr
   tag: latest # We're in pre-release
   pullPolicy: Always
 
