@@ -10,7 +10,7 @@ The first thing we will do is define a trait resource as a YAML file that Helm w
 
 ```yaml
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   # Define the name of the trait. This will be the reference by which ApplicationConfigurations
@@ -20,12 +20,12 @@ spec:
   # The appliesTo field lists all of the Workload Types that this trait can be added to.
   # In this case, all of the core workload types are supported.
   appliesTo:
-    - core.hydra.io/v1alpha1.Server
-    - core.hydra.io/v1alpha1.SingletonServer
-    - core.hydra.io/v1alpha1.Worker
-    - core.hydra.io/v1alpha1.SingletonWorker
-    - core.hydra.io/v1alpha1.Task
-    - core.hydra.io/v1alpha1.SingletonTask
+    - core.oam.dev/v1alpha1.Server
+    - core.oam.dev/v1alpha1.SingletonServer
+    - core.oam.dev/v1alpha1.Worker
+    - core.oam.dev/v1alpha1.SingletonWorker
+    - core.oam.dev/v1alpha1.Task
+    - core.oam.dev/v1alpha1.SingletonTask
   # Properties define what things can be configured on this trait.
   #
   # A property definition requires four fields:

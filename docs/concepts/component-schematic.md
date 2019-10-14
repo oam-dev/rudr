@@ -14,12 +14,12 @@ The key parts of a component schematic include:
 Here's an example application configuration (*.yaml* file):
 
 <pre>
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 <b style="color:blue;">metadata:</b>
   name: alpine-forever-v1
 spec:
-  <b style="color:blue;">workloadType:</b> core.hydra.io/v1alpha1.SingletonServer
+  <b style="color:blue;">workloadType:</b> core.oam.dev/v1alpha1.SingletonServer
   <b style="color:blue;">parameters:</b>
     - name: message
            type: string
@@ -104,7 +104,7 @@ A component must declare its associated [workload type](https://github.com/micro
 [Here's an example](../../examples/helloworld-python-component.yaml) declaration of the component workload type:
 
 ```yaml
-workloadType: core.hydra.io/v1alpha1.Server
+workloadType: core.oam.dev/v1alpha1.Server
 ```
 
 ## Parameters

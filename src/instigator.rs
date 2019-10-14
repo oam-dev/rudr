@@ -23,7 +23,7 @@ use crate::{
     },
 };
 
-pub const CONFIG_GROUP: &str = "core.hydra.io";
+pub const CONFIG_GROUP: &str = "core.oam.dev";
 pub const CONFIG_VERSION: &str = "v1alpha1";
 
 pub const CONFIG_CRD: &str = "applicationconfigurations";
@@ -637,7 +637,7 @@ pub fn get_component_def(
 ) -> Result<KubeComponent, Error> {
     let component_resource = RawApi::customResource(COMPONENT_CRD)
         .version("v1alpha1")
-        .group("core.hydra.io")
+        .group("core.oam.dev")
         .within(&namespace);
     let comp_def_req = component_resource.get(comp_name.as_str())?;
     let comp_def: KubeComponent = client.request::<KubeComponent>(comp_def_req)?;

@@ -12,7 +12,7 @@ type Labels = BTreeMap<String, String>;
 /// Generate the common labels for a trait.
 pub fn trait_labels(name: String, inst_name: String) -> Labels {
     let mut labels: Labels = BTreeMap::new();
-    labels.insert("hydra.io/role".into(), "trait".into());
+    labels.insert("oam.dev/role".into(), "trait".into());
     labels.insert("app.kubernetes.io/name".to_string(), name);
     labels.insert("instance-name".to_string(), inst_name);
     labels
@@ -27,7 +27,7 @@ mod tests {
         let labels = trait_labels("name".to_string(), "inst".to_string());
         assert_eq!(
             "trait".to_string(),
-            *labels.get("hydra.io/role").expect("role must be a string")
+            *labels.get("oam.dev/role").expect("role must be a string")
         );
         assert_eq!(
             "name".to_string(),

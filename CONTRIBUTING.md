@@ -39,8 +39,8 @@ To get started, define some _components_. Components are not instantiated. They 
 
 ```console
 $ kubectl apply -f examples/components.yaml
-component.core.hydra.io "nginx-replicated" created
-component.core.hydra.io "nginx-singleton" created
+component.core.oam.dev "nginx-replicated" created
+component.core.oam.dev "nginx-singleton" created
 $ kubectl get components
 NAME               AGE
 nginx-replicated   17s

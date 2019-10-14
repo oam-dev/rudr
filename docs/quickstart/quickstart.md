@@ -78,7 +78,7 @@ You can look at an individual component:
 
 ```console
 $ kubectl get componentschematic helloworld-python-v1 -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   creationTimestamp: "2019-10-08T13:02:23Z"
@@ -115,7 +115,7 @@ And you can look at an individual trait in the same way that you investigate a c
 
 ```console
 $ kubectl get trait ingress -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   creationTimestamp: "2019-10-02T19:57:37Z"
@@ -123,12 +123,12 @@ metadata:
   name: ingress
   namespace: default
   resourceVersion: "117813"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/traits/ingress
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/traits/ingress
   uid: 9f82c346-c8c6-4780-9949-3ecfd47879f9
 spec:
   appliesTo:
-  - core.hydra.io/v1alpha1.Server
-  - core.hydra.io/v1alpha1.SingletonServer
+  - core.oam.dev/v1alpha1.Server
+  - core.oam.dev/v1alpha1.SingletonServer
   properties:
   - description: Host name for the ingress
     name: hostname
@@ -151,7 +151,7 @@ The above describes a trait that attaches an ingress to a component, handling th
 When you are ready to try installing something, take a look at the `examples/first-app-config.yaml`, which shows a basic Application Configuration with a single trait applied:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -181,7 +181,7 @@ To install this application configuration, use `kubectl`:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
-configuration.core.hydra.io/first-app created
+configuration.core.oam.dev/first-app created
 ```
 
 You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Scylla is creating all the necessary objects.
@@ -193,7 +193,7 @@ $ kubectl get configurations
 NAME        AGE
 first-app   4m23s
 $ kubectl get configuration first-app -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   annotations:
@@ -203,7 +203,7 @@ metadata:
   name: first-app
   namespace: default
   resourceVersion: "2020150"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/applicationconfigurations/first-app
   uid: 2ea9f384-993c-42b0-803a-43a1c273d291
 spec:
   components:
@@ -266,7 +266,7 @@ But someday, the operator may want to change something. For example:
 So you could change `first-app-config.yaml` like below:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -298,7 +298,7 @@ Again we apply this yaml:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
-applicationconfiguration.core.hydra.io/first-app configured
+applicationconfiguration.core.oam.dev/first-app configured
 ```
 
 ### Check the updated app
@@ -307,7 +307,7 @@ Then check the applied yaml first:
 
 ```console
 $ kubectl get configuration first-app -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   annotations:
@@ -317,7 +317,7 @@ metadata:
   name: first-app
   namespace: default
   resourceVersion: "2022598"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/applicationconfigurations/first-app
   uid: 2ea9f384-993c-42b0-803a-43a1c273d291
 spec:
   components:
@@ -375,7 +375,7 @@ You can find more details about how we create it in [Upgrade Component](../how-t
 We need to change and apply the configuration file to make the component upgrade work.
  
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -405,7 +405,7 @@ Apply it:
  
 ```shell script
 $ kubectl apply -f examples/first-app-config.yaml
-applicationconfiguration.core.hydra.io/first-app configured
+applicationconfiguration.core.oam.dev/first-app configured
 ```
 
 ### Check the upgrade result
@@ -430,7 +430,7 @@ You can delete your configurations easily with `kubectl`:
 
 ```console
 $ kubectl delete configuration first-app
-configuration.core.hydra.io "first-app" deleted
+configuration.core.oam.dev "first-app" deleted
 ```
 
 That will delete your application and all associated resources.
@@ -440,17 +440,17 @@ It will _not_ delete the traits and the components, they are happily waiting you
 ```console
 $ kubectl get traits,components
 NAME                                AGE
-trait.core.hydra.io/autoscaler      31m
-trait.core.hydra.io/empty           31m
-trait.core.hydra.io/ingress         31m
-trait.core.hydra.io/manual-scaler   31m
+trait.core.oam.dev/autoscaler      31m
+trait.core.oam.dev/empty           31m
+trait.core.oam.dev/ingress         31m
+trait.core.oam.dev/manual-scaler   31m
 
 NAME                                             AGE
-component.core.hydra.io/alpine-replicable-task   19h
-component.core.hydra.io/alpine-task              19h
-component.core.hydra.io/hpa-example-replicated   19h
-component.core.hydra.io/nginx-replicated         19h
-component.core.hydra.io/nginx-singleton          19h
+component.core.oam.dev/alpine-replicable-task   19h
+component.core.oam.dev/alpine-task              19h
+component.core.oam.dev/hpa-example-replicated   19h
+component.core.oam.dev/nginx-replicated         19h
+component.core.oam.dev/nginx-singleton          19h
 ```
 
 ## Uninstall Scylla
@@ -466,7 +466,7 @@ If you want to clean up your test environment and uninstall Scylla, you could do
  **NOTE: When you delete the CRDs, it will delete everything touching Open Application Model from configurations to secrets.**
  
  ```console
- kubectl delete crd -l app.kubernetes.io/part-of=core.hydra.io
+ kubectl delete crd -l app.kubernetes.io/part-of=core.oam.dev
  ```
  
  The above will delete the CRDs and clean up everything related with Open Application Model.

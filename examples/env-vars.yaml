@@ -10,12 +10,12 @@
 ##
 ## You can get that pod's logs to see the results of injecting the FOO
 ## variable.
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: alpine-forever-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.SingletonServer
+  workloadType: core.oam.dev/v1alpha1.SingletonServer
   parameters:
     - name: message
       type: string
@@ -35,7 +35,7 @@ spec:
           value: "1234"
           fromParam: unused_integer
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: example-env-vars

@@ -1,4 +1,4 @@
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: voting-admin-v1
@@ -6,7 +6,7 @@ metadata:
     version: "1.0.0"
     description: Voting results interface
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: server
       ports:
@@ -14,7 +14,7 @@ spec:
           name: http
       image: dockersamples/examplevotingapp_result:before
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: postgres-v9
@@ -22,7 +22,7 @@ metadata:
     version: "1.0.0"
     description: PostgreSQL Database
 spec:
-  workloadType: core.hydra.io/v1alpha1.SingletonServer
+  workloadType: core.oam.dev/v1alpha1.SingletonServer
   containers:
     - name: db
       ports:
@@ -30,7 +30,7 @@ spec:
           name: pgsql
       image: postgres:9.4
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: redis-v1
@@ -38,7 +38,7 @@ metadata:
     version: "1.0.0"
     description: Redis single-node
 spec:
-  workloadType: core.hydra.io/v1alpha1.SingletonServer
+  workloadType: core.oam.dev/v1alpha1.SingletonServer
   containers:
     - name: cache
       ports:
@@ -46,7 +46,7 @@ spec:
           name: redis
       image: redis:alpine
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: voting-frontend-v1
@@ -54,7 +54,7 @@ metadata:
     version: "1.0.0"
     description: Voting front-end webserver
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: server
       ports:
@@ -62,7 +62,7 @@ spec:
           name: http
       image: dockersamples/examplevotingapp_vote:before
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: voting-worker-v1
@@ -70,7 +70,7 @@ metadata:
     version: "1.0.0"
     description: Worker for tallying voting results
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: server
       image: dockersamples/examplevotingapp_worker

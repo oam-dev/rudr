@@ -52,13 +52,13 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 You can verify that Scylla is installed by fetching the CRDs:
 
 ```console
-$ kubectl get crds -l app.kubernetes.io/part-of=core.hydra.io
+$ kubectl get crds -l app.kubernetes.io/part-of=core.oam.dev
 NAME                                      CREATED AT
-applicationconfigurations.core.hydra.io   2019-10-02T19:57:32Z
-componentinstances.core.hydra.io          2019-10-02T19:57:32Z
-componentschematics.core.hydra.io         2019-10-02T19:57:32Z
-scopes.core.hydra.io                      2019-10-02T19:57:32Z
-traits.core.hydra.io                      2019-10-02T19:57:32Z
+applicationconfigurations.core.oam.dev   2019-10-02T19:57:32Z
+componentinstances.core.oam.dev          2019-10-02T19:57:32Z
+componentschematics.core.oam.dev         2019-10-02T19:57:32Z
+scopes.core.oam.dev                      2019-10-02T19:57:32Z
+traits.core.oam.dev                      2019-10-02T19:57:32Z
 ```
 
 You should see at least those five CRDs. You can also verify that the Scylla deployment is running:
@@ -92,7 +92,7 @@ This will leave the CRDs and configurations intact.
 **NOTE: When you delete the CRDs, it will delete everything touching Open Application Model from configurations to secrets.**
 
 ```console
-kubectl delete crd -l app.kubernetes.io/part-of=core.hydra.io
+kubectl delete crd -l app.kubernetes.io/part-of=core.oam.dev
 ```
 
 The above will delete the CRDs and clean up everything related with Open Application Model.

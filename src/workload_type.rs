@@ -14,22 +14,22 @@ pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 mod workload_builder;
 pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
-pub const OAM_API_VERSION: &str = "core.hydra.io/v1alpha1";
+pub const OAM_API_VERSION: &str = "core.oam.dev/v1alpha1";
 
 /// Server is a replicable server
-pub const SERVER_NAME: &str = "core.hydra.io/v1alpha1.Server";
+pub const SERVER_NAME: &str = "core.oam.dev/v1alpha1.Server";
 /// SingletonServer is a kind of Server that can't be replicated
-pub const SINGLETON_SERVER_NAME: &str = "core.hydra.io/v1alpha1.SingletonServer";
+pub const SINGLETON_SERVER_NAME: &str = "core.oam.dev/v1alpha1.SingletonServer";
 
 /// SingletonTask is a task that cannot be replicated
-pub const SINGLETON_TASK_NAME: &str = "core.hydra.io/v1alpha1.SingletonTask";
+pub const SINGLETON_TASK_NAME: &str = "core.oam.dev/v1alpha1.SingletonTask";
 /// Task just means a replicated task which will replace ReplicatedTask
-pub const TASK_NAME: &str = "core.hydra.io/v1alpha1.Task";
+pub const TASK_NAME: &str = "core.oam.dev/v1alpha1.Task";
 
 /// Singleton worker is a Worker that cannot be replicated
-pub const SINGLETON_WORKER: &str = "core.hydra.io/v1alpha1.SingletonWorker";
+pub const SINGLETON_WORKER: &str = "core.oam.dev/v1alpha1.SingletonWorker";
 /// Worker is daemon process that does not listen on the network
-pub const WORKER_NAME: &str = "core.hydra.io/v1alpha1.Worker";
+pub const WORKER_NAME: &str = "core.oam.dev/v1alpha1.Worker";
 
 type InstigatorResult = Result<(), Error>;
 type StatusResult = Result<BTreeMap<String, String>, Error>;
