@@ -42,14 +42,23 @@ impl WorkloadMetadata {
     pub fn labels(&self, workload_type: &str) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
-        labels.insert("workload-type".to_string(), workload_type.to_string());
-        labels.insert("instance-name".to_string(), self.instance_name.clone());
+        labels.insert(
+            "oam.dev/workload-type".to_string(),
+            workload_type.to_string(),
+        );
+        labels.insert(
+            "oam.dev/instance-name".to_string(),
+            self.instance_name.clone(),
+        );
         labels
     }
     pub fn select_labels(&self) -> BTreeMap<String, String> {
         let mut labels = BTreeMap::new();
         labels.insert("app.kubernetes.io/name".to_string(), self.name.clone());
-        labels.insert("instance-name".to_string(), self.instance_name.clone());
+        labels.insert(
+            "oam.dev/instance-name".to_string(),
+            self.instance_name.clone(),
+        );
         labels
     }
 
@@ -507,7 +516,7 @@ mod test {
 
     #[test]
     fn test_workload_metadata() {
-        let wmd = WorkloadMetadata{
+        let wmd = WorkloadMetadata {
             name: "name".into(),
             component_name: "component_name".into(),
             instance_name: "instance name".into(),
@@ -520,13 +529,36 @@ mod test {
         };
 
         let labels = wmd.labels("type");
-        assert_eq!("instance name", labels.get("instance-name").expect("expect an instance name"));
-        assert_eq!("name", labels.get("app.kubernetes.io/name").expect("app name"));
-        assert_eq!("type", labels.get("workload-type").expect("expect a workload type"));
+        assert_eq!(
+            "instance name",
+            labels
+                .get("oam.dev/instance-name")
+                .expect("expect an instance name")
+        );
+        assert_eq!(
+            "name",
+            labels.get("app.kubernetes.io/name").expect("app name")
+        );
+        assert_eq!(
+            "type",
+            labels
+                .get("oam.dev/workload-type")
+                .expect("expect a workload type")
+        );
 
         let select_labels = wmd.select_labels();
-        assert_eq!("instance name", select_labels.get("instance-name").expect("expect an instance name"));
-        assert_eq!("name", select_labels.get("app.kubernetes.io/name").expect("app name"));
+        assert_eq!(
+            "instance name",
+            select_labels
+                .get("oam.dev/instance-name")
+                .expect("expect an instance name")
+        );
+        assert_eq!(
+            "name",
+            select_labels
+                .get("app.kubernetes.io/name")
+                .expect("app name")
+        );
     }
 
     #[test]
@@ -618,7 +650,6 @@ mod test {
                 .len(),
             1
         );
-        assert_eq!(job.spec.clone().expect("spec").parallelism, Some(2));
         assert_eq!(
             job.spec
                 .clone()
