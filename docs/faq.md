@@ -29,9 +29,9 @@ Open Application Model is just an application model that, thanks to Rudr, runs o
 
 [Kompose](http://kompose.io/) is a tool for manipulating Kubernetes YAML documents. It is also compatible with Open Application Model/Rudr.
 
-## How does this compare with CNAB?
+## How does OAM compare with CNAB?
 
-[Cloud Native Application Bundles (CNAB)](https://cnab.io) is a system for packaging and distributing distributed applications, including applications created using OAM. For its part, OAM does not define or prescribe a packaging format. But it works well with CNAB (as well as with Helm).
+[Cloud Native Application Bundles (CNAB)](https://cnab.io) is a format for packaging and distributing distributed applications, including applications created using OAM. For its part, OAM does not define or prescribe a packaging format. But it works well with CNAB (as well as with Helm).
 
 When targeting more than one implementation of OAM, developers may find CNAB a better packaging fit than Helm.
 
