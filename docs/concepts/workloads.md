@@ -38,14 +38,14 @@ spec:
            default: 5678
   containers:
     - name: runner
-           image: technosophos/alpine-forever:latest
-           env:
-                  - name: FOO
-                    value: bar
-                    fromParam: message
-                  - name: UNUSED
-                    value: "1234"
-                    fromParam: unused_integer
+      image: technosophos/alpine-forever:latest
+      env:
+      - name: FOO
+        value: bar
+        fromParam: message
+      - name: UNUSED
+        value: "1234"
+        fromParam: unused_integer
 </pre>
 
 For more on specific workload types, refer to the sections below.

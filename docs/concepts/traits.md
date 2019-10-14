@@ -21,22 +21,22 @@ spec:
   - name: nginx-component
     instanceName: first-app-nginx
     parameterValues:
-           - name: poet
-           value: Eliot
-           - name: poem
-           value: The Wasteland
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
     <b style="color:blue;">traits:</b>
-           - <b style="color:blue;">name:</b> ingress
-             <b style="color:blue;">parameterValues:</b>
-                    - name: hostname
-                      value: example.com
-                    - name: path
-                      value: /
-                    - name: service_port
-                      value: 80
+      - <b style="color:blue;">name:</b> ingress
+        parameterValues:</b>
+          - name: hostname
+            value: example.com
+          - name: path
+            value: /
+          - name: service_port
+            value: 80
 </pre>
 
-You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **`parameterValues`** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
+You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **Properties** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
 
 ## Supported traits
 
@@ -69,7 +69,7 @@ None. *The manual scaler trait has no external dependencies.*
 - Server
 - Task
 
-### `parameterValues`
+### Properties
 
 | Name | Description | Allowable values | Required | Default |
 | :-- | :--| :-- | :-- | :-- |
@@ -82,8 +82,8 @@ None. *The manual scaler trait has no external dependencies.*
 traits:
   - name: manual-scaler
     parameterValues:
-           - name: replicaCount
-             value: 3
+      - name: replicaCount
+        value: 3
 ```
 
 ## Autoscaler trait (`autoscaler`)
@@ -103,7 +103,7 @@ $ helm install keda stable/keda
 - Server
 - Task
 
-### `parameterValues`
+### Properties
 
 | Name | Description | Allowable values | Required | Default |
 | :-- | :--| :-- | :-- | :-- |
@@ -119,13 +119,13 @@ $ helm install keda stable/keda
 - name: autoscaler
   parameterValues:
     - name: maximum
-           value: 6
+      value: 6
     - name: minimum
-           value: 2
+      value: 2
     - name: cpu
-           value: 50
+      value: 50
     - name: memory
-           value: 50
+      value: 50
 ```
 
 ## Ingress trait (`ingress`)
@@ -147,7 +147,7 @@ $ helm install nginx-ingress stable/nginx-ingress
 - Server
 - SingletonServer
 
-### `parameterValues`
+### Properties
 
 | Name | Description | Allowable values | Required | Default |
 | :-- | :--| :-- | :-- | :-- |
@@ -168,6 +168,7 @@ kind: ComponentSchematic
 metadata:
   name: nginx-replicated-v1
 spec:
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
   - image: nginx:latest
     name: server
@@ -175,7 +176,6 @@ spec:
     - containerPort: 80                  # <-- this is the service port
       name: http
       protocol: TCP
-  workloadType: core.oam.dev/v1alpha1.Server
 ```
 
 So to use this on an ingress, you would need to add this to your `ApplicationConfiguration`:
