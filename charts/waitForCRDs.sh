@@ -1,5 +1,5 @@
 
-#echo "Checking the scylla CRDs to see if they are ready..."
+#echo "Checking the rudr CRDs to see if they are ready..."
 RESPONSE_STRING=''
 while [[ $RESPONSE_STRING != "No resources found." ]]; do
   echo "Waiting for CRD caching to finish..."

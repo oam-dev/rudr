@@ -1,12 +1,12 @@
-# Default values for scylla.
+# Default values for rudr.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-logLevel: "scylla=info"
+logLevel: "rudr=info"
 
 image:
-  repository: hydraoss/scylla
+  repository: hydraoss/rudr
   tag: latest # We're in pre-release
   pullPolicy: Always
 

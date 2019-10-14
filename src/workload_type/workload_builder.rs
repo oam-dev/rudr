@@ -120,10 +120,10 @@ fn form_metadata(
 
 type Labels = BTreeMap<String, String>;
 
-/// DeploymentBuilder builds new deployments specific to Scylla
+/// DeploymentBuilder builds new deployments specific to Rudr
 ///
 /// This hides many of the details of building a Deployment, exposing only
-/// parameters common to Scylla workload types.
+/// parameters common to Rudr workload types.
 pub(crate) struct DeploymentBuilder {
     component: Component,
     labels: Labels,
@@ -239,10 +239,10 @@ impl DeploymentBuilder {
     }
 }
 
-/// JobBuilder builds new jobs specific to Scylla
+/// JobBuilder builds new jobs specific to Rudr
 ///
 /// This hides many of the details of building a Job, exposing only
-/// parameters common to Scylla workload types.
+/// parameters common to Rudr workload types.
 pub(crate) struct JobBuilder {
     component: Component,
     labels: Labels,

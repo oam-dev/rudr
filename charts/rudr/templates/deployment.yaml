@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "scylla.fullname" . }}
+  name: {{ template "rudr.fullname" . }}
   labels:
-{{ include "scylla.labels" . | indent 4 }}
+{{ include "rudr.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "scylla.name" . }}
+      app.kubernetes.io/name: {{ include "rudr.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "scylla.name" . }}
+        app.kubernetes.io/name: {{ include "rudr.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ template "scylla.fullname" . }}
+      serviceAccountName: {{ template "rudr.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           env:
             - name: RUST_LOG
-              value: {{ .Values.logLevel | default "scylla=info" | quote}}
+              value: {{ .Values.logLevel | default "rudr=info" | quote}}
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:

@@ -1,0 +1,3 @@
+Rudr is a Kubernetes controller to manage Configuration CRDs.
+
+It has been successfully installed.

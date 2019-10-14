@@ -2,10 +2,10 @@
 
 ## LGTM Policy
 
-Every code change committed to Scylla must be reviewed by at least one project maintainer who did not author the PR. When a PR has been marked `Approved` by a project maintainer and passes all mandatory gates (including the contributor license agreement verification), the PR can be merged by any project maintainer.
+Every code change committed to Rudr must be reviewed by at least one project maintainer who did not author the PR. When a PR has been marked `Approved` by a project maintainer and passes all mandatory gates (including the contributor license agreement verification), the PR can be merged by any project maintainer.
 
 ## Project Maintainers
-[Project maintainers](CODEOWNERS) are responsible for activities around maintaining and updating Scylla. Final decisions on the project reside with the project maintainers.
+[Project maintainers](CODEOWNERS) are responsible for activities around maintaining and updating Rudr. Final decisions on the project reside with the project maintainers.
 
 Maintainers MUST remain active. If they are unresponsive for >3 months, they will be automatically removed unless a [super-majority](https://en.wikipedia.org/wiki/Supermajority#Two-thirds_vote) of the other project maintainers agrees to extend the period to be greater than 3 months.
 

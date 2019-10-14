@@ -1,6 +1,6 @@
 apiVersion: v2
-name: scylla
-description: A Helm chart for Kubernetes
+name: rudr
+description: The rudr implementation of OAM
 
 # A chart can be either an 'application' or a 'library' chart.
 #

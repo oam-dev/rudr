@@ -18,11 +18,11 @@ KubernetesVersion    Upgrades
 1.11.9               1.11.10, 1.12.7, 1.12.8
 1.10.13              1.11.9, 1.11.10
 1.10.12              1.10.13, 1.11.9, 1.11.10
-$ az group create -l eastus -n scylla
+$ az group create -l eastus -n rudr
 ...
-$ az aks create --kubernetes-version 1.15.3 -n scylla -g scylla
+$ az aks create --kubernetes-version 1.15.3 -n rudr -g rudr
 ...
-$ az aks get-credentials -n scylla -g scylla
+$ az aks get-credentials -n rudr -g rudr
 ```
 
 At the end of this process, verify that you are connected to this cluster with `kubectl config current-context`.

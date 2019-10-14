@@ -1,4 +1,4 @@
-REPO = hydraoss/scylla
+REPO = hydraoss/rudr
 TAG ?= latest
 
 .PHONY: build
@@ -16,7 +16,7 @@ docker-build:
 	docker push $(REPO)
 
 run:
-	RUST_LOG="scylla=debug" RUST_BACKTRACE=short cargo run
+	RUST_LOG="rudr=debug" RUST_BACKTRACE=short cargo run
 
 GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 kind-e2e:
@@ -25,7 +25,7 @@ kind-e2e:
 	kind load docker-image $(REPO):$(GIT_VERSION) \
 		|| echo >&2 "kind not installed or error loading image: $(REPO):$(GIT_VERSION)" && \
 	helm version && \
-	helm install scylla ./charts/scylla --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait && \
+	helm install rudr ./charts/rudr --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait && \
 	kubectl get trait && \
 	kubectl apply -f examples/components.yaml && \
 	kubectl get componentschematics && \
