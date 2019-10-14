@@ -161,7 +161,7 @@ spec:
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
-          value: Scylla
+          value: Rudr
         - name: port
           value: '9999'
       traits:
@@ -211,7 +211,7 @@ spec:
     name: helloworld-python-v1
     parameterValues:
     - name: target
-      value: Scylla
+      value: Rudr
     - name: port
       value: "9999"
     traits:
@@ -250,7 +250,7 @@ you can view your web app from following steps:
 3. Then you can directly find what you want by `curl`
     ```shell script
     $ curl example.com
-    Hello Scylla!
+    Hello Rudr!
     ```
 
 ## Upgrade the Application Configuration file
@@ -276,7 +276,7 @@ spec:
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
--         value: Scylla
+-         value: Rudr
 +         value: World
         - name: port
           value: '9999'

@@ -139,7 +139,7 @@ components:
   instanceName: first-app-helloworld-python-v1
   parameterValues:
           - name: target
-            value: Scylla
+            value: Rudr
           - name: port
             value: '9999'
   traits:
