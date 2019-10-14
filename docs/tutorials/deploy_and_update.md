@@ -1,4 +1,4 @@
-# Tutorial: Deploy, inspect, and update an application and its components
+# Tutorial: Deploy, inspect, and update a Rudr application and its components
 
 This guide covers how to install and configure a basic Rudr installation. For more details on Rudr installation, see the [Installation Guide](../setup/install.md)
 

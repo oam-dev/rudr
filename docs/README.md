@@ -4,7 +4,7 @@
 Install the Rudr runtime and its dependencies.
 
 ## [Tutorial](./tutorials/deploy_and_update.md)
-Install, inspect, and update a Rudr application and its individual components.
+Deploy, inspect, and update a Rudr application and its individual components.
 
 ## Concepts
 
