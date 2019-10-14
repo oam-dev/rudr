@@ -1,8 +1,8 @@
-# Installing Scylla
+# Installing Rudr
 
 ## Prerequisites 
 
-You will need both `kubectl` and `Helm 3` to install Scylla. 
+You will need both `kubectl` and `Helm 3` to install Rudr. 
 
 1. Install `kubectl`. The below is for MacOS. For other OS, please go to https://kubernetes.io/docs/tasks/tools/install-kubectl/. 
 
@@ -19,26 +19,26 @@ You will need both `kubectl` and `Helm 3` to install Scylla.
 
 3. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version.
 
-## Installing Scylla Using Helm 3
+## Installing Rudr Using Helm 3
 
-> Note: In its current version, Scylla will only listen for events in one namespace. This will change in the future. For now, though, you must install Scylla into the namespace into which you will deploy Scylla apps. You may install Scylla multiple times on the same cluster as long as you deploy to a different namespace each time.
+> Note: In its current version, Rudr will only listen for events in one namespace. This will change in the future. For now, though, you must install Rudr into the namespace into which you will deploy Rudr apps. You may install Rudr multiple times on the same cluster as long as you deploy to a different namespace each time.
  
-> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic), if you reinstall Scylla, make sure your old CRDs are deleted. Helm will not automatically delete CRDs. You must do this with `kubectl delete crd`.
-> Note: In its current version, Scylla will only listen for events in one namespace. This will change in the near future.
+> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic), if you reinstall Rudr, make sure your old CRDs are deleted. Helm will not automatically delete CRDs. You must do this with `kubectl delete crd`.
+> Note: In its current version, Rudr will only listen for events in one namespace. This will change in the near future.
  
-> Tip: As there are some breaking changes, if you reinstall Scylla, make sure your old CRDs are deleted.
+> Tip: As there are some breaking changes, if you reinstall Rudr, make sure your old CRDs are deleted.
 
-1. Helm install Scylla
+1. Helm install Rudr
 
 ```console
-$ helm install scylla ./charts/scylla --wait --set image.tag=v0.8.0
-NAME: scylla
+$ helm install rudr ./charts/rudr --wait --set image.tag=v0.8.0
+NAME: rudr
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
 STATUS: deployed
 
 NOTES:
-Scylla is a Kubernetes controller to manage Configuration CRDs.
+Rudr is a Kubernetes controller to manage Configuration CRDs.
 
 It has been successfully installed.
 ```
@@ -49,7 +49,7 @@ This will install the CRDs and the controller into your Kubernetes cluster.
 
 ### Verifying the Install
 
-You can verify that Scylla is installed by fetching the CRDs:
+You can verify that Rudr is installed by fetching the CRDs:
 
 ```console
 $ kubectl get crds -l app.kubernetes.io/part-of=core.oam.dev
@@ -61,30 +61,30 @@ scopes.core.oam.dev                      2019-10-02T19:57:32Z
 traits.core.oam.dev                      2019-10-02T19:57:32Z
 ```
 
-You should see at least those five CRDs. You can also verify that the Scylla deployment is running:
+You should see at least those five CRDs. You can also verify that the Rudr deployment is running:
 
 ```console
-$ kubectl get deployment scylla
+$ kubectl get deployment rudr
 NAME     READY   UP-TO-DATE   AVAILABLE   AGE
-scylla   1/1     1            1           2m47s
+rudr   1/1     1            1           2m47s
 ```
 
 ### Upgrading
 
-To upgrade Scylla, typically you only need to use Helm.
+To upgrade Rudr, typically you only need to use Helm.
 
-> Tip: During the Alpha and Beta phase of Scylla, we recommend also deleting your CRDs manually. You must do this with `kubectl delete crd`.
+> Tip: During the Alpha and Beta phase of Rudr, we recommend also deleting your CRDs manually. You must do this with `kubectl delete crd`.
 
 ```console
-$ helm upgrade scylla charts/scylla
+$ helm upgrade rudr charts/rudr
 ```
 
-The above will update your Scylla to the latest version.
+The above will update your Rudr to the latest version.
 
 ### Uninstalling
 
 ```console
-$ helm delete scylla
+$ helm delete rudr
 ```
 
 This will leave the CRDs and configurations intact.
@@ -99,7 +99,7 @@ The above will delete the CRDs and clean up everything related with Open Applica
 
 ## Installing Implementations for Traits
 
-Scylla provides several traits, including ingress and autoscaler. However, it does not install default implementations of some of these. This is because they map to primitive Kubernetes features that can be fulfilled by  different controllers.
+Rudr provides several traits, including ingress and autoscaler. However, it does not install default implementations of some of these. This is because they map to primitive Kubernetes features that can be fulfilled by  different controllers.
 
 The best place to find implementations for your traits is [Helm Hub](https://hub.helm.sh/).
 
@@ -127,11 +127,11 @@ $ helm install keda stable/keda
 
 ## Running for Development
 
-Developers may prefer to run a local copy of the Scylla daemon. To do so:
+Developers may prefer to run a local copy of the Rudr daemon. To do so:
 
 1. Make sure the CRDs are installed on your target cluster
-2. Make sure your current Kubernetes context is set to your target cluster. Scylla will inherit the credentials from this context entry.
-3. From the base directory of the code, run `make run`. This will start Scylla in the foreground, running locally, but listening on the remote cluster.
+2. Make sure your current Kubernetes context is set to your target cluster. Rudr will inherit the credentials from this context entry.
+3. From the base directory of the code, run `make run`. This will start Rudr in the foreground, running locally, but listening on the remote cluster.
 
 ## Appendix
 

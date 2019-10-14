@@ -1,8 +1,8 @@
 # Traits
 
-A [*trait*](https://github.com/microsoft/hydra-spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Scylla-defined Kubernetes CRDs.
+A [*trait*](https://github.com/microsoft/hydra-spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Rudr-defined Kubernetes CRDs.
 
-Currently, Scylla supports the following traits:
+Currently, Rudr supports the following traits:
 
  - [Manual Scaler](#manual-scaler-trait)
  - [Autoscaler](#autoscaler-trait)
@@ -39,9 +39,9 @@ You can assign a trait to a component by specifying its **`name`** (as listed in
 
 ## Supported traits
 
-Currently Scylla supports three traits (with more rolling out in the future, including support for defining custom traits). In order provide maximum flexibility to [Infrastructure operators](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities), however, Scylla does not install default implementations for some of these these traits. Specifically, the *Autoscaler* and *Ingress* traits require you to select and install a Kubernetes controller before you can use them in your Scylla application, since they map to primitive Kubernetes features that can be fulfilled by different controllers. You can search for implementations for your traits at [Helm Hub](https://hub.helm.sh/).
+Currently Rudr supports three traits (with more rolling out in the future, including support for defining custom traits). In order provide maximum flexibility to [Infrastructure operators](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities), however, Rudr does not install default implementations for some of these these traits. Specifically, the *Autoscaler* and *Ingress* traits require you to select and install a Kubernetes controller before you can use them in your Rudr application, since they map to primitive Kubernetes features that can be fulfilled by different controllers. You can search for implementations for your traits at [Helm Hub](https://hub.helm.sh/).
 
-Here's how to get info on the traits supported on your Scylla installation.
+Here's how to get info on the traits supported on your Rudr installation.
 
 **List supported traits**:
 
@@ -223,7 +223,7 @@ spec:
               ephemeral: false
 ```
 
-In the Kubernetes implementation of OAM, a Persistent Volume Claim (PVC) is used to satisfy the non-ephemeral case. However, by default Scylla does not create this PVC automatically. A trait must be applied that will indicate how the PVC is created:
+In the Kubernetes implementation of OAM, a Persistent Volume Claim (PVC) is used to satisfy the non-ephemeral case. However, by default Rudr does not create this PVC automatically. A trait must be applied that will indicate how the PVC is created:
 
 ```yaml
 apiVersion: core.oam.dev/v1alpha1
@@ -245,6 +245,6 @@ spec:
 
 The `volume-mounter` trait ensures that a PVC is created with the given name (`myvol`) using the given storage class (`default`). Typically, the `volumeName` should match the `resources.volumes[].name` field from the `ComponentSchematic`. Thus `myvol` above will match the volume declared in the `volumes` section of `server-with-volume-v1`.
 
-When this request is processed by Scylla, it will first create the Kubernetes PVC named `myvol` and then create a Kubernetes pod that attaches that PVC as a `volumeMount`.
+When this request is processed by Rudr, it will first create the Kubernetes PVC named `myvol` and then create a Kubernetes pod that attaches that PVC as a `volumeMount`.
 
 Attaching PVCs to Pods _may take extra time_, as the underlying system must first provision storage.

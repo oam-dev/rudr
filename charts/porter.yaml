@@ -3,11 +3,11 @@
 # See https://porter.sh/authoring-bundles for documentation on how to configure your bundle
 # Uncomment out the sections below to take full advantage of what Porter can do!
 
-name: scylla-install
+name: rudr-install
 version: 0.1.0
 description: "An example Porter configuration"
-invocationImage: squillace/scylla-install:latest
-tag: squillace/scylla-install-cnab:latest
+invocationImage: squillace/rudr-install:latest
+tag: squillace/rudr-install-cnab:latest
 
 # Uncomment out the line below to use a template Dockerfile for your invocation image
 #dockerfile: Dockerfile.tmpl
@@ -18,19 +18,19 @@ mixins:
   - kubernetes
 
 credentials:
-- name: KUBE_CONFIG
-  path: /root/.kube/config
+  - name: KUBE_CONFIG
+    path: /root/.kube/config
 
 parameters:
-- name: HELM_RELEASE
-  type: string
-  default: "scylla"  
+  - name: HELM_RELEASE
+    type: string
+    default: "rudr"
 
 install:
   - kubernetes:
-      description: "Creating scylla CRDs..."
+      description: "Creating rudr CRDs..."
       manifests:
-        - scylla/crds/
+        - rudr/crds/
       wait: true
   - exec:
       description: "Wait for CRDs to be cached...."
@@ -38,9 +38,9 @@ install:
       arguments:
         - "waitForCRDs.sh"
   - helm:
-      description: "Deploy scylla using helm...."
+      description: "Deploy rudr using helm...."
       name: "{{bundle.parameters.HELM_RELEASE}}"
-      chart: scylla
+      chart: rudr
       replace: true
 
 upgrade:
@@ -52,16 +52,15 @@ upgrade:
 
 uninstall:
   - helm:
-      description: "Removing the scylla-install chart..."
+      description: "Removing the rudr-install chart..."
       purge: true
-      releases: 
+      releases:
         - "{{bundle.parameters.HELM_RELEASE}}"
   - exec:
       description: "The CRDs remain. Please remove the CRDs manually."
       command: bash
       flags:
         c: echo CRD removal not yet implemented.
-
 # See https://porter.sh/authoring-bundles/#dependencies
 #dependencies:
 #  mysql:

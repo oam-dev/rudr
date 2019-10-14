@@ -1,13 +1,13 @@
-# scylla-install
+# rudr-install
 
-This bundle installs the CRDs necessary to install scylla, waits for the CRDs to rebuild the cache, and then installs scylla itself using the helm chart. 
+This bundle installs the CRDs necessary to install rudr, waits for the CRDs to rebuild the cache, and then installs rudr itself using the helm chart. 
 
 To use, the easiest way will be to install https://porter.sh, and then:
 
 1. Navigate and checkout this directory.
 2. `porter build`
 3. `porter creds generate` and select `file path` and enter the path to your .kube/config.
-4. `porter install scylla-install -c scylla-install`
+4. `porter install rudr-install -c rudr-install`
 5. profit.
 
 # Contents

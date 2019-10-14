@@ -11,10 +11,10 @@ use log::{debug, error, info};
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
     CustomResourceDefinitionSpec as CrdSpec, CustomResourceDefinitionStatus as CrdStatus,
 };
-use scylla::instigator::{
+use rudr::instigator::{
     Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION, SCOPE_CRD, TRAIT_CRD,
 };
-use scylla::schematic::{component::Component, configuration::ApplicationConfiguration, Status};
+use rudr::schematic::{component::Component, configuration::ApplicationConfiguration, Status};
 
 const DEFAULT_NAMESPACE: &str = "default";
 
@@ -30,7 +30,7 @@ type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<ApplicationConfiguration, Status>;
 
 fn main() -> Result<(), Error> {
-    let flags = App::new("scylla")
+    let flags = App::new("rudr")
         .version(env!("CARGO_PKG_VERSION"))
         .arg(
             Arg::with_name("metrics-addr")
