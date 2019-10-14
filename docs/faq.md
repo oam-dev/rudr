@@ -29,6 +29,12 @@ Open Application Model is just an application model that, thanks to Scylla, runs
 
 Kompose is a tool for manipulating Kubernetes YAML documents. It is also compatible with Open Application Model/Scylla.
 
+## How does this compare with CNAB?
+
+Cloud Native Application Bundles (CNAB) is a system for packaging and distributing distributed applications, including applications created using OAM. For its part, OAM does not define or prescribe a packaging format. But it works well with CNAB (as well as with Helm).
+
+When targeting more than one implementation of OAM, developers may find CNAB a better packaging fit than Helm.
+
 ## Can I write my own traits?
 
 Currently, all traits are built into Scylla. However, our plan is to make it possible for custom traits to be written and deployed into a Scylla cluster.
