@@ -1,8 +1,8 @@
 # Writing a Trait
 
-This guide explains how to write a trait for Scylla, using the VolumeMounter trait as an example.
+This guide explains how to write a trait for Rudr, using the VolumeMounter trait as an example.
 
-> Note: The process for adding a new trait is currently more difficult than it needs to be. In future versions of Scylla, we will be streamlining this process considerably.
+> Note: The process for adding a new trait is currently more difficult than it needs to be. In future versions of Rudr, we will be streamlining this process considerably.
 
 ## Step 1: Defining the Trait Resource
 
@@ -10,7 +10,7 @@ The first thing we will do is define a trait resource as a YAML file that Helm w
 
 ```yaml
 ---
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   # Define the name of the trait. This will be the reference by which ApplicationConfigurations
@@ -20,12 +20,12 @@ spec:
   # The appliesTo field lists all of the Workload Types that this trait can be added to.
   # In this case, all of the core workload types are supported.
   appliesTo:
-    - core.hydra.io/v1alpha1.Server
-    - core.hydra.io/v1alpha1.SingletonServer
-    - core.hydra.io/v1alpha1.Worker
-    - core.hydra.io/v1alpha1.SingletonWorker
-    - core.hydra.io/v1alpha1.Task
-    - core.hydra.io/v1alpha1.SingletonTask
+    - core.oam.dev/v1alpha1.Server
+    - core.oam.dev/v1alpha1.SingletonServer
+    - core.oam.dev/v1alpha1.Worker
+    - core.oam.dev/v1alpha1.SingletonWorker
+    - core.oam.dev/v1alpha1.Task
+    - core.oam.dev/v1alpha1.SingletonTask
   # Properties define what things can be configured on this trait.
   #
   # A property definition requires four fields:
@@ -44,7 +44,7 @@ spec:
       required: true
 ```
 
-The YAML above belongs at the bottom of `charts/scylla/templates/traits.yaml`.
+The YAML above belongs at the bottom of `charts/rudr/templates/traits.yaml`.
 
 ## Step 2: Writing a Trait Struct
 
@@ -279,7 +279,7 @@ In a nutshell, all we are doing above is declaring how to add, modify, and remov
 
 ## Registering the Trait with the Trait Manager
 
-Now that we have our trait written, the last step is to register it with the trait manager. This process tells Scylla to handle requests for our new trait.
+Now that we have our trait written, the last step is to register it with the trait manager. This process tells Rudr to handle requests for our new trait.
 
 The `src/instigator.rs` file has the trait manager. Find `impl TraitManager` and edit the `load_trait` function:
 

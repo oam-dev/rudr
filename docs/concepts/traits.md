@@ -12,7 +12,7 @@ Currently, Rudr supports the following traits:
 An [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
 
 <pre>
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -163,7 +163,7 @@ To find your service port, you can do one of two things:
 For example, here's how to find the port on a `ComponentSchematic`:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: nginx-replicated-v1
@@ -173,15 +173,15 @@ spec:
     name: server
     ports:
     - containerPort: 80                  # <-- this is the service port
-           name: http
-           protocol: TCP
-  workloadType: core.hydra.io/v1alpha1.Server
+      name: http
+      protocol: TCP
+  workloadType: core.oam.dev/v1alpha1.Server
 ```
 
 So to use this on an ingress, you would need to add this to your `ApplicationConfiguration`:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: example
@@ -229,12 +229,12 @@ None. *The volume mounter trait has no external dependencies.*
 [Here's an example](../../examples/volumes.yaml) of how to attach a storage volume to your container:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: server-with-volume-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: server
       image: nginx:latest
@@ -252,12 +252,12 @@ In the component schematic [`volumes`](./component-schematic.md#volumes) section
 Sometimes, components need to persist data. In such cases, the `ephemeral` flag should be set to `false`:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   name: server-with-volume-v1
 spec:
-  workloadType: core.hydra.io/v1alpha1.Server
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: server
       image: nginx:latest
@@ -273,7 +273,7 @@ spec:
 In the Kubernetes implementation of OAM, a Persistent Volume Claim (PVC) is used to satisfy the non-ephemeral case. However, by default Rudr does not create this PVC automatically. A trait must be applied that will indicate how the PVC is created:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: example-server-with-volume

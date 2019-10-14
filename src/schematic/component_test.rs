@@ -6,10 +6,10 @@ use std::str::FromStr;
 
 #[test]
 fn test_group_version_kind() {
-    let gvk = GroupVersionKind::from_str("core.hydra.io/v1alpha1.Singleton");
+    let gvk = GroupVersionKind::from_str("core.oam.dev/v1alpha1.Singleton");
     assert!(gvk.is_ok());
     let o = gvk.unwrap();
-    assert_eq!("core.hydra.io", o.group);
+    assert_eq!("core.oam.dev", o.group);
     assert_eq!("v1alpha1", o.version);
     assert_eq!("Singleton", o.kind);
 
@@ -21,7 +21,7 @@ fn test_group_version_kind() {
 fn test_component_deserialize() {
     let data = Component::from_str(
         r#"{
-            "workloadType": "core.hydra.io/v1.Singleton",
+            "workloadType": "core.oam.dev/v1.Singleton",
             "osType": "linux",
             "arch": "amd64",
             "parameters": [],
@@ -34,7 +34,7 @@ fn test_component_deserialize() {
     let component = data.unwrap();
     assert_eq!(Some("linux".to_string()), component.os_type);
     assert_eq!(Some("amd64".to_string()), component.arch);
-    assert_eq!("core.hydra.io/v1.Singleton", component.workload_type);
+    assert_eq!("core.oam.dev/v1.Singleton", component.workload_type);
 
     let gvk = GroupVersionKind::from_str(component.workload_type.as_str());
     assert!(gvk.is_ok());

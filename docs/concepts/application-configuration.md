@@ -14,7 +14,7 @@ The key parts of an application configuration include:
 Here's an example application configuration (*.yaml* file):
 
 <pre>
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 <b style="color:blue;">metadata</b>:
   name: first-app
@@ -146,7 +146,7 @@ components:
   instanceName: first-app-helloworld-python-v1
   parameterValues:
           - name: target
-            value: Scylla
+            value: Rudr
           - name: port
             value: '9999'
   traits:

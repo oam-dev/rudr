@@ -1,42 +1,42 @@
 # Quickstart Guide
 
-This guide covers how to install and configure a basic Scylla installation. For more a more detailed walk-through, see the [Installation Guide](../setup/install.md)
+This guide covers how to install and configure a basic Rudr installation. For more a more detailed walk-through, see the [Installation Guide](../setup/install.md)
 
 ## Prerequisites
 
-The following prerequisites are required for a successful use of Scylla.
+The following prerequisites are required for a successful use of Rudr.
 
-1. A copy of this repo (`git clone https://github.com/microsoft/scylla.git`)
+1. A copy of this repo (`git clone https://github.com/microsoft/rudr.git`)
 2. A Kubernetes cluster version 1.15 or greater
 3. `kubectl` installed and pointed at the cluster
 4. [Helm 3](https://v3.helm.sh/)
 
-To find out which cluster Scylla would install to, you can run `kubectl config current-context` or `kubectl cluster-info`.
+To find out which cluster Rudr would install to, you can run `kubectl config current-context` or `kubectl cluster-info`.
 
 ```console
 $ kubectl config current-context
 my-cluster
 ```
 
-## Install Scylla and Dependencies
+## Install Rudr and Dependencies
 
-The fastest way to install Scylla is with Helm 3.
+The fastest way to install Rudr is with Helm 3.
 
-> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/scylla/crds`
+> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/rudr/crds`
 
 ```console
-$ helm install scylla charts/scylla
-NAME: scylla
+$ helm install rudr charts/rudr
+NAME: rudr
 LAST DEPLOYED: 2019-10-02 13:57:33.158655 -0600 MDT m=+5.183858344
 NAMESPACE: default
 STATUS: deployed
 NOTES:
-Scylla is a Kubernetes controller to manage Configuration CRDs.
+Rudr is a Kubernetes controller to manage Configuration CRDs.
 
 It has been successfully installed.
 ```
 
-This will give you a basic installation of Scylla. For the following examples, you should also install the NGINX ingress into Kubernetes:
+This will give you a basic installation of Rudr. For the following examples, you should also install the NGINX ingress into Kubernetes:
 
 ```console
 $ helm install nginx-ingress stable/nginx-ingress
@@ -54,9 +54,9 @@ You can watch the status by running 'kubectl --namespace default get services -o
 
 This will give you a basic implementation of Kubernetes ingresses. See the [Installation Guide](../setup/install.md) for more about ingresses and other traits.
 
-## Using Scylla
+## Using Rudr
 
-Once you have installed Scylla, you can start creating and deploying apps.
+Once you have installed Rudr, you can start creating and deploying apps.
 
 To start, install an example component:
 
@@ -78,7 +78,7 @@ You can look at an individual component:
 
 ```console
 $ kubectl get componentschematic helloworld-python-v1 -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
   creationTimestamp: "2019-10-08T13:02:23Z"
@@ -97,11 +97,11 @@ spec:
 
 ### Viewing Traits
 
-Scylla provides a way to attach operational features at install time.
+Rudr provides a way to attach operational features at install time.
 This allows application operations an opportunity to provide functionality like autoscaling,
 caching, or ingress control at install time, without requiring the developer to change anything in the component.
 
-You can also list the traits that are available on Scylla:
+You can also list the traits that are available on Rudr:
 
 ```console
 $ kubectl get traits
@@ -115,7 +115,7 @@ And you can look at an individual trait in the same way that you investigate a c
 
 ```console
 $ kubectl get trait ingress -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   creationTimestamp: "2019-10-02T19:57:37Z"
@@ -123,12 +123,12 @@ metadata:
   name: ingress
   namespace: default
   resourceVersion: "117813"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/traits/ingress
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/traits/ingress
   uid: 9f82c346-c8c6-4780-9949-3ecfd47879f9
 spec:
   appliesTo:
-  - core.hydra.io/v1alpha1.Server
-  - core.hydra.io/v1alpha1.SingletonServer
+  - core.oam.dev/v1alpha1.Server
+  - core.oam.dev/v1alpha1.SingletonServer
   properties:
   - description: Host name for the ingress
     name: hostname
@@ -151,7 +151,7 @@ The above describes a trait that attaches an ingress to a component, handling th
 When you are ready to try installing something, take a look at the `examples/first-app-config.yaml`, which shows a basic Application Configuration with a single trait applied:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -161,7 +161,7 @@ spec:
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
-          value: Scylla
+          value: Rudr
         - name: port
           value: '9999'
       traits:
@@ -181,10 +181,10 @@ To install this application configuration, use `kubectl`:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
-configuration.core.hydra.io/first-app created
+configuration.core.oam.dev/first-app created
 ```
 
-You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Scylla is creating all the necessary objects.
+You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Rudr is creating all the necessary objects.
 
 Once it is fully deployed, you can see your configuration:
 
@@ -193,7 +193,7 @@ $ kubectl get configurations
 NAME        AGE
 first-app   4m23s
 $ kubectl get configuration first-app -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   annotations:
@@ -203,7 +203,7 @@ metadata:
   name: first-app
   namespace: default
   resourceVersion: "2020150"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/applicationconfigurations/first-app
   uid: 2ea9f384-993c-42b0-803a-43a1c273d291
 spec:
   components:
@@ -211,7 +211,7 @@ spec:
     name: helloworld-python-v1
     parameterValues:
     - name: target
-      value: Scylla
+      value: Rudr
     - name: port
       value: "9999"
     traits:
@@ -250,7 +250,7 @@ you can view your web app from following steps:
 3. Then you can directly find what you want by `curl`
     ```shell script
     $ curl example.com
-    Hello Scylla!
+    Hello Rudr!
     ```
 
 ## Upgrade the Application Configuration file
@@ -266,7 +266,7 @@ But someday, the operator may want to change something. For example:
 So you could change `first-app-config.yaml` like below:
 
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -276,7 +276,7 @@ spec:
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
--         value: Scylla
+-         value: Rudr
 +         value: World
         - name: port
           value: '9999'
@@ -298,7 +298,7 @@ Again we apply this yaml:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
-applicationconfiguration.core.hydra.io/first-app configured
+applicationconfiguration.core.oam.dev/first-app configured
 ```
 
 ### Check the updated app
@@ -307,7 +307,7 @@ Then check the applied yaml first:
 
 ```console
 $ kubectl get configuration first-app -o yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   annotations:
@@ -317,7 +317,7 @@ metadata:
   name: first-app
   namespace: default
   resourceVersion: "2022598"
-  selfLink: /apis/core.hydra.io/v1alpha1/namespaces/default/applicationconfigurations/first-app
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/applicationconfigurations/first-app
   uid: 2ea9f384-993c-42b0-803a-43a1c273d291
 spec:
   components:
@@ -375,7 +375,7 @@ You can find more details about how we create it in [Upgrade Component](../how-t
 We need to change and apply the configuration file to make the component upgrade work.
  
 ```yaml
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -405,7 +405,7 @@ Apply it:
  
 ```shell script
 $ kubectl apply -f examples/first-app-config.yaml
-applicationconfiguration.core.hydra.io/first-app configured
+applicationconfiguration.core.oam.dev/first-app configured
 ```
 
 ### Check the upgrade result
@@ -430,7 +430,7 @@ You can delete your configurations easily with `kubectl`:
 
 ```console
 $ kubectl delete configuration first-app
-configuration.core.hydra.io "first-app" deleted
+configuration.core.oam.dev "first-app" deleted
 ```
 
 That will delete your application and all associated resources.
@@ -440,25 +440,25 @@ It will _not_ delete the traits and the components, they are happily waiting you
 ```console
 $ kubectl get traits,components
 NAME                                AGE
-trait.core.hydra.io/autoscaler      31m
-trait.core.hydra.io/empty           31m
-trait.core.hydra.io/ingress         31m
-trait.core.hydra.io/manual-scaler   31m
+trait.core.oam.dev/autoscaler      31m
+trait.core.oam.dev/empty           31m
+trait.core.oam.dev/ingress         31m
+trait.core.oam.dev/manual-scaler   31m
 
 NAME                                             AGE
-component.core.hydra.io/alpine-replicable-task   19h
-component.core.hydra.io/alpine-task              19h
-component.core.hydra.io/hpa-example-replicated   19h
-component.core.hydra.io/nginx-replicated         19h
-component.core.hydra.io/nginx-singleton          19h
+component.core.oam.dev/alpine-replicable-task   19h
+component.core.oam.dev/alpine-task              19h
+component.core.oam.dev/hpa-example-replicated   19h
+component.core.oam.dev/nginx-replicated         19h
+component.core.oam.dev/nginx-singleton          19h
 ```
 
-## Uninstall Scylla
+## Uninstall Rudr
 
-If you want to clean up your test environment and uninstall Scylla, you could do the following:
+If you want to clean up your test environment and uninstall Rudr, you could do the following:
 
  ```console
- $ helm delete scylla
+ $ helm delete rudr
  ```
  
  This will leave the CRDs and configurations intact.
@@ -466,11 +466,11 @@ If you want to clean up your test environment and uninstall Scylla, you could do
  **NOTE: When you delete the CRDs, it will delete everything touching Open Application Model from configurations to secrets.**
  
  ```console
- kubectl delete crd -l app.kubernetes.io/part-of=core.hydra.io
+ kubectl delete crd -l app.kubernetes.io/part-of=core.oam.dev
  ```
  
  The above will delete the CRDs and clean up everything related with Open Application Model.
 
 ## Learn more...
 
-Read how to [use Scylla](../how-to/using_scylla.md) for more details.
+Read how to [use Rudr](../how-to/using_rudr.md) for more details.

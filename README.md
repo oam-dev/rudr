@@ -1,8 +1,8 @@
-# Scylla: A Kubernetes Implementation of the Open Application Model
+# Rudr: A Kubernetes Implementation of the Open Application Model
 
-Scylla is an implementation of the [Open Application Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
+Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
-**Scylla is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
+**Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
 ## Quickstart: Deploy an app with Ingress
 
@@ -22,7 +22,7 @@ The requirement to deep understand the container infrastructure has introduced t
 
 ## The approach: Let's take things one step at a time
 
-Scylla takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
+Rudr takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
 
 ![oar arch](./docs/media/how_oar_works.png)
 
@@ -30,7 +30,7 @@ Scylla takes an incremental approach to solving the problems. The current archit
 
 - By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters.
 
-- Currently, Scylla will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Scylla might provide a set of default technologies to provide the functionality desired by a trait.
+- Currently, Rudr will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants while providing a trait that focuses on the functionality and not the technology. In the future, Rudr might provide a set of default technologies to provide the functionality desired by a trait.
 
 ## Try more things out yourself 
 

@@ -1,4 +1,4 @@
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
   name: first-app
@@ -8,9 +8,9 @@ spec:
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
-          value: Scylla
+          value: Rudr
         - name: port
-          value: '9999'
+          value: "9999"
       traits:
         - name: ingress
           parameterValues:
