@@ -10,11 +10,6 @@ test:
 	cargo test
 	cargo clippy
 
-.PHONY: docker-build
-docker-build:
-	docker build -t $(REPO):$(TAG) .
-	docker push $(REPO)
-
 run:
 	RUST_LOG="rudr=debug" RUST_BACKTRACE=short cargo run
 
@@ -33,12 +28,13 @@ kind-e2e:
 
 docker-build-cx:
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	docker build -t $(REPO)-arm64:$(TAG) -f Dockerfile --build-arg BUILDER_IMAGE=arm64v8/rust:1.37 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
-	docker build -t $(REPO)-amd64:$(TAG) .
+	docker build -t $(REPO)-arm64:$(TAG) --build-arg BUILDER_IMAGE=arm64v8/rust:1.37 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
+	docker build -t $(REPO)-amd64:$(TAG) --build-arg BUILDER_IMAGE=rust:1.37 --build-arg BASE_IMAGE=debian:stretch-slim .
 
 docker-publish: docker-build-cx
 	docker login -u hydraoss -p ${hydraoss_secret}
 	docker push $(REPO)-amd64:$(TAG)
 	docker push $(REPO)-arm64:$(TAG)
+	export DOCKER_CLI_EXPERIMENTAL=enabled
 	docker manifest create $(REPO):$(TAG) $(REPO)-amd64:$(TAG) $(REPO)-arm64:$(TAG)
 	docker manifest push $(REPO):$(TAG)
