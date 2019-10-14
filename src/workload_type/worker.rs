@@ -159,7 +159,7 @@ mod test {
             assert_eq!(
                 "Worker",
                 labels
-                    .get("workload-type")
+                    .get("oam.dev/workload-type")
                     .expect("worker-type label must be set")
             )
         }
@@ -184,7 +184,7 @@ mod test {
             assert_eq!(
                 "SingletonWorker",
                 labels
-                    .get("workload-type")
+                    .get("oam.dev/workload-type")
                     .expect("worker-type label must be set")
             )
         }

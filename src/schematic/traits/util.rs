@@ -14,7 +14,7 @@ pub fn trait_labels(name: String, inst_name: String) -> Labels {
     let mut labels: Labels = BTreeMap::new();
     labels.insert("oam.dev/role".into(), "trait".into());
     labels.insert("app.kubernetes.io/name".to_string(), name);
-    labels.insert("instance-name".to_string(), inst_name);
+    labels.insert("oam.dev/instance-name".to_string(), inst_name);
     labels
 }
 
@@ -31,11 +31,15 @@ mod tests {
         );
         assert_eq!(
             "name".to_string(),
-            *labels.get("app.kubernetes.io/name").expect("name must be a string")
+            *labels
+                .get("app.kubernetes.io/name")
+                .expect("name must be a string")
         );
         assert_eq!(
             "inst".to_string(),
-            *labels.get("instance-name").expect("instance-name must be a string")
+            *labels
+                .get("oam.dev/instance-name")
+                .expect("instance-name must be a string")
         );
     }
 }

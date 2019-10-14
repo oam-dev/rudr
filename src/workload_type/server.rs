@@ -227,7 +227,7 @@ mod test {
         assert_eq!("squidgy", sing.kube_name().as_str());
         assert_eq!(
             "SingletonServer",
-            sing.labels().get("workload-type").unwrap()
+            sing.labels().get("oam.dev/workload-type").unwrap()
         );
     }
 
@@ -252,7 +252,7 @@ mod test {
         };
 
         assert_eq!("dehydrate", rs.kube_name().as_str());
-        assert_eq!("Service", rs.labels().get("workload-type").unwrap());
+        assert_eq!("Service", rs.labels().get("oam.dev/workload-type").unwrap());
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.

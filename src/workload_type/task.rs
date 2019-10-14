@@ -178,7 +178,7 @@ mod test {
         };
 
         assert_eq!("taskinstance", task.kube_name().as_str());
-        assert_eq!("Task", task.labels().get("workload-type").unwrap());
+        assert_eq!("Task", task.labels().get("oam.dev/workload-type").unwrap());
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
