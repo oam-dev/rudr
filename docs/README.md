@@ -1,21 +1,35 @@
-# Rudr Documentation
+# Rudr documentation
 
-# Table of Contents
+## [Install Rudr](./setup/install.md)
+Install the Rudr runtime and its dependencies.
 
-## 1. [Install Rudr](./setup/install.md)
+## [Tutorial](./tutorials/deploy_and_update.md)
+Deploy, inspect, and update a Rudr application and its individual components.
 
-## 2. [Quickstart](./quickstart/quickstart.md)
-## 3. How-To's
-* ### [Use Rudr](./how-to/using_rudr.md) - Learn how to use Rudr.
-* ### [Use Core Workloads](./how-to/workloads.md) - Learn how to use core workload type.
-* ### [Create Component from Scratch](how-to/create_component_from_scratch.md) - Learn how to build component from source code.
-* ### [Migrate existing Kubernetes resources](./how-to/migrating.md) - Learn how to migrate existing K8s resources
+## Concepts
 
-## 4. Tutorials 
+### [Using Rudr](./concepts/using_rudr.md)
+Learn the basics of using Rudr.
 
-## 5. Concepts
-* ### [Application Configuration](./concepts/application-configuration.md) - Application Configuration guide
-* ### [Component Schematic](./concepts/component-schematic.md) - Component Schematic guide
-* ### [Traits](./concepts/traits.md) - Learn in more depth about traits in Rudr.
+### [Application Configuration](./concepts/application-configuration.md)
+As an *application operator*, define how your overall application will be instantiated and configured.
 
-## 6. [FAQ](./faq.md)
+#### [Traits](./concepts/traits.md)
+As an *application operator*, attach operational features to component workloads of your application.
+
+### [Component Schematic](./concepts/component-schematic.md)
+As a *developer*, define the operational characteristics of your component of code.
+
+#### [Workloads](./concepts/workloads.md)
+As a *developer*, designate the appropriate workload type to execute your component on the Rudr runtime.
+
+## How-To's
+
+#### [Create Component from Scratch](how-to/create_component_from_scratch.md)
+Build a component from source code to use for testing.
+
+#### [Migrate existing Kubernetes resources](./how-to/migrating.md)
+Tips and best practices for setting up existing Kubernetes applications to use Rudr.
+
+## [FAQ](./faq.md)
+Find answers to commonly asked questions about Rudr and the Open Application Model (OAM).

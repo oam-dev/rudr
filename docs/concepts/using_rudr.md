@@ -2,7 +2,7 @@
 
 This guide explains the basics of using Rudr to install applications on your Kubernetes cluster. It assumes that you have already [installed Rudr](../setup/install.md).
 
-If you are just getting started and want a quick entry point to Rudr, you may wish to begin with the [Quickstart Guide](../quickstart/quickstart.md) - it covers how to use Rudr and install one simple example application.
+If you'd rather jump right in and start using Rudr, check out the [Rudr Tutorial](../tutorial/deploy_and_update.md), which walks you through installing, inspecting, and updating an application and its constituent components.
 
 ## Four Concepts with One Action
 
@@ -80,7 +80,7 @@ A trait can be any application configuration of a distributed application that a
 
 Traits can be selected by the application operator as they are implemented as CRDs predefined by the platform operator.
 
-Currently we only have three traits but have plans add more in the near future. We encourage submitting PRs on Open Application Model if you feel like you have a good idea for a trait that could be broadly used by others. 
+Currently we only have several traits but have plans add more in the near future. We encourage submitting PRs on Open Application Model if you feel like you have a good idea for a trait that could be broadly used by others. 
 
 `kubectl get traits` returns the traits the platform supports. 
 

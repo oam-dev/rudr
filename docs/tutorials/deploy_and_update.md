@@ -1,6 +1,6 @@
-# Quickstart Guide
+# Tutorial: Deploy, inspect, and update a Rudr application and its components
 
-This guide covers how to install and configure a basic Rudr installation. For more a more detailed walk-through, see the [Installation Guide](../setup/install.md)
+This guide covers how to install and configure a basic Rudr installation. For more details on Rudr installation, see the [Installation Guide](../setup/install.md)
 
 ## Prerequisites
 
@@ -471,6 +471,6 @@ If you want to clean up your test environment and uninstall Rudr, you could do t
  
  The above will delete the CRDs and clean up everything related with Open Application Model.
 
-## Learn more...
+## Learn more
 
-Read how to [use Rudr](../how-to/using_rudr.md) for more details.
+To learn more about Rudr, check out the [Using Rudr](../how-to/using_rudr.md) guide.

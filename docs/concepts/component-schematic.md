@@ -99,7 +99,9 @@ metadata:
 
 ## Workload type
 
-A component must declare its associated [workload type](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#workload-types), which is an indicator to the runtime as to how the developer intends for this component to be executed. See the [Workload types](../how-to/workloads.md) topic guide for more on choosing a workload type for your component.
+A component must declare its associated [workload type](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#workload-types), which is an indicator to the runtime as to how the developer intends for this component to be executed. 
+
+**See the [Workload types](../how-to/workloads.md) topic guide for more on choosing a workload type for your component.**
 
 [Here's an example](../../examples/helloworld-python-component.yaml) declaration of the component workload type:
 
@@ -135,14 +137,14 @@ The parameters section includes the following fields:
            default: 5678
   containers:
     - name: runner
-           image: technosophos/alpine-forever:latest
-           env:
-             - name: FOO
-                    value: bar
-                    fromParam: message
-             - name: UNUSED
-                    value: "1234"
-                    fromParam: unused_integer
+      image: technosophos/alpine-forever:latest
+      env:
+        - name: FOO
+          value: bar
+          fromParam: message
+        - name: UNUSED
+          value: "1234"
+          fromParam: unused_integer
 ```
 
 ## Containers
@@ -170,22 +172,22 @@ containers:
   - name: foo
     image: nginx:latest
     cmd:
-           - nginx-debug
+      - nginx-debug
     args:
-           - "-g"
-           - "daemon off;"
+      - "-g"
+      - "daemon off;"
     env:
-           - name: TEST
-             value: FOO
+      - name: TEST
+        value: FOO
     config:
-           - path: "/etc/access/default_user.txt"
-             value: "admin"
-           - path: "/etc/run/db-data"
-             fromParam: "poet"
+      - path: "/etc/access/default_user.txt"
+        value: "admin"
+      - path: "/etc/run/db-data"
+        fromParam: "poet"
     ports:
-           - type: tcp
-             containerPort: 80
-             name: http
+      - type: tcp
+        containerPort: 80
+        name: http
 ```
 
 ### `resources`
@@ -236,8 +238,8 @@ volumes:
     accessMode: RO
     sharingPolicy: Shared
     disk:
-           required: "2G" # request at least 2GB
-           ephemeral: n   # non-ephemeral storage
+      required: "2G" # request at least 2GB
+      ephemeral: n   # non-ephemeral storage
 ```
 
 ### `ports`
