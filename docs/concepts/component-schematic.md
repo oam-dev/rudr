@@ -40,7 +40,7 @@ spec:
                     fromParam: unused_integer
 </pre>
 
-To create a component schematic, you'll first need the [containerized code](#containers) that will constitute your microservice. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/microsoft/scylla/tree/master/examples)) and customize to your needs.
+To create a component schematic, you'll first need the [containerized code](#containers) that will constitute your microservice. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/oam-dev/rudr/tree/master/examples)) and customize to your needs.
 
 ## Common operations
 

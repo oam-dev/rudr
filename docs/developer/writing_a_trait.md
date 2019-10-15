@@ -165,7 +165,7 @@ impl VolumeMounter {
 
 The most important part above is how `volume_name` and `storage_class` are both set by searching through the supplied params and converting the results to the expected type.
 
-> Tip: If you want to see the imports, you may want to look at the code in [volume_mounter.rs](https://github.com/microsoft/scylla/blob/master/src/schematic/traits/volume_mounter.rs).
+> Tip: If you want to see the imports, you may want to look at the code in [volume_mounter.rs](https://github.com/oam-dev/rudr/blob/master/src/schematic/traits/volume_mounter.rs).
 
 We can write a quick test at the bottom of `volume_mounter.rs` to verify that the parameters are correctly fetched:
 
