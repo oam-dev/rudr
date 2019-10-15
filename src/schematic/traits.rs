@@ -22,8 +22,6 @@ use std::collections::BTreeMap;
 mod autoscaler_test;
 #[cfg(test)]
 mod ingress_test;
-#[cfg(test)]
-mod manual_scaler_test;
 
 pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "autoscaler";
