@@ -43,7 +43,7 @@ spec:
                       value: 80
 </pre>
 
-To create an application configuration, you'll first need to author the [component schematics](component-schematic.md) that will constitute your application. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/microsoft/scylla/tree/master/examples)) and customize to your needs.
+To create an application configuration, you'll first need to author the [component schematics](component-schematic.md) that will constitute your application. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/oam-dev/rudr/tree/master/examples)) and customize to your needs.
 
 ## Common operations
 
@@ -137,7 +137,7 @@ An application configuration requires one or more listed components, each consis
 | **parameterValues**| Values supplied to override [parameters](./component-schematic.md#parameters) exposed in the ComponentSchematic. | Depends on available parameters of the component spec.||
 | **traits**| Additional [workload functionality to attach](./traits.md) to the component instance.| See [traits](./traits.md) documentation.||
 
-[Here's an example](https://github.com/microsoft/scylla/blob/master/examples/first-app-config.yaml) component definition:
+[Here's an example](https://github.com/oam-dev/rudr/blob/master/examples/first-app-config.yaml) component definition:
 
 ```yaml
 # Example component definition in application config
