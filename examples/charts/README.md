@@ -1,4 +1,4 @@
-# Example Charts
+# Example Charts of OAM Apps
 
 This directory contains example Helm charts that install Open Application Model apps.
 
