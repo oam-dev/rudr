@@ -15,7 +15,7 @@ Helm is a useful tool for parameterizing AppConfig files. There are various stra
     - This model is best if you want to have lots of components that can be shared among different app configs
 
 
-## Installing Examples
+## Installing OAM Apps
 
 These examples are built for Helm 3. They can be installed with the following command:
 
