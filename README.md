@@ -1,6 +1,6 @@
 # Rudr: A Kubernetes Implementation of the Open Application Model
 
-Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/microsoft/hydra-spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
+Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/oam-dev/spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
 **Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 

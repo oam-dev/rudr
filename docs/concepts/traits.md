@@ -1,6 +1,6 @@
 # Traits
 
-A [*trait*](https://github.com/microsoft/hydra-spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Rudr-defined Kubernetes CRDs.
+A [*trait*](https://github.com/oam-dev/spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Rudr-defined Kubernetes CRDs.
 
 Currently, Rudr supports the following traits:
 
@@ -9,7 +9,7 @@ Currently, Rudr supports the following traits:
 - [Ingress](#ingress-trait)
 - [Volume Mounter](#volume-mounter-trait)
 
-An [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
+An [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
 
 <pre>
 apiVersion: core.oam.dev/v1alpha1
@@ -40,7 +40,7 @@ You can assign a trait to a component by specifying its **`name`** (as listed in
 
 ## Supported traits
 
-Rudr supports several traits, with more rolling out in the future, including support for defining custom traits. In order provide maximum flexibility to [Infrastructure operators](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities), however, Rudr does not install default implementations for some of these these traits. Specifically, the *Autoscaler* and *Ingress* traits require you to select and install a Kubernetes controller before you can use them in your Rudr application, since they map to primitive Kubernetes features that can be fulfilled by different controllers. You can search for implementations for your traits at [Helm Hub](https://hub.helm.sh/).
+Rudr supports several traits, with more rolling out in the future, including support for defining custom traits. In order provide maximum flexibility to [Infrastructure operators](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities), however, Rudr does not install default implementations for some of these these traits. Specifically, the *Autoscaler* and *Ingress* traits require you to select and install a Kubernetes controller before you can use them in your Rudr application, since they map to primitive Kubernetes features that can be fulfilled by different controllers. You can search for implementations for your traits at [Helm Hub](https://hub.helm.sh/).
 
 Here's how to get info on the traits supported on your Rudr installation.
 

@@ -6,7 +6,7 @@ If you'd rather jump right in and start using Rudr, check out the [Rudr Tutorial
 
 ## Four Concepts with One Action
 
-Rudr is a reference implementation of the [Open Application Model specification](https://github.com/microsoft/hydra-spec) for Kubernetes. So before using Rudr, you may need to understand some concepts of Open Application Model. If you're interested to learn more, you can directly read the [Open Application Model specification](https://github.com/microsoft/hydra-spec). 
+Rudr is a reference implementation of the [Open Application Model specification](https://github.com/oam-dev/spec) for Kubernetes. So before using Rudr, you may need to understand some concepts of Open Application Model. If you're interested to learn more, you can directly read the [Open Application Model specification](https://github.com/oam-dev/spec). 
 
 ### Component schematics
  

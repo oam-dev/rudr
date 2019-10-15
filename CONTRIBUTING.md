@@ -140,7 +140,7 @@ contributing to Rudr. All issue types follow the same general lifecycle.
 
 ### Milestones
 
-To get an overview of the milestones that are being tracked for Rudr please visit the [Milestones](https://github.com/microsoft/hydra-spec/milestones) page. 
+To get an overview of the milestones that are being tracked for Rudr please visit the [Milestones](https://github.com/oam-dev/spec/milestones) page. 
 
 ### Triaging 
 

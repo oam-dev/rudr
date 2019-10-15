@@ -1,8 +1,8 @@
 # Component Schematic
 
-A [component schematic](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md) is a resource that declares the operational characteristics of a module of code in infrastructure neutral terms. It describes a functional code unit, or *microservice*, that can be instantiated as part of one or more larger distributed applications. You can instantiate a component by first defining its schematic (*ComponentSchematic*), [installing it](#common-operations) to your Rudr runtime, and then deploying an [application configuration](./application-configuration.md) that references it.
+A [component schematic](https://github.com/oam-dev/spec/blob/master/3.component_model.md) is a resource that declares the operational characteristics of a module of code in infrastructure neutral terms. It describes a functional code unit, or *microservice*, that can be instantiated as part of one or more larger distributed applications. You can instantiate a component by first defining its schematic (*ComponentSchematic*), [installing it](#common-operations) to your Rudr runtime, and then deploying an [application configuration](./application-configuration.md) that references it.
 
-The *component schematic* is managed as part of the [developer](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
+The *component schematic* is managed as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
 
 The key parts of a component schematic include:
 
@@ -74,15 +74,15 @@ The remaining sections will walk you through the key aspects and options of a co
 
 ## Metadata
 
-The [metadata](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#metadata) section provides information about the object  represented by this schematic (in this case, the `ComponentSchematic`), including its name, and optionally, any labels or annotations in the form of key/value pairs.
+The [metadata](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#metadata) section provides information about the object  represented by this schematic (in this case, the `ComponentSchematic`), including its name, and optionally, any labels or annotations in the form of key/value pairs.
 
 The metadata section consists of the following fields:
 
 | Name | Description | Allowable values | Required | Default
 | :-- | :--| :-- | :-- | :-- |
 | **name** | The identifier you'll use to manage your component with kubectl (designated as `<component-name>` in the commands above). | string | &#9745; | |
-| **labels** | A set of string key/value pairs assigned to the component. | Use OAM/Kubernetes [label format](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#label-format). | |
-| **annotations** | Further metadata in key/value format describing the component, such as *version* and *description*. | Use OAM/Kubernetes [label format](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#label-format). `version` and `description` are pre-defined in [OAM](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#annotations-format) and considered best practices.  | |
+| **labels** | A set of string key/value pairs assigned to the component. | Use OAM/Kubernetes [label format](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#label-format). | |
+| **annotations** | Further metadata in key/value format describing the component, such as *version* and *description*. | Use OAM/Kubernetes [label format](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#label-format). `version` and `description` are pre-defined in [OAM](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#annotations-format) and considered best practices.  | |
 
 Here's an example of how to specify a label and annotations:
 
@@ -99,7 +99,7 @@ metadata:
 
 ## Workload type
 
-A component must declare its associated [workload type](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#workload-types), which is an indicator to the runtime as to how the developer intends for this component to be executed. 
+A component must declare its associated [workload type](https://github.com/oam-dev/spec/blob/master/3.component_model.md#workload-types), which is an indicator to the runtime as to how the developer intends for this component to be executed. 
 
 **See the [Workload types](../how-to/workloads.md) topic guide for more on choosing a workload type for your component.**
 
@@ -111,7 +111,7 @@ workloadType: core.oam.dev/v1alpha1.Server
 
 ## Parameters
 
-The (optional) [parameters](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#parameter) section defines the configurable parameters for the component. Parameters defined here can be referenced as environment variables within  the [containerized code](#containers) of your component.
+The (optional) [parameters](https://github.com/oam-dev/spec/blob/master/3.component_model.md#parameter) section defines the configurable parameters for the component. Parameters defined here can be referenced as environment variables within  the [containerized code](#containers) of your component.
 
 The parameters section includes the following fields:
 
@@ -149,7 +149,7 @@ The parameters section includes the following fields:
 
 ## Containers
 
-The [containers](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#container) section describes the runtime configuration required to run a containerized workload for the component. 
+The [containers](https://github.com/oam-dev/spec/blob/master/3.component_model.md#container) section describes the runtime configuration required to run a containerized workload for the component. 
 
 A component schematic requires one or more containers, each consisting of the following fields:
 
@@ -192,14 +192,14 @@ containers:
 
 ### `resources`
 
-The [resources](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#resources) section describes compute resources attached to a container runtime.
+The [resources](https://github.com/oam-dev/spec/blob/master/3.component_model.md#resources) section describes compute resources attached to a container runtime.
 
 The resources section includes the following fields:
 
 | Name | Description | Allowable values | Required | Default
 | :-- | :--| :-- | :-- | :-- |
 | **cpu** | The minimum number of logical CPUs required for running the container. | double. (Fractional values supported.) | &#9745; | |
-| **memory** | The minimum amount of memory required for running the container. | string. Use [OAM notation](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#memory-and-disk). Must be greater than zero. | &#9745; | |
+| **memory** | The minimum amount of memory required for running the container. | string. Use [OAM notation](https://github.com/oam-dev/spec/blob/master/3.component_model.md#memory-and-disk). Must be greater than zero. | &#9745; | |
 | **gpu** | The minimum number of gpus required for running this container. | double. (Fractional values supported.) | | |
 | **volumes** | Specifies the attributes of the volumes that the container uses. | See [volumes](#volumes) section  for details. | |
 
@@ -216,7 +216,7 @@ resources:
 
 #### `volumes`
 
-Use the [volumes](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#volume) section to specify the volume mounts used by the container for persistent storage. 
+Use the [volumes](https://github.com/oam-dev/spec/blob/master/3.component_model.md#volume) section to specify the volume mounts used by the container for persistent storage. 
 
 Entries for the volumes section include the following fields:
 
@@ -226,9 +226,9 @@ Entries for the volumes section include the following fields:
 | **mountPath** | Filesystem path of the mount. | string | &#9745; ||
 | **sharingPolicy** | The sharing policy for the mount, indicating if it is expected to be shared or not. | `Exclusive` or `Shared`. | &#9745; ||
 | **accessMode** | Access mode for the mount. | `RW` (read/write) or `RO` (read-only). | | `RW` |
-| **disk** | Attributes of the underlying disk resources, including minimum `required` disk size for running the container and whether (boolean) the disk is `ephemeral`| For `required` disk size, use [OAM notation](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#memory-and-disk). `ephemeral` takes a boolean value. | | |
+| **disk** | Attributes of the underlying disk resources, including minimum `required` disk size for running the container and whether (boolean) the disk is `ephemeral`| For `required` disk size, use [OAM notation](https://github.com/oam-dev/spec/blob/master/3.component_model.md#memory-and-disk). `ephemeral` takes a boolean value. | | |
 
-[Here's an example](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#volume) entry to the volumes section:
+[Here's an example](https://github.com/oam-dev/spec/blob/master/3.component_model.md#volume) entry to the volumes section:
 
 ```yaml
 # Example volume entry
@@ -244,7 +244,7 @@ volumes:
 
 ### `ports`
 
-The [ports](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#port) section describes the ports exposed by the container.
+The [ports](https://github.com/oam-dev/spec/blob/master/3.component_model.md#port) section describes the ports exposed by the container.
 
 Entries to the ports section include the following fields:
 
@@ -266,7 +266,7 @@ ports:
 
 ### `env`
 
-The [env](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#env) section describes environment variables for the container as name/value string pairs.
+The [env](https://github.com/oam-dev/spec/blob/master/3.component_model.md#env) section describes environment variables for the container as name/value string pairs.
 
 Entries to the env section include the following fields:
 
@@ -288,7 +288,7 @@ env:
 
 ### `config`
 
-The [config](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#configfile) section describes a path to a file available within the container, as well as the data that will be written into that file. This provides a way to inject configuration files into a container.
+The [config](https://github.com/oam-dev/spec/blob/master/3.component_model.md#configfile) section describes a path to a file available within the container, as well as the data that will be written into that file. This provides a way to inject configuration files into a container.
 
 Entries to the config section include the following fields:
 
