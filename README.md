@@ -1,6 +1,6 @@
 # Rudr: A Kubernetes Implementation of the Open Application Model
 
-![](https://github.com/oamdev/rudr/workflows/Rust/badge.svg)
+![](https://github.com/oam-dev/rudr/workflows/Rust/badge.svg)
 
 Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/oam-dev/spec) that allow users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
 
