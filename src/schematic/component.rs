@@ -1,7 +1,6 @@
-use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::{
-    api::resource::Quantity, apis::meta::v1 as meta, util::intstr::IntOrString,
+    api::resource::Quantity, util::intstr::IntOrString,
 };
 use log::info;
 use std::collections::BTreeMap;
@@ -192,30 +191,6 @@ impl Component {
                 })
             })
             .collect()
-    }
-
-    pub fn to_deployment_spec(
-        &self,
-        param_vals: ResolvedVals,
-        labels: Option<BTreeMap<String, String>>,
-        annotations: Option<BTreeMap<String, String>>,
-    ) -> apps::DeploymentSpec {
-        apps::DeploymentSpec {
-            replicas: Some(1),
-            selector: meta::LabelSelector {
-                match_labels: labels.clone(),
-                ..Default::default()
-            },
-            template: core::PodTemplateSpec {
-                metadata: Some(meta::ObjectMeta {
-                    annotations,
-                    labels: labels.clone(),
-                    ..Default::default()
-                }),
-                spec: Some(self.to_pod_spec(param_vals)),
-            },
-            ..Default::default()
-        }
     }
 }
 
