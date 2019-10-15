@@ -188,7 +188,7 @@ fn handle_event(
                 // For now, as this to be an innocuous albeit annoying error displayed
                 // in the logs, we just filter "AlreadyExists" errors to reduce confusion.
                 Ok(())
-            },
+            }
             _ => Err(format_err!("APIError: {:?}", e)),
         },
     }

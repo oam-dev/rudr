@@ -11,7 +11,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_values, ParameterValue},
         traits::{
-            self, Autoscaler, Empty, OAMTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
+            self, Autoscaler, Empty, Ingress, ManualScaler, OAMTrait, TraitBinding, VolumeMounter,
         },
     },
 };
