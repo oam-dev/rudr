@@ -288,6 +288,7 @@ impl Instigator {
             match phase {
                 Phase::Add => {
                     info!("Adding component {}", component.name.clone());
+                    workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
@@ -298,6 +299,7 @@ impl Instigator {
                 }
                 Phase::Modify => {
                     info!("Modifying component {}", component.name.clone());
+                    workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),

@@ -34,6 +34,7 @@ pub const WORKER_NAME: &str = "core.oam.dev/v1alpha1.Worker";
 type InstigatorResult = Result<(), Error>;
 type StatusResult = Result<BTreeMap<String, String>, Error>;
 pub type ParamMap = BTreeMap<String, serde_json::Value>;
+pub type ValidationResult = Result<(), failure::Error>;
 
 /// KubeName describes anything that can produce its own Kubernetes name.
 ///
@@ -52,16 +53,27 @@ pub trait KubeName {
 ///
 /// An implementation of a workload type must be able to add, modify, and delete itself.
 pub trait WorkloadType {
+    /// Add is responsible for installing the workload type into the cluster.
     fn add(&self) -> InstigatorResult;
+    /// Modify is responsible for upgrading an existing workload type.
     fn modify(&self) -> InstigatorResult {
         Err(format_err!("Not implemented"))
     }
+    /// Delete is responsible for deleting an existing workload type from the cluster.BTreeMap
+    ///
+    /// In the present implementation, most deletion logic relies upon Kubernetes' owner
+    /// references, so there is no assurance that a deletion will be called for a workload.
     fn delete(&self) -> InstigatorResult {
         info!("Workload deleted");
         Ok(())
     }
+    /// Status returns the currently recorded status for the workload type
     fn status(&self) -> StatusResult {
         Err(format_err!("Not implemented"))
+    }
+    /// Validate a worker's configuration before adding or modifying.
+    fn validate(&self) -> ValidationResult {
+        Ok(())
     }
 }
 
@@ -113,6 +125,16 @@ impl CoreWorkloadType {
             CoreWorkloadType::ReplicatedTaskType(task) => task.status(),
             CoreWorkloadType::ReplicatedWorkerType(task) => task.status(),
             CoreWorkloadType::SingletonWorkerType(task) => task.status(),
+        }
+    }
+    pub fn validate(&self) -> ValidationResult {
+        match self {
+            CoreWorkloadType::SingletonServerType(sing) => sing.validate(),
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.validate(),
+            CoreWorkloadType::SingletonTaskType(task) => task.validate(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.validate(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.validate(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.validate(),
         }
     }
 }

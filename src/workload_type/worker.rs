@@ -1,9 +1,10 @@
 use crate::workload_type::{
     workload_builder::DeploymentBuilder, workload_builder::WorkloadMetadata, InstigatorResult,
-    KubeName, StatusResult, WorkloadType,
+    KubeName, StatusResult, ValidationResult, WorkloadType,
 };
 use std::collections::BTreeMap;
 
+#[derive(Clone)]
 pub struct ReplicatedWorker {
     pub meta: WorkloadMetadata,
     pub replica_count: Option<i32>,
@@ -62,11 +63,31 @@ impl WorkloadType for ReplicatedWorker {
         resources.insert(key.clone(), state);
         Ok(resources)
     }
+
+    fn validate(&self) -> ValidationResult {
+        validate_worker(&self.meta)
+    }
+}
+
+fn validate_worker(meta: &WorkloadMetadata) -> ValidationResult {
+    match meta
+        .definition
+        .containers
+        .iter()
+        .find(|c| !c.ports.is_empty())
+    {
+        Some(c) => Err(format_err!(
+            "Worker container named {} has a port declared",
+            c.name
+        )),
+        None => Ok(()),
+    }
 }
 
 /// Task represents a non-daemon process.
 ///
 /// It is currently implemented as a Kubernetes Job.
+#[derive(Clone)]
 pub struct SingletonWorker {
     pub meta: WorkloadMetadata,
 }
@@ -124,13 +145,16 @@ impl WorkloadType for SingletonWorker {
         resources.insert(key.clone(), state);
         Ok(resources)
     }
+    fn validate(&self) -> ValidationResult {
+        validate_worker(&self.meta)
+    }
 }
 
 #[cfg(test)]
 mod test {
     use kube::{client::APIClient, config::Configuration};
 
-    use crate::schematic::component::Component;
+    use crate::schematic::component::{Component, Container, Port};
     use crate::workload_type::{worker::*, workload_builder::WorkloadMetadata, KubeName};
 
     use std::collections::BTreeMap;
@@ -170,9 +194,7 @@ mod test {
                     component_name: "workerbee".into(),
                     instance_name: "workerinst".into(),
                     namespace: "tests".into(),
-                    definition: Component {
-                        ..Default::default()
-                    },
+                    definition: Default::default(),
                     annotations: None,
                     params: BTreeMap::new(),
                     client: APIClient::new(mock_kube_config()),
@@ -187,6 +209,47 @@ mod test {
                     .get("oam.dev/workload-type")
                     .expect("worker-type label must be set")
             )
+        }
+    }
+
+    #[test]
+    fn test_singleton_worker_validate() {
+        let cli = APIClient::new(mock_kube_config());
+        let base_worker = SingletonWorker {
+            meta: WorkloadMetadata {
+                name: "mytask".into(),
+                component_name: "workermcworkyface".into(),
+                instance_name: "workerinst".into(),
+                namespace: "tests".into(),
+                definition: Component {
+                    containers: vec![Container {
+                        name: "good-container".into(),
+                        ports: vec![],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                },
+                params: BTreeMap::new(),
+                client: cli.clone(),
+                annotations: None,
+                owner_ref: None,
+            },
+        };
+        {
+            let mut wrkr = base_worker.clone();
+            wrkr.meta.definition.containers.push(Container {
+                name: "bad-container".into(),
+                ports: vec![
+                    Port::basic("http".into(), 80),
+                    Port::basic("https".into(), 443),
+                ],
+                ..Default::default()
+            });
+            assert!(wrkr.validate().is_err())
+        }
+        {
+            let wrkr = base_worker.clone();
+            assert!(wrkr.validate().is_ok())
         }
     }
 
@@ -211,6 +274,48 @@ mod test {
         };
 
         assert_eq!("workerinst", wrkr.kube_name().as_str());
+    }
+
+    #[test]
+    fn test_replicated_worker_validate() {
+        let cli = APIClient::new(mock_kube_config());
+        let base_worker = ReplicatedWorker {
+            replica_count: Some(132),
+            meta: WorkloadMetadata {
+                name: "mytask".into(),
+                component_name: "workermcworkyface".into(),
+                instance_name: "workerinst".into(),
+                namespace: "tests".into(),
+                definition: Component {
+                    containers: vec![Container {
+                        name: "good-container".into(),
+                        ports: vec![],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                },
+                params: BTreeMap::new(),
+                client: cli.clone(),
+                annotations: None,
+                owner_ref: None,
+            },
+        };
+        {
+            let mut wrkr = base_worker.clone();
+            wrkr.meta.definition.containers.push(Container {
+                name: "bad-container".into(),
+                ports: vec![
+                    Port::basic("http".into(), 80),
+                    Port::basic("https".into(), 443),
+                ],
+                ..Default::default()
+            });
+            assert!(wrkr.validate().is_err())
+        }
+        {
+            let wrkr = base_worker.clone();
+            assert!(wrkr.validate().is_ok())
+        }
     }
 
     #[test]
