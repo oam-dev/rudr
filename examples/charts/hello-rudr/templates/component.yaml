@@ -1,24 +1,26 @@
-apiVersion: core.hydra.io/v1alpha1
+apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: "{{.Release.Name}}-nginx-{{.Values.appVersion}}"
+  name: "{{.Release.Name}}-{{.Values.appVersion}}"
 spec:
-  workloadType: core.hydra.io/v1alpha1.SingletonServer
-  parameters:
-    - name: message
-      type: string
-      required: false
-    - name: unused_integer
-      type: number
-      required: false
-      default: 5678
+  name: helloworld-python
+  workloadType: core.oam.dev/v1alpha1.Server
   containers:
-    - name: runner
-      image: technosophos/alpine-forever:latest
+    - name: foo
+      image: oamdev/helloworld-python:v1
       env:
-        - name: FOO
-          value: bar
-          fromParam: message
-        - name: UNUSED
-          value: "1234"
-          fromParam: unused_integer
+        - name: TARGET
+          fromParam: target
+        - name: PORT
+          fromParam: port
+      ports:
+        - type: tcp
+          containerPort: 9999
+          name: http
+  parameters:
+    - name: target
+      type: string
+      default: World
+    - name: port
+      type: string
+      default: "9999"
