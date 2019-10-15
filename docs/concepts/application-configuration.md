@@ -1,8 +1,8 @@
 # Application Configuration
 
-An [application configuration](https://github.com/microsoft/hydra-spec/blob/master/6.application_configuration.md) is a resource that declares how an application is to be instantiated and configured, including parameter overrides and add-on traits. The application configuration *.yaml* file represents a logical grouping of one or more components, their operational characteristics, and runtime configuration. It is used to deploy (and update) instances of these constituent components.
+An [application configuration](https://github.com/oam-dev/spec/blob/master/6.application_configuration.md) is a resource that declares how an application is to be instantiated and configured, including parameter overrides and add-on traits. The application configuration *.yaml* file represents a logical grouping of one or more components, their operational characteristics, and runtime configuration. It is used to deploy (and update) instances of these constituent components.
 
-The *application configuration* is managed as part of the [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
+The *application configuration* is managed as part of the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
 
 The key parts of an application configuration include:
 
@@ -77,15 +77,15 @@ The remaining sections will walk you through the key aspects and options of an a
 
 ## Metadata
 
-The [metadata](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#metadata) section provides information about the object  represented by this schematic (in this case, the *ApplicationConfiguration*), including its name, and optionally, any labels or annotations in the form of key/value pairs.
+The [metadata](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#metadata) section provides information about the object  represented by this schematic (in this case, the *ApplicationConfiguration*), including its name, and optionally, any labels or annotations in the form of key/value pairs.
 
 The metadata section consists of the following fields:
 
 | Name | Description | Allowable values | Required | Default
 | :-- | :--| :-- | :-- | :-- |
 | **name** | The identifier you'll use to manage your application configuration with kubectl (designated as `<app-config-name>` in the commands above).| string | &#9745; | |
-| **labels** | A set of string key/value pairs assigned to the application configuration. | Use OAM/Kubernetes [label format](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#label-format). | |
-| **annotations** | Further metadata in key/value format describing the application configuration, such as *version* and *description*. | Use OAM/Kubernetes [label format](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#label-format). `version` and `description` are pre-defined in [OAM](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#annotations-format) and considered best practices.  | |
+| **labels** | A set of string key/value pairs assigned to the application configuration. | Use OAM/Kubernetes [label format](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#label-format). | |
+| **annotations** | Further metadata in key/value format describing the application configuration, such as *version* and *description*. | Use OAM/Kubernetes [label format](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#label-format). `version` and `description` are pre-defined in [OAM](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#annotations-format) and considered best practices.  | |
 
 Here's an example of how to specify a label and annotations:
 
@@ -102,7 +102,7 @@ metadata:
 
 ## Variables
 
-The [variables](https://github.com/microsoft/hydra-spec/blob/master/6.application_configuration.md#variable) section provides a way for an application operator to specify common values that can be substituted into multiple other locations of the application configuration.
+The [variables](https://github.com/oam-dev/spec/blob/master/6.application_configuration.md#variable) section provides a way for an application operator to specify common values that can be substituted into multiple other locations of the application configuration.
 
 | Name | Description | Allowable values | Required | Default
 | :-- | :--| :-- | :-- | :-- |
@@ -126,7 +126,7 @@ components:
 
 ## Components
 
-The [components](https://github.com/microsoft/hydra-spec/blob/master/6.application_configuration.md#component) section defines the instances of components to create with the application. 
+The [components](https://github.com/oam-dev/spec/blob/master/6.application_configuration.md#component) section defines the instances of components to create with the application. 
 
 An application configuration requires one or more listed components, each consisting of the following fields:
 

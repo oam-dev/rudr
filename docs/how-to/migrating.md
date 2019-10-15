@@ -4,7 +4,7 @@ This document explains, at a high level, how to represent your Kubernetes applic
 
 ## Terms
 
-The terms here are described elsewhere, particularly in the [specification](https://github.com/microsoft/hydra-spec). They are summarized here for convenience.
+The terms here are described elsewhere, particularly in the [specification](https://github.com/oam-dev/spec). They are summarized here for convenience.
 
 - Component: A component describes a particular workload (or microservice) that can be deployed.
 - Component Instance: A particular instance of a component. If one Component is deployed in two Application Configurations, it will create two Component Instances, each of which is managed by its Application Configuration
