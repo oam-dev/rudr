@@ -691,38 +691,3 @@ fn test_evaluate_configs() {
     exp.insert("container30".to_string(), c30);
     assert_eq!(exp, configs);
 }
-
-#[test]
-fn test_to_deployment_spec() {
-    let comp_res = Component::from_str(
-        r#"{
-            "parameters": [
-                {
-                    "name": "one",
-                    "type": "string",
-                    "default": "test one"
-                }
-            ],
-            "containers": [
-                {
-                    "name": "container1",
-                    "image": "nginx:latest"
-                }
-            ]
-        }"#,
-    );
-    let comp = comp_res.as_ref().expect("component should exist");
-    let mut labels = BTreeMap::new();
-    labels.insert(
-        "app.kubernetes.io/name".to_string(),
-        "test_deploy".to_string(),
-    );
-    let resloved_val =
-        resolve_parameters(comp.parameters.clone(), BTreeMap::new()).expect("resolved parameter");
-    let deploy = comp.to_deployment_spec(resloved_val, Some(labels.clone()), None);
-    assert_eq!(deploy.selector.match_labels, Some(labels.clone()));
-    assert_eq!(
-        deploy.template.metadata.unwrap().labels,
-        Some(labels.clone())
-    );
-}
