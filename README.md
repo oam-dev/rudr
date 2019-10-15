@@ -6,9 +6,9 @@ Rudr is an implementation of the [Open Application Model (OAM)](https://github.c
 
 **Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec..**
 
-## Quickstart: Deploy an app with Ingress
+## How to: Create an app from scratch
 
-Get started with the [Quick Start](./docs/quickstart/quickstart.md) guide.
+Get started with a [How-To](./docs/how-to/create_component_from_scratch.md) guide.
 
 ## We believe creating cloud native applications should not be hard
 
