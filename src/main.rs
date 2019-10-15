@@ -14,7 +14,9 @@ use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
 use rudr::instigator::{
     Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION, SCOPE_CRD, TRAIT_CRD,
 };
-use rudr::schematic::{component::Component, configuration::ApplicationConfiguration, Status};
+use rudr::schematic::{
+    component::Component, configuration::ApplicationConfiguration, OAMStatus, Status,
+};
 
 const DEFAULT_NAMESPACE: &str = "default";
 
@@ -27,7 +29,7 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
 }
 
 type KubeComponent = Object<Component, Status>;
-type KubeOpsConfig = Object<ApplicationConfiguration, Status>;
+type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
 
 fn main() -> Result<(), Error> {
     let flags = App::new("rudr")
@@ -188,7 +190,7 @@ fn handle_event(
                 // For now, as this to be an innocuous albeit annoying error displayed
                 // in the logs, we just filter "AlreadyExists" errors to reduce confusion.
                 Ok(())
-            },
+            }
             _ => Err(format_err!("APIError: {:?}", e)),
         },
     }

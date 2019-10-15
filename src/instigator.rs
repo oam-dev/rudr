@@ -1,7 +1,7 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
-use log::{debug, info};
+use kube::{api::Api, api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
+use log::{debug, info, warn};
 use serde_json::json;
 use std::collections::BTreeMap;
 
@@ -14,7 +14,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_parameters, resolve_values, ParameterValue},
         variable::{get_variable_values, resolve_variables},
-        OAMStatus, Status,
+        OAMStatus,
     },
     trait_manager::TraitManager,
     workload_type::{
@@ -34,7 +34,7 @@ pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
-type OpResource = Object<ApplicationConfiguration, Status>;
+type OpResource = Object<ApplicationConfiguration, OAMStatus>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -93,12 +93,29 @@ impl Instigator {
     pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
         let mut component_status = BTreeMap::new();
         let name = event.metadata.name.clone();
+        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
+        let mut last_components = get_record_annotation(record_ann)?;
+        let mut has_diff = false;
         for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
             let comp_def: KubeComponent = get_component_def(
                 self.namespace.clone(),
                 component.name.clone(),
                 self.client.clone(),
             )?;
+
+            let new_record = &ComponentRecord {
+                version: comp_def.clone().metadata.resourceVersion.unwrap(),
+                config: component.clone(),
+            };
+            let record = last_components
+                .get_mut(component.instance_name.as_str())
+                .cloned();
+            last_components.remove(component.instance_name.as_str());
+            // we can't update status when there is update not finished yet.
+            if check_diff(record.clone(), new_record) {
+                has_diff = true;
+                continue;
+            }
             // Resolve variables/parameters
             let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
             let parent = get_variable_values(Some(variables.clone()));
@@ -147,27 +164,63 @@ impl Instigator {
             };
             component_status.insert(component.name.clone(), status.clone());
         }
-        let mut new_event = event.clone();
-        new_event.status = Some(Some(OAMStatus::new(
-            Some("synced".to_string()),
-            Some(component_status),
-        )));
-        let config_resource = RawApi::customResource(CONFIG_CRD)
-            .version(CONFIG_VERSION)
-            .group(CONFIG_GROUP)
-            .within(&self.namespace);
+        //we won't update status if there's any update
+        if has_diff || !last_components.is_empty() {
+            info!(
+                "skip update status for {}, find the spec has changes to be execute",
+                event.metadata.name.clone()
+            );
+            return Ok(());
+        }
+        self.retry_patch_status(
+            event.clone(),
+            Some(OAMStatus::new(
+                Some("synced".to_string()),
+                Some(component_status),
+            )),
+            None,
+        )
+    }
 
-        let patch_params = PatchParams::default();
-        let req = config_resource.patch(
-            &event.metadata.name,
-            &patch_params,
-            serde_json::to_vec(&new_event)?,
-        )?;
-        let o = self
-            .client
-            .request::<Object<ApplicationConfiguration, Status>>(req)?;
-        debug!("Patched status {:?} for {}", o.status, o.metadata.name);
-        Ok(())
+    pub fn retry_patch_status(
+        &self,
+        event: OpResource,
+        status: Option<OAMStatus>,
+        annotation: Option<BTreeMap<String, String>>,
+    ) -> InstigatorResult {
+        let config_resource: Api<Object<ApplicationConfiguration, OAMStatus>> =
+            Api::customResource(self.client.clone(), CONFIG_CRD)
+                .version(CONFIG_VERSION)
+                .group(CONFIG_GROUP)
+                .within(&self.namespace);
+        let mut new_event = event.clone();
+        loop {
+            new_event.status = status.clone();
+            if let Some(newann) = annotation.clone() {
+                new_event.metadata.annotations = newann;
+            }
+            let patch_params = PatchParams::default();
+            match config_resource.patch(
+                &event.metadata.name,
+                &patch_params,
+                serde_json::to_vec(&new_event)?,
+            ) {
+                Ok(o) => {
+                    debug!("Patched status {:?} for {}", o.status, o.metadata.name);
+                    return Ok(());
+                }
+                Err(e) => {
+                    if let Some(err) = e.api_error() {
+                        if err.reason == "Conflict" {
+                            warn!("conflict happen to {}, retry", event.metadata.name.clone());
+                            new_event = config_resource.get(&event.metadata.name)?;
+                            continue;
+                        }
+                    }
+                    return Err(e.into());
+                }
+            }
+        }
     }
 
     /// The workhorse for Instigator.
@@ -239,26 +292,27 @@ impl Instigator {
                         component.name.clone(),
                         inst_name.clone(),
                     );
-                    if ownref.is_err() {
-                        let e = ownref.unwrap_err().to_string();
-                        if !e.contains("NotFound") {
-                            // Wrap the error to make it clear where we failed
-                            // During deletion, this might indicate that something else
-                            // remove the component instance.
-                            return Err(format_err!(
-                                "{:?} on {}: {}",
-                                phase.clone(),
+                    match ownref {
+                        Err(err) => {
+                            let e = err.to_string();
+                            if !e.contains("NotFound") {
+                                // Wrap the error to make it clear where we failed
+                                // During deletion, this might indicate that something else
+                                // remove the component instance.
+                                return Err(format_err!(
+                                    "{:?} on {}: {}",
+                                    phase.clone(),
+                                    inst_name.clone(),
+                                    e
+                                ));
+                            }
+                            Some(self.create_component_instance(
+                                component.name.clone(),
                                 inst_name.clone(),
-                                e
-                            ));
+                                owner_ref.clone(),
+                            )?)
                         }
-                        Some(self.create_component_instance(
-                            component.name.clone(),
-                            inst_name.clone(),
-                            owner_ref.clone(),
-                        )?)
-                    } else {
-                        Some(ownref.unwrap())
+                        Ok(own) => Some(own),
                     }
                 }
                 _ => None,
@@ -375,34 +429,16 @@ impl Instigator {
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
         annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
-        let default_status = Some(Some(OAMStatus::new(Some(phase.to_string()), None)));
-        let status = event.status.clone().map_or(default_status.clone(), |s| {
-            s.map_or(default_status, |mut hs| {
+        let default_status = Some(OAMStatus::new(Some(phase.to_string()), None));
+        let status = event
+            .status
+            .clone()
+            .map_or(default_status.clone(), |mut hs| {
                 hs.phase = Some(phase.to_string());
-                Some(Some(hs))
-            })
-        });
+                Some(hs)
+            });
 
-        let mut new_event = event.clone();
-        new_event.status = status;
-        new_event.metadata.annotations = annotation;
-        debug!("spec: {:?}, status: {:?}", new_event.spec, new_event.status);
-        let config_resource = RawApi::customResource(CONFIG_CRD)
-            .version(CONFIG_VERSION)
-            .group(CONFIG_GROUP)
-            .within(&self.namespace);
-
-        let patch_params = PatchParams::default();
-        let req = config_resource.patch(
-            &event.metadata.name,
-            &patch_params,
-            serde_json::to_vec(&new_event)?,
-        )?;
-        let o = self
-            .client
-            .request::<Object<ApplicationConfiguration, Status>>(req)?;
-        info!("Patched status {:?} for {}", o.status, o.metadata.name);
-        Ok(())
+        self.retry_patch_status(event, status, Some(annotation))
     }
 
     /// Create new Kubernetes objects based on this config.

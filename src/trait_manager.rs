@@ -11,7 +11,7 @@ use crate::{
         configuration::ComponentConfiguration,
         parameter::{resolve_values, ParameterValue},
         traits::{
-            self, Autoscaler, Empty, OAMTrait, Ingress, ManualScaler, TraitBinding, VolumeMounter,
+            self, Autoscaler, Empty, Ingress, ManualScaler, OAMTrait, TraitBinding, VolumeMounter,
         },
     },
 };
@@ -70,7 +70,7 @@ impl TraitManager {
                     self.owner_ref.clone(),
                     self.component_schematic.clone(),
                 );
-                Ok(OAMTrait::VolumeMounter(volmount))
+                Ok(OAMTrait::VolumeMounter(Box::new(volmount)))
             }
             traits::AUTOSCALER => {
                 let auto = Autoscaler::from_params(
@@ -106,12 +106,12 @@ impl TraitManager {
         for imp in &self.traits {
             // At the moment, we don't return an error if a trait fails.
             let res = imp.exec(ns, client.clone(), phase.clone());
-            if res.is_err() {
+            if let Err(err) = res {
                 error!(
                     "Trait phase {:?} failed for {}: {}",
                     phase,
                     self.config_name.as_str(),
-                    res.unwrap_err()
+                    err
                 );
             }
         }

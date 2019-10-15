@@ -54,8 +54,7 @@ impl ManualScaler {
                     Default::default(),
                 )?;
                 let res = client.request(req);
-                if res.is_ok() {
-                    let original: apps::Deployment = res.unwrap();
+                if let Ok(original) = res {
                     let dep = self.scale_deployment(original);
 
                     let (req2, _) = apps::Deployment::replace_namespaced_deployment(
@@ -75,11 +74,8 @@ impl ManualScaler {
                     ns,
                     Default::default(),
                 )?;
-                let jobres = client.request(jobreq);
-                if jobres.is_ok() {
-                    let original: batch::Job = jobres.unwrap();
+                if let Ok(original) = client.request(jobreq) {
                     let new_job = self.scale_job(original);
-
                     let (req2, _) = batch::Job::replace_namespaced_job(
                         self.instance_name.as_str(),
                         ns,
@@ -87,7 +83,7 @@ impl ManualScaler {
                         Default::default(),
                     )?;
                     client.request::<batch::Job>(req2)?;
-                }
+                };
                 Ok(())
             }
             _ => {

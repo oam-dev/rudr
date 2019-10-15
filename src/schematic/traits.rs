@@ -59,7 +59,7 @@ pub enum OAMTrait {
     Autoscaler(Autoscaler),
     ManualScaler(ManualScaler),
     Ingress(Ingress),
-    VolumeMounter(VolumeMounter),
+    VolumeMounter(Box<VolumeMounter>),
     Empty(Empty),
 }
 impl OAMTrait {
