@@ -24,7 +24,7 @@ The requirement to deep understand the container infrastructure has introduced t
 
 Rudr takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes which allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
 
-![oar arch](./docs/media/how_oar_works.png)
+![rudr arch](./docs/media/rudr-how-it-works.png)
 
 - This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes.
 
