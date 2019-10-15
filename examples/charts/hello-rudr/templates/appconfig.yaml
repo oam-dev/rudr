@@ -1,0 +1,22 @@
+kind: ApplicationConfiguration
+apiVersion: core.oam.dev/v1alpha1
+metadata:
+  name: "{{ .Release.Name }}"
+spec:
+  components:
+    - name: "{{ .Release.Name }}-{{ .Values.appVersion}}"
+      instanceName: "{{ .Release.Name }}-{{ .Values.appVersion}}"
+      parameterValues:
+        - name: target
+          value: "{{ .Values.target }}"
+        - name: port
+          value: "{{ .Values.port }}"
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port
+              value: {{ .Values.port }}

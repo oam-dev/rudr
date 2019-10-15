@@ -1,0 +1,6 @@
+apiVersion: v2
+name: hello-rudr
+description: Demonstration of using Helm with Rudr, using the Python example.
+type: application
+version: 0.1.0
+appVersion: 0.1.0
