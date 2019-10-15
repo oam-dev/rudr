@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+npm-debug.log
+.idea/
+dist/
+.env
+.env.local
+.env.staging

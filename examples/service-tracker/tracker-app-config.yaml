@@ -1,0 +1,74 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: service-tracker
+spec:
+  components:
+  - name: tracker-mongo-db
+    instanceName: mongodb
+    parameterValues:
+      - name: dbuser
+        value: dbuser
+      - name: dbpassword
+        value: dbpassword
+      - name: rootpassword
+        value: adminpassword    
+  - name: data-api
+    instanceName: data-api
+    parameterValues:
+      - name: dbuser
+        value: "dbuser"
+      - name: dbpassword
+        value: "dbpassword"
+      - name: dbipaddress
+        value: "mongodb"
+      - name: dbport
+        value: "27017"       
+  - name: flights-api
+    instanceName: flights-api
+    parameterValues:
+      - name: dataUri
+        value: "http://data-api.default.svc.cluster.local:3009/"
+    traits:
+      - name: manual-scaler
+        parameterValues:
+          - name: replicaCount
+            value: 2   
+  - name: quakes-api
+    instanceName: quakes-api
+    parameterValues:
+      - name: dataUri
+        value: "http://data-api.default.svc.cluster.local:3009/"  
+    traits:
+      - name: manual-scaler
+        parameterValues:
+          - name: replicaCount
+            value: 2       
+  - name: weather-api
+    instanceName: weather-api
+    parameterValues:
+      - name: dataUri
+        value: "http://data-api.default.svc.cluster.local:3009/"
+    traits:
+      - name: manual-scaler
+        parameterValues:
+          - name: replicaCount
+            value: 2        
+  - name: service-tracker-ui
+    instanceName: service-tracker-ui
+    parameterValues:
+      - name: flightsUri
+        value: "http://flights-api.default.svc.cluster.local:3003/"
+      - name: weatherUri
+        value: "http://weather-api.default.svc.cluster.local:3015/"
+      - name: quakesUri
+        value: "http://quakes-api.default.svc.cluster.local:3012/"
+    traits:
+      - name: ingress
+        parameterValues:
+          - name: hostname
+            value: servicetracker.oam.io
+          - name: path
+            value: / 
+          - name: service_port
+            value: 8080       

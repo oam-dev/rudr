@@ -1,0 +1,60 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: tracker-mongo-db
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: dbuser
+      description: mongo username
+      type: string
+      required: false
+    - name: dbpassword
+      description: mongo password
+      type: string
+      required: false
+    - name: rootpassword
+      description: mongo root password
+      type: string
+      required: false               
+  containers:
+    - name: mongo-db
+      image: docker.io/bitnami/mongodb:4.0.10-debian-9-r39     
+      env:
+        - name: MONGODB_USERNAME
+          value: "foo"
+          fromParam: "dbuser"
+        - name: MONGODB_PASSWORD
+          value: "foo"
+          fromParam: "dbpassword"   
+        - name: MONGODB_ROOT_PASSWORD
+          value: "foo"       
+          fromParam: "rootpassword"
+      ports:
+        - name: mongodb
+          containerPort: 27017
+          protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - mongo
+          - --eval
+          - db.adminCommand('ping')
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      livenessProbe:
+        exec:
+          command:
+          - mongo
+          - --eval
+          - db.adminCommand('ping')
+        failureThreshold: 6
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5        

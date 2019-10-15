@@ -1,0 +1,120 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: data-api
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: dbuser
+      description: mongo username
+      type: string
+      required: false
+    - name: dbpassword
+      description: mongo password
+      type: string
+      required: false
+    - name: dbipaddress
+      description: mongo IP address
+      type: string
+      required: false
+    - name: dbport
+      description: mongo port number
+      type: string
+      required: false            
+  containers:
+    - name: data-api
+      image: chzbrgr71/data-api:v1.1    
+      env:
+        - name: MONGODB_USER
+          value: "foo"
+          fromParam: "dbuser"
+        - name: MONGODB_PASSWORD
+          value: "foo"
+          fromParam: "dbpassword"
+        - name: MONGODB_IP
+          value: "foo"        
+          fromParam: dbipaddress
+        - name: MONGODB_PORT
+          value: "foo"        
+          fromParam: dbport    
+      ports:
+        - name: http
+          containerPort: 3009
+          protocol: TCP
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: flights-api
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: dataUri
+      description: uri for data-api pod
+      type: string
+      required: true           
+  containers:
+    - name: flights-api
+      image: chzbrgr71/flights-api:v1.1    
+      env:
+        - name: DATA_SERVICE_URI
+          value: "foo"
+          fromParam: "dataUri"  
+      ports:
+        - name: http
+          containerPort: 3003
+          protocol: TCP
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: quakes-api
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: dataUri
+      description: uri for data-api pod
+      type: string
+      required: true           
+  containers:
+    - name: quakes-api
+      image: chzbrgr71/quakes-api:v1.1    
+      env:
+        - name: DATA_SERVICE_URI
+          value: "foo"
+          fromParam: "dataUri"  
+      ports:
+        - name: http
+          containerPort: 3012
+          protocol: TCP
+---
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: weather-api
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: dataUri
+      description: uri for data-api pod
+      type: string
+      required: true           
+  containers:
+    - name: weather-api
+      image: chzbrgr71/weather-api:v1.1    
+      env:
+        - name: DATA_SERVICE_URI
+          value: "foo"
+          fromParam: "dataUri"  
+      ports:
+        - name: http
+          containerPort: 3015
+          protocol: TCP                    

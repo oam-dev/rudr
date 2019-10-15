@@ -1,0 +1,27 @@
+[
+  {
+    "ID": "BM",
+    "LocalizedName": "Bermuda",
+    "EnglishName": "Bermuda"
+  },
+  {
+    "ID": "CA",
+    "LocalizedName": "Canada",
+    "EnglishName": "Canada"
+  },
+  {
+    "ID": "MX",
+    "LocalizedName": "Mexico",
+    "EnglishName": "Mexico"
+  },
+  {
+    "ID": "PM",
+    "LocalizedName": "Saint Pierre and Miquelon",
+    "EnglishName": "Saint Pierre and Miquelon"
+  },
+  {
+    "ID": "US",
+    "LocalizedName": "United States",
+    "EnglishName": "United States"
+  }
+]

@@ -1,0 +1,38 @@
+apiVersion: core.hydra.io/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: service-tracker-ui
+spec:
+  workloadType: core.hydra.io/v1alpha1.Server
+  osType: linux
+  arch: amd64
+  parameters:
+    - name: flightsUri
+      description: uri for flights-api pod
+      type: string
+      required: true
+    - name: weatherUri
+      description: uri for weather-api pod
+      type: string
+      required: true
+    - name: quakesUri
+      description: uri for quakes-api pod
+      type: string
+      required: true            
+  containers:
+    - name: service-tracker-ui
+      image: chzbrgr71/service-tracker-ui:v1.1   
+      env:
+        - name: FLIGHT_API_ROOT
+          value: "foo"
+          fromParam: "flightsUri"
+        - name: WEATHER_API_ROOT
+          value: "foo"
+          fromParam: "weatherUri"
+        - name: QUAKES_API_ROOT
+          value: "foo"
+          fromParam: "quakesUri"                    
+      ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP

@@ -1,0 +1,5222 @@
+[
+    {
+        "Key": "28143",
+        "LocalizedName": "Dhaka",
+        "EnglishName": "Dhaka",
+        "Country": {
+            "ID": "BD",
+            "LocalizedName": "Bangladesh",
+            "EnglishName": "Bangladesh"
+        },
+        "TimeZone": {
+            "Code": "BDT",
+            "Name": "Asia/Dhaka",
+            "GmtOffset": 6,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 23.7098,
+            "Longitude": 90.40711,
+            "Elevation": {
+                "Metric": {
+                    "Value": 5,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 16,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:35:00+06:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/bd/dhaka/28143/current-weather/28143?lang=en-us",
+        "Link": "http://www.accuweather.com/en/bd/dhaka/28143/current-weather/28143?lang=en-us"
+    },
+    {
+        "Key": "113487",
+        "LocalizedName": "Kinshasa",
+        "EnglishName": "Kinshasa",
+        "Country": {
+            "ID": "CD",
+            "LocalizedName": "Democratic Republic of the Congo",
+            "EnglishName": "Democratic Republic of the Congo"
+        },
+        "TimeZone": {
+            "Code": "WAT",
+            "Name": "Africa/Kinshasa",
+            "GmtOffset": 1,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -4.31642,
+            "Longitude": 15.29834,
+            "Elevation": {
+                "Metric": {
+                    "Value": 180,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 590,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:42:00+01:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 78,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cd/kinshasa/113487/current-weather/113487?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cd/kinshasa/113487/current-weather/113487?lang=en-us"
+    },
+    {
+        "Key": "60449",
+        "LocalizedName": "Santiago",
+        "EnglishName": "Santiago",
+        "Country": {
+            "ID": "CL",
+            "LocalizedName": "Chile",
+            "EnglishName": "Chile"
+        },
+        "TimeZone": {
+            "Code": "CLST",
+            "Name": "America/Santiago",
+            "GmtOffset": -3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2019-05-12T03:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -33.44643,
+            "Longitude": -70.65901,
+            "Elevation": {
+                "Metric": {
+                    "Value": 522,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 1712,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 6.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 44,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cl/santiago/60449/current-weather/60449?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cl/santiago/60449/current-weather/60449?lang=en-us"
+    },
+    {
+        "Key": "101924",
+        "LocalizedName": "Beijing",
+        "EnglishName": "Beijing",
+        "Country": {
+            "ID": "CN",
+            "LocalizedName": "China",
+            "EnglishName": "China"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "Asia/Shanghai",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 39.9173,
+            "Longitude": 116.407066,
+            "Elevation": {
+                "Metric": {
+                    "Value": 62,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 203,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:55:00+08:00",
+        "EpochTime": 1535064900,
+        "WeatherText": "Sunny",
+        "WeatherIcon": 1,
+        "LocalSource": {
+            "Id": 7,
+            "Name": "Huafeng",
+            "WeatherCode": "00"
+        },
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 73,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cn/beijing/101924/current-weather/101924?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cn/beijing/101924/current-weather/101924?lang=en-us"
+    },
+    {
+        "Key": "107487",
+        "LocalizedName": "Bogota",
+        "EnglishName": "Bogota",
+        "Country": {
+            "ID": "CO",
+            "LocalizedName": "Colombia",
+            "EnglishName": "Colombia"
+        },
+        "TimeZone": {
+            "Code": "COT",
+            "Name": "America/Bogota",
+            "GmtOffset": -5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 4.62836,
+            "Longitude": -74.07677,
+            "Elevation": {
+                "Metric": {
+                    "Value": 2562,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 8406,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T17:35:00-05:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 16.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 61,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/co/bogota/107487/current-weather/107487?lang=en-us",
+        "Link": "http://www.accuweather.com/en/co/bogota/107487/current-weather/107487?lang=en-us"
+    },
+    {
+        "Key": "178087",
+        "LocalizedName": "Berlin",
+        "EnglishName": "Berlin",
+        "Country": {
+            "ID": "DE",
+            "LocalizedName": "Germany",
+            "EnglishName": "Germany"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Berlin",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 52.51767,
+            "Longitude": 13.40554,
+            "Elevation": {
+                "Metric": {
+                    "Value": 35,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 114,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/de/berlin/10178/current-weather/178087?lang=en-us",
+        "Link": "http://www.accuweather.com/en/de/berlin/10178/current-weather/178087?lang=en-us"
+    },
+    {
+        "Key": "127164",
+        "LocalizedName": "Cairo",
+        "EnglishName": "Cairo",
+        "Country": {
+            "ID": "EG",
+            "LocalizedName": "Egypt",
+            "EnglishName": "Egypt"
+        },
+        "TimeZone": {
+            "Code": "EET",
+            "Name": "Africa/Cairo",
+            "GmtOffset": 2,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 30.08374,
+            "Longitude": 31.25536,
+            "Elevation": {
+                "Metric": {
+                    "Value": 20,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 65,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:42:00+02:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 81,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/eg/cairo/127164/current-weather/127164?lang=en-us",
+        "Link": "http://www.accuweather.com/en/eg/cairo/127164/current-weather/127164?lang=en-us"
+    },
+    {
+        "Key": "308526",
+        "LocalizedName": "Madrid",
+        "EnglishName": "Madrid",
+        "Country": {
+            "ID": "ES",
+            "LocalizedName": "Spain",
+            "EnglishName": "Spain"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Madrid",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 40.4096,
+            "Longitude": -3.68629,
+            "Elevation": {
+                "Metric": {
+                    "Value": 639,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2095,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.3,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/es/madrid/308526/current-weather/308526?lang=en-us",
+        "Link": "http://www.accuweather.com/en/es/madrid/308526/current-weather/308526?lang=en-us"
+    },
+    {
+        "Key": "328328",
+        "LocalizedName": "London",
+        "EnglishName": "London",
+        "Country": {
+            "ID": "GB",
+            "LocalizedName": "United Kingdom",
+            "EnglishName": "United Kingdom"
+        },
+        "TimeZone": {
+            "Code": "BST",
+            "Name": "Europe/London",
+            "GmtOffset": 1,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 51.51429,
+            "Longitude": -0.10687,
+            "Elevation": {
+                "Metric": {
+                    "Value": 18,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 59,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:45:00+01:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 16.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 62,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/gb/london/ec4a-2/current-weather/328328?lang=en-us",
+        "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/current-weather/328328?lang=en-us"
+    },
+    {
+        "Key": "182536",
+        "LocalizedName": "Athens",
+        "EnglishName": "Athens",
+        "Country": {
+            "ID": "GR",
+            "LocalizedName": "Greece",
+            "EnglishName": "Greece"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Athens",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 37.98413,
+            "Longitude": 23.72792,
+            "Elevation": {
+                "Metric": {
+                    "Value": 126,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 413,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/gr/athens/182536/current-weather/182536?lang=en-us",
+        "Link": "http://www.accuweather.com/en/gr/athens/182536/current-weather/182536?lang=en-us"
+    },
+    {
+        "Key": "1123655",
+        "LocalizedName": "Hong Kong",
+        "EnglishName": "Hong Kong",
+        "Country": {
+            "ID": "HK",
+            "LocalizedName": "Hong Kong",
+            "EnglishName": "Hong Kong"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "Asia/Hong_Kong",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 22.36851,
+            "Longitude": 114.174019,
+            "Elevation": {
+                "Metric": {
+                    "Value": 35,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 114,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:35:00+08:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Overcast",
+        "WeatherIcon": 7,
+        "LocalSource": {
+            "Id": 7,
+            "Name": "Huafeng",
+            "WeatherCode": "02"
+        },
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 28.3,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 83,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/hk/hong-kong/1123655/current-weather/1123655?lang=en-us",
+        "Link": "http://www.accuweather.com/en/hk/hong-kong/1123655/current-weather/1123655?lang=en-us"
+    },
+    {
+        "Key": "208971",
+        "LocalizedName": "Jakarta",
+        "EnglishName": "Jakarta",
+        "Country": {
+            "ID": "ID",
+            "LocalizedName": "Indonesia",
+            "EnglishName": "Indonesia"
+        },
+        "TimeZone": {
+            "Code": "WIT",
+            "Name": "Asia/Jakarta",
+            "GmtOffset": 7,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -6.17537,
+            "Longitude": 106.8272,
+            "Elevation": {
+                "Metric": {
+                    "Value": 11,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 35,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T05:39:00+07:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/id/jakarta/208971/current-weather/208971?lang=en-us",
+        "Link": "http://www.accuweather.com/en/id/jakarta/208971/current-weather/208971?lang=en-us"
+    },
+    {
+        "Key": "202396",
+        "LocalizedName": "Delhi",
+        "EnglishName": "Delhi",
+        "Country": {
+            "ID": "IN",
+            "LocalizedName": "India",
+            "EnglishName": "India"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Asia/Kolkata",
+            "GmtOffset": 5.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 28.64336,
+            "Longitude": 77.11756,
+            "Elevation": {
+                "Metric": {
+                    "Value": 215,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 705,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:05:00+05:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Light fog",
+        "WeatherIcon": 11,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 81,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/in/delhi/202396/current-weather/202396?lang=en-us",
+        "Link": "http://www.accuweather.com/en/in/delhi/202396/current-weather/202396?lang=en-us"
+    },
+    {
+        "Key": "207375",
+        "LocalizedName": "Baghdad",
+        "EnglishName": "Baghdad",
+        "Country": {
+            "ID": "IQ",
+            "LocalizedName": "Iraq",
+            "EnglishName": "Iraq"
+        },
+        "TimeZone": {
+            "Code": "AST",
+            "Name": "Asia/Baghdad",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 33.32815,
+            "Longitude": 44.38603,
+            "Elevation": {
+                "Metric": {
+                    "Value": 35,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 114,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 30.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 87,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/iq/baghdad/207375/current-weather/207375?lang=en-us",
+        "Link": "http://www.accuweather.com/en/iq/baghdad/207375/current-weather/207375?lang=en-us"
+    },
+    {
+        "Key": "226396",
+        "LocalizedName": "Tokyo",
+        "EnglishName": "Tokyo",
+        "Country": {
+            "ID": "JP",
+            "LocalizedName": "Japan",
+            "EnglishName": "Japan"
+        },
+        "TimeZone": {
+            "Code": "JST",
+            "Name": "Asia/Tokyo",
+            "GmtOffset": 9,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 35.68301,
+            "Longitude": 139.809,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T07:35:00+09:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 80,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/jp/tokyo/226396/current-weather/226396?lang=en-us",
+        "Link": "http://www.accuweather.com/en/jp/tokyo/226396/current-weather/226396?lang=en-us"
+    },
+    {
+        "Key": "225058",
+        "LocalizedName": "Pyongyang",
+        "EnglishName": "Pyongyang",
+        "Country": {
+            "ID": "KP",
+            "LocalizedName": "North Korea",
+            "EnglishName": "North Korea"
+        },
+        "TimeZone": {
+            "Code": "KST",
+            "Name": "Asia/Pyongyang",
+            "GmtOffset": 9,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 39.01422,
+            "Longitude": 125.776314,
+            "Elevation": {
+                "Metric": {
+                    "Value": 12,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 39,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T07:35:00+09:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Rain",
+        "WeatherIcon": 18,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 73,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/kp/pyongyang/225058/current-weather/225058?lang=en-us",
+        "Link": "http://www.accuweather.com/en/kp/pyongyang/225058/current-weather/225058?lang=en-us"
+    },
+    {
+        "Key": "226081",
+        "LocalizedName": "Seoul",
+        "EnglishName": "Seoul",
+        "Country": {
+            "ID": "KR",
+            "LocalizedName": "South Korea",
+            "EnglishName": "South Korea"
+        },
+        "TimeZone": {
+            "Code": "KST",
+            "Name": "Asia/Seoul",
+            "GmtOffset": 9,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 37.53703,
+            "Longitude": 126.970078,
+            "Elevation": {
+                "Metric": {
+                    "Value": 19,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 62,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T07:35:00+09:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Rain",
+        "WeatherIcon": 18,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 24,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/kr/seoul/226081/current-weather/226081?lang=en-us",
+        "Link": "http://www.accuweather.com/en/kr/seoul/226081/current-weather/226081?lang=en-us"
+    },
+    {
+        "Key": "242560",
+        "LocalizedName": "Mexico City",
+        "EnglishName": "Mexico City",
+        "Country": {
+            "ID": "MX",
+            "LocalizedName": "Mexico",
+            "EnglishName": "Mexico"
+        },
+        "TimeZone": {
+            "Code": "CDT",
+            "Name": "America/Mexico_City",
+            "GmtOffset": -5,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T07:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 19.4334,
+            "Longitude": -99.13318,
+            "Elevation": {
+                "Metric": {
+                    "Value": 2248,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 7376,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T17:35:00-05:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Rain",
+        "WeatherIcon": 18,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 21.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 70,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/mx/mexico-city/242560/current-weather/242560?lang=en-us",
+        "Link": "http://www.accuweather.com/en/mx/mexico-city/242560/current-weather/242560?lang=en-us"
+    },
+    {
+        "Key": "264120",
+        "LocalizedName": "Lima",
+        "EnglishName": "Lima",
+        "Country": {
+            "ID": "PE",
+            "LocalizedName": "Peru",
+            "EnglishName": "Peru"
+        },
+        "TimeZone": {
+            "Code": "PET",
+            "Name": "America/Lima",
+            "GmtOffset": -5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -12.08236,
+            "Longitude": -77.04538,
+            "Elevation": {
+                "Metric": {
+                    "Value": 105,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 344,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T17:35:00-05:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clouds and sun",
+        "WeatherIcon": 4,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 17.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 64,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/pe/lima/264120/current-weather/264120?lang=en-us",
+        "Link": "http://www.accuweather.com/en/pe/lima/264120/current-weather/264120?lang=en-us"
+    },
+    {
+        "Key": "294021",
+        "LocalizedName": "Moscow",
+        "EnglishName": "Moscow",
+        "Country": {
+            "ID": "RU",
+            "LocalizedName": "Russia",
+            "EnglishName": "Russia"
+        },
+        "TimeZone": {
+            "Code": "MSK",
+            "Name": "Europe/Moscow",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 55.75162,
+            "Longitude": 37.61871,
+            "Elevation": {
+                "Metric": {
+                    "Value": 155,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 508,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 13.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 56,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ru/moscow/294021/current-weather/294021?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ru/moscow/294021/current-weather/294021?lang=en-us"
+    },
+    {
+        "Key": "297030",
+        "LocalizedName": "Riyadh",
+        "EnglishName": "Riyadh",
+        "Country": {
+            "ID": "SA",
+            "LocalizedName": "Saudi Arabia",
+            "EnglishName": "Saudi Arabia"
+        },
+        "TimeZone": {
+            "Code": "AST",
+            "Name": "Asia/Riyadh",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 24.64039,
+            "Longitude": 46.7533,
+            "Elevation": {
+                "Metric": {
+                    "Value": 598,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 1961,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 30.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 87,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sa/riyadh/297030/current-weather/297030?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sa/riyadh/297030/current-weather/297030?lang=en-us"
+    },
+    {
+        "Key": "300597",
+        "LocalizedName": "Singapore",
+        "EnglishName": "Singapore",
+        "Country": {
+            "ID": "SG",
+            "LocalizedName": "Singapore",
+            "EnglishName": "Singapore"
+        },
+        "TimeZone": {
+            "Code": "SGT",
+            "Name": "Asia/Singapore",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 1.31056,
+            "Longitude": 103.843193,
+            "Elevation": {
+                "Metric": {
+                    "Value": 13,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 42,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:39:00+08:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sg/singapore/300597/current-weather/300597?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sg/singapore/300597/current-weather/300597?lang=en-us"
+    },
+    {
+        "Key": "318849",
+        "LocalizedName": "Bangkok",
+        "EnglishName": "Bangkok",
+        "Country": {
+            "ID": "TH",
+            "LocalizedName": "Thailand",
+            "EnglishName": "Thailand"
+        },
+        "TimeZone": {
+            "Code": "ICT",
+            "Name": "Asia/Bangkok",
+            "GmtOffset": 7,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 13.73077,
+            "Longitude": 100.521011,
+            "Elevation": {
+                "Metric": {
+                    "Value": 2,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 6,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T05:35:00+07:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 80,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/th/bangkok/318849/current-weather/318849?lang=en-us",
+        "Link": "http://www.accuweather.com/en/th/bangkok/318849/current-weather/318849?lang=en-us"
+    },
+    {
+        "Key": "22889",
+        "LocalizedName": "Sydney",
+        "EnglishName": "Sydney",
+        "Country": {
+            "ID": "AU",
+            "LocalizedName": "Australia",
+            "EnglishName": "Australia"
+        },
+        "TimeZone": {
+            "Code": "AEST",
+            "Name": "Australia/Sydney",
+            "GmtOffset": 10,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-10-06T16:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -33.8705,
+            "Longitude": 151.208847,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T08:39:00+10:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Clouds and sun",
+        "WeatherIcon": 4,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 11.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 53,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/au/sydney/22889/current-weather/22889?lang=en-us",
+        "Link": "http://www.accuweather.com/en/au/sydney/22889/current-weather/22889?lang=en-us"
+    },
+    {
+        "Key": "26216",
+        "LocalizedName": "Melbourne",
+        "EnglishName": "Melbourne",
+        "Country": {
+            "ID": "AU",
+            "LocalizedName": "Australia",
+            "EnglishName": "Australia"
+        },
+        "TimeZone": {
+            "Code": "AEST",
+            "Name": "Australia/Melbourne",
+            "GmtOffset": 10,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-10-06T16:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -37.81151,
+            "Longitude": 144.966873,
+            "Elevation": {
+                "Metric": {
+                    "Value": 75,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 246,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T08:39:00+10:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Sunny",
+        "WeatherIcon": 1,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 7.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 46,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/au/melbourne/26216/current-weather/26216?lang=en-us",
+        "Link": "http://www.accuweather.com/en/au/melbourne/26216/current-weather/26216?lang=en-us"
+    },
+    {
+        "Key": "45449",
+        "LocalizedName": "Rio de Janeiro",
+        "EnglishName": "Rio de Janeiro",
+        "Country": {
+            "ID": "BR",
+            "LocalizedName": "Brazil",
+            "EnglishName": "Brazil"
+        },
+        "TimeZone": {
+            "Code": "BRT",
+            "Name": "America/Sao_Paulo",
+            "GmtOffset": -3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-10-21T03:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -22.87665,
+            "Longitude": -43.22788,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/br/rio-de-janeiro/45449/current-weather/45449?lang=en-us",
+        "Link": "http://www.accuweather.com/en/br/rio-de-janeiro/45449/current-weather/45449?lang=en-us"
+    },
+    {
+        "Key": "106577",
+        "LocalizedName": "Shanghai",
+        "EnglishName": "Shanghai",
+        "Country": {
+            "ID": "CN",
+            "LocalizedName": "China",
+            "EnglishName": "China"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "Asia/Shanghai",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 31.23151,
+            "Longitude": 121.444168,
+            "Elevation": {
+                "Metric": {
+                    "Value": 5,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 16,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:55:00+08:00",
+        "EpochTime": 1535064900,
+        "WeatherText": "Sunny",
+        "WeatherIcon": 1,
+        "LocalSource": {
+            "Id": 7,
+            "Name": "Huafeng",
+            "WeatherCode": "00"
+        },
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 81,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cn/shanghai/106577/current-weather/106577?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cn/shanghai/106577/current-weather/106577?lang=en-us"
+    },
+    {
+        "Key": "204108",
+        "LocalizedName": "Bengaluru",
+        "EnglishName": "Bengaluru",
+        "Country": {
+            "ID": "IN",
+            "LocalizedName": "India",
+            "EnglishName": "India"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Asia/Kolkata",
+            "GmtOffset": 5.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 12.99083,
+            "Longitude": 77.57857,
+            "Elevation": {
+                "Metric": {
+                    "Value": 913,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2997,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:05:00+05:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 21,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 70,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/in/bengaluru/204108/current-weather/204108?lang=en-us",
+        "Link": "http://www.accuweather.com/en/in/bengaluru/204108/current-weather/204108?lang=en-us"
+    },
+    {
+        "Key": "204842",
+        "LocalizedName": "Mumbai",
+        "EnglishName": "Mumbai",
+        "Country": {
+            "ID": "IN",
+            "LocalizedName": "India",
+            "EnglishName": "India"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Asia/Kolkata",
+            "GmtOffset": 5.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 19.14308,
+            "Longitude": 72.87849,
+            "Elevation": {
+                "Metric": {
+                    "Value": 47,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 154,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:05:00+05:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/in/mumbai/204842/current-weather/204842?lang=en-us",
+        "Link": "http://www.accuweather.com/en/in/mumbai/204842/current-weather/204842?lang=en-us"
+    },
+    {
+        "Key": "206671",
+        "LocalizedName": "Chennai",
+        "EnglishName": "Chennai",
+        "Country": {
+            "ID": "IN",
+            "LocalizedName": "India",
+            "EnglishName": "India"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Asia/Kolkata",
+            "GmtOffset": 5.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 13.03806,
+            "Longitude": 80.24522,
+            "Elevation": {
+                "Metric": {
+                    "Value": 17,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 55,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:05:00+05:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 28.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 84,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/in/chennai/206671/current-weather/206671?lang=en-us",
+        "Link": "http://www.accuweather.com/en/in/chennai/206671/current-weather/206671?lang=en-us"
+    },
+    {
+        "Key": "206690",
+        "LocalizedName": "Kolkata",
+        "EnglishName": "Kolkata",
+        "Country": {
+            "ID": "IN",
+            "LocalizedName": "India",
+            "EnglishName": "India"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Asia/Kolkata",
+            "GmtOffset": 5.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 22.52648,
+            "Longitude": 88.35336,
+            "Elevation": {
+                "Metric": {
+                    "Value": 16,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 52,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:05:00+05:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 28.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 83,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/in/kolkata/206690/current-weather/206690?lang=en-us",
+        "Link": "http://www.accuweather.com/en/in/kolkata/206690/current-weather/206690?lang=en-us"
+    },
+    {
+        "Key": "246562",
+        "LocalizedName": "Yangon",
+        "EnglishName": "Yangon",
+        "Country": {
+            "ID": "MM",
+            "LocalizedName": "Myanmar",
+            "EnglishName": "Myanmar"
+        },
+        "TimeZone": {
+            "Code": "MMT",
+            "Name": "Asia/Rangoon",
+            "GmtOffset": 6.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 16.79832,
+            "Longitude": 96.14974,
+            "Elevation": {
+                "Metric": {
+                    "Value": 12,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 39,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T05:05:00+06:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/mm/yangon/246562/current-weather/246562?lang=en-us",
+        "Link": "http://www.accuweather.com/en/mm/yangon/246562/current-weather/246562?lang=en-us"
+    },
+    {
+        "Key": "261158",
+        "LocalizedName": "Karachi",
+        "EnglishName": "Karachi",
+        "Country": {
+            "ID": "PK",
+            "LocalizedName": "Pakistan",
+            "EnglishName": "Pakistan"
+        },
+        "TimeZone": {
+            "Code": "PKT",
+            "Name": "Asia/Karachi",
+            "GmtOffset": 5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 24.88978,
+            "Longitude": 67.02851,
+            "Elevation": {
+                "Metric": {
+                    "Value": 11,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 36,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T03:35:00+05:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 81,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/pk/karachi/261158/current-weather/261158?lang=en-us",
+        "Link": "http://www.accuweather.com/en/pk/karachi/261158/current-weather/261158?lang=en-us"
+    },
+    {
+        "Key": "295212",
+        "LocalizedName": "Saint Petersburg",
+        "EnglishName": "Saint Petersburg",
+        "Country": {
+            "ID": "RU",
+            "LocalizedName": "Russia",
+            "EnglishName": "Russia"
+        },
+        "TimeZone": {
+            "Code": "MSK",
+            "Name": "Europe/Moscow",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 59.93937,
+            "Longitude": 30.31536,
+            "Elevation": {
+                "Metric": {
+                    "Value": 10,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 32,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 17.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 64,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ru/saint-petersburg/295212/current-weather/295212?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ru/saint-petersburg/295212/current-weather/295212?lang=en-us"
+    },
+    {
+        "Key": "318251",
+        "LocalizedName": "Istanbul",
+        "EnglishName": "Istanbul",
+        "Country": {
+            "ID": "TR",
+            "LocalizedName": "Turkey",
+            "EnglishName": "Turkey"
+        },
+        "TimeZone": {
+            "Code": "TRT",
+            "Name": "Europe/Istanbul",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 41.06596,
+            "Longitude": 29.00607,
+            "Elevation": {
+                "Metric": {
+                    "Value": 112,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 367,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25.5,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 78,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/tr/istanbul/318251/current-weather/318251?lang=en-us",
+        "Link": "http://www.accuweather.com/en/tr/istanbul/318251/current-weather/318251?lang=en-us"
+    },
+    {
+        "Key": "353981",
+        "LocalizedName": "Ho Chi Minh City",
+        "EnglishName": "Ho Chi Minh City",
+        "Country": {
+            "ID": "VN",
+            "LocalizedName": "Vietnam",
+            "EnglishName": "Vietnam"
+        },
+        "TimeZone": {
+            "Code": "ICT",
+            "Name": "Asia/Ho_Chi_Minh",
+            "GmtOffset": 7,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 10.76561,
+            "Longitude": 106.681221,
+            "Elevation": {
+                "Metric": {
+                    "Value": 5,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 16,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T05:35:00+07:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/vn/ho-chi-minh-city/353981/current-weather/353981?lang=en-us",
+        "Link": "http://www.accuweather.com/en/vn/ho-chi-minh-city/353981/current-weather/353981?lang=en-us"
+    },
+    {
+        "Key": "305448",
+        "LocalizedName": "Johannesburg",
+        "EnglishName": "Johannesburg",
+        "Country": {
+            "ID": "ZA",
+            "LocalizedName": "South Africa",
+            "EnglishName": "South Africa"
+        },
+        "TimeZone": {
+            "Code": "SAST",
+            "Name": "Africa/Johannesburg",
+            "GmtOffset": 2,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -26.179,
+            "Longitude": 28.0042,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1665,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 5464,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:42:00+02:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 7.3,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 45,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/za/johannesburg/305448/current-weather/305448?lang=en-us",
+        "Link": "http://www.accuweather.com/en/za/johannesburg/305448/current-weather/305448?lang=en-us"
+    },
+    {
+        "Key": "4607",
+        "LocalizedName": "Lagos",
+        "EnglishName": "Lagos",
+        "Country": {
+            "ID": "NG",
+            "LocalizedName": "Nigeria",
+            "EnglishName": "Nigeria"
+        },
+        "TimeZone": {
+            "Code": "WAT",
+            "Name": "Africa/Lagos",
+            "GmtOffset": 1,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 6.44954,
+            "Longitude": 3.42809,
+            "Elevation": {
+                "Metric": {
+                    "Value": 36,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 118,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:42:00+01:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ng/lagos/4607/current-weather/4607?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ng/lagos/4607/current-weather/4607?lang=en-us"
+    },
+    {
+        "Key": "347625",
+        "LocalizedName": "Los Angeles",
+        "EnglishName": "Los Angeles",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "PDT",
+            "Name": "America/Los_Angeles",
+            "GmtOffset": -7,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T09:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 34.05224,
+            "Longitude": -118.2437,
+            "Elevation": {
+                "Metric": {
+                    "Value": 121,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 396,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T16:01:00-07:00",
+        "EpochTime": 1535065260,
+        "WeatherText": "Sunny",
+        "WeatherIcon": 1,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 80,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/los-angeles-ca/90012/current-weather/347625?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/los-angeles-ca/90012/current-weather/347625?lang=en-us"
+    },
+    {
+        "Key": "349727",
+        "LocalizedName": "New York",
+        "EnglishName": "New York",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "EDT",
+            "Name": "America/New_York",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T06:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 40.779,
+            "Longitude": -73.969,
+            "Elevation": {
+                "Metric": {
+                    "Value": 8,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 26,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:45:00-04:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/new-york-ny/10007/current-weather/349727?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/new-york-ny/10007/current-weather/349727?lang=en-us"
+    },
+    {
+        "Key": "4361",
+        "LocalizedName": "Kabul",
+        "EnglishName": "Kabul",
+        "Country": {
+            "ID": "AF",
+            "LocalizedName": "Afghanistan",
+            "EnglishName": "Afghanistan"
+        },
+        "TimeZone": {
+            "Code": "AFT",
+            "Name": "Asia/Kabul",
+            "GmtOffset": 4.5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 34.53091,
+            "Longitude": 69.13675,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1838,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 6031,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T03:05:00+04:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 18.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 66,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/af/kabul/4361/current-weather/4361?lang=en-us",
+        "Link": "http://www.accuweather.com/en/af/kabul/4361/current-weather/4361?lang=en-us"
+    },
+    {
+        "Key": "16890",
+        "LocalizedName": "Yerevan",
+        "EnglishName": "Yerevan",
+        "Country": {
+            "ID": "AM",
+            "LocalizedName": "Armenia",
+            "EnglishName": "Armenia"
+        },
+        "TimeZone": {
+            "Code": "AMT",
+            "Name": "Asia/Yerevan",
+            "GmtOffset": 4,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 40.20802,
+            "Longitude": 44.53266,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1211,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3972,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T02:35:00+04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 19.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 68,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/am/yerevan/16890/current-weather/16890?lang=en-us",
+        "Link": "http://www.accuweather.com/en/am/yerevan/16890/current-weather/16890?lang=en-us"
+    },
+    {
+        "Key": "4651",
+        "LocalizedName": "Luanda",
+        "EnglishName": "Luanda",
+        "Country": {
+            "ID": "AO",
+            "LocalizedName": "Angola",
+            "EnglishName": "Angola"
+        },
+        "TimeZone": {
+            "Code": "WAT",
+            "Name": "Africa/Luanda",
+            "GmtOffset": 1,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -8.81241,
+            "Longitude": 13.23503,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:42:00+01:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 21.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 70,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ao/luanda/4651/current-weather/4651?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ao/luanda/4651/current-weather/4651?lang=en-us"
+    },
+    {
+        "Key": "7894",
+        "LocalizedName": "Buenos Aires",
+        "EnglishName": "Buenos Aires",
+        "Country": {
+            "ID": "AR",
+            "LocalizedName": "Argentina",
+            "EnglishName": "Argentina"
+        },
+        "TimeZone": {
+            "Code": "ART",
+            "Name": "America/Argentina/Buenos_Aires",
+            "GmtOffset": -3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -34.57685,
+            "Longitude": -58.42317,
+            "Elevation": {
+                "Metric": {
+                    "Value": 10,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 32,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 12.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 55,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ar/buenos-aires/7894/current-weather/7894?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ar/buenos-aires/7894/current-weather/7894?lang=en-us"
+    },
+    {
+        "Key": "31868",
+        "LocalizedName": "Vienna",
+        "EnglishName": "Vienna",
+        "Country": {
+            "ID": "AT",
+            "LocalizedName": "Austria",
+            "EnglishName": "Austria"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Vienna",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 48.20823,
+            "Longitude": 16.37203,
+            "Elevation": {
+                "Metric": {
+                    "Value": 171,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 560,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/at/vienna/31868/current-weather/31868?lang=en-us",
+        "Link": "http://www.accuweather.com/en/at/vienna/31868/current-weather/31868?lang=en-us"
+    },
+    {
+        "Key": "43348",
+        "LocalizedName": "Brasília",
+        "EnglishName": "Brasília",
+        "Country": {
+            "ID": "BR",
+            "LocalizedName": "Brazil",
+            "EnglishName": "Brazil"
+        },
+        "TimeZone": {
+            "Code": "BRT",
+            "Name": "America/Sao_Paulo",
+            "GmtOffset": -3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-10-21T03:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -15.79409,
+            "Longitude": -47.88791,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1066,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3499,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Some clouds",
+        "WeatherIcon": 36,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 74,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/br/brasilia/43348/current-weather/43348?lang=en-us",
+        "Link": "http://www.accuweather.com/en/br/brasilia/43348/current-weather/43348?lang=en-us"
+    },
+    {
+        "Key": "122438",
+        "LocalizedName": "Havana",
+        "EnglishName": "Havana",
+        "Country": {
+            "ID": "CU",
+            "LocalizedName": "Cuba",
+            "EnglishName": "Cuba"
+        },
+        "TimeZone": {
+            "Code": "CDT",
+            "Name": "America/Havana",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T05:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 23.1168,
+            "Longitude": -82.38859,
+            "Elevation": {
+                "Metric": {
+                    "Value": 35,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 114,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:35:00-04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 28.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 84,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cu/havana/122438/current-weather/122438?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cu/havana/122438/current-weather/122438?lang=en-us"
+    },
+    {
+        "Key": "125887",
+        "LocalizedName": "Santo Domingo",
+        "EnglishName": "Santo Domingo",
+        "Country": {
+            "ID": "DO",
+            "LocalizedName": "Dominican Republic",
+            "EnglishName": "Dominican Republic"
+        },
+        "TimeZone": {
+            "Code": "AST",
+            "Name": "America/Santo_Domingo",
+            "GmtOffset": -4,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 18.4867,
+            "Longitude": -69.94049,
+            "Elevation": {
+                "Metric": {
+                    "Value": 43,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 141,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:35:00-04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 29.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 86,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/do/santo-domingo/125887/current-weather/125887?lang=en-us",
+        "Link": "http://www.accuweather.com/en/do/santo-domingo/125887/current-weather/125887?lang=en-us"
+    },
+    {
+        "Key": "2093",
+        "LocalizedName": "Algiers",
+        "EnglishName": "Algiers",
+        "Country": {
+            "ID": "DZ",
+            "LocalizedName": "Algeria",
+            "EnglishName": "Algeria"
+        },
+        "TimeZone": {
+            "Code": "CET",
+            "Name": "Africa/Algiers",
+            "GmtOffset": 1,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 36.7658,
+            "Longitude": 3.03193,
+            "Elevation": {
+                "Metric": {
+                    "Value": 239,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 783,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:42:00+01:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 24.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 76,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/dz/algiers/2093/current-weather/2093?lang=en-us",
+        "Link": "http://www.accuweather.com/en/dz/algiers/2093/current-weather/2093?lang=en-us"
+    },
+    {
+        "Key": "623",
+        "LocalizedName": "Paris",
+        "EnglishName": "Paris",
+        "Country": {
+            "ID": "FR",
+            "LocalizedName": "France",
+            "EnglishName": "France"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Paris",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 48.857,
+            "Longitude": 2.351,
+            "Elevation": {
+                "Metric": {
+                    "Value": 35,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 114,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 21.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 71,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/fr/paris/623/current-weather/623?lang=en-us",
+        "Link": "http://www.accuweather.com/en/fr/paris/623/current-weather/623?lang=en-us"
+    },
+    {
+        "Key": "207931",
+        "LocalizedName": "Dublin",
+        "EnglishName": "Dublin",
+        "Country": {
+            "ID": "IE",
+            "LocalizedName": "Ireland",
+            "EnglishName": "Ireland"
+        },
+        "TimeZone": {
+            "Code": "IST",
+            "Name": "Europe/Dublin",
+            "GmtOffset": 1,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 53.34405,
+            "Longitude": -6.26754,
+            "Elevation": {
+                "Metric": {
+                    "Value": 4,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 13,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:45:00+01:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 10,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 50,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ie/dublin/207931/current-weather/207931?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ie/dublin/207931/current-weather/207931?lang=en-us"
+    },
+    {
+        "Key": "210841",
+        "LocalizedName": "Tehran",
+        "EnglishName": "Tehran",
+        "Country": {
+            "ID": "IR",
+            "LocalizedName": "Iran",
+            "EnglishName": "Iran"
+        },
+        "TimeZone": {
+            "Code": "IRDT",
+            "Name": "Asia/Tehran",
+            "GmtOffset": 4.5,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-09-21T19:30:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 35.70131,
+            "Longitude": 51.40739,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1227,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 4027,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T03:05:00+04:30",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ir/tehran/210841/current-weather/210841?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ir/tehran/210841/current-weather/210841?lang=en-us"
+    },
+    {
+        "Key": "213490",
+        "LocalizedName": "Rome",
+        "EnglishName": "Rome",
+        "Country": {
+            "ID": "IT",
+            "LocalizedName": "Italy",
+            "EnglishName": "Italy"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Rome",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 41.89195,
+            "Longitude": 12.51123,
+            "Elevation": {
+                "Metric": {
+                    "Value": 45,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 147,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Some clouds",
+        "WeatherIcon": 36,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 22,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 72,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/it/rome/213490/current-weather/213490?lang=en-us",
+        "Link": "http://www.accuweather.com/en/it/rome/213490/current-weather/213490?lang=en-us"
+    },
+    {
+        "Key": "224758",
+        "LocalizedName": "Nairobi",
+        "EnglishName": "Nairobi",
+        "Country": {
+            "ID": "KE",
+            "LocalizedName": "Kenya",
+            "EnglishName": "Kenya"
+        },
+        "TimeZone": {
+            "Code": "EAT",
+            "Name": "Africa/Nairobi",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -1.2702,
+            "Longitude": 36.80414,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1702,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 5585,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:42:00+03:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 16.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 61,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ke/nairobi/224758/current-weather/224758?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ke/nairobi/224758/current-weather/224758?lang=en-us"
+    },
+    {
+        "Key": "246421",
+        "LocalizedName": "Ulan Bator",
+        "EnglishName": "Ulan Bator",
+        "Country": {
+            "ID": "MN",
+            "LocalizedName": "Mongolia",
+            "EnglishName": "Mongolia"
+        },
+        "TimeZone": {
+            "Code": "ULAT",
+            "Name": "Asia/Ulaanbaatar",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 47.9285,
+            "Longitude": 106.912308,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1336,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 4382,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:35:00+08:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Sunny",
+        "WeatherIcon": 1,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 12.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 54,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/mn/ulan-bator/246421/current-weather/246421?lang=en-us",
+        "Link": "http://www.accuweather.com/en/mn/ulan-bator/246421/current-weather/246421?lang=en-us"
+    },
+    {
+        "Key": "233776",
+        "LocalizedName": "Kuala Lumpur",
+        "EnglishName": "Kuala Lumpur",
+        "Country": {
+            "ID": "MY",
+            "LocalizedName": "Malaysia",
+            "EnglishName": "Malaysia"
+        },
+        "TimeZone": {
+            "Code": "MYT",
+            "Name": "Asia/Kuala_Lumpur",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 3.1501,
+            "Longitude": 101.707611,
+            "Elevation": {
+                "Metric": {
+                    "Value": 60,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 196,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:39:00+08:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 77,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/my/kuala-lumpur/233776/current-weather/233776?lang=en-us",
+        "Link": "http://www.accuweather.com/en/my/kuala-lumpur/233776/current-weather/233776?lang=en-us"
+    },
+    {
+        "Key": "264885",
+        "LocalizedName": "Manila",
+        "EnglishName": "Manila",
+        "Country": {
+            "ID": "PH",
+            "LocalizedName": "Philippines",
+            "EnglishName": "Philippines"
+        },
+        "TimeZone": {
+            "Code": "PHT",
+            "Name": "Asia/Manila",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 14.58992,
+            "Longitude": 120.981537,
+            "Elevation": {
+                "Metric": {
+                    "Value": 2,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 8,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:39:00+08:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 6,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ph/manila/264885/current-weather/264885?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ph/manila/264885/current-weather/264885?lang=en-us"
+    },
+    {
+        "Key": "287430",
+        "LocalizedName": "Bucharest",
+        "EnglishName": "Bucharest",
+        "Country": {
+            "ID": "RO",
+            "LocalizedName": "Romania",
+            "EnglishName": "Romania"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Bucharest",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 44.43587,
+            "Longitude": 26.10388,
+            "Elevation": {
+                "Metric": {
+                    "Value": 84,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 275,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 20,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 68,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ro/bucharest/287430/current-weather/287430?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ro/bucharest/287430/current-weather/287430?lang=en-us"
+    },
+    {
+        "Key": "298198",
+        "LocalizedName": "Belgrade",
+        "EnglishName": "Belgrade",
+        "Country": {
+            "ID": "RS",
+            "LocalizedName": "Serbia",
+            "EnglishName": "Serbia"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Belgrade",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 44.81653,
+            "Longitude": 20.4637,
+            "Elevation": {
+                "Metric": {
+                    "Value": 99,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 324,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 73,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/rs/belgrade/298198/current-weather/298198?lang=en-us",
+        "Link": "http://www.accuweather.com/en/rs/belgrade/298198/current-weather/298198?lang=en-us"
+    },
+    {
+        "Key": "297442",
+        "LocalizedName": "Dakar",
+        "EnglishName": "Dakar",
+        "Country": {
+            "ID": "SN",
+            "LocalizedName": "Senegal",
+            "EnglishName": "Senegal"
+        },
+        "TimeZone": {
+            "Code": "GMT",
+            "Name": "Africa/Dakar",
+            "GmtOffset": 0,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 14.68667,
+            "Longitude": -17.45191,
+            "Elevation": {
+                "Metric": {
+                    "Value": 11,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 36,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T22:42:00+00:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sn/dakar/297442/current-weather/297442?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sn/dakar/297442/current-weather/297442?lang=en-us"
+    },
+    {
+        "Key": "315078",
+        "LocalizedName": "Taipei City",
+        "EnglishName": "Taipei City",
+        "Country": {
+            "ID": "TW",
+            "LocalizedName": "Taiwan",
+            "EnglishName": "Taiwan"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "Asia/Taipei",
+            "GmtOffset": 8,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 25.04838,
+            "Longitude": 121.514412,
+            "Elevation": {
+                "Metric": {
+                    "Value": 8,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 26,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T06:35:00+08:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Shower",
+        "WeatherIcon": 12,
+        "LocalSource": {
+            "Id": 7,
+            "Name": "Huafeng",
+            "WeatherCode": "03"
+        },
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/tw/taipei-city/315078/current-weather/315078?lang=en-us",
+        "Link": "http://www.accuweather.com/en/tw/taipei-city/315078/current-weather/315078?lang=en-us"
+    },
+    {
+        "Key": "324505",
+        "LocalizedName": "Kyiv",
+        "EnglishName": "Kyiv",
+        "Country": {
+            "ID": "UA",
+            "LocalizedName": "Ukraine",
+            "EnglishName": "Ukraine"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Kiev",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 50.44839,
+            "Longitude": 30.54752,
+            "Elevation": {
+                "Metric": {
+                    "Value": 86,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 282,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 12.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 54,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ua/kyiv/324505/current-weather/324505?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ua/kyiv/324505/current-weather/324505?lang=en-us"
+    },
+    {
+        "Key": "349269",
+        "LocalizedName": "Montevideo",
+        "EnglishName": "Montevideo",
+        "Country": {
+            "ID": "UY",
+            "LocalizedName": "Uruguay",
+            "EnglishName": "Uruguay"
+        },
+        "TimeZone": {
+            "Code": "UYT",
+            "Name": "America/Montevideo",
+            "GmtOffset": -3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -34.8809,
+            "Longitude": -56.16544,
+            "Elevation": {
+                "Metric": {
+                    "Value": 39,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 127,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 11,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 52,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/uy/montevideo/349269/current-weather/349269?lang=en-us",
+        "Link": "http://www.accuweather.com/en/uy/montevideo/349269/current-weather/349269?lang=en-us"
+    },
+    {
+        "Key": "353020",
+        "LocalizedName": "Caracas",
+        "EnglishName": "Caracas",
+        "Country": {
+            "ID": "VE",
+            "LocalizedName": "Venezuela",
+            "EnglishName": "Venezuela"
+        },
+        "TimeZone": {
+            "Code": "VET",
+            "Name": "America/Caracas",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 10.49605,
+            "Longitude": -66.89828,
+            "Elevation": {
+                "Metric": {
+                    "Value": 905,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2968,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:35:00-04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clouds and sun",
+        "WeatherIcon": 4,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 24,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ve/caracas/353020/current-weather/353020?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ve/caracas/353020/current-weather/353020?lang=en-us"
+    },
+    {
+        "Key": "353412",
+        "LocalizedName": "Hanoi",
+        "EnglishName": "Hanoi",
+        "Country": {
+            "ID": "VN",
+            "LocalizedName": "Vietnam",
+            "EnglishName": "Vietnam"
+        },
+        "TimeZone": {
+            "Code": "ICT",
+            "Name": "Asia/Ho_Chi_Minh",
+            "GmtOffset": 7,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 21.03419,
+            "Longitude": 105.842194,
+            "Elevation": {
+                "Metric": {
+                    "Value": 23,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 75,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T05:35:00+07:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.7,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 80,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/vn/hanoi/353412/current-weather/353412?lang=en-us",
+        "Link": "http://www.accuweather.com/en/vn/hanoi/353412/current-weather/353412?lang=en-us"
+    },
+    {
+        "Key": "306633",
+        "LocalizedName": "Cape Town",
+        "EnglishName": "Cape Town",
+        "Country": {
+            "ID": "ZA",
+            "LocalizedName": "South Africa",
+            "EnglishName": "South Africa"
+        },
+        "TimeZone": {
+            "Code": "SAST",
+            "Name": "Africa/Johannesburg",
+            "GmtOffset": 2,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -33.97901,
+            "Longitude": 18.4823,
+            "Elevation": {
+                "Metric": {
+                    "Value": 15,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 49,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:42:00+02:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 9.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 48,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/za/cape-town/306633/current-weather/306633?lang=en-us",
+        "Link": "http://www.accuweather.com/en/za/cape-town/306633/current-weather/306633?lang=en-us"
+    },
+    {
+        "Key": "353558",
+        "LocalizedName": "Harare",
+        "EnglishName": "Harare",
+        "Country": {
+            "ID": "ZW",
+            "LocalizedName": "Zimbabwe",
+            "EnglishName": "Zimbabwe"
+        },
+        "TimeZone": {
+            "Code": "CAT",
+            "Name": "Africa/Harare",
+            "GmtOffset": 2,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -17.82335,
+            "Longitude": 31.05023,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1470,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 4824,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:42:00+02:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 13.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 56,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/zw/harare/353558/current-weather/353558?lang=en-us",
+        "Link": "http://www.accuweather.com/en/zw/harare/353558/current-weather/353558?lang=en-us"
+    },
+    {
+        "Key": "45881",
+        "LocalizedName": "São Paulo",
+        "EnglishName": "São Paulo",
+        "Country": {
+            "ID": "BR",
+            "LocalizedName": "Brazil",
+            "EnglishName": "Brazil"
+        },
+        "TimeZone": {
+            "Code": "BRT",
+            "Name": "America/Sao_Paulo",
+            "GmtOffset": -3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-10-21T03:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -23.56739,
+            "Longitude": -46.57038,
+            "Elevation": {
+                "Metric": {
+                    "Value": 662,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2171,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:35:00-03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 77,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/br/sao-paulo/45881/current-weather/45881?lang=en-us",
+        "Link": "http://www.accuweather.com/en/br/sao-paulo/45881/current-weather/45881?lang=en-us"
+    },
+    {
+        "Key": "55488",
+        "LocalizedName": "Toronto",
+        "EnglishName": "Toronto",
+        "Country": {
+            "ID": "CA",
+            "LocalizedName": "Canada",
+            "EnglishName": "Canada"
+        },
+        "TimeZone": {
+            "Code": "EDT",
+            "Name": "America/Toronto",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T06:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 43.64864,
+            "Longitude": -79.38027,
+            "Elevation": {
+                "Metric": {
+                    "Value": 75,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 246,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:45:00-04:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 25.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 78,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ca/toronto/m5j/current-weather/55488?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ca/toronto/m5j/current-weather/55488?lang=en-us"
+    },
+    {
+        "Key": "307297",
+        "LocalizedName": "Barcelona",
+        "EnglishName": "Barcelona",
+        "Country": {
+            "ID": "ES",
+            "LocalizedName": "Spain",
+            "EnglishName": "Spain"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Madrid",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 41.38537,
+            "Longitude": 2.17749,
+            "Elevation": {
+                "Metric": {
+                    "Value": 41,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 134,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 77,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/es/barcelona/307297/current-weather/307297?lang=en-us",
+        "Link": "http://www.accuweather.com/en/es/barcelona/307297/current-weather/307297?lang=en-us"
+    },
+    {
+        "Key": "225007",
+        "LocalizedName": "Osaka-shi",
+        "EnglishName": "Osaka-shi",
+        "Country": {
+            "ID": "JP",
+            "LocalizedName": "Japan",
+            "EnglishName": "Japan"
+        },
+        "TimeZone": {
+            "Code": "JST",
+            "Name": "Asia/Tokyo",
+            "GmtOffset": 9,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 34.6667,
+            "Longitude": 135.5,
+            "Elevation": {
+                "Metric": {
+                    "Value": 4,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 13,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T07:35:00+09:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 6,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 29.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 86,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/jp/osaka-shi/225007/current-weather/225007?lang=en-us",
+        "Link": "http://www.accuweather.com/en/jp/osaka-shi/225007/current-weather/225007?lang=en-us"
+    },
+    {
+        "Key": "313468",
+        "LocalizedName": "Aleppo",
+        "EnglishName": "Aleppo",
+        "Country": {
+            "ID": "SY",
+            "LocalizedName": "Syria",
+            "EnglishName": "Syria"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Asia/Damascus",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-25T21:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 36.21551,
+            "Longitude": 37.1591,
+            "Elevation": {
+                "Metric": {
+                    "Value": 381,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 1249,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 23.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 75,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sy/aleppo/313468/current-weather/313468?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sy/aleppo/313468/current-weather/313468?lang=en-us"
+    },
+    {
+        "Key": "56186",
+        "LocalizedName": "Montreal",
+        "EnglishName": "Montreal",
+        "Country": {
+            "ID": "CA",
+            "LocalizedName": "Canada",
+            "EnglishName": "Canada"
+        },
+        "TimeZone": {
+            "Code": "EDT",
+            "Name": "America/Montreal",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T06:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 45.5038,
+            "Longitude": -73.57494,
+            "Elevation": {
+                "Metric": {
+                    "Value": 119,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 390,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:45:00-04:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 24.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 76,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ca/montreal/h3a/current-weather/56186?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ca/montreal/h3a/current-weather/56186?lang=en-us"
+    },
+    {
+        "Key": "299429",
+        "LocalizedName": "Jeddah",
+        "EnglishName": "Jeddah",
+        "Country": {
+            "ID": "SA",
+            "LocalizedName": "Saudi Arabia",
+            "EnglishName": "Saudi Arabia"
+        },
+        "TimeZone": {
+            "Code": "AST",
+            "Name": "Asia/Riyadh",
+            "GmtOffset": 3,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 21.5434,
+            "Longitude": 39.17271,
+            "Elevation": {
+                "Metric": {
+                    "Value": 12,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 39,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 32.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 90,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sa/jeddah/299429/current-weather/299429?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sa/jeddah/299429/current-weather/299429?lang=en-us"
+    },
+    {
+        "Key": "348308",
+        "LocalizedName": "Chicago",
+        "EnglishName": "Chicago",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "CDT",
+            "Name": "America/Chicago",
+            "GmtOffset": -5,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T07:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 41.85004,
+            "Longitude": -87.65006,
+            "Elevation": {
+                "Metric": {
+                    "Value": 181,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 593,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:01:00-05:00",
+        "EpochTime": 1535065260,
+        "WeatherText": "Clouds and sun",
+        "WeatherIcon": 4,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 25.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 78,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/chicago-il/60608/current-weather/348308?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/chicago-il/60608/current-weather/348308?lang=en-us"
+    },
+    {
+        "Key": "321626",
+        "LocalizedName": "Abu Dhabi",
+        "EnglishName": "Abu Dhabi",
+        "Country": {
+            "ID": "AE",
+            "LocalizedName": "United Arab Emirates",
+            "EnglishName": "United Arab Emirates"
+        },
+        "TimeZone": {
+            "Code": "GST",
+            "Name": "Asia/Dubai",
+            "GmtOffset": 4,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 24.4695,
+            "Longitude": 54.35751,
+            "Elevation": {
+                "Metric": {
+                    "Value": 9,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 29,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T02:35:00+04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 32.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 91,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ae/abu-dhabi/321626/current-weather/321626?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ae/abu-dhabi/321626/current-weather/321626?lang=en-us"
+    },
+    {
+        "Key": "33655",
+        "LocalizedName": "La Paz",
+        "EnglishName": "La Paz",
+        "Country": {
+            "ID": "BO",
+            "LocalizedName": "Bolivia",
+            "EnglishName": "Bolivia"
+        },
+        "TimeZone": {
+            "Code": "BOT",
+            "Name": "America/La_Paz",
+            "GmtOffset": -4,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -16.49901,
+            "Longitude": -68.14626,
+            "Elevation": {
+                "Metric": {
+                    "Value": 3844,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 12611,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:35:00-04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 13.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 57,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/bo/la-paz/33655/current-weather/33655?lang=en-us",
+        "Link": "http://www.accuweather.com/en/bo/la-paz/33655/current-weather/33655?lang=en-us"
+    },
+    {
+        "Key": "115295",
+        "LocalizedName": "San Jose",
+        "EnglishName": "San Jose",
+        "Country": {
+            "ID": "CR",
+            "LocalizedName": "Costa Rica",
+            "EnglishName": "Costa Rica"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "America/Costa_Rica",
+            "GmtOffset": -6,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 9.9228,
+            "Longitude": -84.09395,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1091,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 3578,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T16:35:00-06:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 6,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 72,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/cr/san-jose/115295/current-weather/115295?lang=en-us",
+        "Link": "http://www.accuweather.com/en/cr/san-jose/115295/current-weather/115295?lang=en-us"
+    },
+    {
+        "Key": "127964",
+        "LocalizedName": "Tallinn",
+        "EnglishName": "Tallinn",
+        "Country": {
+            "ID": "EE",
+            "LocalizedName": "Estonia",
+            "EnglishName": "Estonia"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Tallinn",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 59.43703,
+            "Longitude": 24.77134,
+            "Elevation": {
+                "Metric": {
+                    "Value": 22,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 72,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 15,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 59,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ee/tallinn/127964/current-weather/127964?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ee/tallinn/127964/current-weather/127964?lang=en-us"
+    },
+    {
+        "Key": "133328",
+        "LocalizedName": "Helsinki",
+        "EnglishName": "Helsinki",
+        "Country": {
+            "ID": "FI",
+            "LocalizedName": "Finland",
+            "EnglishName": "Finland"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Helsinki",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 60.16995,
+            "Longitude": 24.93858,
+            "Elevation": {
+                "Metric": {
+                    "Value": 26,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 85,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 15.5,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 60,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/fi/helsinki/133328/current-weather/133328?lang=en-us",
+        "Link": "http://www.accuweather.com/en/fi/helsinki/133328/current-weather/133328?lang=en-us"
+    },
+    {
+        "Key": "213225",
+        "LocalizedName": "Jerusalem",
+        "EnglishName": "Jerusalem",
+        "Country": {
+            "ID": "IL",
+            "LocalizedName": "Israel",
+            "EnglishName": "Israel"
+        },
+        "TimeZone": {
+            "Code": "IDT",
+            "Name": "Asia/Jerusalem",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-27T23:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 31.7736,
+            "Longitude": 35.225,
+            "Elevation": {
+                "Metric": {
+                    "Value": 804,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2637,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly clear",
+        "WeatherIcon": 34,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 73,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/il/jerusalem/213225/current-weather/213225?lang=en-us",
+        "Link": "http://www.accuweather.com/en/il/jerusalem/213225/current-weather/213225?lang=en-us"
+    },
+    {
+        "Key": "214971",
+        "LocalizedName": "Kingston",
+        "EnglishName": "Kingston",
+        "Country": {
+            "ID": "JM",
+            "LocalizedName": "Jamaica",
+            "EnglishName": "Jamaica"
+        },
+        "TimeZone": {
+            "Code": "EST",
+            "Name": "America/Jamaica",
+            "GmtOffset": -5,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 17.97478,
+            "Longitude": -76.768,
+            "Elevation": {
+                "Metric": {
+                    "Value": 26,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 85,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T17:35:00-05:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 6,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 30,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 86,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/jm/kingston/214971/current-weather/214971?lang=en-us",
+        "Link": "http://www.accuweather.com/en/jm/kingston/214971/current-weather/214971?lang=en-us"
+    },
+    {
+        "Key": "225780",
+        "LocalizedName": "Riga",
+        "EnglishName": "Riga",
+        "Country": {
+            "ID": "LV",
+            "LocalizedName": "Latvia",
+            "EnglishName": "Latvia"
+        },
+        "TimeZone": {
+            "Code": "EEST",
+            "Name": "Europe/Riga",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 56.94312,
+            "Longitude": 24.10521,
+            "Elevation": {
+                "Metric": {
+                    "Value": 9,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 29,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:45:00+03:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 18.4,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 65,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/lv/riga/225780/current-weather/225780?lang=en-us",
+        "Link": "http://www.accuweather.com/en/lv/riga/225780/current-weather/225780?lang=en-us"
+    },
+    {
+        "Key": "230555",
+        "LocalizedName": "Tripoli",
+        "EnglishName": "Tripoli",
+        "Country": {
+            "ID": "LY",
+            "LocalizedName": "Libya",
+            "EnglishName": "Libya"
+        },
+        "TimeZone": {
+            "Code": "EET",
+            "Name": "Africa/Tripoli",
+            "GmtOffset": 2,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 32.8777,
+            "Longitude": 13.18732,
+            "Elevation": {
+                "Metric": {
+                    "Value": 8,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 26,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:42:00+02:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 81,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/ly/tripoli/230555/current-weather/230555?lang=en-us",
+        "Link": "http://www.accuweather.com/en/ly/tripoli/230555/current-weather/230555?lang=en-us"
+    },
+    {
+        "Key": "249758",
+        "LocalizedName": "Amsterdam",
+        "EnglishName": "Amsterdam",
+        "Country": {
+            "ID": "NL",
+            "LocalizedName": "Netherlands",
+            "EnglishName": "Netherlands"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Amsterdam",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 52.37249,
+            "Longitude": 4.90023,
+            "Elevation": {
+                "Metric": {
+                    "Value": -1,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": -3,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 12.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 55,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/nl/amsterdam/249758/current-weather/249758?lang=en-us",
+        "Link": "http://www.accuweather.com/en/nl/amsterdam/249758/current-weather/249758?lang=en-us"
+    },
+    {
+        "Key": "254946",
+        "LocalizedName": "Oslo",
+        "EnglishName": "Oslo",
+        "Country": {
+            "ID": "NO",
+            "LocalizedName": "Norway",
+            "EnglishName": "Norway"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Oslo",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 59.91279,
+            "Longitude": 10.74021,
+            "Elevation": {
+                "Metric": {
+                    "Value": 11,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 36,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 38,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 12.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 54,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/no/oslo/254946/current-weather/254946?lang=en-us",
+        "Link": "http://www.accuweather.com/en/no/oslo/254946/current-weather/254946?lang=en-us"
+    },
+    {
+        "Key": "241809",
+        "LocalizedName": "Kathmandu",
+        "EnglishName": "Kathmandu",
+        "Country": {
+            "ID": "NP",
+            "LocalizedName": "Nepal",
+            "EnglishName": "Nepal"
+        },
+        "TimeZone": {
+            "Code": "NPT",
+            "Name": "Asia/Kathmandu",
+            "GmtOffset": 5.75,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 27.702,
+            "Longitude": 85.3175,
+            "Elevation": {
+                "Metric": {
+                    "Value": 1297,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 4254,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T04:20:00+05:45",
+        "EpochTime": 1535063700,
+        "WeatherText": "Rain",
+        "WeatherIcon": 18,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 22.2,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 72,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/np/kathmandu/241809/current-weather/241809?lang=en-us",
+        "Link": "http://www.accuweather.com/en/np/kathmandu/241809/current-weather/241809?lang=en-us"
+    },
+    {
+        "Key": "258848",
+        "LocalizedName": "Port Moresby",
+        "EnglishName": "Port Moresby",
+        "Country": {
+            "ID": "PG",
+            "LocalizedName": "Papua New Guinea",
+            "EnglishName": "Papua New Guinea"
+        },
+        "TimeZone": {
+            "Code": "PGT",
+            "Name": "Pacific/Port_Moresby",
+            "GmtOffset": 10,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -9.47959,
+            "Longitude": 147.188522,
+            "Elevation": {
+                "Metric": {
+                    "Value": 29,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 95,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T08:39:00+10:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 79,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/pg/port-moresby/258848/current-weather/258848?lang=en-us",
+        "Link": "http://www.accuweather.com/en/pg/port-moresby/258848/current-weather/258848?lang=en-us"
+    },
+    {
+        "Key": "275478",
+        "LocalizedName": "San Juan",
+        "EnglishName": "San Juan",
+        "Country": {
+            "ID": "PR",
+            "LocalizedName": "Puerto Rico",
+            "EnglishName": "Puerto Rico"
+        },
+        "TimeZone": {
+            "Code": "AST",
+            "Name": "America/Puerto_Rico",
+            "GmtOffset": -4,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 18.46634,
+            "Longitude": -66.10572,
+            "Elevation": {
+                "Metric": {
+                    "Value": 20,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 65,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T18:35:00-04:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 28.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 84,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/pr/san-juan/00901/current-weather/275478?lang=en-us",
+        "Link": "http://www.accuweather.com/en/pr/san-juan/00901/current-weather/275478?lang=en-us"
+    },
+    {
+        "Key": "274087",
+        "LocalizedName": "Lisbon",
+        "EnglishName": "Lisbon",
+        "Country": {
+            "ID": "PT",
+            "LocalizedName": "Portugal",
+            "EnglishName": "Portugal"
+        },
+        "TimeZone": {
+            "Code": "WEST",
+            "Name": "Europe/Lisbon",
+            "GmtOffset": 1,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 38.70732,
+            "Longitude": -9.13631,
+            "Elevation": {
+                "Metric": {
+                    "Value": 19,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 62,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:45:00+01:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 17.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 64,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/pt/lisbon/274087/current-weather/274087?lang=en-us",
+        "Link": "http://www.accuweather.com/en/pt/lisbon/274087/current-weather/274087?lang=en-us"
+    },
+    {
+        "Key": "314929",
+        "LocalizedName": "Stockholm",
+        "EnglishName": "Stockholm",
+        "Country": {
+            "ID": "SE",
+            "LocalizedName": "Sweden",
+            "EnglishName": "Sweden"
+        },
+        "TimeZone": {
+            "Code": "CEST",
+            "Name": "Europe/Stockholm",
+            "GmtOffset": 2,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-28T01:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 59.31434,
+            "Longitude": 18.06856,
+            "Elevation": {
+                "Metric": {
+                    "Value": 39,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 127,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T00:45:00+02:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 18.9,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 66,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/se/stockholm/314929/current-weather/314929?lang=en-us",
+        "Link": "http://www.accuweather.com/en/se/stockholm/314929/current-weather/314929?lang=en-us"
+    },
+    {
+        "Key": "130669",
+        "LocalizedName": "San Salvador",
+        "EnglishName": "San Salvador",
+        "Country": {
+            "ID": "SV",
+            "LocalizedName": "El Salvador",
+            "EnglishName": "El Salvador"
+        },
+        "TimeZone": {
+            "Code": "CST",
+            "Name": "America/El_Salvador",
+            "GmtOffset": -6,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 13.70141,
+            "Longitude": -89.20024,
+            "Elevation": {
+                "Metric": {
+                    "Value": 699,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 2292,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T16:35:00-06:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Clouds and sun",
+        "WeatherIcon": 4,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 26.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 80,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/sv/san-salvador/130669/current-weather/130669?lang=en-us",
+        "Link": "http://www.accuweather.com/en/sv/san-salvador/130669/current-weather/130669?lang=en-us"
+    },
+    {
+        "Key": "321398",
+        "LocalizedName": "Tunis",
+        "EnglishName": "Tunis",
+        "Country": {
+            "ID": "TN",
+            "LocalizedName": "Tunisia",
+            "EnglishName": "Tunisia"
+        },
+        "TimeZone": {
+            "Code": "CET",
+            "Name": "Africa/Tunis",
+            "GmtOffset": 1,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 36.81881,
+            "Longitude": 10.16596,
+            "Elevation": {
+                "Metric": {
+                    "Value": 48,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 157,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T23:42:00+01:00",
+        "EpochTime": 1535064120,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 25,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 77,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/tn/tunis/321398/current-weather/321398?lang=en-us",
+        "Link": "http://www.accuweather.com/en/tn/tunis/321398/current-weather/321398?lang=en-us"
+    },
+    {
+        "Key": "215854",
+        "LocalizedName": "Tel Aviv",
+        "EnglishName": "Tel Aviv",
+        "Country": {
+            "ID": "IL",
+            "LocalizedName": "Israel",
+            "EnglishName": "Israel"
+        },
+        "TimeZone": {
+            "Code": "IDT",
+            "Name": "Asia/Jerusalem",
+            "GmtOffset": 3,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-10-27T23:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 32.0451,
+            "Longitude": 34.76971,
+            "Elevation": {
+                "Metric": {
+                    "Value": 34,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 111,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T01:35:00+03:00",
+        "EpochTime": 1535063700,
+        "WeatherText": "Partly cloudy",
+        "WeatherIcon": 35,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/il/tel-aviv/215854/current-weather/215854?lang=en-us",
+        "Link": "http://www.accuweather.com/en/il/tel-aviv/215854/current-weather/215854?lang=en-us"
+    },
+    {
+        "Key": "252066",
+        "LocalizedName": "Auckland",
+        "EnglishName": "Auckland",
+        "Country": {
+            "ID": "NZ",
+            "LocalizedName": "New Zealand",
+            "EnglishName": "New Zealand"
+        },
+        "TimeZone": {
+            "Code": "NZST",
+            "Name": "Pacific/Auckland",
+            "GmtOffset": 12,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": "2018-09-29T14:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": -36.87202,
+            "Longitude": 174.76683,
+            "Elevation": {
+                "Metric": {
+                    "Value": 26,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 85,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T10:39:00+12:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Mostly sunny",
+        "WeatherIcon": 2,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 11.6,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 53,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/nz/auckland/252066/current-weather/252066?lang=en-us",
+        "Link": "http://www.accuweather.com/en/nz/auckland/252066/current-weather/252066?lang=en-us"
+    },
+    {
+        "Key": "348211",
+        "LocalizedName": "Honolulu",
+        "EnglishName": "Honolulu",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "HST",
+            "Name": "Pacific/Honolulu",
+            "GmtOffset": -10,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 21.32568,
+            "Longitude": -157.845367,
+            "Elevation": {
+                "Metric": {
+                    "Value": 112,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 367,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T12:45:00-10:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Light rain",
+        "WeatherIcon": 14,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 27.8,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 82,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/honolulu-hi/96817/current-weather/348211?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/honolulu-hi/96817/current-weather/348211?lang=en-us"
+    },
+    {
+        "Key": "347936",
+        "LocalizedName": "Miami",
+        "EnglishName": "Miami",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "EDT",
+            "Name": "America/New_York",
+            "GmtOffset": -4,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T06:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 25.77427,
+            "Longitude": -80.19366,
+            "Elevation": {
+                "Metric": {
+                    "Value": 5,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 16,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T19:01:00-04:00",
+        "EpochTime": 1535065260,
+        "WeatherText": "Partly sunny",
+        "WeatherIcon": 3,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 29.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 84,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/miami-fl/33128/current-weather/347936?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/miami-fl/33128/current-weather/347936?lang=en-us"
+    },
+    {
+        "Key": "351409",
+        "LocalizedName": "Seattle",
+        "EnglishName": "Seattle",
+        "Country": {
+            "ID": "US",
+            "LocalizedName": "United States",
+            "EnglishName": "United States"
+        },
+        "TimeZone": {
+            "Code": "PDT",
+            "Name": "America/Los_Angeles",
+            "GmtOffset": -7,
+            "IsDaylightSaving": true,
+            "NextOffsetChange": "2018-11-04T09:00:00Z"
+        },
+        "GeoPosition": {
+            "Latitude": 47.60622,
+            "Longitude": -122.332092,
+            "Elevation": {
+                "Metric": {
+                    "Value": 54,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 177,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T16:01:00-07:00",
+        "EpochTime": 1535065260,
+        "WeatherText": "Mostly cloudy",
+        "WeatherIcon": 6,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 21.1,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 70,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/us/seattle-wa/98104/current-weather/351409?lang=en-us",
+        "Link": "http://www.accuweather.com/en/us/seattle-wa/98104/current-weather/351409?lang=en-us"
+    },
+    {
+        "Key": "190390",
+        "LocalizedName": "Reykjavik",
+        "EnglishName": "Reykjavik",
+        "Country": {
+            "ID": "IS",
+            "LocalizedName": "Iceland",
+            "EnglishName": "Iceland"
+        },
+        "TimeZone": {
+            "Code": "GMT",
+            "Name": "Atlantic/Reykjavik",
+            "GmtOffset": 0,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": 64.13738,
+            "Longitude": -21.90248,
+            "Elevation": {
+                "Metric": {
+                    "Value": 36,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 118,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-23T22:45:00+00:00",
+        "EpochTime": 1535064300,
+        "WeatherText": "Clear",
+        "WeatherIcon": 33,
+        "IsDayTime": false,
+        "Temperature": {
+            "Metric": {
+                "Value": 10,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 50,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/is/reykjavik/190390/current-weather/190390?lang=en-us",
+        "Link": "http://www.accuweather.com/en/is/reykjavik/190390/current-weather/190390?lang=en-us"
+    },
+    {
+        "Key": "3484",
+        "LocalizedName": "Dili",
+        "EnglishName": "Dili",
+        "Country": {
+            "ID": "TL",
+            "LocalizedName": "Timor-Leste",
+            "EnglishName": "Timor-Leste"
+        },
+        "TimeZone": {
+            "Code": "TLT",
+            "Name": "Asia/Dili",
+            "GmtOffset": 9,
+            "IsDaylightSaving": false,
+            "NextOffsetChange": null
+        },
+        "GeoPosition": {
+            "Latitude": -8.57069,
+            "Longitude": 125.580711,
+            "Elevation": {
+                "Metric": {
+                    "Value": 115,
+                    "Unit": "m",
+                    "UnitType": 5
+                },
+                "Imperial": {
+                    "Value": 377,
+                    "Unit": "ft",
+                    "UnitType": 0
+                }
+            }
+        },
+        "LocalObservationDateTime": "2018-08-24T07:39:00+09:00",
+        "EpochTime": 1535063940,
+        "WeatherText": "Cloudy",
+        "WeatherIcon": 7,
+        "IsDayTime": true,
+        "Temperature": {
+            "Metric": {
+                "Value": 21.5,
+                "Unit": "C",
+                "UnitType": 17
+            },
+            "Imperial": {
+                "Value": 71,
+                "Unit": "F",
+                "UnitType": 18
+            }
+        },
+        "MobileLink": "http://m.accuweather.com/en/tl/dili/3484/current-weather/3484?lang=en-us",
+        "Link": "http://www.accuweather.com/en/tl/dili/3484/current-weather/3484?lang=en-us"
+    }
+]

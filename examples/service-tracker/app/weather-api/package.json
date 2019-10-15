@@ -1,0 +1,26 @@
+{
+  "name": "node-weather-api",
+  "version": "0.0.5",
+  "private": true,
+  "scripts": {
+    "local": "NODE_ENV=local node ./bin/www",
+    "dev": "NODE_ENV=dev node ./bin/www",
+    "container": "NODE_ENV=container node ./bin/www"
+  },
+  "dependencies": {
+    "applicationinsights": "^1.0.3",
+    "async": "^2.6.1",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "~1.4.3",
+    "dayjs": "^1.7.5",
+    "debug": "~2.6.9",
+    "dotenv": "^6.0.0",
+    "express": "~4.16.0",
+    "hbs": "^4.0.4",
+    "http-errors": "~1.6.2",
+    "morgan": "^1.9.1",
+    "path": "^0.12.7",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}
