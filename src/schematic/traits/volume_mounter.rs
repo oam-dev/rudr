@@ -175,8 +175,8 @@ impl TraitImplementation for VolumeMounter {
             ns,
             Default::default(),
         );
-        if req.is_err() {
-            resource.insert(key, req.unwrap_err().to_string());
+        if let Err(err) = req {
+            resource.insert(key, err.to_string());
             return Some(resource);
         }
 

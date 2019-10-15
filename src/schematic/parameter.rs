@@ -156,8 +156,8 @@ pub fn resolve_values(
         }
 
         // If a parameter has neither a from nor a value, we just ignore it.
-        if new_val.is_some() {
-            merged.insert(p.name.clone(), new_val.unwrap());
+        if let Some(new) = new_val {
+            merged.insert(p.name.clone(), new);
         }
     }
     Ok(merged)
