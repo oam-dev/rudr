@@ -398,6 +398,13 @@ pub struct Port {
     pub protocol: PortProtocol,
 }
 impl Port {
+    pub fn basic(name: String, container_port: i32) -> Self {
+        Port {
+            name,
+            container_port,
+            protocol: PortProtocol::TCP,
+        }
+    }
     fn to_container_port(&self) -> core::ContainerPort {
         core::ContainerPort {
             container_port: self.container_port,

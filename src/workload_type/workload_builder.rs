@@ -14,6 +14,7 @@ use crate::workload_type::{server::to_config_maps, InstigatorResult, ParamMap};
 /// WorkloadMetadata contains common data about a workload.
 ///
 /// Individual workload types can embed this field.
+#[derive(Clone)]
 pub struct WorkloadMetadata {
     /// Name is the name of the release
     pub name: String,
