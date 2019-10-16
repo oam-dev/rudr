@@ -49,6 +49,7 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 | Meeting Link | https://zoom.us/j/271516061  |
 | IM Channel       | https://gitter.im/oam-dev/  |
 | Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
+| Twitter      | [@oam_dev](https://twitter.com/oam_dev) |
 
 ## Governance
 
