@@ -89,8 +89,8 @@ Yeah, we have successfully built a component from source now.
 
 ## Upgrade the component
 
-We assume component is a kind of immutable facilities, so if we want to upgrade the component.
-The easiest way is to modify the component and change the name suffix with a new version.
+We assume a component is immutable. If we want to upgrade a component,
+the easiest way is to modify the component and change the name suffix with a new version.
 
 ### Change the code 
 
