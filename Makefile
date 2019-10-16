@@ -7,6 +7,15 @@ LOG_LEVEL := rudr=debug
 build:
 	cargo build
 
+foo:
+	echo $(PWD)
+
+.PHONY: build-linux
+build-linux: docker-build-amd64
+build-linux:
+	docker run -it --rm -v $(PWD)/_target:/dest $(REPO):$(TAG) cp /usr/app/rudr /dest/rudr-linux-x86_64
+	
+
 .PHONY: test
 test:
 	cargo test
