@@ -35,6 +35,5 @@ docker-publish: docker-build-cx
 	docker login -u hydraoss -p ${hydraoss_secret}
 	docker push $(REPO)-amd64:$(TAG)
 	docker push $(REPO)-arm64:$(TAG)
-	export DOCKER_CLI_EXPERIMENTAL=enabled
-	docker manifest create $(REPO):$(TAG) $(REPO)-amd64:$(TAG) $(REPO)-arm64:$(TAG)
-	docker manifest push $(REPO):$(TAG)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(REPO):$(TAG) $(REPO)-amd64:$(TAG) $(REPO)-arm64:$(TAG)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(REPO):$(TAG)
