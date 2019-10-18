@@ -31,7 +31,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ template "rudr.fullname" . }}
-  namespace: default
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ template "rudr.fullname" . }}
