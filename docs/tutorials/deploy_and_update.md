@@ -22,7 +22,7 @@ my-cluster
 
 The fastest way to install Rudr is with Helm 3.
 
-> make sure your Helm 3 has version newer than `v3.0.0-beta.3`, or you have to install the CRDs with `kubectl apply -f charts/rudr/crds`
+> make sure your Helm 3 has version newer than `[v3.0.0-beta.3](https://github.com/helm/helm/releases/tag/v3.0.0-beta.3)`, or you have to install the CRDs with `kubectl apply -f charts/rudr/crds`
 
 ```console
 $ helm install rudr charts/rudr
