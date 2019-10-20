@@ -11,7 +11,7 @@ If TARGET is not specified, it will use “World” as the TARGET.
 
 ## Steps to build image
 
-The following instructions will lead you to build a image from source, you can get all the files mentioned here in the [app](./app) folder.
+The following instructions will lead you to build an image from source, you can get all the files mentioned here in the [app](./app) folder.
 
 1. Create a new directory and cd into it:
     ```shell script
