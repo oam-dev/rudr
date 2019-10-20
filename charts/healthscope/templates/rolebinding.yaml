@@ -1,0 +1,39 @@
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "healthscope.fullname" . }}
+  labels:
+{{ include "healthscope.labels" . | indent 4 }}
+
+{{ if .Values.enableRBAC }}
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "healthscope.fullname" . }}
+  labels:
+{{ include "healthscope.labels" . | indent 4 }}
+rules:
+  - apiGroups: ["", "apps", "batch", "extensions", "core.oam.dev", "apiextensions.k8s.io"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "healthscope.fullname" . }}
+  labels:
+{{ include "healthscope.labels" . | indent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "healthscope.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ template "healthscope.fullname" . }}
+  apiGroup: ""
+{{ end }}
