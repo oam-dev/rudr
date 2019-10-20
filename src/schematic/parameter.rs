@@ -188,3 +188,31 @@ pub struct ParameterValue {
     pub value: Option<serde_json::Value>,
     pub from_param: Option<String>,
 }
+
+pub fn extract_string_params(name: &str, params: Vec<ParameterValue>) -> Option<String> {
+    let value = extract_value_params(name, params.clone());
+    if let serde_json::Value::String(vs) = value.unwrap_or_default() {
+        return Some(vs);
+    }
+    None
+}
+
+pub fn extract_number_params(
+    name: &str,
+    params: Vec<ParameterValue>,
+) -> Option<serde_json::Number> {
+    let value = extract_value_params(name, params.clone());
+    if let serde_json::Value::Number(vs) = value.unwrap_or_default() {
+        return Some(vs);
+    }
+    None
+}
+
+pub fn extract_value_params(name: &str, params: Vec<ParameterValue>) -> Option<serde_json::Value> {
+    params.iter().find_map(|param_value| {
+        if param_value.name.eq(name) {
+            return param_value.clone().value;
+        }
+        None
+    })
+}
