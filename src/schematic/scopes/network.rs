@@ -1,6 +1,6 @@
 use crate::schematic::configuration::ComponentConfiguration;
 /// Network scope is defined as https://github.com/oam-dev/spec/blob/master/4.application_scopes.md#network-scope
-/// Now we don't really implement network scope, this is just a framework as the spec describe.
+/// TODO: Now we don't really implement network scope, this is just a framework as the spec describe.
 use crate::schematic::parameter::{extract_string_params, ParameterValue};
 use crate::schematic::scopes::NETWORK_SCOPE;
 use failure::{format_err, Error};

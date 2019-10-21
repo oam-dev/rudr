@@ -1,15 +1,15 @@
 # Health Scope Controller
 
-Health Scope Controller used for periodically check health scope crd and check the health of all the components related.
+HealthScope controller is used to periodically check the health of all the components and update health scope custom resources.
 
 ## What will health scope controller do?
 
-1. periodically check all component health and update the CR status.
+1. periodically check health status of components and update the HealthScope resource status.
 2. serve as a http server, to output aggregated health information.
 
 ## How to install?
 
-You could use helm to install it:
+Use helm to install:
 
 ```shell script
 helm install healthscope ./charts/healthscope
@@ -17,15 +17,15 @@ helm install healthscope ./charts/healthscope
 
 ## How to use?
 
-After healthscope was installed by helm charts, you could setup an endpoint to it.
-By default the charts will use ClusterPort, you could use port mapper to make health scope accessible.
+After HealthScope controller is installed by helm charts, setup an endpoint to it.
+By default the charts will use ClusterPort, we can use port-forward to access HealthScope controller.
 
 ```shell script
 export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name=healthscope,app.kubernetes.io/instance=health" -o jsonpath="{.items[0].metadata.name}")
 kubectl port-forward $POD_NAME 8080:80
 ```
 
-Then you'll be able to visit http://127.0.0.1:8080 to get health scope status.
+Then we'll be able to visit http://127.0.0.1:8080 to query status of health scope resource.
 
 ### Create health scope instance using application configuration
 

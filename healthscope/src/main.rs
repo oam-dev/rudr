@@ -16,6 +16,10 @@ use rudr::schematic::scopes::health::{
     ComponentInfo, HealthScopeObject, HealthStatus, HEALTH_SCOPE_CRD, HEALTH_SCOPE_GROUP,
     HEALTH_SCOPE_VERSION,
 };
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
 
 const DEFAULT_NAMESPACE: &str = "default";
 const DEFAULT_PROBE_INTERVAL: i64 = 30;
@@ -70,20 +74,20 @@ fn main() -> Result<(), Error> {
             match client.request::<ObjectList<HealthScopeObject>>(req) {
                 Ok(health_scopes) => {
                     for scope in health_scopes.items {
-                        if let Err(res) = aggregate_health(&client, scope, ns.clone()) {
+                        if let Err(res) = aggregate_component_health(&client, scope, ns.clone()) {
                             // Log the error and continue.
                             error!("Error processing event: {:?}", res)
                         };
                     }
                 }
-                Err(e) => log::error!("get health scope list err {}", e),
+                Err(e) => error!("get health scope list err {}", e),
             }
             cnt = (cnt + 1) % 10;
             if cnt == 0 {
                 debug!("health scope aggregate loop running...");
             }
             //FIXME: we could change this to use an informer if we have a runtime controller queue
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(5));
         }
     });
 
@@ -124,10 +128,6 @@ fn main() -> Result<(), Error> {
     health_scope_watch.join().unwrap()
 }
 
-use std::{
-    sync::{Arc, Mutex},
-    thread,
-};
 pub struct HealthFuture {
     shared_state: Arc<Mutex<SharedState>>,
 }
@@ -157,6 +157,8 @@ impl Future for HealthFuture {
     }
 }
 
+// FIXME kube-rs client doesn't support async call so we have to wrap it in HealthFuture here.
+// we could remove this wrapper until kube-rs support. https://github.com/clux/kube-rs/issues/63
 impl HealthFuture {
     /// Create a new `TimerFuture` which will complete after the provided
     /// timeout.
@@ -193,6 +195,8 @@ impl HealthFuture {
 }
 
 type BoxFut = Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send>;
+
+// serve_health make health scope controller as an http server, it will serve requests and get the real health status from health scope instance
 fn serve_health(req: Request<Body>) -> BoxFut {
     let mut response = Response::new(Body::empty());
     let path = req.uri().path().to_owned();
@@ -207,6 +211,7 @@ fn serve_health(req: Request<Body>) -> BoxFut {
     Box::new(future::ok(response))
 }
 
+// request_health will request health scope instance CR and get status from the CR object
 fn request_health(instance_name: String) -> Result<String, Error> {
     let namespace =
         std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
@@ -239,7 +244,7 @@ fn request_health(instance_name: String) -> Result<String, Error> {
     Ok(health.to_string())
 }
 
-fn aggregate_health(
+fn aggregate_component_health(
     client: &APIClient,
     mut event: HealthScopeObject,
     namespace: String,

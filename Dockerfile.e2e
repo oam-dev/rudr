@@ -1,5 +1,6 @@
 FROM debian:stretch-slim
 WORKDIR /usr/app
+# kube-rs 0.6.1 need openssl 1.1.1 while using apt-get in debian:stretch-slim didn't work, so I have to compile from source here.
 ENV OPENSSL_URL https://www.openssl.org/source/openssl-1.1.1d.tar.gz
 ENV OPENSSL_SHA256 1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2
 ARG LD_LIBRARY_PATH=/opt/openssl-1.1.1/lib/
