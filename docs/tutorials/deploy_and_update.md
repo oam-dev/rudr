@@ -473,4 +473,4 @@ If you want to clean up your test environment and uninstall Rudr, you could do t
 
 ## Learn more
 
-To learn more about Rudr, check out the [Using Rudr](../how-to/using_rudr.md) guide.
+To learn more about Rudr, check out the [Using Rudr](../concepts/using_rudr.md) guide.
