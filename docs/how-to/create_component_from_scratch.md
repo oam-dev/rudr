@@ -11,7 +11,7 @@ If TARGET is not specified, it will use “World” as the TARGET.
 
 ## Steps to build image
 
-The following instructions will lead you to build a image from source, you can get all the files mentioned here in the [app](./app) folder.
+The following instructions will lead you to build an image from source, you can get all the files mentioned here in the [app](./app) folder.
 
 1. Create a new directory and cd into it:
     ```shell script
@@ -89,8 +89,8 @@ Yeah, we have successfully built a component from source now.
 
 ## Upgrade the component
 
-We assume component is a kind of immutable facilities, so if we want to upgrade the component.
-The easiest way is to modify the component and change the name suffix with a new version.
+We assume a component is immutable. If we want to upgrade a component,
+the easiest way is to modify the component and change the name suffix with a new version.
 
 ### Change the code 
 

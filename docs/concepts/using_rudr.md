@@ -2,7 +2,7 @@
 
 This guide explains the basics of using Rudr to install applications on your Kubernetes cluster. It assumes that you have already [installed Rudr](../setup/install.md).
 
-If you'd rather jump right in and start using Rudr, check out the [Rudr Tutorial](../tutorial/deploy_and_update.md), which walks you through installing, inspecting, and updating an application and its constituent components.
+If you'd rather jump right in and start using Rudr, check out the [Rudr Tutorial](../tutorials/deploy_and_update.md), which walks you through installing, inspecting, and updating an application and its constituent components.
 
 ## Four Concepts with One Action
 

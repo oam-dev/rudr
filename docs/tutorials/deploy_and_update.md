@@ -6,7 +6,7 @@ This guide covers how to install and configure a basic Rudr installation. For mo
 
 The following prerequisites are required for a successful use of Rudr.
 
-1. A copy of this repo (`git clone https://github.com/microsoft/rudr.git`)
+1. A copy of this repo (`git clone https://github.com/oam-dev/rudr.git`)
 2. A Kubernetes cluster version 1.15 or greater
 3. `kubectl` installed and pointed at the cluster
 4. [Helm 3](https://v3.helm.sh/)
@@ -473,4 +473,4 @@ If you want to clean up your test environment and uninstall Rudr, you could do t
 
 ## Learn more
 
-To learn more about Rudr, check out the [Using Rudr](../how-to/using_rudr.md) guide.
+To learn more about Rudr, check out the [Using Rudr](../concepts/using_rudr.md) guide.

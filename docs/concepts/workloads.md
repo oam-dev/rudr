@@ -6,7 +6,7 @@ The *workload type* (`workloadType`) is a field in the [component schematic](./c
  - Whether they are ***replicable***: An application operator can increase or decrease the number of component replicas by applying and configuring traits when available.
  - Whether they are ***daemonized***: Rudr will attempt to restart replicas that exit, regardless of error code.
 
-Rudr supports all of the Open Application Model [Core Workload Types](https://github.com/microsoft/hydra-spec/blob/master/3.component_model.md#core-workload-types):
+Rudr supports all of the Open Application Model [Core Workload Types](https://github.com/oam-dev/spec/blob/master/3.component_model.md#core-workload-types):
 
 |Name|Type|Service endpoint|Replicable|Daemonized|
 |-|-|-|-|-|
@@ -17,7 +17,7 @@ Rudr supports all of the Open Application Model [Core Workload Types](https://gi
 |[Worker](#worker)|core.oam.dev/v1alpha1.Worker|No|Yes|Yes
 |[Singleton Worker](#singleton-worker)|core.oam.dev/v1alpha1.SingletonWorker|No|No|Yes
 
-Workload types are assigned to components as part of the [developer](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role. They indicate to the [application operator](https://github.com/microsoft/hydra-spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) what trait(s) in the [application configuration](./application-configuration.md) that the component might require.
+Workload types are assigned to components as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role. They indicate to the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) what trait(s) in the [application configuration](./application-configuration.md) that the component might require.
 
 Workloads are named using the `GROUP/VERSION.KIND` Kubernetes convention, where `GROUP` is a uniquely named service collection, `VERSION` is an API version, and `KIND` is a group-unique name of a service. For example:
 

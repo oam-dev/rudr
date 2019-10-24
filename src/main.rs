@@ -208,7 +208,7 @@ fn precheck_crds(client: &APIClient) -> Result<(), failure::Error> {
         let req = RawApi::v1beta1CustomResourceDefinition()
             .get(format!("{}.core.oam.dev", crd).as_str())?;
         if let Err(e) = client.request::<CrdObj>(req) {
-            error!("Error prechecking CRDs: {}", e);
+            error!("Error prechecking CRDs {}: {}", crd, e);
             return Err(failure::format_err!("Missing CRD {}", crd));
         }
     }

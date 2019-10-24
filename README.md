@@ -12,11 +12,11 @@ Get started with a [How-To](./docs/how-to/create_component_from_scratch.md) guid
 
 ## We believe creating cloud native applications should not be hard
 
-Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixed together application primitives with infrastructure primitives. Different roles like developers and operators have to concern with problems from domains of each other and adjust themselves to understand the whole picture of the underlying infrastructure.
+Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain in order to understand the whole picture of the underlying infrastructure.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
-The requirement to deep understand the container infrastructure has introduced the following problems for application deployment and management:
+The requirement to deeply understand the container infrastructure has introduced the following problems for application deployment and management:
 
 - There is no standard definition for a cloud native application which makes it difficult for users looking for an easier way to modernize.
 - There are myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.
@@ -28,7 +28,7 @@ Rudr takes an incremental approach to solving the problems. The current architec
 
 ![rudr arch](./docs/media/rudr-how-it-works.png)
 
-- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config and infra operators to focus on Kubernetes.
+- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config, and infra operators to focus on Kubernetes.
 
 - By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters.
 
@@ -45,10 +45,11 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 | Item        | Value  |
 |---------------------|---|
 | Mailing List | https://groups.google.com/forum/#!forum/oam-dev |
-| Meeting Information | Bi-weekly (Starting Oct 23, 2019), Tuesdays 10:30AM PST  |
+| Meeting Information | [Bi-weekly (Starting Oct 22, 2019), Tuesdays 10:30AM PST](https://calendar.google.com/calendar?cid=dDk5YThyNGIwOWJyYTJxajNlbWI0a2FvdGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ)  |
 | Meeting Link | https://zoom.us/j/271516061  |
 | IM Channel       | https://gitter.im/oam-dev/  |
 | Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
+| Twitter      | [@oam_dev](https://twitter.com/oam_dev) |
 
 ## Governance
 
