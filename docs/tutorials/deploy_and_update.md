@@ -109,6 +109,7 @@ NAME            AGE
 autoscaler      19m
 ingress         19m
 manual-scaler   19m
+volume-mounter  19m
 ```
 
 And you can look at an individual trait in the same way that you investigate a component:
@@ -368,7 +369,7 @@ The response from the url indicates our change of environment has successfully w
 Assume several days have gone and the developer have developed a new version of the web app.
 
 For example we change prefix of the response from `Hello` to `Goodbye`, and make a new component called `helloworld-python-v2`.
-You can find more details about how we create it in [Upgrade Component](../how-to/create_component_from_scratch.md#Upgrade the component).
+You can find more details about how we create it in [Upgrade Component](../how-to/create_component_from_scratch.md#upgrade-the-component).
 
 ### Change and Apply the Application Configuration file
 
