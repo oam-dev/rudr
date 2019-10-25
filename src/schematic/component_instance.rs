@@ -5,4 +5,4 @@ pub struct ComponentInstance {
 }
 
 /// Convenience type for Kubernetes wrapped ComponentInstance.
-pub type KubeComponentInstance = kube::api::Object<ComponentInstance, kube::api::Void>;
+pub type KubeComponentInstance = kube::api::Object<ComponentInstance, String>;

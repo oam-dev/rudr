@@ -7,3 +7,5 @@
 /.vscode
 /.idea/
 *.iml
+
+/healthscope/target

@@ -178,3 +178,45 @@ fn test_resolve_value() {
     );
     assert_eq!("123".to_string(), got.unwrap());
 }
+
+#[test]
+fn test_extract_params() {
+    let mut params = vec![];
+    params.insert(
+        0,
+        ParameterValue {
+            name: "a".to_string(),
+            value: Some("1".into()),
+            from_param: None,
+        },
+    );
+    params.insert(
+        1,
+        ParameterValue {
+            name: "b".to_string(),
+            value: Some("2".into()),
+            from_param: None,
+        },
+    );
+    params.insert(
+        2,
+        ParameterValue {
+            name: "c".to_string(),
+            value: Some("3".into()),
+            from_param: None,
+        },
+    );
+    assert_eq!(
+        Some("1".to_string()),
+        extract_string_params("a", params.clone())
+    );
+    assert_eq!(
+        Some("2".to_string()),
+        extract_string_params("b", params.clone())
+    );
+    assert_eq!(
+        Some("3".to_string()),
+        extract_string_params("c", params.clone())
+    );
+    assert_eq!(None, extract_string_params("d", params.clone()));
+}

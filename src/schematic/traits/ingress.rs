@@ -128,8 +128,8 @@ impl TraitImplementation for Ingress {
 
         if let Some(status) = ingress.status {
             if let Some(_lbstatus) = status.load_balancer {
-                //we can just put Created to status, or combine Hostname and IP to status.
-                resource.insert(key.clone(), "Created".to_string());
+                //we can just put created to status, or combine Hostname and IP to status.
+                resource.insert(key.clone(), "created".to_string());
                 return Some(resource);
             }
         }

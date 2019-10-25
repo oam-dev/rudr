@@ -29,6 +29,7 @@ fn test_record_ann() {
             instance_name: "inst123".to_string(),
             parameter_values: None,
             traits: None,
+            application_scopes: None,
         },
     };
     let cr2 = ComponentRecord {
@@ -38,6 +39,7 @@ fn test_record_ann() {
             instance_name: "inst321".to_string(),
             parameter_values: None,
             traits: None,
+            application_scopes: None,
         },
     };
     one.insert("comp1".to_string(), cr.clone());
@@ -61,6 +63,7 @@ fn test_check_diff() {
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
+            application_scopes: None,
         },
     };
     let old_record = ComponentRecord {
@@ -70,6 +73,7 @@ fn test_check_diff() {
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
+            application_scopes: None,
         },
     };
 
@@ -83,6 +87,7 @@ fn test_check_diff() {
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
+            application_scopes: None,
         },
     };
     assert_eq!(check_diff(Some(new_record2), &old_record), true);
@@ -93,6 +98,7 @@ fn test_check_diff() {
             instance_name: "test_inst".to_string(),
             parameter_values: Some(vec![]),
             traits: None,
+            application_scopes: None,
         },
     };
     assert_eq!(check_diff(Some(new_record3), &old_record), true);

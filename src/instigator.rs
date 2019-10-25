@@ -5,14 +5,15 @@ use log::{debug, info, warn};
 use serde_json::json;
 use std::collections::BTreeMap;
 
+use crate::schematic::variable::Variable;
 use crate::{
     lifecycle::Phase,
     schematic::{
         component::Component,
         component_instance::KubeComponentInstance,
-        configuration::ApplicationConfiguration,
-        configuration::ComponentConfiguration,
+        configuration::{ApplicationConfiguration, ComponentConfiguration, ScopeBinding},
         parameter::{resolve_parameters, resolve_values, ParameterValue},
+        scopes::{self, Health, Network, OAMScope},
         variable::{get_variable_values, resolve_variables},
         OAMStatus,
     },
@@ -34,7 +35,7 @@ pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
-type OpResource = Object<ApplicationConfiguration, OAMStatus>;
+pub type OpResource = Object<ApplicationConfiguration, OAMStatus>;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -142,7 +143,18 @@ impl Instigator {
                 component.name.clone(),
                 status.clone()
             );
-
+            let mut health_state = "healthy".to_string();
+            for (_, v) in status.clone() {
+                if v != "running" && v != "created" && v != "succeeded" {
+                    health_state = "unhealthy".to_string();
+                    break;
+                }
+            }
+            self.component_instance_set_status(
+                component.name.clone(),
+                inst_name.clone(),
+                health_state,
+            )?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -226,10 +238,44 @@ impl Instigator {
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
-        // TODO:
-        // - Resolve scope bindings
         let name = event.metadata.name.clone();
+        let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
+        if event.spec.scopes.is_some() {
+            let scopes = load_scopes(
+                self.client.clone(),
+                self.namespace.clone(),
+                name.clone(),
+                event.spec.clone(),
+                variables.clone(),
+            )?;
+            match phase {
+                Phase::Add => {
+                    for sc in scopes.iter() {
+                        sc.create(owner_ref.clone())?;
+                    }
+                }
+                Phase::Modify => {
+                    for sc in scopes.iter() {
+                        sc.modify()?;
+                    }
+                }
+                Phase::Delete => {
+                    for sc in scopes.iter() {
+                        sc.delete()?;
+                    }
+                }
+                _ => {
+                    return Err(format_err!(
+                        "unknown phase for scopes {:?} on {}",
+                        phase.clone(),
+                        name.clone(),
+                    ))
+                }
+            }
+            // according to the spec, if this is not empty, this AppConfig will be scope instance only, so we could return after we resolved scopes.
+            return Ok(());
+        }
 
         let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
         let mut last_components = get_record_annotation(record_ann)?;
@@ -263,16 +309,39 @@ impl Instigator {
             } else if record.is_none() && phase == Phase::Modify {
                 phase = Phase::Add
             }
+            let mut scope_overlap = BTreeMap::new();
+            // TODO: if we don't manually add scopes, there are default scopes should be bind
+            for sc in &component
+                .application_scopes
+                .clone()
+                .unwrap_or_else(|| vec![])
+            {
+                let scopes =
+                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())?;
+                for scope in scopes.iter() {
+                    if !scope.allow_overlap() {
+                        if scope_overlap.get(&scope.scope_type()).is_some() {
+                            return Err(format_err!(
+                                "scope {} {} do not allow overlap",
+                                sc.clone(),
+                                scope.scope_type()
+                            ));
+                        }
+                        scope_overlap.insert(scope.scope_type(), true);
+                    }
+                    scope.add(component.clone())?;
+                }
+            }
 
             component_updated = true;
             // Resolve variables/parameters
-            let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
+
             let parent = get_variable_values(Some(variables.clone()));
 
             let child = component
                 .parameter_values
                 .clone()
-                .map(|values| resolve_variables(values, variables))
+                .map(|values| resolve_variables(values, variables.clone()))
                 .unwrap_or_else(|| Ok(vec![]))?;
 
             let params = resolve_parameters(
@@ -420,6 +489,17 @@ impl Instigator {
             )?;
             //delete component instance and let owner_reference to delete real resource
             self.delete_component_instance(component.name.clone(), inst_name.clone())?;
+            for sc in &component
+                .application_scopes
+                .clone()
+                .unwrap_or_else(|| vec![])
+            {
+                let scopes =
+                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())?;
+                for scope in scopes.iter() {
+                    scope.remove(component.clone())?;
+                }
+            }
         }
         // if no component was updated or this is an delete phase, just return without status change.
         if !component_updated || phase == Phase::Delete {
@@ -620,6 +700,29 @@ impl Instigator {
         };
         Ok(vec![owner])
     }
+
+    fn component_instance_set_status(
+        &self,
+        component_name: String,
+        instance_name: String,
+        status: String,
+    ) -> Result<(), Error> {
+        let name = combine_name(component_name, instance_name);
+        let crd_req = RawApi::customResource("componentinstances")
+            .group(CONFIG_GROUP)
+            .version(CONFIG_VERSION)
+            .within(self.namespace.as_str());
+        let req = crd_req.get(name.as_str())?;
+        let mut res: KubeComponentInstance = self.client.request(req)?;
+        res.status = Some(status);
+        let req = crd_req.patch(
+            name.as_str(),
+            &PatchParams::default(),
+            serde_json::to_vec(&res)?,
+        )?;
+        let _: KubeComponentInstance = self.client.request(req)?;
+        Ok(())
+    }
 }
 
 /// combine_name combine component name with instance_name,
@@ -684,4 +787,119 @@ pub fn get_component_def(
 
 pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
     values.or_else(|| Some(vec![])).unwrap()
+}
+
+/// Load application scopes from scope_bindings
+/// check if there is not allowed overlap
+pub fn load_scopes(
+    client: APIClient,
+    namespace: String,
+    instance_name: String,
+    spec: ApplicationConfiguration,
+    variables: Vec<Variable>,
+) -> Result<Vec<OAMScope>, failure::Error> {
+    let mut scopes: Vec<OAMScope> = vec![];
+    for scope_binding in spec.scopes.iter() {
+        for sc in scope_binding.iter() {
+            let param = sc
+                .parameter_values
+                .clone()
+                .map(|values| resolve_variables(values, variables.clone()))
+                .unwrap_or_else(|| Ok(vec![]))
+                .unwrap();
+            let scope = load_scope(
+                client.clone(),
+                namespace.clone(),
+                instance_name.clone(),
+                &sc,
+                param.clone(),
+            )?;
+            scopes.insert(scopes.len(), scope);
+        }
+    }
+    Ok(scopes)
+}
+
+// load_scope should load scope from k8s crd
+// NOTE: this is a temporary solution just return core scope here
+fn load_scope(
+    client: APIClient,
+    namespace: String,
+    instance_name: String,
+    binding: &ScopeBinding,
+    param: Vec<ParameterValue>,
+) -> Result<OAMScope, failure::Error> {
+    debug!("Scope binding params: {:?}", &binding.parameter_values);
+    load_scope_by_type(
+        client.clone(),
+        namespace,
+        instance_name,
+        binding.scope_type.as_str(),
+        param,
+    )
+}
+
+fn load_scope_by_type(
+    client: APIClient,
+    namespace: String,
+    instance_name: String,
+    scope_type: &str,
+    param: Vec<ParameterValue>,
+) -> Result<OAMScope, failure::Error> {
+    match scope_type {
+        scopes::NETWORK_SCOPE => Ok(OAMScope::Network(Network::from_params(
+            instance_name.clone(),
+            namespace.clone(),
+            client.clone(),
+            param,
+        )?)),
+        scopes::HEALTH_SCOPE => Ok(OAMScope::Health(Health::from_params(
+            instance_name.clone(),
+            namespace.clone(),
+            client.clone(),
+            param,
+        )?)),
+        _ => Err(format_err!(
+            "unknown scope {} type {}",
+            instance_name,
+            scope_type
+        )),
+    }
+}
+
+type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
+
+//get_scope_instance load scope instance by load AppConfig object
+fn get_scope_instance(
+    name: String,
+    ns: String,
+    client: APIClient,
+) -> Result<Vec<OAMScope>, failure::Error> {
+    let mut scopes = vec![];
+    let resource = RawApi::customResource(CONFIG_CRD)
+        .within(ns.as_str())
+        .group(CONFIG_GROUP)
+        .version(CONFIG_VERSION);
+    //init all the existing objects at initiate, this should be done by informer
+    let req = resource.get(name.as_str())?;
+    let cfg = client.request::<KubeOpsConfig>(req)?;
+    for scope_binding in cfg.spec.scopes.clone().unwrap_or_else(|| vec![]).iter() {
+        let param = scope_binding
+            .parameter_values
+            .clone()
+            .map(|values| {
+                resolve_variables(values, cfg.spec.variables.clone().unwrap_or_else(|| vec![]))
+            })
+            .unwrap_or_else(|| Ok(vec![]))
+            .unwrap();
+        let scope = load_scope(
+            client.clone(),
+            ns.clone(),
+            cfg.metadata.name.clone(),
+            scope_binding,
+            param,
+        )?;
+        scopes.insert(scopes.len(), scope)
+    }
+    Ok(scopes)
 }
