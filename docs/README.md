@@ -17,6 +17,9 @@ As an *application operator*, define how your overall application will be instan
 #### [Traits](./concepts/traits.md)
 As an *application operator*, attach operational features to component workloads of your application.
 
+#### [Scopes](./concepts/scopes.md)
+As an *application operator*, define application boundaries by grouping components with common properties and dependencies.
+
 ### [Component Schematic](./concepts/component-schematic.md)
 As a *developer*, define the operational characteristics of your component of code.
 
