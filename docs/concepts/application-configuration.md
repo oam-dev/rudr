@@ -10,6 +10,7 @@ The key parts of an application configuration include:
 - [Variables](#variables): (Optional). Variables for common parameter values across multiple components.
 - [Components](#components): The constituent microservices of the application and their runtime configuration.
 - [Traits](#traits): (Optional). A list of traits to enable for a given component.
+- [Scopes](#scopes): (Optional). A list of scopes to apply to a given component.
 
 Here's an example application configuration (*.yaml* file):
 
@@ -26,21 +27,23 @@ spec:
   - name: nginx-component
     instanceName: first-app-nginx
     parameterValues:
-           - name: poet
-             value: Eliot
-           - name: poem
-             value: The Wasteland
-           - name: section
-             value: "[fromVariable(SECTION_NUMBER)]"
+    - name: poet
+      value: Eliot
+    - name: poem
+      value: The Wasteland
+    - name: section
+      value: "[fromVariable(SECTION_NUMBER)]"
     <b style="color:blue;">traits</b>:
-           - name: ingress
-             parameterValues:
-                    - name: hostname
-                      value: example.com
-                    - name: path
-                      value: /
-                    - name: service_port
-                      value: 80
+    - name: ingress
+      parameterValues:
+      - name: hostname
+        value: example.com
+      - name: path
+        value: /
+      - name: service_port
+        value: 80
+    <b style="color: blue">applicationScopes:</b>
+      - my-health-scope
 </pre>
 
 To create an application configuration, you'll first need to author the [component schematics](component-schematic.md) that will constitute your application. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/oam-dev/rudr/tree/master/examples)) and customize to your needs.
@@ -120,8 +123,8 @@ components:
 - name: custom-component
   instanceName: first-component
   parameterValues:
-          - name: section
-            value: "[fromVariable(SECTION_NUMBER)]"
+  - name: section
+    value: "[fromVariable(SECTION_NUMBER)]"
 ```
 
 ## Components
@@ -145,24 +148,24 @@ components:
 - name: helloworld-python-v1
   instanceName: first-app-helloworld-python-v1
   parameterValues:
-          - name: target
-            value: Rudr
-          - name: port
-            value: '9999'
+  - name: target
+    value: Rudr
+  - name: port
+    value: '9999'
   traits:
-          - name: ingress
-            parameterValues:
-              - name: hostname
-                     value: example.com
-              - name: path
-                     value: /
-              - name: service_port
-                     value: 9999
+  - name: ingress
+    parameterValues:
+    - name: hostname
+      value: example.com
+    - name: path
+      value: /
+    - name: service_port
+      value: 9999
 ```
 
 ## Traits
 
-For each of your components, you can optionally define one or more traits. A trait represents a piece of add-on functionality that attaches to a component workload, such as traffic routing rules or auto-scaling policies. 
+For each of your components, you can optionally define one or more traits. A trait represents a piece of add-on functionality that attaches to a component workload, such as traffic routing rules or auto-scaling policies.
 
 **See the [Traits](traits.md) topic guide for more on assigning and managing traits.**
 
@@ -171,12 +174,26 @@ For each of your components, you can optionally define one or more traits. A tra
 ```yaml
 # Example trait entry
 traits:
-  - name: ingress
-    parameterValues:
-           - name: hostname
-             value: example.com
-           - name: path
-             value: /
-           - name: service_port
-             value: 9999
+- name: ingress
+  parameterValues:
+  - name: hostname
+    value: example.com
+  - name: path
+    value: /
+  - name: service_port
+    value: 9999
+```
+
+## Scopes
+
+You can deploy one or more of your components within one or more application scopes. A scope represents a logical grouping of components based on common behaviors or dependencies. For example, you might group several component workloads under the same [*health scope*](scopes.md#health-scope) in order to easily probe their aggregate health status, or you might group components together under a common *network scope* to link them to a particular network.
+
+**See the [Scopes](scopes.md) topic guide for more on configuring and applying scopes.**
+
+[Here's an example](../../examples/first-app-config.yaml) of assigning a [pre-configured scope](../../examples/health-scope-config.yaml) (`my-health-scope`) to a given component within the application configuration:
+
+```yaml
+# Example scope assignment
+applicationScopes:
+  - my-health-scope
 ```
