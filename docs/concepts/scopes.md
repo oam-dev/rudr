@@ -1,12 +1,12 @@
 # Scopes
 
-Application [*scopes*](https://github.com/oam-dev/spec/blob/master/4.application_scopes.md) are used to logically group components together by providing application boundaries that represent common group behaviors and/or dependencies. Scopes are not mutually exclusive: a given component might simultaneously belong to multiple application scopes. Once installed to your Rudr runtime, a scope can be used (and reused) across any number of your [application configurations](./application-configuration.md). In terms of implementation details, scopes are Rudr-defined Kubernetes CRDs.
+Application [*scopes*](https://github.com/oam-dev/spec/blob/master/4.application_scopes.md) are used to logically group components together by providing application boundaries that represent common group behaviors and/or dependencies. Scopes are not mutually exclusive: a given component can belong to multiple application scopes at the same time. Once installed to your Rudr runtime, a scope can be used (and reused) across any number of [application configurations](./application-configuration.md). In terms of implementation details, scopes are Rudr-defined Kubernetes CRDs.
 
-Currently, Rudr supports the following scopes:
+Currently, Rudr supports the following scope types:
 
 - [Health](#health)
 
-An [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) configures and assigns specific scopes to component workloads of an application in the [ApplicationConfiguration](application-configuration.md) file. For example, here's a custom configuration of the Rudr [health](#health) scope:
+An [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) configures and assigns  scope instances to component workloads of an application in the [ApplicationConfiguration](application-configuration.md) file. For example, here's a custom configuration of the Rudr [health](#health) scope type:
 
 <pre>
 apiVersion: core.oam.dev/v1alpha1
@@ -34,7 +34,7 @@ spec:
           value: 100.0
 </pre>
 
-And here's how a component would be added to that scope:
+And here's how a component would be added to that scope within the [application configuration](application-configuration.md) file:
 
 <pre>
 apiVersion: core.oam.dev/v1alpha1
@@ -69,23 +69,23 @@ For more on using specific scopes, refer to the sections below.
 
 Here's how to get info on the scopes supported on your Rudr installation.
 
-**List supported scopes**:
+**List supported scope types**:
 
 ```console
 $ kubectl get scopes
 ```
 
-**Show the schema details of a scope:**
+**Show the schema details of a scope instance:**
 
 ```console
 $ kubectl get <scope-type> <scope-name> -o yaml
 ````
 
-... where `<scope-type>` is one of the Rudr-supported scopes (*currently only `health` is supported*), and `<scope-name>` is the *name* of your particular scope configuration instance.
+... where `<scope-type>` is one of the Rudr-supported scopes types (per `kubectl get scopes`), and `<scope-name>` is the *name* of a particular scope configuration instance.
 
 ## Health scope
 
-The 
+You can use the *HealthScope* controller to periodically check the aggregate health of components within your application. For a full walkthrough, see [Health Scope Controller](../../healthscope/README.md)
 
 ### Installation
 
@@ -108,7 +108,7 @@ helm install healthscope ./charts/healthscope
 | **healthThresholdPercentage** | The % of healthy components required to upgrade scope. | double |||
 | **requiredHealthyComponents** | Comma-separated list of names of the components required to be healthy for the scope to be health. | string |||
 
-[Here's an example](../../examples/health-scope-config.yaml) of a health scope configuration. Once installed (`kubectl apply -f <health-scope-config>.yaml`) you would attach this to a component within the application configuration:
+[Here's an example](../../examples/health-scope-config.yaml) of a health scope configuration. Once installed (`kubectl apply -f <health-scope-config>.yaml`) you would attach this to a component within the application configuration, similar to this [example](../../examples/first-app-config.yaml):
 
 ```yaml
 # Example component scope assignment
