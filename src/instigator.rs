@@ -100,7 +100,7 @@ impl Instigator {
         for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
             let comp_def: KubeComponent = get_component_def(
                 self.namespace.clone(),
-                component.name.clone(),
+                component.component_name.clone(),
                 self.client.clone(),
             )?;
 
@@ -140,7 +140,7 @@ impl Instigator {
             let mut status = workload.status()?;
             debug!(
                 "Sync component {}, got status {:?}",
-                component.name.clone(),
+                component.component_name.clone(),
                 status.clone()
             );
             let mut health_state = "healthy".to_string();
@@ -151,7 +151,7 @@ impl Instigator {
                 }
             }
             self.component_instance_set_status(
-                component.name.clone(),
+                component.component_name.clone(),
                 inst_name.clone(),
                 health_state,
             )?;
@@ -174,7 +174,7 @@ impl Instigator {
                     status.insert(key, state);
                 }
             };
-            component_status.insert(component.name.clone(), status.clone());
+            component_status.insert(component.component_name.clone(), status.clone());
         }
         //we won't update status if there's any update
         if has_diff || !last_components.is_empty() {
@@ -287,7 +287,7 @@ impl Instigator {
                 .cloned();
             let comp_def: KubeComponent = get_component_def(
                 self.namespace.clone(),
-                component.name.clone(),
+                component.component_name.clone(),
                 self.client.clone(),
             )?;
             //check last components in every component loop
@@ -352,13 +352,13 @@ impl Instigator {
             let inst_name = component.instance_name.clone();
             let new_owner_ref = match phase {
                 Phase::Add => Some(self.create_component_instance(
-                    component.name.clone(),
+                    component.component_name.clone(),
                     inst_name.clone(),
                     owner_ref.clone(),
                 )?),
                 Phase::Modify => {
                     let ownref = self.component_instance_owner_reference(
-                        component.name.clone(),
+                        component.component_name.clone(),
                         inst_name.clone(),
                     );
                     match ownref {
@@ -376,7 +376,7 @@ impl Instigator {
                                 ));
                             }
                             Some(self.create_component_instance(
-                                component.name.clone(),
+                                component.component_name.clone(),
                                 inst_name.clone(),
                                 owner_ref.clone(),
                             )?)
@@ -410,7 +410,7 @@ impl Instigator {
 
             match phase {
                 Phase::Add => {
-                    info!("Adding component {}", component.name.clone());
+                    info!("Adding component {}", component.component_name.clone());
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -421,7 +421,7 @@ impl Instigator {
                     trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)?;
                 }
                 Phase::Modify => {
-                    info!("Modifying component {}", component.name.clone());
+                    info!("Modifying component {}", component.component_name.clone());
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -436,7 +436,7 @@ impl Instigator {
                     )?;
                 }
                 Phase::Delete => {
-                    info!("Deleting component {}", component.name.clone());
+                    info!("Deleting component {}", component.component_name.clone());
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
@@ -459,7 +459,7 @@ impl Instigator {
             //FIXME: if component is not found, what can we do?
             let comp_def: KubeComponent = get_component_def(
                 self.namespace.clone(),
-                component.name.clone(),
+                component.component_name.clone(),
                 self.client.clone(),
             )?;
             // Resolve variables/parameters
@@ -478,7 +478,7 @@ impl Instigator {
             };
             trait_manager.load_traits()?;
 
-            info!("Deleting component {}", component.name.clone());
+            info!("Deleting component {}", component.component_name.clone());
             //The reason for this is that we do not require that traits be deployed only in-cluster.
             //For example, a trait could create an object storage bucket or work with an external API service.
             //So we want to give them a chance to react to a deletion event.
@@ -488,7 +488,7 @@ impl Instigator {
                 Phase::PreDelete,
             )?;
             //delete component instance and let owner_reference to delete real resource
-            self.delete_component_instance(component.name.clone(), inst_name.clone())?;
+            self.delete_component_instance(component.component_name.clone(), inst_name.clone())?;
             for sc in &component
                 .application_scopes
                 .clone()

@@ -6,7 +6,7 @@ fn test_component_configuration() {
 
     let conf: ComponentConfiguration = serde_json::from_str(
         r#"{
-            "name": "test",
+            "componentName": "test",
             "instanceName": "squidgy",
             "parameterValues": [
                 {
@@ -18,7 +18,7 @@ fn test_component_configuration() {
     )
     .expect("JSON must parse");
 
-    assert_eq!("test", conf.name);
+    assert_eq!("test", conf.component_name);
     assert_eq!("squidgy", conf.instance_name);
     assert!(conf.parameter_values.is_some());
     assert!(conf.traits.is_none());

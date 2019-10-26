@@ -22,7 +22,7 @@ metadata:
   name: example-server-with-volume
 spec:
   components:
-    - name: server-with-volume-v1
+    - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
         - name: volume-mounter

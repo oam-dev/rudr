@@ -18,7 +18,7 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-component
+  - componentName: nginx-component
     instanceName: first-app-nginx
     parameterValues:
       - name: poet
@@ -187,7 +187,7 @@ metadata:
   name: example
 spec:
   components:
-    - name: nginx-replicated-v1
+    - componentName: nginx-replicated-v1
       instanceName: example-app
       traits:
         - name: ingress
@@ -279,7 +279,7 @@ metadata:
   name: example-server-with-volume
 spec:
   components:
-    - name: server-with-volume-v1
+    - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
         - name: volume-mounter

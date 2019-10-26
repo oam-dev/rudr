@@ -4,7 +4,7 @@ metadata:
   name: example-multi-component
 spec:
   components:
-    - name: nginx-singleton-v1
+    - componentName: nginx-singleton-v1
       instanceName: example-multi-component-nginx
       parameterValues:
         - name: poet
@@ -18,7 +18,7 @@ spec:
               value: example.com
             - name: path
               value: /
-    - name: alpine-task-v1
+    - componentName: alpine-task-v1
       instanceName: example-multi-component-alpine
       parameterValues:
         - name: message

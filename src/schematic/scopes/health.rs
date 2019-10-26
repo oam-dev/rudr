@@ -193,7 +193,7 @@ impl Health {
         components.insert(
             components.len(),
             ComponentInfo {
-                name: spec.name.clone(),
+                name: spec.component_name.clone(),
                 instance_name: spec.instance_name.clone(),
                 status: None,
             },
@@ -204,7 +204,7 @@ impl Health {
         });
         info!(
             "add component {} to health scope {}",
-            spec.name.clone(),
+            spec.component_name.clone(),
             self.name.clone()
         );
         self.patch_obj(obj)
@@ -235,7 +235,7 @@ impl Health {
         let mut components = vec![];
         if let Some(status) = status {
             for comp in status.components.unwrap_or_else(|| vec![]).iter() {
-                if comp.name == spec.name && comp.instance_name == spec.instance_name {
+                if comp.name == spec.component_name && comp.instance_name == spec.instance_name {
                     continue;
                 }
                 components.insert(components.len(), comp.clone())

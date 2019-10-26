@@ -110,7 +110,7 @@ metadata:
   name: first-app
 spec:
   components:
-  - name: nginx-replicated
+  - componentName: nginx-replicated
     instanceName: first-app-nginx
     parameterValues:
       - name: poet
