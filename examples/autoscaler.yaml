@@ -6,7 +6,7 @@ metadata:
   name: autoscaler-example
 spec:
   components:
-    - name: hpa-example-replicated-v1
+    - componentName: hpa-example-replicated-v1
       instanceName: autoscaled-repsvc
       parameterValues:
         - name: poet

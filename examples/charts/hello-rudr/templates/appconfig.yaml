@@ -4,7 +4,7 @@ metadata:
   name: "{{ .Release.Name }}"
 spec:
   components:
-    - name: "{{ .Release.Name }}-{{ .Values.appVersion}}"
+    - componentName: "{{ .Release.Name }}-{{ .Values.appVersion}}"
       instanceName: "{{ .Release.Name }}-{{ .Values.appVersion}}"
       parameterValues:
         - name: target

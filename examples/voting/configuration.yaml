@@ -6,13 +6,13 @@ metadata:
   name: voter-app
 spec:
   components:
-    - name: postgres-v9
+    - componentName: postgres-v9
       instanceName: voter-pg
-    - name: redis-v1
+    - componentName: redis-v1
       instanceName: voter-redis
-    - name: voting-worker-v1
+    - componentName: voting-worker-v1
       instanceName: voter-worker
-    - name: voting-frontend-v1
+    - componentName: voting-frontend-v1
       instanceName: voter-fe
       traits:
         - name: ingress
@@ -21,7 +21,7 @@ spec:
               value: voting.example.com
             - name: path
               value: /
-    - name: voting-admin-v1
+    - componentName: voting-admin-v1
       instanceName: voter-admin
       traits:
         - name: ingress
