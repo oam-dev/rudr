@@ -38,13 +38,11 @@ At this point, you will be running a local controller attached to the cluster to
 To get started, define some _components_. Components are not instantiated. They are descriptions of what things can run in your cluster.
 
 ```console
-$ kubectl apply -f examples/components.yaml
-component.core.oam.dev "nginx-replicated" created
-component.core.oam.dev "nginx-singleton" created
+$ kubectl apply -f examples/helloworld-python-component.yaml
+component.core.oam.dev "helloworld-python-v1" created
 $ kubectl get components
-NAME               AGE
-nginx-replicated   17s
-nginx-singleton    17s
+NAME                         AGE
+helloworld-python-v1         14m
 ```
 
 Next, create a new application that uses the component. In Open Application Model, which follows the 12-factor model, the application is composed of code (component) and a config. So you need to write a configuration. Examples are provided in the `examples/` directory:
@@ -57,18 +55,17 @@ Now you may wish to explore your cluster to see what was created:
 
 ```console
 $ kubectl get configuration,pod,svc,ingress
-NAME        AGE
-first-app   28s
+NAME                                              AGE
+applicationconfiguration.core.oam.dev/first-app   14s
 
-NAME                        READY     STATUS    RESTARTS   AGE
-first-app-nginx-singleton   1/1       Running   0          19s
+NAME                                                  READY   STATUS    RESTARTS   AGE
+pod/first-app-helloworld-python-v1-67599b9877-lh9dr   1/1     Running   0          8s
 
-NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
-first-app-nginx-singleton           ClusterIP   10.0.78.193   <none>        80/TCP    19s
-kubernetes                          ClusterIP   10.0.0.1      <none>        443/TCP   95d
+NAME                                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/first-app-helloworld-python-v1   ClusterIP   10.104.147.6   <none>        9999/TCP   8s
 
-NAME                                      HOSTS         ADDRESS   PORTS     AGE
-first-app-nginx-singleton-trait-ingress   example.com             80        19s
+NAME                                                              HOSTS         ADDRESS   PORTS   AGE
+ingress.extensions/first-app-helloworld-python-v1-trait-ingress   example.com             80      8s
 ```
 
 To delete this, run `kubectl delete configuration first-app` and it will cascade and delete all of the pieces.
