@@ -57,11 +57,12 @@ NAME                                      CREATED AT
 applicationconfigurations.core.oam.dev   2019-10-02T19:57:32Z
 componentinstances.core.oam.dev          2019-10-02T19:57:32Z
 componentschematics.core.oam.dev         2019-10-02T19:57:32Z
+healthscopes.core.oam.dev                2019-10-02T19:57:32Z
 scopes.core.oam.dev                      2019-10-02T19:57:32Z
 traits.core.oam.dev                      2019-10-02T19:57:32Z
 ```
 
-You should see at least those five CRDs. You can also verify that the Rudr deployment is running:
+You should see at least those six CRDs. You can also verify that the Rudr deployment is running:
 
 ```console
 $ kubectl get deployment rudr
