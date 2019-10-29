@@ -24,7 +24,7 @@ RUN wget https://get.helm.sh/helm-v3.0.0-beta.5-linux-amd64.tar.gz \
 
 # Install rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  -s -- -y \
-    && apt install build-essential -y \
+    && apt install build-essential libssl-dev pkg-config -y \
     && echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
 
 # Switch back to dialog for any ad-hoc use of apt-get
