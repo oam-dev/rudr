@@ -135,7 +135,7 @@ Developers may prefer to run a local copy of the Rudr daemon. To do so:
 
 ## Next Steps
 
-Deploy a sample rudr application using the [Tutorial](../tutorials/deploy_and_update.md). 
+Deploy a sample rudr application using the [tutorial](../tutorials/deploy_and_update.md). 
 
 ## Appendix
 
