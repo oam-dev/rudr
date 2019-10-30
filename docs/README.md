@@ -28,6 +28,8 @@ As a *developer*, designate the appropriate workload type to execute your compon
 #### [Create Component from Scratch](how-to/create_component_from_scratch.md)
 Build a component from source code to use for testing.
 
+#### [Manage complicated parameters](how-to/manage_complicated_parameters.md)
+
 #### [Migrate existing Kubernetes resources](./how-to/migrating.md)
 Tips and best practices for setting up existing Kubernetes applications to use Rudr.
 
