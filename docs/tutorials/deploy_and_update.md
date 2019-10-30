@@ -157,7 +157,7 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: helloworld-python-v1
+    - componentName: helloworld-python-v1
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
@@ -208,7 +208,7 @@ metadata:
 spec:
   components:
   - instanceName: first-app-helloworld-python-v1
-    name: helloworld-python-v1
+    componentName: helloworld-python-v1
     parameterValues:
     - name: target
       value: Rudr
@@ -272,7 +272,7 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: helloworld-python-v1
+    - componentName: helloworld-python-v1
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
@@ -322,7 +322,7 @@ metadata:
 spec:
   components:
   - instanceName: first-app-helloworld-python-v1
-    name: helloworld-python-v1
+    componentName: helloworld-python-v1
     parameterValues:
     - name: target
       value: World
@@ -381,8 +381,8 @@ metadata:
   name: first-app
 spec:
   components:
--   - name: helloworld-python-v1
-+   - name: helloworld-python-v2
+-   - componentName: helloworld-python-v1
++   - componentName: helloworld-python-v2
 -     instanceName: first-app-helloworld-python-v1
 +     instanceName: first-app-helloworld-python-v2
       parameterValues:

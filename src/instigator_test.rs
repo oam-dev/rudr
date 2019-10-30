@@ -25,7 +25,7 @@ fn test_record_ann() {
     let cr = ComponentRecord {
         version: "123".to_string(),
         config: ComponentConfiguration {
-            name: "n123".to_string(),
+            component_name: "n123".to_string(),
             instance_name: "inst123".to_string(),
             parameter_values: None,
             traits: None,
@@ -35,7 +35,7 @@ fn test_record_ann() {
     let cr2 = ComponentRecord {
         version: "321".to_string(),
         config: ComponentConfiguration {
-            name: "n321".to_string(),
+            component_name: "n321".to_string(),
             instance_name: "inst321".to_string(),
             parameter_values: None,
             traits: None,
@@ -59,7 +59,7 @@ fn test_check_diff() {
     let new_record = ComponentRecord {
         version: "123".to_string(),
         config: ComponentConfiguration {
-            name: "test".to_string(),
+            component_name: "test".to_string(),
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
@@ -69,7 +69,7 @@ fn test_check_diff() {
     let old_record = ComponentRecord {
         version: "123".to_string(),
         config: ComponentConfiguration {
-            name: "test".to_string(),
+            component_name: "test".to_string(),
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
@@ -83,7 +83,7 @@ fn test_check_diff() {
     let new_record2 = ComponentRecord {
         version: "1234".to_string(),
         config: ComponentConfiguration {
-            name: "test".to_string(),
+            component_name: "test".to_string(),
             instance_name: "test_inst".to_string(),
             parameter_values: None,
             traits: None,
@@ -94,7 +94,7 @@ fn test_check_diff() {
     let new_record3 = ComponentRecord {
         version: "1234".to_string(),
         config: ComponentConfiguration {
-            name: "test".to_string(),
+            component_name: "test".to_string(),
             instance_name: "test_inst".to_string(),
             parameter_values: Some(vec![]),
             traits: None,
