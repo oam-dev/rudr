@@ -27,6 +27,11 @@ spec:
         - type: tcp
           containerPort: 80
           name: http
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
   parameters:
     - name: poet
       type: string
