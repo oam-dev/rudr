@@ -134,6 +134,10 @@ Developers may prefer to run a local copy of the Rudr daemon. To do so:
 2. Make sure your current Kubernetes context is set to your target cluster. Rudr will inherit the credentials from this context entry.
 3. From the base directory of the code, run `make run`. This will start Rudr in the foreground, running locally, but listening on the remote cluster.
 
+## Next Steps
+
+Deploy a sample rudr application using the [tutorial](../tutorials/deploy_and_update.md). 
+
 ## Appendix
 
 You could check the [appendix doc](appendix.md) to find more information.
