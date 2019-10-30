@@ -19,7 +19,7 @@ We do not believe we are trying to solve the same problem as Knative.
 
 ## Can I use Open Application Model/Rudr to deploy existing applications?
 
-You can describe existing applications as Open Application Model applications. See our [migration guide](migrating.md).
+You can describe existing applications as Open Application Model applications. See our [migration guide](./how-to/migrating.md).
 
 ## How does this compare to Helm or Kompose?
 
