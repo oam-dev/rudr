@@ -17,6 +17,11 @@ spec:
         - type: tcp
           containerPort: 9999
           name: http
+      resources:
+        cpu:
+          required: "0.1"
+        memory:
+          required: "128"
   parameters:
     - name: target
       type: string

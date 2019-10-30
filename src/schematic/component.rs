@@ -534,7 +534,10 @@ impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
         requests.insert("cpu".to_string(), Quantity(self.cpu.required.to_string().clone()));
-        requests.insert("memory".to_string(), Quantity(self.memory.required.clone()));
+        requests.insert(
+            "memory".to_string(),
+            Quantity(self.memory.required.clone() + "Mi"),
+        );
         // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
         core::ResourceRequirements {
             requests: Some(requests),
@@ -547,10 +550,10 @@ impl Default for Resources {
     fn default() -> Self {
         Resources {
             cpu: CPU {
-                required: "1".into(),
+                required: 0.1,
             },
             memory: Memory {
-                required: "1G".into(),
+                required: "128".into(),
             },
             gpu: None,
             volumes: None,

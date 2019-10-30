@@ -213,7 +213,7 @@ resources:
   cpu:
     required: "0.5"
   memory:
-    required: 100M
+    required: "128"
 ```
 
 #### `volumes`
