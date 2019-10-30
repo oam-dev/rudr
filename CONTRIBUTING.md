@@ -8,6 +8,15 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+## Quick Start
+If you have Docker and VS Code installed on your device, you can use the VS Code <b>Remote - Containers</b> extension to develop inside a container that contains all of the build dependencies.  To do this:
+
+- Install the VS Code <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote - Containers</a> extension
+- Open the root folder of the repository in VS Code
+- Run the `Remote-Containers: Open Folder in Container...` command in VS Code (a pop-up should also appear offering to open the folder in a container)
+
+This will download the Development Environment container from Docker Hub and configure VS Code to run all commands and Terminals inside the container.  To build Rudr, launch a new Bash Termial in VS Code and run `cargo build` from the rudr directory.  
+
 ## Building from Source
 
 This section goes over how to build the source code for Rudr. 
