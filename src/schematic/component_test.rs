@@ -115,7 +115,10 @@ fn test_container_deserialize() {
                 "livenessProbe": {},
                 "resources": {
                     "memory": {
-                        "required": "2G"
+                        "required": "100M"
+                    },
+                    "cpu": {
+                        "required": "0.1"
                     },
                     "volumes": [
                         {
@@ -175,11 +178,8 @@ fn test_container_deserialize() {
 
     let res = &container.resources;
 
-    assert_eq!(
-        "2G",
-        res.memory.as_ref().expect("memory should be set").required
-    );
-    assert!(res.cpu.is_none());
+    assert_eq!("100M", res.memory.required);
+    assert_eq!("0.1", res.cpu.required);
 
     let vols = res.volumes.clone().expect("expected volumes");
     let path1 = vols.get(0).expect("expect a first volume");
@@ -508,12 +508,12 @@ fn test_to_volume_mounts() {
         name: "test_container".into(),
         image: "test/image".into(),
         resources: Resources {
-            cpu: Some(CPU {
-                required: 1.into(),
-            }),
-            memory: Some(Memory {
-                required: "128".into(),
-            }),
+            cpu: CPU {
+                required: 0.1.into(),
+            },
+            memory: Memory {
+                required: "128M".into(),
+            },
             gpu: Some(GPU {
                 required: 0.into(),
             }),
