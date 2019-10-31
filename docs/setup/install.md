@@ -19,11 +19,15 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 3. Install `Helm 3`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
 
     1. Download your desired version of [Helm 3 from the releases page](https://github.com/helm/helm/releases)
-    2. Unpack it (`tar -zxvf helm-v3.0.0-beta.3-darwin-amd64.tar.gz`)
+    2. Unpack it (`tar -zxvf helm-v3.0.0-beta.3-darwin-amd64.tar.gz`). Note that the command might change depending on the Helm 3 version you installed. 
     3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv macos-amd64/helm /usr/local/bin/helm`)
     4. From there, you should be able to run the client: helm help.
 
-4. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version.
+4. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version. To get started with a Kubernetes cluster, see the options below: 
+
+    * [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough-portal) 
+    * [Alibaba - Container Service for Kubernetes](https://www.alibabacloud.com/help/product/85222.htm?spm=a2c63.m28257.a1.3.52305922nohJYm)
+    * [Google Kuberenetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
 
 ## Installing Rudr Using Helm 3
 
@@ -117,19 +121,41 @@ The manual scaler trait has no external dependencies.
 
 To successfully use an `ingress` trait, you will need to install one of the Kubernetes Ingress controllers. We recommend [nginx-ingress](https://hub.helm.sh/charts/stable/nginx-ingress).
 
-```console
-$ helm install nginx-ingress stable/nginx-ingress
-```
+1. First, add the stable repo to your Helm installation. 
+
+    ```bash
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+    ```
+
+2. Install the NGINX ingress using Helm 3. 
+
+    ```console
+    $ helm install nginx-ingress stable/nginx-ingress
+    ```
 
 *Note:* You still must manage your DNS configuration as well. Mapping an ingress to `example.com` will not work if you do not also control the domain mapping for `example.com`.
 
 ### Autoscaler
 
-To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`s. We recommend [KEDA](https://hub.helm.sh/charts/kedacore/keda-edge).
+To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`. We recommend [KEDA](https://hub.helm.sh/charts/kedacore/keda-edge).
 
-```
-$ helm install keda stable/keda
-```
+1. First, add the KEDA repo to your Helm installation. 
+
+    ```bash
+    helm repo add kedacore https://kedacore.azureedge.net/helm
+    ```
+
+2. Update your Helm repo. 
+
+    ```bash
+    helm repo update
+    ```
+
+2. Install KEDA on your cluster. 
+
+    ```
+    helm install kedacore kedacore/keda-edge
+    ```
 
 ## Running for Development
 
