@@ -6,7 +6,7 @@ If TARGET is not specified, it will use “World” as the TARGET.
 
 ## Prerequisites
 
-* A Kubernetes cluster with Rudr installed. Follow the [installation instructions](../setup/install.md) if you need to create one.
+* Follow the instructions in the [installation](../../docs/setup/install.md) document to get Rudr installed on your Kubernetes cluster.
 * [Docker](https://www.docker.com/) installed and running on your local machine, and a [Docker Hub](https://hub.docker.com) account configured (we’ll use it for a container registry).
 
 ## Steps to build image
