@@ -1,4 +1,4 @@
-# Manage Complicated Parameters
+# Using Helm/Kustomize to manage OAM yamls
 
 OAM use parameters/variables/properties which could be very long and complicated.
 In this tutorial, we will introduce using tools (such as helm, kustomize) to solve this problem.
