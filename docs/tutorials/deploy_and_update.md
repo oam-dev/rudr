@@ -258,7 +258,7 @@ you can view your web app from following steps:
 Now we have successfully installed our web app and checked the result, the application worked well.
 But someday, the operator may want to change something. For example:
 
-1. the hostname: maybe because of there's conflict with other app, assume we change the hostname to `example2.com`.
+1. the hostname: maybe because of there's conflict with other app, assume we change the hostname to `oamexample.com`.
 2. env(target): this could represent some normal case of update, assume we change value of `target` to `World`.
 
 ### Change the Application Configuration file
@@ -285,7 +285,7 @@ spec:
           parameterValues:
             - name: hostname
 -             value: example.com
-+             value: example2.com
++             value: oamexample.com
             - name: path
               value: /
             - name: service_port
@@ -332,7 +332,7 @@ spec:
     - name: ingress
       parameterValues:
       - name: hostname
-        value: example2.com
+        value: oamexample.com
       - name: path
         value: /
       - name: service_port
@@ -351,13 +351,13 @@ You can see fields have been changed.
 As we changed the hostname, we may set the hosts file again:
 
 ```shell script
-echo "192.168.99.101 example2.com" >> /etc/hosts
+echo "192.168.99.101 oamexample.com" >> /etc/hosts
 ```
 
 Let's visit the web app again with the new hostname:
 
 ```console
-$ curl example2.com
+$ curl oamexample.com
 Hello World!
 ```
 
@@ -394,7 +394,7 @@ spec:
         - name: ingress
           parameterValues:
             - name: hostname
-              value: example2.com
+              value: oamexample.com
             - name: path
               value: /
             - name: service_port
@@ -415,7 +415,7 @@ You could check the applied yaml again by yourself. You should find the componen
 Let's visit the website directly:
 
 ```console
-$ curl example2.com
+$ curl oamexample.com
 Goodbye World!
 ```
 
