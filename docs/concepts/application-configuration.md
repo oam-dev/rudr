@@ -24,7 +24,7 @@ spec:
   - name: SECTION_NUMBER
     value: 3
   <b style="color:blue;">components</b>:
-  - name: nginx-component
+  - componentName: nginx-component
     instanceName: first-app-nginx
     parameterValues:
     - name: poet
@@ -120,7 +120,7 @@ variables:
 - name: SECTION_NUMBER
   value: 3
 components:
-- name: custom-component
+- componentName: custom-component
   instanceName: first-component
   parameterValues:
   - name: section
@@ -145,7 +145,7 @@ An application configuration requires one or more listed components, each consis
 ```yaml
 # Example component definition in application config
 components:
-- name: helloworld-python-v1
+- componentName: helloworld-python-v1
   instanceName: first-app-helloworld-python-v1
   parameterValues:
   - name: target

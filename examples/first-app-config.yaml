@@ -4,7 +4,7 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: helloworld-python-v1
+    - componentName: helloworld-python-v1
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
@@ -20,5 +20,3 @@ spec:
               value: /
             - name: service_port
               value: 9999
-      applicationScopes:
-        - my-health-scope

@@ -55,7 +55,7 @@ impl TraitManager {
                 let ing = Ingress::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
-                    self.component.name.clone(),
+                    self.component.component_name.clone(),
                     trait_values,
                     self.owner_ref.clone(),
                 );
@@ -65,7 +65,7 @@ impl TraitManager {
                 let volmount = VolumeMounter::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
-                    self.component.name.clone(),
+                    self.component.component_name.clone(),
                     trait_values,
                     self.owner_ref.clone(),
                     self.component_schematic.clone(),
@@ -76,7 +76,7 @@ impl TraitManager {
                 let auto = Autoscaler::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
-                    self.component.name.clone(),
+                    self.component.component_name.clone(),
                     trait_values,
                     self.owner_ref.clone(),
                 );
@@ -86,7 +86,7 @@ impl TraitManager {
                 let scaler = ManualScaler::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
-                    self.component.name.clone(),
+                    self.component.component_name.clone(),
                     trait_values,
                     self.owner_ref.clone(),
                     self.workload_type.clone(),

@@ -18,22 +18,22 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: nginx-component
-      instanceName: first-app-nginx
-      parameterValues:
-        - name: poet
-          value: Eliot
-        - name: poem
-          value: The Wasteland
-      <b style="color:blue;">traits:</b>
-        - <b style="color:blue;">name:</b> ingress
-          parameterValues:</b>
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port
-              value: 80
+  - componentName: nginx-component
+    instanceName: first-app-nginx
+    parameterValues:
+      - name: poet
+        value: Eliot
+      - name: poem
+        value: The Wasteland
+    <b style="color:blue;">traits:</b>
+      - <b style="color:blue;">name:</b> ingress
+        parameterValues:</b>
+          - name: hostname
+            value: example.com
+          - name: path
+            value: /
+          - name: service_port
+            value: 80
 </pre>
 
 You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **Properties** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
@@ -187,7 +187,7 @@ metadata:
   name: example
 spec:
   components:
-    - name: nginx-replicated-v1
+    - componentName: nginx-replicated-v1
       instanceName: example-app
       traits:
         - name: ingress
@@ -279,7 +279,7 @@ metadata:
   name: example-server-with-volume
 spec:
   components:
-    - name: server-with-volume-v1
+    - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
         - name: volume-mounter

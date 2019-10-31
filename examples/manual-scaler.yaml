@@ -6,7 +6,7 @@ metadata:
   name: manual-scaler-example
 spec:
   components:
-    - name: nginx-replicated-v1
+    - componentName: nginx-replicated-v1
       instanceName: scaled-repsvc
       parameterValues:
         - name: poet

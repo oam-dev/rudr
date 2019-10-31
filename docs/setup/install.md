@@ -57,11 +57,12 @@ NAME                                      CREATED AT
 applicationconfigurations.core.oam.dev   2019-10-02T19:57:32Z
 componentinstances.core.oam.dev          2019-10-02T19:57:32Z
 componentschematics.core.oam.dev         2019-10-02T19:57:32Z
+healthscopes.core.oam.dev                2019-10-02T19:57:32Z
 scopes.core.oam.dev                      2019-10-02T19:57:32Z
 traits.core.oam.dev                      2019-10-02T19:57:32Z
 ```
 
-You should see at least those five CRDs. You can also verify that the Rudr deployment is running:
+You should see at least those six CRDs. You can also verify that the Rudr deployment is running:
 
 ```console
 $ kubectl get deployment rudr
@@ -132,6 +133,10 @@ Developers may prefer to run a local copy of the Rudr daemon. To do so:
 1. Make sure the CRDs are installed on your target cluster
 2. Make sure your current Kubernetes context is set to your target cluster. Rudr will inherit the credentials from this context entry.
 3. From the base directory of the code, run `make run`. This will start Rudr in the foreground, running locally, but listening on the remote cluster.
+
+## Next Steps
+
+Deploy a sample rudr application using the [tutorial](../tutorials/deploy_and_update.md). 
 
 ## Appendix
 

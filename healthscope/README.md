@@ -121,7 +121,7 @@ metadata:
   name: first-app
 spec:
   components:
-    - name: helloworld-python-v1
+    - componentName: helloworld-python-v1
       instanceName: first-app-helloworld-python-v1
       parameterValues:
         - name: target
@@ -179,7 +179,7 @@ $ kubectl get health -o yaml my-health-scope
   status:
     components:
     - instanceName: first-app-helloworld-python-v1
-      name: helloworld-python-v1
+      componentName: helloworld-python-v1
       status: healthy
     lastAggregateTimestamp: "2019-10-20T09:49:22.820141484+00:00"
 ```
