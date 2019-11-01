@@ -26,7 +26,7 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 4. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version. To get started with a Kubernetes cluster, see the options below: 
 
     * [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough-portal) 
-    * [Alibaba - Container Service for Kubernetes](https://www.alibabacloud.com/help/product/85222.htm?spm=a2c63.m28257.a1.3.52305922nohJYm)
+    * [Alibaba - Container Service for Kubernetes](https://www.alibabacloud.com/help/product/85222.htm)
     * [Google Kuberenetes Engine](https://cloud.google.com/kubernetes-engine/docs/quickstart)
 
 ## Installing Rudr Using Helm 3
