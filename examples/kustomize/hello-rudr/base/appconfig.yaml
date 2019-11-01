@@ -1,0 +1,24 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: first-app
+spec:
+  components:
+    - componentName: helloworld-python-v1
+      instanceName: first-app-helloworld-python-v1
+      parameterValues:
+        - name: target
+          value: Rudr
+        - name: port
+          value: "9999"
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 9999
+      applicationScopes:
+        - my-health-scope
