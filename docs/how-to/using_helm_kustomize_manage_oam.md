@@ -108,9 +108,10 @@ spec:
 
 ## Using Kustomize
 
+[Kustomize](https://github.com/kubernetes-sigs/kustomize) is a tool to customize kubernetes YAML configurations.
 Using Kustomize is a little different, the way kustomize used is just like a patch.
 
-We also give an [hello-rudr example](../../examples/kustomize/hello-rudr) using `helloworld-python` app.
+We also use [hello-rudr example](../../examples/kustomize/hello-rudr) as an example with the `helloworld-python` app.
 
 First we put the original yaml in [`base`](../../examples/kustomize/hello-rudr/base) directory,
 then we define our patch in [`overlay`](../../examples/kustomize/hello-rudr/overlay/production) like below:
