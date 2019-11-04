@@ -1,0 +1,17 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: singleton-nginx-app
+spec:
+  components:
+    - componentName: alpine-singleton-worker-v1
+      instanceName: singleton-nginx-app
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: example.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 80
