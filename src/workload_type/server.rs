@@ -6,6 +6,7 @@ use crate::workload_type::{
     InstigatorResult, KubeName, StatusResult, WorkloadMetadata, WorkloadType,
 };
 
+use crate::workload_type::statefulset_builder::StatefulsetBuilder;
 use std::collections::BTreeMap;
 
 /// A Replicated Server can take one component and scale it up or down.
@@ -121,7 +122,7 @@ impl WorkloadType for ReplicatedServer {
 
 /// Singleton represents the Singleton Workload Type, as defined in the OAM specification.
 ///
-/// It is currently implemented as a Kubernetes Pod with a Service in front of it.
+/// It is currently implemented as a Kubernetes Statefulset with a Service in front of it.
 pub struct SingletonServer {
     pub meta: WorkloadMetadata,
 }
@@ -142,11 +143,10 @@ impl WorkloadType for SingletonServer {
         self.meta.create_config_maps("singleton-service")?;
 
         // Create deployment
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
-            .replicas(1)
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
 
@@ -167,7 +167,7 @@ impl WorkloadType for SingletonServer {
         ))
     }
     fn delete(&self) -> InstigatorResult {
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
@@ -182,8 +182,9 @@ impl WorkloadType for SingletonServer {
     fn status(&self) -> StatusResult {
         let mut resources = BTreeMap::new();
 
-        let key = "deployment/".to_string() + self.kube_name().as_str();
-        let state = self.meta.deployment_status()?;
+        let key = "statefulset/".to_string() + self.kube_name().as_str();
+        let state = StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .status(self.meta.client.clone(), self.meta.namespace.clone())?;
         resources.insert(key.clone(), state);
 
         let svc_state = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
