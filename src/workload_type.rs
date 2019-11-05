@@ -14,6 +14,8 @@ pub use crate::workload_type::worker::{ReplicatedWorker, SingletonWorker};
 mod workload_builder;
 pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
+mod statefulset_builder;
+
 pub const OAM_API_VERSION: &str = "core.oam.dev/v1alpha1";
 
 /// Server is a replicable server

@@ -807,6 +807,12 @@ pub fn load_scopes(
                 .map(|values| resolve_variables(values, variables.clone()))
                 .unwrap_or_else(|| Ok(vec![]))
                 .unwrap();
+            debug!(
+                "param {:?} extracted from properties {:?} and variables {:?}",
+                param.clone(),
+                sc.parameter_values.clone(),
+                variables.clone()
+            );
             let scope = load_scope(
                 client.clone(),
                 namespace.clone(),

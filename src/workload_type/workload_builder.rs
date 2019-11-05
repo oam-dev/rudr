@@ -115,7 +115,7 @@ impl WorkloadMetadata {
     }
 }
 
-fn form_metadata(
+pub fn form_metadata(
     name: String,
     labels: BTreeMap<String, String>,
     owner_references: Option<Vec<meta::OwnerReference>>,
@@ -128,7 +128,7 @@ fn form_metadata(
     })
 }
 
-type Labels = BTreeMap<String, String>;
+pub type Labels = BTreeMap<String, String>;
 
 /// DeploymentBuilder builds new deployments specific to Rudr
 ///
@@ -180,11 +180,6 @@ impl DeploymentBuilder {
     /// Set the owner refence for the job and the pod
     pub fn owner_ref(mut self, owner: Option<Vec<meta::OwnerReference>>) -> Self {
         self.owner_ref = owner;
-        self
-    }
-    /// Set the replicas
-    pub fn replicas(mut self, count: i32) -> Self {
-        self.replicas = Some(count);
         self
     }
 
@@ -571,7 +566,6 @@ mod test {
             .parameter_map(BTreeMap::new())
             .labels(skeleton_labels())
             .annotations(Some(annotations))
-            .replicas(3)
             .owner_ref(skeleton_owner_ref())
             .to_deployment();
         assert_eq!(
@@ -594,7 +588,6 @@ mod test {
                 .len(),
             1
         );
-        assert_eq!(deployment.spec.clone().expect("spec").replicas, Some(3));
         assert_eq!(
             deployment
                 .spec
