@@ -6,23 +6,32 @@ spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
     - core.oam.dev/v1alpha1.Task
-  properties:
-    - name: minimum
-      description: Minumum number of replicas to start. Default 1
-      type: int
-      required: false
-    - name: maximum
-      description: Maximum number of replicas to start. Default 10.
-      type: int
-      required: false
-    - name: memory
-      description: The memory consumption threshold (as percent) that will cause a scale event
-      type: int
-      required: false
-    - name: cpu
-      description: The CPU consumption threshold (as percent) that will cause a scale event
-      type: int
-      required: false
+  properties: |
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "minimum": {
+          "type": "integer",
+          "description": "Minumum number of replicas to start.",
+          "default": 1
+        },
+        "maximum": {
+          "type": "integer",
+          "description": "Maximum number of replicas to start.",
+          "default": 10
+        },
+        "memory": {
+          "type": "integer",
+          "description": "The memory consumption threshold (as percent) that will cause a scale event."
+        },
+        "cpu": {
+          "type": "integer",
+          "description": "The CPU consumption threshold (as percent) that will cause a scale event"
+        }
+      }
+    }
+
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: Trait
@@ -32,11 +41,21 @@ spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
     - core.oam.dev/v1alpha1.Task
-  properties:
-    - name: replicaCount
-      description: Number of replicas to start
-      type: int
-      required: true
+  properties: |
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "replicaCount"
+      ],
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "description": "the target number of replicas to scale a component to.",
+          "minimum": 0
+        }
+      }
+    }
 
 ---
 apiVersion: core.oam.dev/v1alpha1
@@ -47,19 +66,30 @@ spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
     - core.oam.dev/v1alpha1.SingletonServer
-  properties:
-    - name: hostname
-      description: Host name for the ingress
-      type: string
-      required: true
-    - name: service_port
-      description: Port number on the service
-      type: int
-      required: true
-    - name: path
-      description: Path to expose. Default is '/'
-      type: string
-      required: false
+  properties: |
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "hostname",
+        "service_port"
+      ],
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "description": "Host name for the ingress."
+        },
+        "service_port": {
+          "type": "integer",
+          "description": "Port number on the service."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to expose.",
+          "default": "/"
+        }
+      }
+    }
 
 ---
 apiVersion: core.oam.dev/v1alpha1
@@ -74,15 +104,26 @@ spec:
     - core.oam.dev/v1alpha1.SingletonWorker
     - core.oam.dev/v1alpha1.Task
     - core.oam.dev/v1alpha1.SingletonTask
-  properties:
-    - name: volumeName
-      description: The name of the volume this backs. This matches the volume name declared in the ComponentSchematic.
-      type: string
-      required: true
-    - name: storageClass
-      description: The storage class that a PVC requires
-      type: string
-      required: true
+  properties: |
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "volumeName",
+        "storageClass"
+      ],
+      "properties": {
+        "volumeName": {
+          "type": "string",
+          "description": "The name of the volume this backs. This matches the volume name declared in the ComponentSchematic."
+        },
+        "storageClass": {
+          "type": "string",
+          "description": "The storage class that a PVC requires."
+        }
+      }
+    }
+
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: Trait
