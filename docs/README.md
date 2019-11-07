@@ -4,10 +4,7 @@
 Install the Rudr runtime and its dependencies.
 
 ## Concepts
-Welcome to Rudr - the Kubernetes implementation of the [Open Application Model](https://github.com/oam-dev/spec) specification. Below is documentation about the main application model constructs: components (and their workloads), traits, and application configurations. 
-
-### [Using Rudr](./concepts/using_rudr.md)
-Learn the basics of using Rudr.
+Welcome to [Rudr](./concepts/using_rudr.md) - the Kubernetes implementation of the [Open Application Model](https://github.com/oam-dev/spec) specification. Below is documentation about the main application model constructs: components (and their workloads), traits, and application configurations. 
 
 ### [Component Schematic](./concepts/component-schematic.md)
 As a *developer*, define the  functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
