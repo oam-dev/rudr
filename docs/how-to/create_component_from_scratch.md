@@ -129,7 +129,7 @@ apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
 - name: helloworld-python-v1
-- name: helloworld-python-v2
++ name: helloworld-python-v2
 spec:
   name: helloworld-python
   workloadType: core.oam.dev/v1alpha1.Server
