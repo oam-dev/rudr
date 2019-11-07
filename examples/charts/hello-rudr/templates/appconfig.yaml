@@ -20,3 +20,7 @@ spec:
               value: /
             - name: service_port
               value: {{ .Values.port }}
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: {{ .Values.replicaCount }}

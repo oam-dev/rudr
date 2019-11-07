@@ -74,12 +74,22 @@ impl Health {
         params: Vec<ParameterValue>,
     ) -> Result<Self, Error> {
         let probe_method = match extract_string_params("probe-method", params.clone()) {
-            Some(network_id) => network_id,
-            None => return Err(format_err!("probe-method is not exist")),
+            Some(probe_method) => probe_method,
+            None => {
+                return Err(format_err!(
+                    "probe-method does not exist in params {:?}",
+                    params
+                ))
+            }
         };
         let probe_endpoint = match extract_string_params("probe-endpoint", params.clone()) {
-            Some(network_id) => network_id,
-            None => return Err(format_err!("probe-endpoint is not exist")),
+            Some(probe_endpoint) => probe_endpoint,
+            None => {
+                return Err(format_err!(
+                    "probe-endpoint does not exist in params {:?}",
+                    params
+                ))
+            }
         };
         let probe_timeout =
             extract_number_params("probe-timeout", params.clone()).and_then(|v| v.as_i64());

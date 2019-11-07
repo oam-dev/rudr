@@ -22,10 +22,13 @@ const DEFAULT_NAMESPACE: &str = "default";
 
 fn kubeconfig() -> kube::Result<kube::config::Configuration> {
     // If env var is set, use in cluster config
-    if std::env::var("KUBERNETES_PORT").is_ok() {
-        return incluster_config();
+    match std::env::var("KUBERNETES_PORT") {
+        Ok(_val) => {
+            info!("Loading in-cluster config");
+            incluster_config()
+        },
+        Err(_e) => load_kube_config()
     }
-    load_kube_config()
 }
 
 type KubeComponent = Object<Component, Status>;

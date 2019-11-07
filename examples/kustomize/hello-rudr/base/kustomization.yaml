@@ -1,0 +1,3 @@
+resources:
+  - appconfig.yaml
+  - component.yaml

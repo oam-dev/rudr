@@ -1,0 +1,13 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: first-app
+spec:
+  components:
+    - componentName: helloworld-python-v1
+      instanceName: patched-app
+      parameterValues:
+        - name: target
+          value: Hello
+        - name: port
+          value: "8888"
