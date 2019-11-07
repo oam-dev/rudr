@@ -10,13 +10,16 @@ Welcome to Rudr - the Kubernetes implementation of the [Open Application Model](
 Learn the basics of using Rudr.
 
 ### [Component Schematic](./concepts/component-schematic.md)
-As a *developer*, define the  functional units that may be instantiated as part of a larger distributed application and their respective [workloads]((./concepts/workloads.md).
+As a *developer*, define the  functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
+![component schematic comic](./images/componentcomic.PNG)
 
-#### [Traits](./concepts/traits.md)
+### [Traits](./concepts/traits.md)
 As an *application operator*, attach operational features to component workloads of your application.
+![trait schematic comic](./images/traitcomic.PNG)
 
 ### [Application Configuration](./concepts/application-configuration.md)
 As an *application operator*, define how your overall application will be instantiated and configured.
+![app config schematic comic](./images/appconfigcomic.PNG)
 
 ## [Tutorial](./tutorials/deploy_and_update.md)
 Lets put everything together and deploy, inspect, and update a Rudr application.
