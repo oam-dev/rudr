@@ -3,25 +3,23 @@
 ## [Install Rudr](./setup/install.md)
 Install the Rudr runtime and its dependencies.
 
-## [Tutorial](./tutorials/deploy_and_update.md)
-Deploy, inspect, and update a Rudr application and its individual components.
-
 ## Concepts
+Welcome to Rudr - the Kubernetes implementation of the [Open Application Model](https://github.com/oam-dev/spec) specification. Below is documentation about the main application model constructs: components (and their workloads), traits, and application configurations. 
 
 ### [Using Rudr](./concepts/using_rudr.md)
 Learn the basics of using Rudr.
 
-### [Application Configuration](./concepts/application-configuration.md)
-As an *application operator*, define how your overall application will be instantiated and configured.
+### [Component Schematic](./concepts/component-schematic.md)
+As a *developer*, define the  functional units that may be instantiated as part of a larger distributed application and their respective [workloads]((./concepts/workloads.md).
 
 #### [Traits](./concepts/traits.md)
 As an *application operator*, attach operational features to component workloads of your application.
 
-### [Component Schematic](./concepts/component-schematic.md)
-As a *developer*, define the operational characteristics of your component of code.
+### [Application Configuration](./concepts/application-configuration.md)
+As an *application operator*, define how your overall application will be instantiated and configured.
 
-#### [Workloads](./concepts/workloads.md)
-As a *developer*, designate the appropriate workload type to execute your component on the Rudr runtime.
+## [Tutorial](./tutorials/deploy_and_update.md)
+Lets put everything together and deploy, inspect, and update a Rudr application.
 
 ## How-To's
 
