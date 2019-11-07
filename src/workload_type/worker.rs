@@ -1,3 +1,4 @@
+use crate::workload_type::statefulset_builder::StatefulsetBuilder;
 use crate::workload_type::{
     workload_builder::DeploymentBuilder, workload_builder::WorkloadMetadata, InstigatorResult,
     KubeName, StatusResult, ValidationResult, WorkloadType,
@@ -109,7 +110,7 @@ impl WorkloadType for SingletonWorker {
         //pre create config_map
         self.meta.create_config_maps("SingletonWorker")?;
 
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
@@ -120,7 +121,7 @@ impl WorkloadType for SingletonWorker {
     }
     fn modify(&self) -> InstigatorResult {
         //TODO update config_map
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
@@ -132,16 +133,17 @@ impl WorkloadType for SingletonWorker {
             )
     }
     fn delete(&self) -> InstigatorResult {
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
         )
     }
     fn status(&self) -> StatusResult {
-        let key = "deployment/".to_string() + self.kube_name().as_str();
+        let key = "statefulset/".to_string() + self.kube_name().as_str();
         let mut resources = BTreeMap::new();
-        let state = self.meta.deployment_status()?;
+        let state = StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .status(self.meta.client.clone(), self.meta.namespace.clone())?;
         resources.insert(key.clone(), state);
         Ok(resources)
     }
@@ -351,5 +353,4 @@ mod test {
             client: reqwest::Client::new(),
         }
     }
-
 }
