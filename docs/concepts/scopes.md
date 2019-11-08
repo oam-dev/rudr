@@ -127,3 +127,11 @@ spec:
       applicationScopes:
         - my-health-scope
 ```
+
+Once you deploy that application configuration, you can verify the health scope instance was created:
+
+```console
+kubectl get health
+```
+
+And get further details about it with `kubectl get health` **`my-health-scope`** `-o yaml`.
