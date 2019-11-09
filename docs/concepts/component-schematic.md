@@ -11,6 +11,8 @@ The key parts of a component schematic include:
 - [Parameters](#parameters): (Optional). Configuration options of the component.
 - [Containers](#containers): Runnable pieces of code used by the component and their resource requirements.
 
+Note that rudr schedules all the containers in the component to run on the same pod so including multiple containers in a component schematic is the way to express the side-car pattern.
+
 Here's an example application configuration (*.yaml* file):
 
 <pre>
