@@ -18,6 +18,9 @@ As an *application operator*, attach operational features to component workloads
 ![app config schematic comic](./images/appconfigcomic.PNG)
 As an *application operator*, define how your overall application will be instantiated and configured. Learn about application configurations [here](./concepts/application-configuration.md).
 
+### [Scopes](./concepts/scopes.md)
+As an *application operator*, define application boundaries by grouping components with common properties and dependencies.
+
 ## [Tutorial](./tutorials/deploy_and_update.md)
 Lets put everything together and deploy, inspect, and update a Rudr application.
 

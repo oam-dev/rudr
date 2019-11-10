@@ -56,7 +56,7 @@ $ kubectl get traits
 $ kubectl get trait <trait-name> -o yaml
 ````
 
-## Manual Scaler trait (`manual-scaler`)
+## Manual Scaler trait
 
 Manual Scaler trait is used to manually scale components with replicable workload types.
 
@@ -86,7 +86,7 @@ traits:
         value: 3
 ```
 
-## Autoscaler trait (`autoscaler`)
+## Autoscaler trait
 
 Autoscaler trait is used autoscale components with replicable workloads. This is implemented by the Kubernetes [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
 
@@ -128,7 +128,7 @@ $ helm install keda stable/keda
       value: 50
 ```
 
-## Ingress trait (`ingress`)
+## Ingress trait
 
 Ingress trait is used for components with service workloads and provides load balancing, SSL termination and name-based virtual hosting.
 
@@ -173,9 +173,9 @@ spec:
   - image: nginx:latest
     name: server
     ports:
-    - containerPort: 80                  # <-- this is the service port
-      name: http
-      protocol: TCP
+      - containerPort: 80                  # <-- this is the service port
+        name: http
+        protocol: TCP
 ```
 
 So to use this on an ingress, you would need to add this to your `ApplicationConfiguration`:
@@ -202,7 +202,7 @@ spec:
 
 Because each component may have multiple ports, the specific port must be defined in the `ApplicationConfiguration`.
 
-## Volume Mounter trait (`volume-mounter`)
+## Volume Mounter trait
 
 The volume mounter trait is responsible for attaching a Kubernetes [PersistentVolume Claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) (PVC) to a component.
 
@@ -219,7 +219,7 @@ None. *The volume mounter trait has no external dependencies.*
 - Task
 - SingletonTask
 
-### `paramValues`
+### Properties
 
 | Name | Description | Allowable values | Required | Default |
 | :-- | :--| :-- | :-- | :-- |
