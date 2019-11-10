@@ -109,6 +109,7 @@ NAME            AGE
 autoscaler      19m
 ingress         19m
 manual-scaler   19m
+volume-mounter  19m
 ```
 
 And you can look at an individual trait in the same way that you investigate a component:
