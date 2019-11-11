@@ -10,8 +10,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Build Container Images
-        run: make docker-build-cx
+      - name: Build Container Images for amd64
+        run: make docker-build-amd64
+      - name: Build Container Images for arm64
+        run: make docker-build-arm64
       - name: Publish Container Images
         env:
           hydraoss_secret: ${{ secrets.hydraoss }}
