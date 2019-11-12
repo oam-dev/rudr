@@ -9,7 +9,6 @@ This guide explains how to write a trait for Rudr, using the VolumeMounter trait
 The first thing we will do is define a trait resource as a YAML file that Helm will install.
 
 ```yaml
----
 apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
