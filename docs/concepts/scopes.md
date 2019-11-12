@@ -4,7 +4,7 @@ Application [*scopes*](https://github.com/oam-dev/spec/blob/master/4.application
 
 Currently, Rudr supports the following scope types:
 
-- [Health](#health)
+- [Health](#health-scope)
 
 An [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) configures and assigns  scope instances to component workloads of an application in the [ApplicationConfiguration](application-configuration.md) file. For example, here's a custom configuration of the Rudr [health](#health) scope type:
 
