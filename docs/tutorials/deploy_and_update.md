@@ -236,23 +236,22 @@ status:
 ## Visit the web app
 
 The way to visit the web app could be different with different platforms.
-Assuming you are using [minikube](https://github.com/kubernetes/minikube),
-you can view your web app from following steps:
 
-1. Get the IP of minikube.
-    ```shell script
-    $ minikube ip
-    192.168.99.101
-    ``` 
-2. Append hostname with IP to your hosts file, you can directly edit the file with `vim` or other tools.
-   ```shell script
-   echo "192.168.99.101 example.com" >> /etc/hosts
-   ```
-3. Then you can directly find what you want by `curl`
-    ```shell script
-    $ curl example.com
-    Hello Rudr!
-    ```
+Let's use `port-forward` to help us get the application URL by running these commands:
+
+```
+export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v1,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
+echo "Visit http://127.0.0.1:9999 to use your application"
+kubectl port-forward $POD_NAME 9999:9999
+```
+
+`kubectl port-forward` command will block and serve your requests.
+
+You will get the following output:
+
+```
+Hello Rudr!
+```
 
 ## Upgrade the Application Configuration file
 
@@ -349,20 +348,21 @@ status:
 
 You can see fields have been changed.
 
-As we changed the hostname, we may set the hosts file again:
+Again, get the application URL by running these commands:
 
-```shell script
-echo "192.168.99.101 oamexample.com" >> /etc/hosts
+```
+export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v1,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
+echo "Visit http://127.0.0.1:9999 to use your application"
+kubectl port-forward $POD_NAME 9999:9999
 ```
 
-Let's visit the web app again with the new hostname:
+Let's visit the web app again and find the following result:
 
-```console
-$ curl oamexample.com
+```
 Hello World!
 ```
 
-The response from the url indicates our change of environment has successfully went into effect.
+The response indicates our change of environment is successful.
 
 ## Upgrade with Component Changed
 
