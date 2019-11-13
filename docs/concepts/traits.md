@@ -2,6 +2,10 @@
 
 A [*trait*](https://github.com/oam-dev/spec/blob/master/5.traits.md) represents a piece of add-on functionality that attaches to a component instance. Traits augment components with additional operational features such as traffic routing rules (including load balancing policy, network ingress routing, circuit breaking, rate limiting), auto-scaling policies, upgrade strategies, and more. As such, traits represent features of the system that are operational concerns, as opposed to developer concerns. In terms of implementation details, traits are Rudr-defined Kubernetes CRDs.
 
+*Traits* are assigned to component workloads by an [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities).
+
+![trait schematic comic](./images/traitcomic.PNG)
+
 Currently, Rudr supports the following traits:
 
 - [Manual Scaler](#manual-scaler-trait)
@@ -9,7 +13,7 @@ Currently, Rudr supports the following traits:
 - [Ingress](#ingress-trait)
 - [Volume Mounter](#volume-mounter-trait)
 
-An [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) assigns specific traits to component workloads of an application from the [ApplicationConfiguration](application-configuration.md) manifest. For example:
+Specific traits are assigned to component workloads of an application via the [ApplicationConfiguration](application-configuration.md) file. For example:
 
 <pre>
 apiVersion: core.oam.dev/v1alpha1
