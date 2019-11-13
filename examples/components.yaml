@@ -13,7 +13,7 @@ spec:
           protocol: TCP
       resources:
         cpu:
-          required: "0.5"
+          required: 0.5
         memory:
           required: 100M
 ---
