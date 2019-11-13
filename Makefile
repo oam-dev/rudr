@@ -1,4 +1,4 @@
-REPO = oam-dev/rudr
+REPO = oamdev/rudr
 HEALTHREPO = oamdev/healthscope
 TAG ?= latest
 ARCHS := amd64 arm64
@@ -15,7 +15,6 @@ foo:
 build-linux: docker-build-amd64
 build-linux:
 	docker run -it --rm -v $(PWD)/_target:/dest $(REPO):$(TAG) cp /usr/app/rudr /dest/rudr-linux-x86_64
-	
 
 .PHONY: test
 test:
