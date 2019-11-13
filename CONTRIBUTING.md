@@ -8,7 +8,13 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Quick Start
+## Install Prerequisities 
+
+1. Access to a Kubernetes cluster.
+2. Clone this repository. 
+
+### Quickstart: Use the prepackaged container with VSCode 
+
 If you have Docker and VS Code installed on your device, you can use the VS Code <b>Remote - Containers</b> extension to develop inside a container that contains all of the build dependencies.  To do this:
 
 - Install the VS Code <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote - Containers</a> extension
@@ -17,19 +23,15 @@ If you have Docker and VS Code installed on your device, you can use the VS Code
 
 This will download the Development Environment container from Docker Hub and configure VS Code to run all commands and Terminals inside the container.  To build Rudr, launch a new Bash Termial in VS Code and run `cargo build` from the rudr directory.  
 
-## Building from Source
-
-This section goes over how to build the source code for Rudr. 
-
-### Prerequisites 
+### Manually install the bits on your machine
 
 - [Rust 2018 Edition or newer](https://www.rust-lang.org/tools/install)
 - Install kubectl and Helm 3. Instructions for both are in the [set up doc](./docs/setup/install.md)
-- Access to a Kubernetes cluster. Instructions for [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) can be found here 
+
+## Build from source 
 
 To build:
 
-- Clone this repository
 - Go into the main directory: `cd rudr`
 - Install the CRDs
 ```bash
