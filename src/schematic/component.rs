@@ -538,7 +538,7 @@ impl Resources {
 
         self.cpu
             .clone()
-            .and_then(|cpu| requests.insert("cpu".to_string(), Quantity(cpu.required.clone())));
+            .and_then(|cpu| requests.insert("cpu".to_string(), Quantity(cpu.required.to_string().clone())));
         self.memory
             .clone()
             .and_then(|mem| requests.insert("memory".to_string(), Quantity(mem.required.clone())));
@@ -569,7 +569,7 @@ impl Default for Resources {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CPU {
-    pub required: String,
+    pub required: f64,
 }
 
 /// Memory describes the memory allocation for a container.
@@ -587,7 +587,7 @@ pub struct Memory {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GPU {
-    pub required: String,
+    pub required: f64,
 }
 
 /// Volume describes a path that is attached to a Container.
