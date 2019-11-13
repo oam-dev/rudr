@@ -1,0 +1,16 @@
+name: Dev
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build Container Images for dev environment
+        run: make docker-build-dev
+      - name: Publish Container Images
+        env:
+          hydraoss_secret: ${{ secrets.hydraoss }}
+        run: make docker-publish-dev

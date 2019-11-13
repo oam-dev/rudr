@@ -1,4 +1,4 @@
-REPO = oamdev/rudr
+REPO = suhuruli/rudr
 HEALTHREPO = oamdev/healthscope
 TAG ?= latest
 ARCHS := amd64 arm64
@@ -82,3 +82,12 @@ docker-publish-amd64:
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(REPO):$(TAG)
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(HEALTHREPO):$(TAG) $(HEALTHREPO)-amd64:$(TAG)
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(HEALTHREPO):$(TAG)
+
+.PHONY: docker-build-dev 
+docker-build-dev: 
+	docker build -t $(REPO)-dev:$(TAG) .devcontainer/devenv/
+
+.PHONY: docker-push-dev 
+docker-push-dev:
+	docker login -u suhuruli -p ${hydraoss_secret}
+	docker push $(REPO)-dev:$(TAG)
