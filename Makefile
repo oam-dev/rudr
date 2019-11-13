@@ -1,4 +1,4 @@
-REPO = suhuruli/rudr
+REPO = oam-dev/rudr
 HEALTHREPO = oamdev/healthscope
 TAG ?= latest
 ARCHS := amd64 arm64
@@ -89,5 +89,5 @@ docker-build-dev:
 
 .PHONY: docker-push-dev 
 docker-publish-dev:
-	docker login -u suhuruli -p ${hydraoss_secret}
+	docker login -u hydraoss -p ${hydraoss_secret}
 	docker push $(REPO)-dev:$(TAG)

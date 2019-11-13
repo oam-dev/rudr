@@ -2,7 +2,7 @@
 {
 	"name": "rudr dev env",
 
-	"image": "suhuruli/rudr-dev",
+	"image": "oam-dev/rudr-dev",
 
 	"service": "development",
 
