@@ -58,6 +58,8 @@ This will give you a basic implementation of Kubernetes ingresses. See the [Inst
 
 Once you have installed Rudr, you can start creating and deploying apps.
 
+The first step to deploying an application is to deploy its constituent component(s). A component will not actually run until its parent application is deployed; however it must be deployed first, before application deployment.
+
 To start, install an example component:
 
 ```console

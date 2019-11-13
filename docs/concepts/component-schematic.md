@@ -11,7 +11,7 @@ The key parts of a component schematic include:
 - [Parameters](#parameters): (Optional). Configuration options of the component.
 - [Containers](#containers): Runnable pieces of code used by the component and their resource requirements.
 
-Note that rudr schedules all the containers in the component to run on the same pod so including multiple containers in a component schematic is the way to express the side-car pattern.
+Rudr schedules all the containers of a component to run on the same pod. You can implement a side-car pattern by including multiple containers in a single component schematic.
 
 Here's an example application configuration (*.yaml* file):
 
@@ -151,7 +151,7 @@ containers:
 
 ## Containers
 
-The [containers](https://github.com/oam-dev/spec/blob/master/3.component_model.md#container) section describes the runtime configuration required to run a containerized workload for the component. 
+The [containers](https://github.com/oam-dev/spec/blob/master/3.component_model.md#container) section describes the runtime configuration required to run a containerized workload for the component. The container definition in Rudr is based on the Kubernetes container spec, however in Rudr you can also inject [config](#config) files into a container. Configs in the container are implemented using Kubernetes [ConfigMaps](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/).
 
 A component schematic requires one or more containers, each consisting of the following fields:
 
