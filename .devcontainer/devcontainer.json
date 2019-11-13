@@ -2,7 +2,7 @@
 {
 	"name": "rudr dev env",
 
-	"image": "dumbnose/rudr-devenv",
+	"image": "suhuruli/rudr-dev",
 
 	"service": "development",
 
