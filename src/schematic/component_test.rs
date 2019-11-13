@@ -509,13 +509,13 @@ fn test_to_volume_mounts() {
         image: "test/image".into(),
         resources: Resources {
             cpu: Some(CPU {
-                required: "1".into(),
+                required: 1.into(),
             }),
             memory: Some(Memory {
                 required: "128".into(),
             }),
             gpu: Some(GPU {
-                required: "0".into(),
+                required: 0.into(),
             }),
             volumes: Some(vec![
                 Volume {
