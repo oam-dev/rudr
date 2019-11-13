@@ -88,6 +88,6 @@ docker-build-dev:
 	docker build -t $(REPO)-dev:$(TAG) .devcontainer/devenv/
 
 .PHONY: docker-push-dev 
-docker-push-dev:
+docker-publish-dev:
 	docker login -u suhuruli -p ${hydraoss_secret}
 	docker push $(REPO)-dev:$(TAG)
