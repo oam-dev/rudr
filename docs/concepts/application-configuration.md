@@ -4,7 +4,7 @@ An [application configuration](https://github.com/oam-dev/spec/blob/master/6.app
 
 The *application configuration* is managed as part of the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
 
-![app config schematic comic](../images/appconfigcomic.PNG)
+![app config schematic comic](../media/appconfigcomic.PNG)
 
 The key parts of an application configuration include:
 

@@ -4,7 +4,7 @@ A [component schematic](https://github.com/oam-dev/spec/blob/master/3.component_
 
 The *component schematic* is managed as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
 
-![component schematic comic](../images/componentcomic.PNG)
+![component schematic comic](../media/componentcomic.PNG)
 
 The key parts of a component schematic include:
 
