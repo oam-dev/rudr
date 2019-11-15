@@ -4,20 +4,20 @@
 
 <table border=0 rules=none>
 <tr>
-<td><img src="./media/developer-role.png" /></td>
+<td><img alt="Developer role" src="./media/developer-role.png" /></td>
 <td><b>Developers</b> define application <b>components</b>,</td>
 </tr>
 <tr>
-<td><img src="./media/app-operator-role.png" /></td>
+<td><img alt="Application operator role" src="./media/app-operator-role.png" /></td>
 <td><b>Application operators</b> create instances of those components and assign them to <b>application configurations</a>, and</td>
 </tr>
 <tr>
-<td><img src="./media/infra-operator-role.png" /></td>
+<td><img alt="Infrastructure operator role" src="./media/infra-operator-role.png" /></td>
 <td><b>Infrastructure operators</b> declare, install, and maintain the <b>underlying services</b> available on the platform.</td>
 </tr>
 </table>
 
-<img align="right" src="./media/runtime.png" />
+<img align="right" alt="Components and applications are deployed in the Rudr runtime within your Kubernetes cluster." src="./media/runtime.png" />
 
 To get started, check out the *Install Rudr* guide and the *Tutorial*. The *Concepts* guides will walk you through all the available options Rudr provides to run and manage applications, and the *How-Tos* cover more advanced scenarios.
 
@@ -32,34 +32,33 @@ Learn more about the main application model constructs: components (and their wo
 
 ### [Component Schematic](./concepts/component-schematic.md)
 
-<img align="right" src="./media/component.png" />
+<img align="right" alt="The component schematic defines the parameters, workload type, and containers of a unit of code." src="./media/component.png" />
 
 Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
 
 <br />
-<br />
 
 ### [Application Configuration](./concepts/application-configuration.md)
 
-<img align="right" src="./media/application.png" />
+<img align="right" alt="The application configuration defines the parameters, components, and other runtime properties of the overall application." src="./media/application.png" />
 
 Learn how an <b>application operator</b> can define how an overall application will be instantiated and configured.
 
 <br />
-<br />
 
 ### [Traits](./concepts/traits.md)
 
-<img align="right" src="./media/traits.png" />
+<img align="right" alt="Traits represent add-on runtime functionality assigned to component workloads from within the application configuration." src="./media/traits.png" />
 
 Learn how an <b>application operator</b> can attach operational features to component workloads of an application.
 
 <br />
 <br />
+<br />
 
 ### [Scopes](./concepts/scopes.md)
 
-<img align="right" src="./media/scopes.png" />
+<img align="right" alt="Scopes are used to logically group components within an application." src="./media/scopes.png" />
 
 Learn how an <b>application operator</b> can define application boundaries by grouping components with common properties and dependencies.
 
