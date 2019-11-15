@@ -15,6 +15,10 @@ spec:
             disk:
               required: "50M"
               ephemeral: false
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration

@@ -1,7 +1,5 @@
 use k8s_openapi::api::core::v1 as core;
-use k8s_openapi::apimachinery::pkg::{
-    api::resource::Quantity, util::intstr::IntOrString,
-};
+use k8s_openapi::apimachinery::pkg::{api::resource::Quantity, util::intstr::IntOrString};
 use log::info;
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -525,8 +523,8 @@ type ExtendedResources = Vec<ExtendedResource>;
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct Resources {
-    pub cpu: Option<CPU>,
-    pub memory: Option<Memory>,
+    pub cpu: CPU,
+    pub memory: Memory,
     pub gpu: Option<GPU>,
     pub volumes: Option<Vec<Volume>>,
     pub extended: Option<ExtendedResources>,
@@ -535,14 +533,11 @@ pub struct Resources {
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
-
-        self.cpu
-            .clone()
-            .and_then(|cpu| requests.insert("cpu".to_string(), Quantity(cpu.required.clone())));
-        self.memory
-            .clone()
-            .and_then(|mem| requests.insert("memory".to_string(), Quantity(mem.required.clone())));
-
+        requests.insert("cpu".to_string(), Quantity(self.cpu.required.to_string().clone()));
+        requests.insert(
+            "memory".to_string(),
+            Quantity(self.memory.required.clone() + "Mi"),
+        );
         // TODO: Kubernetes does not have a built-in type for GPUs. What do we use?
         core::ResourceRequirements {
             requests: Some(requests),
@@ -554,8 +549,12 @@ impl Resources {
 impl Default for Resources {
     fn default() -> Self {
         Resources {
-            cpu: None,
-            memory: None,
+            cpu: CPU {
+                required: 0.1,
+            },
+            memory: Memory {
+                required: "128".into(),
+            },
             gpu: None,
             volumes: None,
             extended: None,
@@ -569,7 +568,7 @@ impl Default for Resources {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CPU {
-    pub required: String,
+    pub required: f64,
 }
 
 /// Memory describes the memory allocation for a container.
@@ -587,7 +586,7 @@ pub struct Memory {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct GPU {
-    pub required: String,
+    pub required: f64,
 }
 
 /// Volume describes a path that is attached to a Container.

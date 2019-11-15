@@ -13,9 +13,9 @@ spec:
           protocol: TCP
       resources:
         cpu:
-          required: "0.5"
+          required: 0.5
         memory:
-          required: 100M
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -30,6 +30,11 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -44,6 +49,11 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -55,6 +65,11 @@ spec:
   containers:
     - name: runner
       image: alpine:latest
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -66,6 +81,11 @@ spec:
   containers:
     - name: runner
       image: alpine:latest
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -77,6 +97,11 @@ spec:
   containers:
     - name: worker
       image: nginx:latest
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
 ---
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
@@ -88,3 +113,8 @@ spec:
   containers:
     - name: worker
       image: nginx:latest
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"

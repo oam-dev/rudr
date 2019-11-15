@@ -59,6 +59,16 @@ Learn how to use Helm/Kustomize tools to manage your OAM .yaml filese.
 
 Here are tips and best practices for migrating exsiting Kubernetes applications to use Rudr.
 
+## Develop
+
+#### [Writing a Trait](./developer/writing_a_trait.md)
+
+Explain how to write a trait for Rudr.
+
+#### [Debug](./developer/debug.md)
+
+How to debug when using Rudr.
+
 ## [FAQ](./faq.md)
 
 Find answers to commonly asked questions about Rudr and the Open Application Model (OAM).

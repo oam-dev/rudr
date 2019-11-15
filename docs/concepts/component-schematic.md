@@ -161,7 +161,7 @@ A component schematic requires one or more containers, each consisting of the fo
 | :-- | :--| :-- | :-- | :-- |
 | **name** | Name of the container. | string. Must be unique per component. | &#9745; ||
 | **image**| A path or URI of the location of the container image. | string. Best practice is to include a tag suffix.| &#9745; || 
-| **resources**| The runtime resources (such as CPU, memory, and storage) required by the container.| string. See [resources](#resources) section for details.||
+| **resources**| The runtime resources (such as CPU, memory, and storage) required by the container.| string. See [resources](#resources) section for details.| &#9745; |
 | **ports**| The ports exposed by the container.| See [ports](#ports) section for details.||
 | **cmd**| The command to run when the container starts.| string. Supply any arguments using the `args` field (see below).||
 | **args**| Arguments to the `cmd` entrypoint.| string||
@@ -215,7 +215,7 @@ resources:
   cpu:
     required: "0.5"
   memory:
-    required: 100M
+    required: "128"
 ```
 
 #### `volumes`
