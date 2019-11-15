@@ -15,7 +15,6 @@ foo:
 build-linux: docker-build-amd64
 build-linux:
 	docker run -it --rm -v $(PWD)/_target:/dest $(REPO):$(TAG) cp /usr/app/rudr /dest/rudr-linux-x86_64
-	
 
 .PHONY: test
 test:
@@ -82,3 +81,12 @@ docker-publish-amd64:
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(REPO):$(TAG)
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(HEALTHREPO):$(TAG) $(HEALTHREPO)-amd64:$(TAG)
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(HEALTHREPO):$(TAG)
+
+.PHONY: docker-build-dev 
+docker-build-dev: 
+	docker build -t $(REPO)-dev:$(TAG) .devcontainer/devenv/
+
+.PHONY: docker-push-dev 
+docker-publish-dev:
+	docker login -u hydraoss -p ${hydraoss_secret}
+	docker push $(REPO)-dev:$(TAG)

@@ -1,0 +1,28 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+	"name": "rudr dev env",
+
+	"image": "oamdev/rudr-dev",
+
+	"service": "development",
+
+	// Uncomment the next line if you want to publish any ports.
+	//"appPort": [8080],
+
+	// Uncomment the next line if you want to add in default container specific settings.json values
+	// "settings":  { "workbench.colorTheme": "Quiet Light" },
+
+	// Uncomment the next line to run commands after the container is created.
+	// "postCreateCommand": "yarn install",
+
+	"runArgs": ["-v","//var/run/docker.sock:/var/run/docker.sock"],
+
+	// "extensions": [
+	// 	"dbaeumer.vscode-eslint",
+	// 	"ms-vscode.vscode-typescript-tslint-plugin"
+	// ],
+
+	"remote.extensionKind": {
+        "ms-azuretools.vscode-docker": "workspace"
+    }
+}
