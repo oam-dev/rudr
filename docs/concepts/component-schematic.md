@@ -1,5 +1,7 @@
 # Component Schematic
 
+<img align="right" alt="The component schematic defines the parameters, workload type, and containers of a unit of code." src="./media/component.png" />
+
 A [component schematic](https://github.com/oam-dev/spec/blob/master/3.component_model.md) is a resource that declares the operational characteristics of a module of code in infrastructure neutral terms. It describes a functional code unit, or *microservice*, that can be instantiated as part of one or more larger distributed applications. You can instantiate a component by first defining its schematic (*ComponentSchematic*), [installing it](#common-operations) to your Rudr runtime, and then deploying an [application configuration](./application-configuration.md) that references it.
 
 The *component schematic* is managed as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
