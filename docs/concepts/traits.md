@@ -4,7 +4,7 @@ A [*trait*](https://github.com/oam-dev/spec/blob/master/5.traits.md) represents 
 
 *Traits* are assigned to component workloads by an [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities).
 
-![trait schematic comic](./images/traitcomic.PNG)
+![trait schematic comic](../images/traitcomic.PNG)
 
 Currently, Rudr supports the following traits:
 
