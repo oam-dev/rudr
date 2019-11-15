@@ -1,6 +1,6 @@
 # Scopes
 
-<img align="right" alt="Scopes are used to logically group components within an application." src="./media/scopes.png" />
+<img align="right" alt="Scopes are used to logically group components within an application." src="../media/scopes.png" />
 
 Application [*scopes*](https://github.com/oam-dev/spec/blob/master/4.application_scopes.md) are used to logically group components together by providing application boundaries that represent common group behaviors and/or dependencies. Scopes are not mutually exclusive: a given component can belong to multiple application scope instances at the same time. Once installed to your Rudr runtime, a scope can be used (and reused) across any number of [application configurations](./application-configuration.md). In terms of implementation details, scopes are Rudr-defined Kubernetes CRDs.
 
