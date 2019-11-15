@@ -2,24 +2,24 @@
 
 *Rudr* is the Kubernetes reference implementation of the [Open Application Model](https://github.com/oam-dev/spec) (OAM) specification, a team-centric standard for building cloud-native apps, where:
 
-<html>
-<table style="border:none;">
+<table border=0 rules=none>
 <tr>
 <td><img src="./media/developer-role.png" /></td>
-<td><b>Developers</b> define application <a href="#component-schematic" style="color:rgb(121, 149, 64);font-weight:bold;text-decoration:none">components</a>,</td>
+<td><b>Developers</b> define application <b style="color:rgb(121, 149, 64)">components</b>,</td>
 </tr>
 <tr>
 <td><img src="./media/app-operator-role.png" /></td>
-<td><b>Application operators</b> create instances of those components and assign them to <a href="#application-configuration" style="color:rgb(49, 133, 156);font-weight:bold;text-decoration:none">application configurations</a>, and</td>
+<td><b>Application operators</b> create instances of those components and assign them to <b style="color:rgb(49, 133, 156);">application configurations</a>, and</td>
 </tr>
 <tr>
 <td><img src="./media/infra-operator-role.png" /></td>
-<td><b>Infrastructure operators</b> declare, install, and maintain the <a href="#application-configuration" style="color:rgb(127, 101, 159);font-weight:bold;text-decoration:none">underlying services</a> available on the platform.</td>
+<td><b>Infrastructure operators</b> declare, install, and maintain the <b style="color:rgb(127, 101, 159);">underlying services</b> available on the platform.</td>
 </tr>
 </table>
-</html>
 
+<img align="right" src="./media/runtime.png" />
 
+To get started, check out the *Install Rudr* guide and the *Tutorial*. The *Concepts* guides will walk you through all the available options Rudr provides to run and manage applications, and the *How-Tos* cover more advanced scenarios.
 
 ## [Install Rudr](./setup/install.md)
 Install the Rudr runtime and its dependencies.
@@ -32,17 +32,26 @@ Learn more about the main application model constructs: components (and their wo
 
 ### [Component Schematic](./concepts/component-schematic.md)
 
+<img align="right" src="./media/component.png" />
+
 Learn how a <span style="color:rgb(121, 149, 64);font-weight:bold;">developer</span> can define the functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
 
 ### [Application Configuration](./concepts/application-configuration.md)
+
+<img align="right" src="./media/application.png" />
 
 Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can define how an overall application will be instantiated and configured.
 
 ### [Traits](./concepts/traits.md)
 
+<img align="right" src="./media/traits.png" />
+
 Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can attach operational features to component workloads of an application.
 
 ### [Scopes](./concepts/scopes.md)
+
+<img align="right" src="./media/scopes.png" />
+
 Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can define application boundaries by grouping components with common properties and dependencies.
 
 ## How-To's
