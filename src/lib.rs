@@ -7,6 +7,7 @@ extern crate lazy_static;
 extern crate regex;
 
 pub mod instigator;
+pub mod kube_event;
 pub mod lifecycle;
 pub mod schematic;
 mod trait_manager;

@@ -1,12 +1,15 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::{api::Api, api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
-use log::{debug, info, warn};
+use log::{debug, error, info, warn};
 use serde_json::json;
 use std::collections::BTreeMap;
 
+use k8s_openapi::api::core::v1::ObjectReference;
+
 use crate::schematic::variable::Variable;
 use crate::{
+    kube_event,
     lifecycle::Phase,
     schematic::{
         component::Component,
@@ -70,6 +73,7 @@ pub struct Instigator {
     client: APIClient,
     //cache: Reflector<Component, Status>,
     namespace: String,
+    pub event_handler: kube_event::Event,
 }
 
 /// Alias for a Kubernetes wrapper on a component.
@@ -88,7 +92,11 @@ impl Instigator {
     /// An instigator uses the reflector as a cache of Components, and will use the API client
     /// for creating and managing the component implementation.
     pub fn new(client: kube::client::APIClient, namespace: String) -> Self {
-        Instigator { client, namespace }
+        Instigator {
+            client: client.clone(),
+            namespace: namespace.clone(),
+            event_handler: kube_event::Event::new(client, namespace),
+        }
     }
 
     pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
@@ -419,9 +427,25 @@ impl Instigator {
                     )?;
                     workload.add()?;
                     trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)?;
+                    if let Err(err) = self.event_handler.push_event_message(
+                        kube_event::Type::Normal,
+                        kube_event::Info {
+                            action: "created".to_string(),
+                            message: format!(
+                                "successfully created component {} instance {}",
+                                component.component_name.clone(),
+                                component.instance_name.clone(),
+                            ),
+                            reason: "".to_string(),
+                        },
+                        get_object_ref(event.clone()),
+                    ) {
+                        error!("adding event err: {:?}", err)
+                    }
                 }
                 Phase::Modify => {
                     info!("Modifying component {}", component.component_name.clone());
+
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -434,6 +458,21 @@ impl Instigator {
                         self.client.clone(),
                         Phase::Modify,
                     )?;
+                    if let Err(err) = self.event_handler.push_event_message(
+                        kube_event::Type::Normal,
+                        kube_event::Info {
+                            action: "updated".to_string(),
+                            message: format!(
+                                "successfully updated component {} instance {}",
+                                component.component_name.clone(),
+                                component.instance_name.clone(),
+                            ),
+                            reason: "".to_string(),
+                        },
+                        get_object_ref(event.clone()),
+                    ) {
+                        error!("adding event err {:?}", err)
+                    }
                 }
                 Phase::Delete => {
                     info!("Deleting component {}", component.component_name.clone());
@@ -499,6 +538,21 @@ impl Instigator {
                 for scope in scopes.iter() {
                     scope.remove(component.clone())?;
                 }
+            }
+            if let Err(err) = self.event_handler.push_event_message(
+                kube_event::Type::Normal,
+                kube_event::Info {
+                    action: "deleted".to_string(),
+                    message: format!(
+                        "successfully deleted component {} instance {}",
+                        component.component_name.clone(),
+                        inst_name.clone(),
+                    ),
+                    reason: "".to_string(),
+                },
+                get_object_ref(event.clone()),
+            ) {
+                error!("adding event err {:?}", err)
             }
         }
         // if no component was updated or this is an delete phase, just return without status change.
@@ -722,6 +776,20 @@ impl Instigator {
         )?;
         let _: KubeComponentInstance = self.client.request(req)?;
         Ok(())
+    }
+}
+
+pub fn get_object_ref(event: OpResource) -> ObjectReference {
+    ObjectReference {
+        api_version: event.types.apiVersion.clone(),
+        kind: event.types.kind.clone(),
+
+        name: Some(event.metadata.name.clone()),
+        field_path: None,
+        namespace: event.metadata.namespace.clone(),
+
+        resource_version: event.metadata.resourceVersion.clone(),
+        uid: event.metadata.uid.clone(),
     }
 }
 
