@@ -80,11 +80,11 @@ Here are tips and best practices for migrating exsiting Kubernetes applications 
 
 #### [Writing a Trait](./developer/writing_a_trait.md)
 
-Explain how to write a trait for Rudr.
+Here's a walkthrough of the process for writing a new trait for Rudr.
 
 #### [Debug](./developer/debug.md)
 
-How to debug when using Rudr.
+These are some useful tips for troubleshooting your Rudr deployments.
 
 ## [FAQ](./faq.md)
 
