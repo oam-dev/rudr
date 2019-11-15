@@ -5,15 +5,15 @@
 <table border=0 rules=none>
 <tr>
 <td><img src="./media/developer-role.png" /></td>
-<td><b>Developers</b> define application <b style="color:rgb(121, 149, 64)">components</b>,</td>
+<td><b>Developers</b> define application <b>components</b>,</td>
 </tr>
 <tr>
 <td><img src="./media/app-operator-role.png" /></td>
-<td><b>Application operators</b> create instances of those components and assign them to <b style="color:rgb(49, 133, 156);">application configurations</a>, and</td>
+<td><b>Application operators</b> create instances of those components and assign them to <b>application configurations</a>, and</td>
 </tr>
 <tr>
 <td><img src="./media/infra-operator-role.png" /></td>
-<td><b>Infrastructure operators</b> declare, install, and maintain the <b style="color:rgb(127, 101, 159);">underlying services</b> available on the platform.</td>
+<td><b>Infrastructure operators</b> declare, install, and maintain the <b>underlying services</b> available on the platform.</td>
 </tr>
 </table>
 
@@ -34,25 +34,34 @@ Learn more about the main application model constructs: components (and their wo
 
 <img align="right" src="./media/component.png" />
 
-Learn how a <span style="color:rgb(121, 149, 64);font-weight:bold;">developer</span> can define the functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
+Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [workloads](./concepts/workloads.md).
+
+<br />
+<br />
 
 ### [Application Configuration](./concepts/application-configuration.md)
 
 <img align="right" src="./media/application.png" />
 
-Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can define how an overall application will be instantiated and configured.
+Learn how an <b>application operator</b> can define how an overall application will be instantiated and configured.
+
+<br />
+<br />
 
 ### [Traits](./concepts/traits.md)
 
 <img align="right" src="./media/traits.png" />
 
-Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can attach operational features to component workloads of an application.
+Learn how an <b>application operator</b> can attach operational features to component workloads of an application.
+
+<br />
+<br />
 
 ### [Scopes](./concepts/scopes.md)
 
 <img align="right" src="./media/scopes.png" />
 
-Learn how an <span style="color:rgb(49, 133, 156);font-weight:bold">application operator</span> can define application boundaries by grouping components with common properties and dependencies.
+Learn how an <b>application operator</b> can define application boundaries by grouping components with common properties and dependencies.
 
 ## How-To's
 
