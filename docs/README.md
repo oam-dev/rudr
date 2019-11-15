@@ -24,6 +24,10 @@ As an *application operator*, define application boundaries by grouping componen
 ## [Tutorial](./tutorials/deploy_and_update.md)
 Lets put everything together and deploy, inspect, and update a Rudr application.
 
+## [Admission Controller](https://github.com/oam-dev/admission-controller)
+
+Admission controller is used for mutating and validating OAM component, trait and application configuration spec.
+
 ## How-To's
 
 #### [Create Component from Scratch](how-to/create_component_from_scratch.md)
