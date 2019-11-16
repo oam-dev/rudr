@@ -21,10 +21,12 @@
 
 To get started, check out the *Install Rudr* guide and the *Tutorial*. The *Concepts* guides will walk you through all the available options Rudr provides to run and manage applications, and the *How-Tos* cover more advanced scenarios.
 
-## [Install Rudr](./setup/install.md)
+## Get started
+
+### [Install Rudr](./setup/install.md)
 Install the Rudr runtime and its dependencies.
 
-## [Tutorial](./tutorials/deploy_and_update.md)
+### [Tutorial](./tutorials/deploy_and_update.md)
 Learn how to deploy, inspect, and update a Rudr application.
 
 ## Concepts
