@@ -9,7 +9,7 @@
 </tr>
 <tr>
 <td><img alt="Application operator role" src="./media/app-operator-role.png" /></td>
-<td><b>Application operators</b> create instances of those components and assign them to <b>application configurations</b>, and</td>
+<td><b>Application operators</b> create instances of those components, assign them to <b>application configurations</b>, and designate their operational capabilities, and</td>,
 </tr>
 <tr>
 <td><img alt="Infrastructure operator role" src="./media/infra-operator-role.png" /></td>
