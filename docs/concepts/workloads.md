@@ -48,6 +48,8 @@ spec:
           fromParam: unused_integer
 </pre>
 
+It's important to understand that workload types don't have associated CRDs—they are simply just a field within a component. As such, Rudr users can't define custom workload types; they are limited to the workload types predefined by the platform runtime.
+
 For more on specific workload types, refer to the sections below.
 
 ## Server
