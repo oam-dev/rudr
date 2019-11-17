@@ -1,8 +1,12 @@
 # Application Configuration
 
+<img align="right" alt="The application configuration defines the parameters, components, and other runtime properties of the overall application." src="../media/application.png" />
+
 An [application configuration](https://github.com/oam-dev/spec/blob/master/6.application_configuration.md) is a resource that declares how an application is to be instantiated and configured, including parameter overrides and add-on traits. The application configuration *.yaml* file represents a logical grouping of one or more components, their operational characteristics, and runtime configuration. It is used to deploy (and update) instances of these constituent components.
 
 The *application configuration* is managed as part of the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role.
+
+![app config schematic comic](../media/appconfigcomic.PNG)
 
 The key parts of an application configuration include:
 
