@@ -11,6 +11,8 @@ The key parts of a component schematic include:
 - [Parameters](#parameters): (Optional). Configuration options of the component.
 - [Containers](#containers): Runnable pieces of code used by the component and their resource requirements.
 
+Note that rudr schedules all the containers in the component to run on the same pod so including multiple containers in a component schematic is the way to express the side-car pattern.
+
 Here's an example application configuration (*.yaml* file):
 
 <pre>
@@ -22,22 +24,22 @@ spec:
   <b style="color:blue;">workloadType:</b> core.oam.dev/v1alpha1.SingletonServer
   <b style="color:blue;">parameters:</b>
     - name: message
-           type: string
-           required: false
+      type: string
+      required: false
     - name: unused_integer
-           type: number
-           required: false
-           default: 5678
+      type: number
+      required: false
+      default: 5678
   <b style="color:blue;">containers:</b>
     - name: runner
-           image: technosophos/alpine-forever:latest
-           env:
-                  - name: FOO
-                    value: bar
-                    fromParam: message
-                  - name: UNUSED
-                    value: "1234"
-                    fromParam: unused_integer
+      image: technosophos/alpine-forever:latest
+      env:
+        - name: FOO
+          value: bar
+          fromParam: message
+        - name: UNUSED
+          value: "1234"
+          fromParam: unused_integer
 </pre>
 
 To create a component schematic, you'll first need the [containerized code](#containers) that will constitute your microservice. From there, you might want to start with a template like the one above (or in the provided [examples](https://github.com/oam-dev/rudr/tree/master/examples)) and customize to your needs.
@@ -90,7 +92,7 @@ Here's an example of how to specify a label and annotations:
 # Example annotations in component schematic
 metadata:
   name: frontend
-  labels: 
+  labels:
     release: canary
   annotations:
     version: v1.0.0
@@ -126,25 +128,25 @@ The parameters section includes the following fields:
 [Here's an example](../../examples/env-vars.yaml) of declaring parameters and then referencing them (**`fromParam`**) as environment variables from a container:
 
 ```yaml
-  # Example parameter declaration/reference in component schematic
-  parameters:
-    - name: message
-           type: string
-           required: false
-    - name: unused_integer
-           type: number
-           required: false
-           default: 5678
-  containers:
-    - name: runner
-      image: technosophos/alpine-forever:latest
-      env:
-        - name: FOO
-          value: bar
-          fromParam: message
-        - name: UNUSED
-          value: "1234"
-          fromParam: unused_integer
+# Example parameter declaration/reference in component schematic
+parameters:
+  - name: message
+    type: string
+    required: false
+  - name: unused_integer
+    type: number
+    required: false
+    default: 5678
+containers:
+  - name: runner
+    image: technosophos/alpine-forever:latest
+    env:
+      - name: FOO
+        value: bar
+        fromParam: message
+      - name: UNUSED
+        value: "1234"
+        fromParam: unused_integer
 ```
 
 ## Containers
@@ -157,7 +159,7 @@ A component schematic requires one or more containers, each consisting of the fo
 | :-- | :--| :-- | :-- | :-- |
 | **name** | Name of the container. | string. Must be unique per component. | &#9745; ||
 | **image**| A path or URI of the location of the container image. | string. Best practice is to include a tag suffix.| &#9745; || 
-| **resources**| The runtime resources (such as CPU, memory, and storage) required by the container.| string. See [resources](#resources) section for details.||
+| **resources**| The runtime resources (such as CPU, memory, and storage) required by the container.| string. See [resources](#resources) section for details.| &#9745; |
 | **ports**| The ports exposed by the container.| See [ports](#ports) section for details.||
 | **cmd**| The command to run when the container starts.| string. Supply any arguments using the `args` field (see below).||
 | **args**| Arguments to the `cmd` entrypoint.| string||
@@ -211,7 +213,7 @@ resources:
   cpu:
     required: "0.5"
   memory:
-    required: 100M
+    required: "128"
 ```
 
 #### `volumes`

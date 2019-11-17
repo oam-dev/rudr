@@ -14,6 +14,10 @@ As a *developer*, define the  functional units that may be instantiated as part 
 ![trait schematic comic](./images/traitcomic.PNG)
 As an *application operator*, attach operational features to component workloads of your application. Learn more about traits [here](./concepts/traits.md).
 
+### [Scopes](./concepts/scopes.md)
+![app scope schematic comic](./images/appscopecomic.PNG)
+As an *application operator*, define application boundaries by grouping components with common properties and dependencies.
+
 ### [Application Configuration](./concepts/application-configuration.md)
 ![app config schematic comic](./images/appconfigcomic.PNG)
 As an *application operator*, define how your overall application will be instantiated and configured. Learn about application configurations [here](./concepts/application-configuration.md).
@@ -32,6 +36,16 @@ Using Helm/Kustomize tools to manage OAM yamls, you will find how they could coo
 
 #### [Migrate existing Kubernetes resources](./how-to/migrating.md)
 Tips and best practices for setting up existing Kubernetes applications to use Rudr.
+
+## Develop
+
+#### [Writing a Trait](./developer/writing_a_trait.md)
+
+Explain how to write a trait for Rudr.
+
+#### [Debug](./developer/debug.md)
+
+How to debug when using Rudr.
 
 ## [FAQ](./faq.md)
 Find answers to commonly asked questions about Rudr and the Open Application Model (OAM).

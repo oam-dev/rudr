@@ -2,6 +2,9 @@ apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   name: autoscaler
+  annotations:
+    version: v1.0.0
+    description: "Allow workload to auto scale by CPU/Memory, this is implemented by the Kubernetes Horizontal Pod Autoscaler."
 spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
@@ -37,6 +40,9 @@ apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   name: manual-scaler
+  annotations:
+    version: v1.0.0
+    description: "Allow operators to manually scale a workloads that allow multiple replicas."
 spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
@@ -62,6 +68,9 @@ apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   name: ingress
+  annotations:
+    version: v1.0.0
+    description: "Ingress Trait used for components with service workloads and provides load balancing, SSL termination and name-based virtual hosting."
 spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
@@ -96,6 +105,9 @@ apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   name: volume-mounter
+  annotations:
+    version: v1.0.0
+    description: "The volume mounter trait is responsible for attaching a Kubernetes PersistentVolume Claim(PVC) to a component."
 spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
@@ -129,6 +141,9 @@ apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
   name: empty
+  annotations:
+    version: v1.0.0
+    description: "An empty trait for exemplification purpose."
 spec:
   appliesTo:
     - "*"

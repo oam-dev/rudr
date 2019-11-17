@@ -30,22 +30,22 @@ spec:
   <b style="color:blue;">workloadType:</b> core.oam.dev/v1alpha1.SingletonServer
   parameters:
     - name: message
-           type: string
-           required: false
+      type: string
+      required: false
     - name: unused_integer
-           type: number
-           required: false
-           default: 5678
+      type: number
+      required: false
+      default: 5678
   containers:
     - name: runner
       image: technosophos/alpine-forever:latest
       env:
-      - name: FOO
-        value: bar
-        fromParam: message
-      - name: UNUSED
-        value: "1234"
-        fromParam: unused_integer
+        - name: FOO
+          value: bar
+          fromParam: message
+        - name: UNUSED
+          value: "1234"
+          fromParam: unused_integer
 </pre>
 
 For more on specific workload types, refer to the sections below.
