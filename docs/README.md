@@ -40,6 +40,10 @@ Learn how a <b>developer</b> can define the functional units that may be instant
 
 <br />
 
+### [Scopes](./concepts/scopes.md)
+![app scope schematic comic](./images/appscopecomic.PNG)
+As an *application operator*, define application boundaries by grouping components with common properties and dependencies.
+
 ### [Application Configuration](./concepts/application-configuration.md)
 
 <img align="right" alt="The application configuration defines the parameters, components, and other runtime properties of the overall application." src="./media/application.png" />

@@ -4,6 +4,10 @@
 
 Application [*scopes*](https://github.com/oam-dev/spec/blob/master/4.application_scopes.md) are used to logically group components together by providing application boundaries that represent common group behaviors and/or dependencies. Scopes are not mutually exclusive: a given component can belong to multiple application scope instances at the same time. Once installed to your Rudr runtime, a scope can be used (and reused) across any number of [application configurations](./application-configuration.md). In terms of implementation details, scopes are Rudr-defined Kubernetes CRDs.
 
+*Scopes* are assigned to component workloads by an [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities).
+
+![scope schematic comic](../media/appscopecomic.PNG)
+
 Currently, Rudr supports the following scope types:
 
 - [Health](#health-scope)
