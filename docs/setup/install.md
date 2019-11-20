@@ -142,7 +142,7 @@ To use the autoscaler trait, you must install a controller for Kubernetes `Horiz
 1. First, add the KEDA repo to your Helm installation. 
 
     ```bash
-    helm repo add kedacore https://kedacore.azureedge.net/helm
+    helm repo add kedacore https://kedacore.github.io/charts
     ```
 
 2. Update your Helm repo. 
@@ -151,10 +151,11 @@ To use the autoscaler trait, you must install a controller for Kubernetes `Horiz
     helm repo update
     ```
 
-2. Install KEDA on your cluster. 
+3. Install KEDA on your cluster (Helm3). 
 
     ```
-    helm install kedacore kedacore/keda-edge
+    kubectl create namespace keda
+    helm install keda kedacore/keda --namespace keda
     ```
 
 ## Running for Development
