@@ -19,7 +19,7 @@ spec:
           name: http
       resources:
         cpu:
-          required: "0.1"
+          required: 0.1
         memory:
           required: "128"
   parameters:
