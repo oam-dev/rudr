@@ -186,7 +186,7 @@ fn handle_event(
                     kube_event::Type::Warning,
                     kube_event::Info {
                         action: "create".to_string(),
-                        message: format!("creating AppConfig {} error", o.metadata.name.clone()),
+                        message: format!("create config {} error", o.metadata.name.clone()),
                         reason: format!("{}", err),
                     },
                     rudr::instigator::get_object_ref(o.clone()),
@@ -203,7 +203,7 @@ fn handle_event(
                     kube_event::Type::Warning,
                     kube_event::Info {
                         action: "update".to_string(),
-                        message: format!("updating AppConfig {} error", o.metadata.name.clone()),
+                        message: format!("update config {} error", o.metadata.name.clone()),
                         reason: format!("{}", err),
                     },
                     rudr::instigator::get_object_ref(o.clone()),

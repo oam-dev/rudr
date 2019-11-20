@@ -70,12 +70,8 @@ impl Event {
             type_: type_.to_string(),
             action: Some(info.action),
             eventTime: None,
-            firstTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(
-                now.clone(),
-            )),
-            lastTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(
-                now.clone(),
-            )),
+            firstTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
+            lastTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
             related: None,
             series: None,
             source: None,

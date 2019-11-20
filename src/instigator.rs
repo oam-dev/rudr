@@ -358,42 +358,8 @@ impl Instigator {
             )?;
 
             let inst_name = component.instance_name.clone();
-            let new_owner_ref = match phase {
-                Phase::Add => Some(self.create_component_instance(
-                    component.component_name.clone(),
-                    inst_name.clone(),
-                    owner_ref.clone(),
-                )?),
-                Phase::Modify => {
-                    let ownref = self.component_instance_owner_reference(
-                        component.component_name.clone(),
-                        inst_name.clone(),
-                    );
-                    match ownref {
-                        Err(err) => {
-                            let e = err.to_string();
-                            if !e.contains("NotFound") {
-                                // Wrap the error to make it clear where we failed
-                                // During deletion, this might indicate that something else
-                                // remove the component instance.
-                                return Err(format_err!(
-                                    "{:?} on {}: {}",
-                                    phase.clone(),
-                                    inst_name.clone(),
-                                    e
-                                ));
-                            }
-                            Some(self.create_component_instance(
-                                component.component_name.clone(),
-                                inst_name.clone(),
-                                owner_ref.clone(),
-                            )?)
-                        }
-                        Ok(own) => Some(own),
-                    }
-                }
-                _ => None,
-            };
+            let new_owner_ref =
+                self.get_new_own_ref(phase.clone(), component.clone(), owner_ref.clone())?;
 
             // Instantiate components
             let workload = self.load_workload_type(
@@ -432,9 +398,8 @@ impl Instigator {
                         kube_event::Info {
                             action: "created".to_string(),
                             message: format!(
-                                "successfully created component {} instance {}",
+                                "component {} created",
                                 component.component_name.clone(),
-                                component.instance_name.clone(),
                             ),
                             reason: "".to_string(),
                         },
@@ -463,9 +428,8 @@ impl Instigator {
                         kube_event::Info {
                             action: "updated".to_string(),
                             message: format!(
-                                "successfully updated component {} instance {}",
+                                "component {} updated",
                                 component.component_name.clone(),
-                                component.instance_name.clone(),
                             ),
                             reason: "".to_string(),
                         },
@@ -543,11 +507,7 @@ impl Instigator {
                 kube_event::Type::Normal,
                 kube_event::Info {
                     action: "deleted".to_string(),
-                    message: format!(
-                        "successfully deleted component {} instance {}",
-                        component.component_name.clone(),
-                        inst_name.clone(),
-                    ),
+                    message: format!("component {} deleted", component.component_name.clone(),),
                     reason: "".to_string(),
                 },
                 get_object_ref(event.clone()),
@@ -644,6 +604,51 @@ impl Instigator {
                 comp.spec.workload_type
             )),
         }
+    }
+
+    fn get_new_own_ref(
+        &self,
+        phase: Phase,
+        component: ComponentConfiguration,
+        owner_ref: meta::OwnerReference,
+    ) -> Result<Option<Vec<meta::OwnerReference>>, Error> {
+        let new = match phase {
+            Phase::Add => Some(self.create_component_instance(
+                component.component_name.clone(),
+                component.instance_name.clone(),
+                owner_ref.clone(),
+            )?),
+            Phase::Modify => {
+                let ownref = self.component_instance_owner_reference(
+                    component.component_name.clone(),
+                    component.instance_name.clone(),
+                );
+                match ownref {
+                    Err(err) => {
+                        let e = err.to_string();
+                        if !e.contains("NotFound") {
+                            // Wrap the error to make it clear where we failed
+                            // During deletion, this might indicate that something else
+                            // remove the component instance.
+                            return Err(format_err!(
+                                "{:?} on {}: {}",
+                                phase.clone(),
+                                component.instance_name.clone(),
+                                e
+                            ));
+                        }
+                        Some(self.create_component_instance(
+                            component.component_name.clone(),
+                            component.instance_name.clone(),
+                            owner_ref.clone(),
+                        )?)
+                    }
+                    Ok(own) => Some(own),
+                }
+            }
+            _ => None,
+        };
+        Ok(new)
     }
 
     fn delete_component_instance(
@@ -783,11 +788,9 @@ pub fn get_object_ref(event: OpResource) -> ObjectReference {
     ObjectReference {
         api_version: event.types.apiVersion.clone(),
         kind: event.types.kind.clone(),
-
         name: Some(event.metadata.name.clone()),
         field_path: None,
         namespace: event.metadata.namespace.clone(),
-
         resource_version: event.metadata.resourceVersion.clone(),
         uid: event.metadata.uid.clone(),
     }
