@@ -137,12 +137,12 @@ To successfully use an `ingress` trait, you will need to install one of the Kube
 
 ### Autoscaler
 
-To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`. We recommend [KEDA](https://hub.helm.sh/charts/kedacore/keda-edge).
+To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`. We recommend [KEDA](https://hub.helm.sh/charts/kedacore/keda).
 
 1. First, add the KEDA repo to your Helm installation. 
 
     ```bash
-    helm repo add kedacore https://kedacore.azureedge.net/helm
+    helm repo add kedacore https://kedacore.github.io/charts
     ```
 
 2. Update your Helm repo. 
@@ -154,7 +154,7 @@ To use the autoscaler trait, you must install a controller for Kubernetes `Horiz
 2. Install KEDA on your cluster. 
 
     ```
-    helm install kedacore kedacore/keda-edge
+    helm install kedacore/keda
     ```
 
 ## Running for Development
