@@ -1,0 +1,71 @@
+{
+  "format": 1,
+  "restore": {
+    "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj": {}
+  },
+  "projects": {
+    "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj",
+        "projectName": "Bikesharing.Core",
+        "projectPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj",
+        "packagesPath": "C:\\Users\\sowmyans\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\ProgramData\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\NuGet.Config",
+          "C:\\Users\\sowmyans\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\ServiceFabricSDK.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\Microsoft SDKs\\Service Fabric\\packages": {},
+          "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\./References": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.0": {
+          "dependencies": {
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.0, )",
+              "autoReferenced": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    }
+  }
+}

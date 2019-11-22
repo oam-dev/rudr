@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.0": {
+      "Bikesharing.Core/1.0.0": {
+        "runtime": {
+          "Bikesharing.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Bikesharing.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

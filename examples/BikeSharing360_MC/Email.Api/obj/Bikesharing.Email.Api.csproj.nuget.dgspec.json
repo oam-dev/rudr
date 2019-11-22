@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "restore": {
+    "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Email.Api\\Bikesharing.Email.Api.csproj": {}
+  },
+  "projects": {
+    "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Email.Api\\Bikesharing.Email.Api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Email.Api\\Bikesharing.Email.Api.csproj",
+        "projectName": "Bikesharing.Email.Api",
+        "projectPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Email.Api\\Bikesharing.Email.Api.csproj",
+        "packagesPath": "C:\\Users\\sowmyans\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Email.Api\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\ProgramData\\Xamarin\\NuGet\\"
+        ],
+        "configFilePaths": [
+          "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\NuGet.Config",
+          "C:\\Users\\sowmyans\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\ServiceFabricSDK.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp1.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\Microsoft SDKs\\Service Fabric\\packages": {},
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {},
+          "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\./References": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp1.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp1.0": {
+          "dependencies": {
+            "Microsoft.ApplicationInsights.AspNetCore": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "Microsoft.AspNetCore": {
+              "target": "Package",
+              "version": "[1.0.3, )"
+            },
+            "Microsoft.AspNetCore.Mvc": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
+            "Microsoft.Extensions.Logging.Debug": {
+              "target": "Package",
+              "version": "[1.0.1, )"
+            },
+            "Microsoft.NETCore.App": {
+              "target": "Package",
+              "version": "[1.0.5, )",
+              "autoReferenced": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

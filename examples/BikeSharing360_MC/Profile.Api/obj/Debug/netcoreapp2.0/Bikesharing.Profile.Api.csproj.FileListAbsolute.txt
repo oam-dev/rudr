@@ -1,0 +1,17 @@
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\appsettings.Development.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\appsettings.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\runtimeconfig.template.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Profile.Api.deps.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Profile.Api.runtimeconfig.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Profile.Api.runtimeconfig.dev.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Profile.Api.dll
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Profile.Api.pdb
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Core.dll
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\bin\Debug\netcoreapp2.0\Bikesharing.Core.pdb
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.csprojAssemblyReference.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.csproj.CoreCompileInputs.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.AssemblyInfoInputs.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.AssemblyInfo.cs
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.csproj.CopyComplete
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.dll
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Profile.Api\obj\Debug\netcoreapp2.0\Bikesharing.Profile.Api.pdb

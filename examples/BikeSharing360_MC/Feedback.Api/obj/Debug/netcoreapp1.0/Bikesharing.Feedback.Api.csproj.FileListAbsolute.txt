@@ -1,0 +1,14 @@
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\appsettings.Development.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\appsettings.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\runtimeconfig.template.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.deps.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.runtimeconfig.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.runtimeconfig.dev.json
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.dll
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\bin\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.pdb
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.csprojAssemblyReference.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.csproj.CoreCompileInputs.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.AssemblyInfoInputs.cache
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.AssemblyInfo.cs
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.dll
+C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Feedback.Api\obj\Debug\netcoreapp1.0\Bikesharing.Feedback.Api.pdb
