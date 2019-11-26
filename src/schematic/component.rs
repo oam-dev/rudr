@@ -4,7 +4,10 @@ use log::info;
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use crate::schematic::parameter::{resolve_value, ParameterList, ParameterType, ResolvedVals};
+use crate::schematic::parameter::{
+    resolve_value, resolve_value_string, ParameterList, ParameterType,
+};
+use crate::workload_type::ParamMap;
 
 /// The default workload type if none is present.
 pub const DEFAULT_WORKLOAD_TYPE: &str = "core.oam.dev/v1alpha1.Singleton";
@@ -51,7 +54,7 @@ impl Component {
     }
 
     /// to_pod_spec generates a pod specification.
-    pub fn to_pod_spec(&self, param_vals: ResolvedVals) -> core::PodSpec {
+    pub fn to_pod_spec(&self, param_vals: ParamMap) -> core::PodSpec {
         let containers = self.to_containers(param_vals);
         let image_pull_secrets = Some(self.image_pull_secrets());
         let node_selector = self.to_node_selector();
@@ -116,7 +119,7 @@ impl Component {
 
     pub fn to_pod_spec_with_policy(
         &self,
-        param_vals: ResolvedVals,
+        param_vals: ParamMap,
         restart_policy: String,
     ) -> core::PodSpec {
         let mut pod_spec = self.to_pod_spec(param_vals);
@@ -126,7 +129,7 @@ impl Component {
 
     pub fn evaluate_configs(
         &self,
-        resolved_vals: ResolvedVals,
+        resolved_vals: ParamMap,
     ) -> BTreeMap<String, BTreeMap<String, String>> {
         let mut configs: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
         for container in self.containers.iter() {
@@ -152,7 +155,7 @@ impl Component {
         configs
     }
 
-    pub fn to_containers(&self, resolved_vals: ResolvedVals) -> Vec<core::Container> {
+    pub fn to_containers(&self, resolved_vals: ParamMap) -> Vec<core::Container> {
         self.containers
             .iter()
             .map(|c| core::Container {
@@ -189,6 +192,12 @@ impl Component {
                 })
             })
             .collect()
+    }
+
+    pub fn get_workload_setting(&self, key: &str) -> Option<&WorkloadSetting> {
+        self.workload_settings
+            .iter()
+            .find(|&item| item.name.eq(key))
     }
 }
 
@@ -320,8 +329,14 @@ pub struct WorkloadSetting {
     #[serde(default)]
     pub required: bool,
 
-    pub default: Option<serde_json::Value>,
+    pub value: Option<serde_json::Value>,
     pub from_param: Option<String>,
+}
+
+impl WorkloadSetting {
+    pub fn resolve_param(&self, params: ParamMap) -> Option<serde_json::Value> {
+        resolve_value(params, self.from_param.clone(), self.value.clone())
+    }
 }
 
 /// ConfigFile describes locations to write configuration as files accessible within the container
@@ -333,8 +348,8 @@ pub struct ConfigFile {
     pub from_param: Option<String>,
 }
 impl ConfigFile {
-    pub(crate) fn resolve_value(&self, params: ResolvedVals) -> String {
-        let value = resolve_value(params, self.from_param.clone(), self.value.clone());
+    pub(crate) fn resolve_value(&self, params: ParamMap) -> String {
+        let value = resolve_value_string(params, self.from_param.clone(), self.value.clone());
         // rely on pre-check: that one of the value or from_param must exist.
         value.unwrap()
     }
@@ -349,8 +364,8 @@ pub struct Env {
     pub from_param: Option<String>,
 }
 impl Env {
-    pub(crate) fn to_env_var(&self, params: ResolvedVals) -> core::EnvVar {
-        let value = resolve_value(params, self.from_param.clone(), self.value.clone());
+    pub(crate) fn to_env_var(&self, params: ParamMap) -> core::EnvVar {
+        let value = resolve_value_string(params, self.from_param.clone(), self.value.clone());
         // FIXME: This needs to support fromParam
         core::EnvVar {
             name: self.name.clone(),
@@ -533,7 +548,10 @@ pub struct Resources {
 impl Resources {
     fn to_resource_requirements(&self) -> core::ResourceRequirements {
         let mut requests = BTreeMap::new();
-        requests.insert("cpu".to_string(), Quantity(self.cpu.required.to_string().clone()));
+        requests.insert(
+            "cpu".to_string(),
+            Quantity(self.cpu.required.to_string().clone()),
+        );
         requests.insert(
             "memory".to_string(),
             Quantity(self.memory.required.clone() + "Mi"),
@@ -549,9 +567,7 @@ impl Resources {
 impl Default for Resources {
     fn default() -> Self {
         Resources {
-            cpu: CPU {
-                required: 0.1,
-            },
+            cpu: CPU { required: 0.1 },
             memory: Memory {
                 required: "128".into(),
             },

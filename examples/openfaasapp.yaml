@@ -1,0 +1,61 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: openfaas
+spec:
+  workloadType: openfaas.com/v1alpha2.Function
+  osType: linux
+  parameters:
+    - name: image
+      type: string
+      default: alexellis/gofast023
+    - name: handler
+      type: string
+      default: ""
+    - name: write_debug
+      type: string
+      default: "true"
+  workloadSettings:
+    - name: image
+      type: string
+      description: docker image name of this function
+      fromParam: image
+      value: alexellis/gofast023
+      required: true
+    - name: handler
+      type: string
+      description: entrypoint of your function, eg. node main.js
+      required: false
+      fromParam: handler
+    - name: environment
+      type: array
+      description: environments of functions
+      value:
+        - name: write_debug
+          type: string
+          value: "true"
+          fromParam: write_debug
+    - name: requests
+      type: object
+      required: false
+      value:
+        cpu: "10m"
+        memory: "128Mi"
+
+---
+
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: openfaas
+spec:
+  components:
+    - componentName: openfaas
+      instanceName: nodeinfo
+      parameterValues:
+        - name: image
+          value: functions/nodeinfo
+        - name: handler
+          value: "node main.js"
+        - name: write_debug
+          value: "false"

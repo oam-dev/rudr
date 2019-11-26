@@ -1,3 +1,4 @@
+use crate::workload_type::ParamMap;
 use failure::Error;
 use std::collections::BTreeMap;
 
@@ -39,6 +40,18 @@ impl Parameter {
                     .ok_or_else(|| format_err!("expected numeric value for {}", self.name.as_str()))
                     .and(Ok(()))
             }
+            ParameterType::Object => {
+                // support object here
+                val.as_object()
+                    .ok_or_else(|| format_err!("expected object value for {}", self.name.as_str()))
+                    .and(Ok(()))
+            }
+            ParameterType::Array => {
+                // support array here
+                val.as_array()
+                    .ok_or_else(|| format_err!("expected array value for {}", self.name.as_str()))
+                    .and(Ok(()))
+            }
             ParameterType::Null => {
                 // Not entirely clear what we want to do here.
                 val.as_null()
@@ -48,10 +61,22 @@ impl Parameter {
     }
 }
 
-pub type ResolvedVals = BTreeMap<String, serde_json::Value>;
-
 pub fn resolve_value(
-    params: ResolvedVals,
+    params: ParamMap,
+    from_param: Option<String>,
+    value: Option<serde_json::Value>,
+) -> Option<serde_json::Value> {
+    match from_param {
+        Some(p) => params
+            .get(p.as_str())
+            .and_then(|i| Some(i.clone()))
+            .or_else(|| value.clone()),
+        None => value.clone(),
+    }
+}
+
+pub fn resolve_value_string(
+    params: ParamMap,
     from_param: Option<String>,
     value: Option<String>,
 ) -> Option<String> {
@@ -80,10 +105,10 @@ pub struct ValidationErrors {
 
 pub fn resolve_parameters(
     definition: Vec<Parameter>,
-    values: ResolvedVals,
-) -> Result<ResolvedVals, ValidationErrors> {
+    values: ParamMap,
+) -> Result<ParamMap, ValidationErrors> {
     let mut errors: Vec<Error> = Vec::new();
-    let mut resolved: ResolvedVals = BTreeMap::new();
+    let mut resolved: ParamMap = BTreeMap::new();
 
     definition
         .iter()
@@ -129,8 +154,8 @@ pub fn resolve_parameters(
 pub fn resolve_values(
     current: Vec<ParameterValue>,
     parent: Vec<ParameterValue>,
-) -> Result<ResolvedVals, Error> {
-    let mut merged: ResolvedVals = BTreeMap::new();
+) -> Result<ParamMap, Error> {
+    let mut merged: ParamMap = BTreeMap::new();
 
     for p in current.iter() {
         // If a `from_param` exists, get the value out of the parent. Otherwise, just use
@@ -178,6 +203,8 @@ pub enum ParameterType {
     String,
     Number,
     Null,
+    Object,
+    Array,
 }
 
 /// A value that is substituted into a parameter.

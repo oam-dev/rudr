@@ -16,6 +16,8 @@ pub use crate::workload_type::workload_builder::WorkloadMetadata;
 
 mod statefulset_builder;
 
+pub mod extended_workload;
+
 pub const OAM_API_VERSION: &str = "core.oam.dev/v1alpha1";
 
 /// Server is a replicable server
@@ -88,18 +90,8 @@ pub enum CoreWorkloadType {
     SingletonWorkerType(SingletonWorker),
 }
 
-impl CoreWorkloadType {
-    pub fn delete(&self) -> InstigatorResult {
-        match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.delete(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.delete(),
-            CoreWorkloadType::SingletonTaskType(task) => task.delete(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.delete(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.delete(),
-        }
-    }
-    pub fn add(&self) -> InstigatorResult {
+impl WorkloadType for CoreWorkloadType {
+    fn add(&self) -> InstigatorResult {
         match self {
             CoreWorkloadType::SingletonServerType(sing) => sing.add(),
             CoreWorkloadType::ReplicatedServerType(repl) => repl.add(),
@@ -109,7 +101,7 @@ impl CoreWorkloadType {
             CoreWorkloadType::SingletonWorkerType(task) => task.add(),
         }
     }
-    pub fn modify(&self) -> InstigatorResult {
+    fn modify(&self) -> InstigatorResult {
         match self {
             CoreWorkloadType::SingletonServerType(sing) => sing.modify(),
             CoreWorkloadType::ReplicatedServerType(repl) => repl.modify(),
@@ -119,7 +111,17 @@ impl CoreWorkloadType {
             CoreWorkloadType::SingletonWorkerType(task) => task.modify(),
         }
     }
-    pub fn status(&self) -> StatusResult {
+    fn delete(&self) -> InstigatorResult {
+        match self {
+            CoreWorkloadType::SingletonServerType(sing) => sing.delete(),
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.delete(),
+            CoreWorkloadType::SingletonTaskType(task) => task.delete(),
+            CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.delete(),
+            CoreWorkloadType::SingletonWorkerType(task) => task.delete(),
+        }
+    }
+    fn status(&self) -> StatusResult {
         match self {
             CoreWorkloadType::SingletonServerType(sing) => sing.status(),
             CoreWorkloadType::ReplicatedServerType(repl) => repl.status(),
@@ -129,7 +131,7 @@ impl CoreWorkloadType {
             CoreWorkloadType::SingletonWorkerType(task) => task.status(),
         }
     }
-    pub fn validate(&self) -> ValidationResult {
+    fn validate(&self) -> ValidationResult {
         match self {
             CoreWorkloadType::SingletonServerType(sing) => sing.validate(),
             CoreWorkloadType::ReplicatedServerType(repl) => repl.validate(),
@@ -137,6 +139,44 @@ impl CoreWorkloadType {
             CoreWorkloadType::ReplicatedTaskType(task) => task.validate(),
             CoreWorkloadType::ReplicatedWorkerType(task) => task.validate(),
             CoreWorkloadType::SingletonWorkerType(task) => task.validate(),
+        }
+    }
+}
+
+pub enum ExtendedWorkloadType {
+    OpenFaaS(extended_workload::openfaas::OpenFaaS),
+    Others(extended_workload::others::Others),
+}
+
+impl WorkloadType for ExtendedWorkloadType {
+    fn add(&self) -> InstigatorResult {
+        match self {
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.add(),
+            ExtendedWorkloadType::Others(other) => other.add(),
+        }
+    }
+    fn modify(&self) -> InstigatorResult {
+        match self {
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.modify(),
+            ExtendedWorkloadType::Others(other) => other.modify(),
+        }
+    }
+    fn delete(&self) -> InstigatorResult {
+        match self {
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.delete(),
+            ExtendedWorkloadType::Others(other) => other.delete(),
+        }
+    }
+    fn status(&self) -> StatusResult {
+        match self {
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.status(),
+            ExtendedWorkloadType::Others(other) => other.status(),
+        }
+    }
+    fn validate(&self) -> ValidationResult {
+        match self {
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.validate(),
+            ExtendedWorkloadType::Others(other) => other.validate(),
         }
     }
 }
