@@ -19,8 +19,8 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 3. Install `Helm 3`. The below is copied directly from the [Helm installation guide](https://helm.sh/docs/using_helm/#installing-helm). 
 
     1. Download your desired version of [Helm 3 from the releases page](https://github.com/helm/helm/releases)
-    2. Unpack it (`tar -zxvf helm-v3.0.0-beta.3-darwin-amd64.tar.gz`). Note that the command might change depending on the Helm 3 version you installed. 
-    3. Find the helm binary in the unpacked directory, and move it to its desired destination (`mv macos-amd64/helm /usr/local/bin/helm`)
+    2. Unpack it (`tar -zxvf helm-v3.0.0-linux-amd64.tgz`). Note that the command might change depending on the Helm 3 version you installed. 
+    3. Find the `helm` binary in the unpacked directory, and move it to its desired destination (`mv linux-amd64/helm /usr/local/bin/helm`)
     4. From there, you should be able to run the client: helm help.
 
 4. As of this writing, the supported versions of Kubernetes are 1.15 and 1.16, so make sure you have a Kubernetes cluster with a compatible version. To get started with a Kubernetes cluster, see the options below: 
