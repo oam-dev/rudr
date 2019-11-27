@@ -163,8 +163,6 @@ impl OpenFaaS {
                 name: self.meta.instance_name.clone(),
                 image: image.to_string(),
                 handler,
-                annotations: self.meta.annotations.clone(),
-                labels: Some(self.meta.labels(OPENFAAS)),
                 environment: self.extract_environment(),
                 ..Default::default()
             },

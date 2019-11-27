@@ -1,6 +1,6 @@
-# Workloads
+# Core Workloads
 
-The *workload type* (`workloadType`) is a field in the [component schematic](./component-schematic.md) used by the developer to direct the runtime to properly execute the given component. Workload types are container-based and distinguished by the following characteristics:
+The *workload type* (`workloadType`) is a field in the [component schematic](./component-schematic.md) used by the developer to direct the runtime to properly execute the given component. Core Workload types are container-based and distinguished by the following characteristics:
 
  - Whether they have a ***service endpoint***: an automatically assigned virtual IP address and DNS name addressable within the network scope to which the component belongs.
  - Whether they are ***replicable***: An application operator can increase or decrease the number of component replicas by applying and configuring traits when available.
@@ -16,6 +16,8 @@ Rudr supports all of the Open Application Model [Core Workload Types](https://gi
 |[Singleton Task](#singleton-task)|core.oam.dev/v1alpha1.SingletonTask|No|No|No
 |[Worker](#worker)|core.oam.dev/v1alpha1.Worker|No|Yes|Yes
 |[Singleton Worker](#singleton-worker)|core.oam.dev/v1alpha1.SingletonWorker|No|No|Yes
+
+You could refer to [Extended workloads](extended-workloads.md) to known more about extended workloads implementation in rudr.
 
 Workload types are assigned to components as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role. They indicate to the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) what trait(s) in the [application configuration](./application-configuration.md) that the component might require.
 

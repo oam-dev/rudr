@@ -35,12 +35,6 @@ spec:
           type: string
           value: "true"
           fromParam: write_debug
-    - name: requests
-      type: object
-      required: false
-      value:
-        cpu: "10m"
-        memory: "128Mi"
 
 ---
 
