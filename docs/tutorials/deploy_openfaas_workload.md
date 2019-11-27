@@ -185,3 +185,58 @@ Arch: x64
 CPU count: 2
 Uptime: 796748
 ```
+
+## Apply trait
+
+Manual Scaler trait could also be applied to OpenFaaS workload. Just add this trait like what to do to core workload types like below:
+
+```yaml
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: openfaas
+spec:
+  components:
+    - componentName: openfaas
+      instanceName: nodeinfo
+      parameterValues:
+        - name: image
+          value: functions/nodeinfo
+        - name: handler
+          value: "node main.js"
+        - name: write_debug
+          value: "false"
+      traits:
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: 2
+```
+
+After change the Application Configuration yaml file, apply it.
+
+```
+$ kubeclt apply -f examples/openfaasapp.yaml
+componentschematic.core.oam.dev/openfaas unchanged
+applicationconfiguration.core.oam.dev/openfaas configured
+```
+
+Then we could see the replica of the function has changed.
+
+```shell script
+$ kubectl get functions nodeinfo -o yaml
+apiVersion: openfaas.com/v1alpha2
+kind: Function
+metadata:
+  name: nodeinfo
+  namespace: default
+spec:
+  environment:
+    write_debug: "false"
+  handler: node main.js
+  image: functions/nodeinfo
+  name: nodeinfo
+  replicas: 2
+```
+
+If you want to change the replicas, just change the application configuration yaml and apply it again.

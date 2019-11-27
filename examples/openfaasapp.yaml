@@ -53,3 +53,8 @@ spec:
           value: "node main.js"
         - name: write_debug
           value: "false"
+      traits:
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: 2

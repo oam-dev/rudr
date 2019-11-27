@@ -4,7 +4,7 @@ use crate::workload_type::{
 };
 use failure::{format_err, Error};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{Object, ObjectMeta, PostParams, RawApi, TypeMeta};
+use kube::api::{Object, ObjectMeta, PatchParams, PostParams, RawApi, TypeMeta};
 use log::info;
 use std::collections::BTreeMap;
 
@@ -81,7 +81,7 @@ impl Default for FunctionStatus {
     }
 }
 
-type KubeFaaS = Object<FunctionSpec, FunctionStatus>;
+pub type KubeFaaS = Object<FunctionSpec, FunctionStatus>;
 
 pub struct OpenFaaS {
     pub meta: WorkloadMetadata,
@@ -211,6 +211,18 @@ impl WorkloadType for OpenFaaS {
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
+        let faas_resource = RawApi::customResource("functions")
+            .version("v1alpha2")
+            .group("openfaas.com")
+            .within(self.meta.namespace.as_str());
+        let kubefaas = self.get_kube_faas()?;
+        let faas_req = faas_resource.patch(
+            self.meta.instance_name.clone().as_str(),
+            &PatchParams::default(),
+            serde_json::to_vec(&kubefaas)?,
+        )?;
+        let openfaas: KubeFaaS = self.meta.client.request(faas_req)?;
+        info!("openfass function {} was modified", openfaas.metadata.name);
         Ok(())
     }
     fn delete(&self) -> InstigatorResult {

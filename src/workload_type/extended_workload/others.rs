@@ -52,17 +52,17 @@ impl Others {
 }
 
 fn form_plural(word: &str) -> String {
-    if word.len() <= 0 {
+    if word.is_empty() {
         return word.to_string();
     }
     let mut newword = word.to_string();
-    if newword.ends_with("y") {
+    if newword.ends_with('y') {
         newword.pop();
         newword = newword.to_string() + "ies";
         return newword;
     }
-    if newword.ends_with("s")
-        || newword.ends_with("c")
+    if newword.ends_with('s')
+        || newword.ends_with('c')
         || newword.ends_with("ch")
         || newword.ends_with("sh")
     {
