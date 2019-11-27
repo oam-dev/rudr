@@ -1,0 +1,78 @@
+# Prometheus Extended Workload
+
+## Deploy Prometheus Operator
+
+```shell script
+$ kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/master/bundle.yaml
+```
+
+## Write the component
+
+The component must have a workloadType combined with `GROUP/VERSION.KIND`, so the Non-Intrusive Workload will find which custom resource to create.
+
+Then put the whole spec in the workloadSettings value with a name called `spec` like below.
+
+```
+apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: promethues
+spec:
+  workloadType: monitoring.coreos.com/v1.Prometheus
+  osType: linux
+  workloadSettings:
+    - name: spec
+      type: object
+      description: the spec of promethues-operator
+      required: true
+      value:
+        serviceAccountName: default
+        serviceMonitorSelector:
+          matchLabels:
+            team: frontend
+        resources:
+          requests:
+            memory: 400Mi
+        enableAdminAPI: true
+```
+
+## Prepare the application configuration
+
+The application configuration just need to use this component. 
+
+```yaml
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: promethues
+spec:
+  components:
+    - componentName: promethues
+      instanceName: promethues-app
+```
+
+## Apply our configurations
+
+```shell script
+$ kubectl apply -f examples/promethuesapp.yaml
+componentschematic.core.oam.dev/promethues created
+applicationconfiguration.core.oam.dev/promethues created
+```
+
+we could see that an prometheus operator CR was created by rudr.
+
+```shell script
+$ kubectl get prometheuses
+NAME             AGE
+promethues-app   37s
+```
+
+Then the prometheus operator we create an real prometheus app described by the CR.
+
+```shell script
+$ kubectl get statefulset
+NAME                        READY   AGE
+prometheus-promethues-app   1/1     6m21s
+```
+
+You could change the component spec as you like if you want.
