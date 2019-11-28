@@ -1,16 +1,12 @@
-# OpenFaaS extended workload
+# OpenFaaS Extended Workload
 
 ## Install
 
-In this tutorial, we assume you have already successfully installed rudr. If not, you could see the [Installation Guide](../setup/install.md) to get help.
-
-After rudr installed, we still need to install [OpenFaaS Operator](https://github.com/openfaas-incubator/openfaas-operator), that will be the real workload executor.
-
-The installation steps for OpenFaaS Operator are almost the same with the guides in the [OpenFaaS Operator README docs](https://github.com/openfaas-incubator/openfaas-operator#deploy-openfaas-with-the-operator).
-
-The only difference you should care about is that the functionNames should use the same namespace you have installed rudr. The namespace is `default` in rudr's helm chart, if you haven't manually changed it, we should use `default` here.    
+In this tutorial, we assume you have already successfully installed Rudr. If not, you could see the [Installation Guide](../setup/install.md) to get help.
 
 ### Install OpenFaaS Operator with Helm v3
+
+After Rudr was installed, we need to install [OpenFaaS Operator](https://github.com/openfaas-incubator/openfaas-operator), that will be the real workload executor.
 
 ```shell script
 # create OpenFaaS namespaces
@@ -29,7 +25,8 @@ kubectl -n openfaas create secret generic basic-auth \
 # get latest chart version
 helm repo update
 
-# install with basic auth enabled
+# install OpenFaaS operator with basic auth enabled
+# functionNamespace should be changed to the namespace in which Rudr is installed, in our case, it's default namespace
 helm install openfaas openfaas/openfaas \
     --namespace openfaas  \
     --set basic_auth=true \
@@ -37,7 +34,7 @@ helm install openfaas openfaas/openfaas \
     --set operator.create=true
 ```
 
-If you have trouble connecting with the chart repository, just Clone the [faas-netes repository](https://github.com/openfaas/faas-netes) and install:
+If you have trouble connecting with the chart repository, just Clone the [faas-netes](https://github.com/openfaas/faas-netes) repository and install:
 
 ```
 git clone https://github.com/openfaas/faas-netes.git
@@ -82,7 +79,7 @@ $ echo $PASSWORD
 
 ## Create Component with OpenFaaS Workload
 
-Now rudr support three main field of the OpenFaaS workload, they are `image`, `handler` and `environment`. An example is like below:
+An OpenFaaS workload example is like below:
 
 ```yaml
 apiVersion: core.oam.dev/v1alpha1
@@ -124,17 +121,17 @@ spec:
           fromParam: write_debug
 ```
 
-Firstly, we must set the workloadType as `openfaas.com/v1alpha2.Function`, then rudr will understand this component should work with OpenFaaS workload.
+Note that, the workload type is `openfaas.com/v1alpha2.Function`.
 
-Then, we should fill the workloadSettings properly:
+Explanation of OpenFaaS workload configurations in detail:
 
 1. `image`: image is the docker image name of function, the type of image is string, this field is always required for OpenFaaS workload. You could also make this field read from parameters.
 2. `handler`: handler is the entry point of your function, the type is string, this field is optional, and also could read from parameters.
 3. `environment`: the type of environment is array, and you should write the environment list in the field value. Each environment could be read from parameters.
 
-## Create Application Configuration to use the Component
+## Create Application Configuration to instantiate the Component
 
-After create the component, we should create an application configuration to use it.
+Now we should create an Application Configuration to instantiate the OpenFaaS Component.
 
 ```yaml
 apiVersion: core.oam.dev/v1alpha1
@@ -154,9 +151,9 @@ spec:
           value: "false"
 ```
 
-Yes, just set the `parameterValues` to override parameters in component.
+Note that we just used `parameterValues` to override parameters in the previous OpenFaaS Component.
 
-We have write these two example yaml files in [openfaasapp.yaml](../../examples/openfaasapp.yaml).
+> Check the sample YAML files above in [openfaasapp.yaml](../../examples/openfaasapp.yaml).
 
 We could deploy it by:
 
@@ -188,7 +185,7 @@ Uptime: 796748
 
 ## Apply trait
 
-Manual Scaler trait could also be applied to OpenFaaS workload. Just add this trait like what to do to core workload types like below:
+Manual Scaler trait could also be applied to OpenFaaS workload like below:
 
 ```yaml
 apiVersion: core.oam.dev/v1alpha1
@@ -239,4 +236,56 @@ spec:
   replicas: 2
 ```
 
-If you want to change the replicas, just change the application configuration yaml and apply it again.
+If you want to change the replicas to `3`, just change the application configuration yaml.
+
+```yaml
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: openfaas
+spec:
+  components:
+    - componentName: openfaas
+      instanceName: nodeinfo
+      parameterValues:
+        - name: image
+          value: functions/nodeinfo
+        - name: handler
+          value: "node main.js"
+        - name: write_debug
+          value: "false"
+      traits:
+        - name: manual-scaler
+          parameterValues:
+            - name: replicaCount
+              value: 3
+```
+
+Apply it again.
+
+```
+$ kubeclt apply -f examples/openfaasapp.yaml
+componentschematic.core.oam.dev/openfaas unchanged
+applicationconfiguration.core.oam.dev/openfaas configured
+```
+
+Then you could see the `replicas` field has been changed.
+
+```shell script
+$ kubectl get functions nodeinfo -o yaml
+apiVersion: openfaas.com/v1alpha2
+kind: Function
+metadata:
+  name: nodeinfo
+  namespace: default
+spec:
+  environment:
+    write_debug: "false"
+  handler: node main.js
+  image: functions/nodeinfo
+  name: nodeinfo
+  replicas: 3
+```
+
+In real world practices, the OpenFaaS `Component` is expected to be defined by Devs, while `ApplicationConfiguration` and manual-scaler `Trait` be managed by App Ops.
+You could check further practices guideline in [roles and responsibilities](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) explanation of OAM spec.

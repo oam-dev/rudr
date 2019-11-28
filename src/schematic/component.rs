@@ -413,7 +413,7 @@ impl Port {
     }
 }
 
-// HealthProbe describes a probe used to check on the health of a Container.
+/// HealthProbe describes a probe used to check on the health of a Container.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]

@@ -59,7 +59,7 @@ componentschematic.core.oam.dev/promethues created
 applicationconfiguration.core.oam.dev/promethues created
 ```
 
-we could see that an prometheus operator CR was created by rudr.
+we could see that an Prometheus Operator CR was created by rudr.
 
 ```shell script
 $ kubectl get prometheuses
@@ -67,7 +67,7 @@ NAME             AGE
 promethues-app   37s
 ```
 
-Then the prometheus operator we create an real prometheus app described by the CR.
+Then the Prometheus operator we create an real Prometheus app described by the CR.
 
 ```shell script
 $ kubectl get statefulset
@@ -76,3 +76,7 @@ prometheus-promethues-app   1/1     6m21s
 ```
 
 You could change the component spec as you like if you want.
+
+## TODO
+
+- [ ] Register and generate serving information for this Prometheus workload for other workload to consume. 
