@@ -45,7 +45,7 @@ This project welcomes contributions and suggestions. See [CONTRIBUTING.md](CONTR
 | Item        | Value  |
 |---------------------|---|
 | Mailing List | https://groups.google.com/forum/#!forum/oam-dev |
-| Meeting Information | [Bi-weekly (Starting Oct 22, 2019), Tuesdays 10:30AM PST](https://calendar.google.com/calendar?cid=dDk5YThyNGIwOWJyYTJxajNlbWI0a2FvdGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ), [Bi-weekly (Starting Oct 28, 2019), Mondays 5:00PM PST](https://calendar.google.com/event?action=TEMPLATE&tmeid=Mjc4OGc4YmNtZDJyNmIzcTcwc3UzNmxhODNfMjAxOTExMjZUMDEwMDAwWiBmZW5namluZ2NoYW9AbQ&tmsrc=fengjingchao%40gmail.com&scp=ALL)|
+| Meeting Information | [Bi-weekly (Starting Oct 22, 2019), Tuesdays 10:30AM PST](https://calendar.google.com/calendar?cid=dDk5YThyNGIwOWJyYTJxajNlbWI0a2FvdGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ), [Bi-weekly (Starting Oct 28, 2019), Mondays 4:30PM PST](https://calendar.google.com/event?action=TEMPLATE&tmeid=MjYwZnZzZ29yZmI4bzk4azc1Zzk1bWdodjhfMjAxOTEyMTBUMDAzMDAwWiBmZW5namluZ2NoYW9AbQ&tmsrc=fengjingchao%40gmail.com&scp=ALL)|
 | Meeting Link | https://zoom.us/j/271516061  |
 | IM Channel       | https://gitter.im/oam-dev/  |
 | Meeting Notes       | https://docs.google.com/document/d/1nqdFEyULekyksFHtFvgvFAYE-0AMHKoS3RMnaKsarjs/edit?usp=sharing |
