@@ -3,7 +3,6 @@ kind: ComponentSchematic
 metadata:
   name: "{{.Release.Name}}-{{.Values.appVersion}}"
 spec:
-  name: helloworld-python
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
