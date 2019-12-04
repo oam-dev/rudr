@@ -52,13 +52,13 @@ docker-build-cx: $(addprefix docker-build-, $(ARCHS))
 .PHONY: docker-build-arm64
 docker-build-arm64:
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	docker build -t $(REPO)-arm64:$(TAG) --build-arg BUILDER_IMAGE=arm64v8/rust:1.38 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim .
-	docker build -t $(HEALTHREPO)-arm64:$(TAG) --build-arg BUILDER_IMAGE=arm64v8/rust:1.38 --build-arg BASE_IMAGE=arm64v8/debian:stretch-slim --build-arg PACKAGE_NAME=healthscope .
+	docker build -t $(REPO)-arm64:$(TAG) --build-arg BUILDER_IMAGE=arm64v8/rust:1.38 --build-arg BASE_IMAGE=arm64v8/debian:buster-slim .
+	docker build -t $(HEALTHREPO)-arm64:$(TAG) --build-arg BUILDER_IMAGE=arm64v8/rust:1.38 --build-arg BASE_IMAGE=arm64v8/debian:buster-slim --build-arg PACKAGE_NAME=healthscope .
 
 .PHONY: docker-build-amd64
 docker-build-amd64:
-	docker build -t $(REPO)-amd64:$(TAG) --build-arg BUILDER_IMAGE=rust:1.38 --build-arg BASE_IMAGE=debian:stretch-slim .
-	docker build -t $(HEALTHREPO)-amd64:$(TAG) --build-arg BUILDER_IMAGE=rust:1.38 --build-arg BASE_IMAGE=debian:stretch-slim --build-arg PACKAGE_NAME=healthscope .
+	docker build -t $(REPO)-amd64:$(TAG) .
+	docker build -t $(HEALTHREPO)-amd64:$(TAG) --build-arg PACKAGE_NAME=healthscope .
 
 .PHONY: docker-publish
 docker-publish: docker-build-cx
