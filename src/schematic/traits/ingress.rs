@@ -4,6 +4,7 @@ use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
 use std::collections::BTreeMap;
+use log::{warn};
 
 /// An Ingress trait creates an ingress point to the workload type to which it is attached.
 ///
@@ -27,6 +28,7 @@ impl Ingress {
         owner_ref: OwnerRefs,
     ) -> Self {
         // Right now, we're relying on the higher level validation logic to validate types.
+        let instancename = instance_name.clone();
         Ingress {
             name,
             instance_name,
@@ -35,7 +37,13 @@ impl Ingress {
             svc_port: params
                 .get("service_port")
                 .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
-                .unwrap_or(80),
+                .unwrap_or_else(|| params
+                    .get("service_port")
+                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
+                          warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
+                        }))))
+                    .unwrap_or_else(|| { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80} )
+                   ),
             hostname: params
                 .get("hostname")
                 .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
