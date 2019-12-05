@@ -45,7 +45,6 @@ kind: ComponentSchematic
 metadata:
   name: helloworld-python-v1
 spec:
-  name: helloworld-python
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
@@ -131,7 +130,6 @@ metadata:
 - name: helloworld-python-v1
 + name: helloworld-python-v2
 spec:
-  name: helloworld-python
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: foo
@@ -174,4 +172,4 @@ helloworld-python-v1   1h
 helloworld-python-v2   27s
 ```
 
-They could be used by operator in application configuration.  
+They could be used by operator in [application configuration](https://github.com/oam-dev/rudr/blob/master/docs/concepts/application-configuration.md)

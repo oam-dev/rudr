@@ -3,7 +3,6 @@ kind: ComponentSchematic
 metadata:
   name: nginx-component-v1
 spec:
-  name: nginx-component
   workloadType: core.oam.dev/v1alpha1.SingletonServer
   osType: linux
   arch: amd64
