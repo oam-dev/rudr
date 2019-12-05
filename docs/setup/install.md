@@ -40,7 +40,7 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 1. Helm install Rudr
 
 ```console
-$ helm install rudr ./charts/rudr --wait --set image.tag=v1.0.0-alpha.1
+$ helm install rudr ./charts/rudr --wait
 NAME: rudr
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
