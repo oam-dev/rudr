@@ -4,6 +4,7 @@ use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
+use log::{warn};
 
 /// A manual scaler provides a way to manually scale replicable objects.
 #[derive(Clone, Debug)]
@@ -26,6 +27,7 @@ impl ManualScaler {
         workload_type: String,
     ) -> ManualScaler {
         log::debug!("params: {:?}", &params);
+        let instancename = instance_name.clone();
         ManualScaler {
             name,
             instance_name,
@@ -35,7 +37,13 @@ impl ManualScaler {
             replica_count: params
                 .get("replicaCount")
                 .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32)))
-                .unwrap_or(1),
+                .unwrap_or_else(|| params
+                    .get("replicaCount")
+                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
+                            warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1 
+                        }))))
+                    .unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default:1.", instancename); 1} )
+                   ),
         }
     }
 

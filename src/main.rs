@@ -52,6 +52,7 @@ fn main() -> Result<(), Error> {
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
+    info!("apiserver:{}", top_cfg.base_path);
 
     // There is probably a better way to do this than to create two clones, but there is a potential
     // thread safety issue here.

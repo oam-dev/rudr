@@ -61,6 +61,82 @@ fn test_ingress() {
 }
 
 #[test]
+fn test_ingress_service_port_as_string() {
+    let mut params: ParamMap = BTreeMap::new();
+    params.insert("service_port".into(), json!("8080"));
+    params.insert(
+        "hostname".into(),
+        serde_json::Value::String("in.example.com".into()),
+    );
+    params.insert("path".into(), json!("/path"));
+
+    let ig = Ingress::from_params(
+        "my-ingress".into(),
+        "squid".into(),
+        "patsy".into(),
+        params,
+        None,
+    );
+
+    let king = ig.to_ext_ingress();
+    let spec = king.spec.expect("spec is required");
+
+    let rule = spec
+        .rules
+        .as_ref()
+        .expect("rules are required")
+        .get(0)
+        .expect("a rule is required");
+
+    let path = rule
+        .http
+        .as_ref()
+        .expect("http is required")
+        .paths
+        .get(0)
+        .expect("at least one path is required");
+    assert_eq!(IntOrString::Int(8080), path.backend.service_port);
+}
+
+#[test]
+fn test_ingress_invalid_service_port() {
+    let mut params: ParamMap = BTreeMap::new();
+    params.insert("service_port".into(), json!(8080.80));
+    params.insert(
+        "hostname".into(),
+        serde_json::Value::String("in.example.com".into()),
+    );
+    params.insert("path".into(), json!("/path"));
+
+    let ig = Ingress::from_params(
+        "my-ingress".into(),
+        "squid".into(),
+        "patsy".into(),
+        params,
+        None,
+    );
+
+    let king = ig.to_ext_ingress();
+    let spec = king.spec.expect("spec is required");
+
+    let rule = spec
+        .rules
+        .as_ref()
+        .expect("rules are required")
+        .get(0)
+        .expect("a rule is required");
+
+    let path = rule
+        .http
+        .as_ref()
+        .expect("http is required")
+        .paths
+        .get(0)
+        .expect("at least one path is required");
+    assert_eq!(IntOrString::Int(80), path.backend.service_port);
+}
+
+#[test]
 fn test_ingress_defaults() {
     let ig = Ingress {
         name: "my-ingress".into(),
