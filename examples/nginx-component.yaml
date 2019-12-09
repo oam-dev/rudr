@@ -23,7 +23,7 @@ spec:
         - path: "/etc/run/db-data"
           fromParam: "poet"
       ports:
-        - type: tcp
+        - protocol: TCP
           containerPort: 80
           name: http
       resources:

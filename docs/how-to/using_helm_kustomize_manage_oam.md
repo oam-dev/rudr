@@ -176,7 +176,7 @@ spec:
     ports:
     - containerPort: 9999
       name: http
-      type: tcp
+      protocol: TCP
   name: helloworld-python
   parameters:
   - default: World
