@@ -55,7 +55,7 @@ spec:
         - name: PORT
           fromParam: port
       ports:
-        - type: tcp
+        - protocol: tcp
           containerPort: 9999
           name: http
   parameters:
@@ -142,7 +142,7 @@ spec:
         - name: PORT
           fromParam: port
       ports:
-        - type: tcp
+        - protocol: tcp
           containerPort: 9999
           name: http
   parameters:
