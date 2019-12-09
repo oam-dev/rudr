@@ -33,14 +33,14 @@ You will need both `kubectl` and `Helm 3` to install Rudr.
 
 > Note: In its current version, Rudr will only listen for events in one namespace. This will change in the future. For now, though, you must install Rudr into the namespace into which you will deploy Rudr apps. You may install Rudr multiple times on the same cluster as long as you deploy to a different namespace each time.
  
-> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic), if you reinstall Rudr, make sure your old CRDs are deleted. Helm will not automatically delete CRDs. You must do this with `kubectl delete crd`.
+> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic). 
  
-> Tip: As there are some breaking changes, if you reinstall Rudr, make sure your old CRDs are deleted.
+> Tip: As there are some breaking changes, if you reinstall Rudr, make sure your old CRDs are deleted. You must do this with `kubectl delete crd`.
 
 1. Helm install Rudr
 
 ```console
-$ helm install rudr ./charts/rudr --wait --set image.tag=v1.0.0-alpha.1
+$ helm install rudr ./charts/rudr --wait
 NAME: rudr
 LAST DEPLOYED: 2019-08-08 09:00:07.754179 -0600 MDT m=+0.710068733
 NAMESPACE: default
@@ -154,7 +154,7 @@ To use the autoscaler trait, you must install a controller for Kubernetes `Horiz
 2. Install KEDA on your cluster. 
 
     ```
-    helm install kedacore/keda
+    helm install keda kedacore/keda
     ```
 
 ## Running for Development
