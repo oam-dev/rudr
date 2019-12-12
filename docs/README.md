@@ -64,6 +64,10 @@ Learn how an <b>application operator</b> can attach operational features to comp
 
 Learn how an <b>application operator</b> can define application boundaries by grouping components with common properties and dependencies.
 
+## [Admission Controller](https://github.com/oam-dev/admission-controller)
+
+Admission controller is used for mutating and validating OAM component, trait and application configuration spec.
+
 ## How-To's
 
 ### [Create a component from scratch](how-to/create_component_from_scratch.md)
