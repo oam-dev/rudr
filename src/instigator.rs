@@ -143,13 +143,19 @@ impl Instigator {
 
             let inst_name = component.instance_name.clone();
 
-            let workload_meta =
-                self.get_workload_meta(name.clone(), inst_name.clone(), &comp_def, &params, None);
+            let workload_meta = self.get_workload_meta(
+                name.clone(),
+                inst_name.clone(),
+                &comp_def,
+                &params,
+                None,
+                "StatusCheckLoop".to_string(),
+            );
             // Instantiate components
             let workload = self.load_workload_type(&comp_def, workload_meta)?;
             let mut status = workload.status()?;
             debug!(
-                "Sync component {}, got status {:?}",
+                "StatusCheckLoop: Sync component {}, got status {:?}",
                 component.component_name.clone(),
                 status.clone()
             );
@@ -189,7 +195,7 @@ impl Instigator {
         //we won't update status if there's any update
         if has_diff || !last_components.is_empty() {
             info!(
-                "skip update status for {}, find the spec has changes to be execute",
+                "StatusCheckLoop: skip update status for {}, wait for the mainControlLoop to execute",
                 event.metadata.name.clone()
             );
             return Ok(());
@@ -201,6 +207,7 @@ impl Instigator {
                 Some(component_status),
             )),
             None,
+            "StatusCheckLoop".to_string(),
         )
     }
 
@@ -209,6 +216,7 @@ impl Instigator {
         event: OpResource,
         status: Option<OAMStatus>,
         annotation: Option<BTreeMap<String, String>>,
+        controlled_by: String,
     ) -> InstigatorResult {
         let config_resource: Api<Object<ApplicationConfiguration, OAMStatus>> =
             Api::customResource(self.client.clone(), CONFIG_CRD)
@@ -228,13 +236,20 @@ impl Instigator {
                 serde_json::to_vec(&new_event)?,
             ) {
                 Ok(o) => {
-                    debug!("Patched status {:?} for {}", o.status, o.metadata.name);
+                    debug!(
+                        "{}: Patched status {:?} for {}",
+                        controlled_by, o.status, o.metadata.name
+                    );
                     return Ok(());
                 }
                 Err(e) => {
                     if let Some(err) = e.api_error() {
                         if err.reason == "Conflict" {
-                            warn!("conflict happen to {}, retry", event.metadata.name.clone());
+                            warn!(
+                                "{}: conflict happen to {}, retry",
+                                controlled_by,
+                                event.metadata.name.clone()
+                            );
                             new_event = config_resource.get(&event.metadata.name)?;
                             continue;
                         }
@@ -370,6 +385,7 @@ impl Instigator {
                 &comp_def,
                 &params,
                 new_owner_ref.clone(),
+                "MainControlLoop".to_string(),
             );
             // Instantiate components
             let workload = self.load_workload_type(&comp_def, workload_meta)?;
@@ -388,7 +404,10 @@ impl Instigator {
 
             match phase {
                 Phase::Add => {
-                    info!("Adding component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Adding component {}",
+                        component.component_name.clone()
+                    );
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -409,11 +428,14 @@ impl Instigator {
                         },
                         get_object_ref(event.clone()),
                     ) {
-                        error!("adding event err: {:?}", err)
+                        error!("MainControlLoop: adding event err: {:?}", err)
                     }
                 }
                 Phase::Modify => {
-                    info!("Modifying component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Modifying component {}",
+                        component.component_name.clone()
+                    );
 
                     workload.validate()?;
                     trait_manager.exec(
@@ -439,11 +461,14 @@ impl Instigator {
                         },
                         get_object_ref(event.clone()),
                     ) {
-                        error!("adding event err {:?}", err)
+                        error!("MainControlLoop: adding event err {:?}", err)
                     }
                 }
                 Phase::Delete => {
-                    info!("Deleting component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Deleting component {}",
+                        component.component_name.clone()
+                    );
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
@@ -485,7 +510,10 @@ impl Instigator {
             };
             trait_manager.load_traits()?;
 
-            info!("Deleting component {}", component.component_name.clone());
+            info!(
+                "MainControlLoop: Deleting component {}",
+                component.component_name.clone()
+            );
             //The reason for this is that we do not require that traits be deployed only in-cluster.
             //For example, a trait could create an object storage bucket or work with an external API service.
             //So we want to give them a chance to react to a deletion event.
@@ -516,7 +544,7 @@ impl Instigator {
                 },
                 get_object_ref(event.clone()),
             ) {
-                error!("adding event err {:?}", err)
+                error!("MainControlLoop: adding event err {:?}", err)
             }
         }
         // if no component was updated or this is an delete phase, just return without status change.
@@ -536,7 +564,12 @@ impl Instigator {
                 Some(hs)
             });
 
-        self.retry_patch_status(event, status, Some(annotation))
+        self.retry_patch_status(
+            event,
+            status,
+            Some(annotation),
+            "MainControlLoop".to_string(),
+        )
     }
 
     /// Create new Kubernetes objects based on this config.
@@ -559,8 +592,12 @@ impl Instigator {
         comp: &KubeComponent,
         params: &ParamMap,
         owner_ref: Option<Vec<meta::OwnerReference>>,
+        controlled_by: String,
     ) -> WorkloadMetadata {
-        info!("Looking up {}", config_name);
+        info!(
+            "{}: Looking up workload for {} <{}>",
+            controlled_by, config_name, comp.metadata.name
+        );
         WorkloadMetadata {
             name: config_name,
             instance_name,
