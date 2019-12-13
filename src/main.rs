@@ -84,17 +84,19 @@ fn main() -> Result<(), Error> {
             .version(CONFIG_VERSION);
         //init all the existing objects at initiate, this should be done by informer
         let req = resource.list(&ListParams::default()).unwrap();
-        if let Ok(cfgs) = client.request::<ObjectList<KubeOpsConfig>>(req) {
-            for cfg in cfgs.items {
-                let event = WatchEvent::Added(cfg);
-                if let Err(res) = handle_event(&client, event, ns.clone()) {
-                    // Log the error and continue. In the future, should probably
-                    // re-queue data in some cases.
-                    error!("Error processing event: {:?}", res)
-                };
+        match client.request::<ObjectList<KubeOpsConfig>>(req) {
+            Ok(cfgs) => {
+                for cfg in cfgs.items {
+                    let event = WatchEvent::Added(cfg);
+                    if let Err(res) = handle_event(&client, event, ns.clone()) {
+                        // Log the error and continue. In the future, should probably
+                        // re-queue data in some cases.
+                        error!("Error processing event: {:?}", res)
+                    };
+                }
             }
+            Err(err) => error!("Error list application configs: {:?}", err),
         }
-
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =
             Informer::raw(client.clone(), resource.clone()).init()?;

@@ -2,7 +2,7 @@ REPO = oamdev/rudr
 HEALTHREPO = oamdev/healthscope
 TAG ?= latest
 ARCHS := amd64 arm64
-LOG_LEVEL := rudr=debug
+LOG_LEVEL := rudr=debug,kube=info
 
 .PHONY: build
 build:
