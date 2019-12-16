@@ -92,7 +92,7 @@ spec:
   parameters:
     - name: image
       type: string
-      default: alexellis/gofast023
+      default: alexellisuk/go-echo:0.2.2
     - name: handler
       type: string
       default: ""
@@ -104,7 +104,7 @@ spec:
       type: string
       description: docker image name of this function
       fromParam: image
-      value: alexellis/gofast023
+      value: alexellisuk/go-echo:0.2.2
       required: true
     - name: handler
       type: string
@@ -210,7 +210,7 @@ spec:
               value: 2
 ```
 
-After change the Application Configuration yaml file, apply it.
+It will set OpenFaaS workload to have at least 2 replicas. After change the Application Configuration yaml file, apply it.
 
 ```
 $ kubeclt apply -f examples/openfaasapp.yaml
@@ -218,7 +218,7 @@ componentschematic.core.oam.dev/openfaas unchanged
 applicationconfiguration.core.oam.dev/openfaas configured
 ```
 
-Then we could see the replica of the function has changed.
+Then we could see the `com.openfaas.scale.min` label of the function has changed.
 
 ```shell script
 $ kubectl get functions nodeinfo -o yaml
@@ -227,16 +227,17 @@ kind: Function
 metadata:
   name: nodeinfo
   namespace: default
+  labels:
+    com.openfaas.scale.min: "2"
 spec:
   environment:
     write_debug: "false"
   handler: node main.js
   image: functions/nodeinfo
   name: nodeinfo
-  replicas: 2
 ```
 
-If you want to change the replicas to `3`, just change the application configuration yaml.
+If you want to change the minimal replica to `3`, just change the application configuration yaml.
 
 ```yaml
 apiVersion: core.oam.dev/v1alpha1
@@ -269,7 +270,7 @@ componentschematic.core.oam.dev/openfaas unchanged
 applicationconfiguration.core.oam.dev/openfaas configured
 ```
 
-Then you could see the `replicas` field has been changed.
+Then you could see the `com.openfaas.scale.min` label has been changed.
 
 ```shell script
 $ kubectl get functions nodeinfo -o yaml
@@ -278,13 +279,14 @@ kind: Function
 metadata:
   name: nodeinfo
   namespace: default
+  labels:
+    com.openfaas.scale.min: "3"
 spec:
   environment:
     write_debug: "false"
   handler: node main.js
   image: functions/nodeinfo
   name: nodeinfo
-  replicas: 3
 ```
 
 In real world practices, the OpenFaaS `Component` is expected to be defined by Devs, while `ApplicationConfiguration` and manual-scaler `Trait` be managed by App Ops.

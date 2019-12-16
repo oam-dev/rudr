@@ -8,7 +8,7 @@ spec:
   parameters:
     - name: image
       type: string
-      default: alexellis/gofast023
+      default: alexellisuk/go-echo:0.2.2
     - name: handler
       type: string
       default: ""
@@ -20,7 +20,7 @@ spec:
       type: string
       description: docker image name of this function
       fromParam: image
-      value: alexellis/gofast023
+      value: alexellisuk/go-echo:0.2.2
       required: true
     - name: handler
       type: string

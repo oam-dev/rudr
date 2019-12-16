@@ -104,7 +104,9 @@ impl ManualScaler {
                     .within(ns);
                 let faas_req = faas_resource.get(self.instance_name.clone().as_str())?;
                 let mut openfaas: KubeFaaS = client.request(faas_req)?;
-                openfaas.spec.replicas = Some(self.replica_count);
+                let mut labels = openfaas.metadata.labels.clone();
+                labels.insert("com.openfaas.scale.min".to_string(),self.replica_count.to_string());
+                openfaas.metadata.labels = labels;
                 let faas_req = faas_resource.patch(
                     self.instance_name.clone().as_str(),
                     &PatchParams::default(),
@@ -114,7 +116,7 @@ impl ManualScaler {
                 info!(
                     "openfass function {} was scaled to {}",
                     openfaas.metadata.name,
-                    openfaas.spec.replicas.unwrap()
+                    self.replica_count.to_string(),
                 );
                 Ok(())
             }

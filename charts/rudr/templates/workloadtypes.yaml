@@ -19,10 +19,10 @@ spec:
 apiVersion: core.oam.dev/v1alpha1
 kind: WorkloadType
 metadata:
-  name: promethues
+  name: prometheus
   annotations:
     version: v1.0.0
-    description: "Promethues Workload"
+    description: "Prometheus Workload"
 spec:
   group: monitoring.coreos.com
   version: v1
