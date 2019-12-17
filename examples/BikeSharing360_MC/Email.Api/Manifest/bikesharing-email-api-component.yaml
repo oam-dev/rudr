@@ -1,0 +1,13 @@
+﻿apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: bikesharing-email-api-v1
+spec:
+  workloadType: core.oam.dev/v1alpha1.Server
+  containers:
+    - name: bikesharing-email-api
+      image: sowmyans/bikesharing-email-api:v1
+      ports:
+        - protocol: TCP
+          containerPort: 80
+          name: http

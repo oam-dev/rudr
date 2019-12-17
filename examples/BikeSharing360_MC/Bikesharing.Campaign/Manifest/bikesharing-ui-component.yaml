@@ -6,8 +6,20 @@ spec:
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: bikesharing-ui
-      image: sowmyans/bikesharing-ui:v1    
+      image: sowmyans/bikesharing-ui:v1
+      env:
+        - name: profileapi
+          fromParam: profileAPI
+        - name: emailapi
+          fromParam: emailAPI
       ports:
         - protocol: TCP
           containerPort: 80
           name: http
+  parameters:
+    - name: profileAPI
+      type: string
+      default: 'http://bikesharing.com'
+    - name: emailAPI
+      type: string
+      default: 'http://bikesharing.com'
