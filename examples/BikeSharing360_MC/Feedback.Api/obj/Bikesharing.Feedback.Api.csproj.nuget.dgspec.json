@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Feedback.Api\\Bikesharing.Feedback.Api.csproj": {}
+    "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Feedback.Api\\Bikesharing.Feedback.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Feedback.Api\\Bikesharing.Feedback.Api.csproj": {
+    "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Feedback.Api\\Bikesharing.Feedback.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Feedback.Api\\Bikesharing.Feedback.Api.csproj",
+        "projectUniqueName": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Feedback.Api\\Bikesharing.Feedback.Api.csproj",
         "projectName": "Bikesharing.Feedback.Api",
-        "projectPath": "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Feedback.Api\\Bikesharing.Feedback.Api.csproj",
+        "projectPath": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Feedback.Api\\Bikesharing.Feedback.Api.csproj",
         "packagesPath": "C:\\Users\\sowmyans\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Feedback.Api\\obj\\",
+        "outputPath": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Feedback.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\ProgramData\\Xamarin\\NuGet\\",
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\NuGet.Config",
+          "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\NuGet.Config",
           "C:\\Users\\sowmyans\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\ServiceFabricSDK.config",
@@ -30,7 +30,7 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\Microsoft SDKs\\Service Fabric\\packages": {},
-          "C:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\./References": {},
+          "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\References": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -79,7 +79,8 @@
             "net48"
           ],
           "assetTargetFallback": true,
-          "warn": true
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

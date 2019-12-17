@@ -7,3 +7,11 @@ C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing36
 C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.AssemblyInfo.cs
 C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.dll
 C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.pdb
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\bin\Debug\netcoreapp2.0\Bikesharing.Core.deps.json
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\bin\Debug\netcoreapp2.0\Bikesharing.Core.dll
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\bin\Debug\netcoreapp2.0\Bikesharing.Core.pdb
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.csprojAssemblyReference.cache
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.AssemblyInfoInputs.cache
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.AssemblyInfo.cs
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.dll
+C:\Users\sowmyans\source\repos\rudr-samples-t20\rudr\examples\BikeSharing360_MC\Core\obj\Debug\netcoreapp2.0\Bikesharing.Core.pdb

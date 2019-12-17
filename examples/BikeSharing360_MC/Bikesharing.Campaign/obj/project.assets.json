@@ -9478,24 +9478,24 @@
   },
   "packageFolders": {
     "C:\\Users\\sowmyans\\.nuget\\packages\\": {},
-    "C:\\ProgramData\\Xamarin\\NuGet\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Bikesharing.Campaign\\Bikesharing.Campaign.csproj",
+      "projectUniqueName": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Bikesharing.Campaign\\Bikesharing.Campaign.csproj",
       "projectName": "Bikesharing.Campaign",
-      "projectPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Bikesharing.Campaign\\Bikesharing.Campaign.csproj",
+      "projectPath": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Bikesharing.Campaign\\Bikesharing.Campaign.csproj",
       "packagesPath": "C:\\Users\\sowmyans\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Bikesharing.Campaign\\obj\\",
+      "outputPath": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Bikesharing.Campaign\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\ProgramData\\Xamarin\\NuGet\\",
+        "C:\\Microsoft\\Xamarin\\NuGet\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\NuGet.Config",
+        "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\NuGet.Config",
         "C:\\Users\\sowmyans\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\ServiceFabricSDK.config",
@@ -9507,14 +9507,14 @@
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\Microsoft SDKs\\Service Fabric\\packages": {},
-        "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\./References": {},
+        "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\References": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj": {
-              "projectPath": "c:\\Users\\sowmyans\\OneDrive - Microsoft\\Source\\Repos\\hydra-examples\\BikeSharing360\\Core\\Bikesharing.Core.csproj"
+            "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Core\\Bikesharing.Core.csproj": {
+              "projectPath": "C:\\Users\\sowmyans\\source\\repos\\rudr-samples-t20\\rudr\\examples\\BikeSharing360_MC\\Core\\Bikesharing.Core.csproj"
             }
           }
         }
@@ -9576,7 +9576,8 @@
           "net48"
         ],
         "assetTargetFallback": true,
-        "warn": true
+        "warn": true,
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
       }
     }
   }
