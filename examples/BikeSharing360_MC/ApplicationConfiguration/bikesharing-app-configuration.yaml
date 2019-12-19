@@ -15,11 +15,6 @@ spec:
               value: /
     - componentName: bikesharing-email-api-v1
       instanceName: bikesharing-email-api
-      traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: bikesharing.com
-            - name: path
-              value: /api/email
+    - componentName: bikesharing-profile-api-v1
+      instanceName: bikesharing-profile-api
          

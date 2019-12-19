@@ -6,7 +6,7 @@ spec:
   workloadType: core.oam.dev/v1alpha1.Server
   containers:
     - name: bikesharing-ui
-      image: sowmyans/bikesharing-ui:v1
+      image: ryanmcintyre/bikesharing-ui:v1
       env:
         - name: profileapi
           fromParam: profileAPI
@@ -19,7 +19,7 @@ spec:
   parameters:
     - name: profileAPI
       type: string
-      default: 'http://bikesharing.com'
+      default: 'http://bikesharing-profile-api'
     - name: emailAPI
       type: string
-      default: 'http://bikesharing.com'
+      default: 'http://bikesharing-email-api'
