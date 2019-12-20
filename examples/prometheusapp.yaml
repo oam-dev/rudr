@@ -1,14 +1,14 @@
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: promethues
+  name: prometheus
 spec:
   workloadType: monitoring.coreos.com/v1.Prometheus
   osType: linux
   workloadSettings:
     - name: spec
       type: object
-      description: the spec of promethues-operator
+      description: the spec of prometheus-operator
       required: true
       value:
         serviceAccountName: default
@@ -19,13 +19,13 @@ spec:
           requests:
             memory: 100Mi
         enableAdminAPI: true
----
 
+---
 apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
-  name: promethues
+  name: prometheus
 spec:
   components:
-    - componentName: promethues
-      instanceName: promethues-ap
+    - componentName: prometheus
+      instanceName: prometheus-ap

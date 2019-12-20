@@ -14,8 +14,8 @@ spec:
     kind: Function
     singular: function
     plural: functions
----
 
+---
 apiVersion: core.oam.dev/v1alpha1
 kind: WorkloadType
 metadata:

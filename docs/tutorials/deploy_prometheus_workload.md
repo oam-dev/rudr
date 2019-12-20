@@ -6,7 +6,7 @@
 $ kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/master/bundle.yaml
 ```
 
-## Write the component
+## Define the Prometheus component
 
 The component must have a workloadType combined with `GROUP/VERSION.KIND`, so the Non-Intrusive Workload will find which custom resource to create.
 
@@ -16,14 +16,14 @@ Then put the whole spec in the workloadSettings value with a name called `spec` 
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
-  name: promethues
+  name: prometheus
 spec:
   workloadType: monitoring.coreos.com/v1.Prometheus
   osType: linux
   workloadSettings:
     - name: spec
       type: object
-      description: the spec of promethues-operator
+      description: the spec of prometheus-operator
       required: true
       value:
         serviceAccountName: default
@@ -44,19 +44,19 @@ The application configuration just need to use this component.
 apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
-  name: promethues
+  name: prometheus
 spec:
   components:
-    - componentName: promethues
-      instanceName: promethues-app
+    - componentName: prometheus
+      instanceName: prometheus-app
 ```
 
 ## Apply our configurations
 
 ```shell script
-$ kubectl apply -f examples/promethuesapp.yaml
-componentschematic.core.oam.dev/promethues created
-applicationconfiguration.core.oam.dev/promethues created
+$ kubectl apply -f examples/prometheusapp.yaml
+componentschematic.core.oam.dev/prometheus created
+applicationconfiguration.core.oam.dev/prometheus created
 ```
 
 we could see that an Prometheus Operator CR was created by rudr.
@@ -64,7 +64,7 @@ we could see that an Prometheus Operator CR was created by rudr.
 ```shell script
 $ kubectl get prometheuses
 NAME             AGE
-promethues-app   37s
+prometheus-app   37s
 ```
 
 Then the Prometheus operator we create an real Prometheus app described by the CR.
@@ -72,7 +72,7 @@ Then the Prometheus operator we create an real Prometheus app described by the C
 ```shell script
 $ kubectl get statefulset
 NAME                        READY   AGE
-prometheus-promethues-app   1/1     6m21s
+prometheus-prometheus-app   1/1     6m21s
 ```
 
 You could change the component spec as you like if you want.

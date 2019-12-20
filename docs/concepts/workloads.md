@@ -165,7 +165,7 @@ Extended workload types are also available in Rudr.
 Rudr support two approaches for integrating extended workloads for now:
 
 1. **Built-in Extended Workload**: this is a straightforward approach as you just need to tell Rudr about the spec of this extended workload by sending a Pull Request to Rudr code. The cons is it's less flexible as you will need to modify Rudr code for any further update and maintain it.
-2. **Pluggable Extended Workload**: this is the recommended approach. The idea is you can "convert" any CRD into a Extended Workload by following certain specification. No code in Rudr is needed.
+2. **Pluggable Extended Workload**: this is the recommended approach. The idea is you can "convert" any CRD into a Extended Workload by following certain specification. No code change in Rudr is needed.
 
 ### Built-in VS Pluggable
 
