@@ -1,64 +1,70 @@
-#BikeSharing360
+# BikeSharing360
 
-During our Visual Studio 2017 Launch event this year, Scott Hanselman presented our Dockder Tooling experiences. 
-
-This year, we built the technology stack for a fictional company named BikeSharing360, which allows users to rent bikes from one location to another.
+[BikeSharing360 for multiple containers](https://github.com/microsoft/BikeSharing360_MultiContainer) adapted for Rudr.
 
 BikeSharing360 is a fictitious example of a smart bike sharing system with 10,000 bikes distributed in 650 stations located throughout New York City and Seattle. Their vision is to provide a modern and personalized experience to riders and to run their business with intelligence.
 
-In this demo scenario, we built several apps for both the enterprise and the consumer (bike riders). You can find all other BikeSharing360 repos in the following locations:
+BikeSharing 360 for single containers can be found [here](../BikeSharing360_SC).
 
-*[Mobile Apps](https://github.com/Microsoft/BikeSharing360_MobileApps)
-*[Backend Services](https://github.com/Microsoft/BikeSharing360_BackendServices)
-*[Websites](https://github.com/Microsoft/BikeSharing360_Websites)
-*[Single Container Apps](https://github.com/Microsoft/BikeSharing360_SingleContainer)
-*[Multi Container Apps](https://github.com/Microsoft/BikeSharing360_MultiContainer)
-*[Cognitive Services Kiosk App](https://github.com/Microsoft/BikeSharing360_CognitiveServicesKioskApp)
-*[Azure Bot App](https://github.com/Microsoft/BikeSharing360_BotApps)
-# Multi Container Apps
-Demo from Connect() 2016, where Donovan Brown opened an existing, "more complex" application than https://github.com/SteveLasker/Bikesharing360-Single to demonstrate seetting up Continuous Delivery with Visual Studio 2017 RC. 
-The project was then deployed to Azure Container Services, through the Azure Container Registry.
+# Building the project
 
-# Building the project in a container
-To validate the VSTS Build Steps will sucessfuly build the project, in a container, you can validate this locally:
+Make sure that the ingress controller has been installed (instructions [here](../../docs/setup/install.md)).
 
-How this works:
+Add the components:
 
-* when you call `docker-compose -f docker-compose.ci.build.yml up`, the image `microsoft/aspnetcore-build:1.0-1.1` is attempted to be instanced. 
-* The first time, `microsoft/aspnetcore-build:1.0-1.1` isn't available compose up will build the image using  `.\build\Dockerfile` 
-* The root of the solution is volume mapped in
-* `dotnet restore`, `dotnet publish -c release` are executed
-
-In the same folder as this readme.md file, call:
 ```
-docker-compose -f docker-compose.ci.build.yml up
+> kubectl apply -f BikeSharing.Campaign/Manifest/bikesharing-ui-component.yaml
+> kubectl apply -f Email.Api/Manifest/bikesharing-email-api-component.yaml
+> kubectl apply -f Feedback.Api/Manifest/bikesharing-feedback-api-component.yaml
+> kubectl apply -f Profile.Api/Manifest/bikesharing-profile-api-component.yaml
 ```
 
-## directly on your dev machine
+Validate that the components were created successfully:
 
-Once built, `cd .\bin\Release\publishoutput\`
-From the published directory, `dotnet marketing.dll`
-This will run the site at http://localhost:5000
-
-## run in a container
-
-Once built, `docker-compose up -d`
-Find the dynamically assigned port: `docker ps`
 ```
- IMAGE                   PORTS
- bikesharing/marketing   0.0.0.0:32786->8080/tcp
+> kubectl get components
+
+NAME                          AGE
+bikesharing-email-api-v1      11s
+bikesharing-feedback-api-v1   7s
+bikesharing-profile-api-v1    3s
+bikesharing-ui-v1             16s
 ```
-http://localhost:32767
 
-## How to sign up for Microsoft Azure
+Apply the configuration:
 
-You need an Azure account to work with this demo code. You can:
+```
+> kubectl apply -f ApplicationConfiguration/bikesharing-app-configuration.yaml
+```
 
-- Open an Azure account for free [Azure subscription](https://azure.com). You get credits that can be used to try out paid Azure services. Even after the credits are used up, you can keep the account and use free Azure services and features, such as the Web Apps feature in Azure App Service.
-- [Activate Visual Studio subscriber benefits](https://www.visualstudio.com/products/visual-studio-dev-essentials-vs). Your Visual Studio subscription gives you credits every month that you can use for paid Azure services.
-- Not a Visual Studio subscriber? Get a $25 monthly Azure credit by joining [Visual Studio Dev Essentials](https://www.visualstudio.com/products/visual-studio-dev-essentials-vs).
+Validate that the configuration was applied successfully:
+
+```
+> kubectl get configurations
+
+NAME              AGE
+bikesharing-app   25s
+```
+
+Wait for ingress to be created:
+
+```
+> kubectl get ingress
+
+NAME                                     HOSTS             ADDRESS   PORTS   AGE
+bikesharing-email-api-trait-ingress      bikesharing.com             80      2s
+bikesharing-feedback-api-trait-ingress   bikesharing.com             80      2s
+bikesharing-profile-api-trait-ingress    bikesharing.com             80      1s
+bikesharing-ui-trait-ingress             bikesharing.com             80      2s
+```
+
+Navigating to bikesharing.com after mapping it to the correct IP address (found by `kubectl get services`) should take you to the home page.
+
+![bikesharing website](/img/bikesharing.png)
 
 ## Blogs posts
+
+## TODO: find new links
 
 Here's links to blog posts related to this project:
 
@@ -66,9 +72,6 @@ Here's links to blog posts related to this project:
 - The Visual Studio Blog: [Announcing the new Visual Studio for Mac](https://blogs.msdn.microsoft.com/visualstudio/2016/11/16/visual-studio-for-mac/)
 - The Visual Studio Blog: [Introducing Visual Studio Mobile Center (Preview)](https://blogs.msdn.microsoft.com/visualstudio/2016/11/16/visual-studio-mobile-center/)
 - The Visual Studio Blog: [Visual Studio 2017 Release Candidate](https://blogs.msdn.microsoft.com/visualstudio/2016/11/16/visual-studio-2017-rc/)
-
-## Clean and Rebuild
-If you see build issues when pulling updates from the repo, try cleaning and rebuilding the solution.
 
 ## Copyright and license
 * Code and documentation copyright 2016 Microsoft Corp. Code released under the [MIT license](https://opensource.org/licenses/MIT).
