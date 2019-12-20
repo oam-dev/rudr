@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Net.Http;
 using Core;
+using System.Diagnostics;
 #endregion
 
 namespace Bikesharing.Campaign.Controllers
@@ -52,13 +53,19 @@ namespace Bikesharing.Campaign.Controllers
 
             });
 
+            Trace.WriteLine("Email API :" + Settings.EMAIL_URL + " , Profile API : " + Settings.PROFILES_URL);
+            Console.WriteLine("Email API :" + Settings.EMAIL_URL + " , Profile API : " + Settings.PROFILES_URL);
+
 
             var emailContent = new StringContent(emailReqJson, Encoding.UTF8, "application/json");
+
             // Send Email
             var emailResponse = await client.PostAsync(Settings.EMAIL_URL + "/api/email", emailContent);
             var emailJson = await emailResponse.Content.ReadAsStringAsync();
             dynamic emailData = Newtonsoft.Json.Linq.JObject.Parse(emailJson);
 
+     
+            
             // Confirm customer is signed up
             //ViewBag.Confirmation = (string)profile.FirstName;
             ViewBag.Confirmation = "sowmyan";
