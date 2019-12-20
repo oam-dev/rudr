@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Net.Http;
 using Core;
+using System.Diagnostics;
 #endregion
 
 namespace Bikesharing.Campaign.Controllers
@@ -45,21 +46,15 @@ namespace Bikesharing.Campaign.Controllers
                FirstName = profile.FirstName
             });
 
-            // payload for submitting an email request
-            // var emailReqJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
-            // {
-            //     Email = email,
-            //     FirstName ="sowmyan"
-
-            // });
-
-
             var emailContent = new StringContent(emailReqJson, Encoding.UTF8, "application/json");
+
             // Send Email
             var emailResponse = await client.PostAsync(Settings.EMAIL_URL + "/api/email", emailContent);
             var emailJson = await emailResponse.Content.ReadAsStringAsync();
             dynamic emailData = Newtonsoft.Json.Linq.JObject.Parse(emailJson);
 
+     
+            
             // Confirm customer is signed up
             ViewBag.Confirmation = (string)profile.FirstName;
             //ViewBag.Confirmation = "sowmyan";
