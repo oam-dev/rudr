@@ -60,7 +60,7 @@ bikesharing-ui-trait-ingress             bikesharing.com             80      2s
 
 Navigating to bikesharing.com after mapping it to the correct IP address (found by `kubectl get services`) should take you to the home page.
 
-![bikesharing website](/img/bikesharing.png)
+![bikesharing website](./img/bikesharing.PNG)
 
 ## Blogs posts
 
