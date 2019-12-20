@@ -1,0 +1,13 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: bikesharing-feedback-api-v1
+spec:
+  workloadType: core.oam.dev/v1alpha1.Server
+  containers:
+    - name: bikesharing-feedback-api
+      image: micya/bikesharing-feedback-api:v1
+      ports:
+        - protocol: TCP
+          containerPort: 80
+          name: http

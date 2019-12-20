@@ -1,9 +1,0 @@
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\bin\Debug\netcoreapp1.0\Bikesharing.Core.deps.json
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\bin\Debug\netcoreapp1.0\Bikesharing.Core.dll
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\bin\Debug\netcoreapp1.0\Bikesharing.Core.pdb
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.csprojAssemblyReference.cache
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.csproj.CoreCompileInputs.cache
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.AssemblyInfoInputs.cache
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.AssemblyInfo.cs
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.dll
-C:\Users\sowmyans\OneDrive - Microsoft\Source\Repos\hydra-examples\BikeSharing360\Core\obj\Debug\netcoreapp1.0\Bikesharing.Core.pdb
