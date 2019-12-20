@@ -33,29 +33,18 @@ namespace Bikesharing.Campaign.Controllers
                 City = city
             });
             var content = new StringContent(reqJson, Encoding.UTF8, "application/json");
+
             // Create a Profile 
-            //var response = await client.PostAsync(Settings.PROFILES_URL + "/api/profiles", content);
-            //var json = await response.Content.ReadAsStringAsync();
-            //var profile = Newtonsoft.Json.JsonConvert.DeserializeObject<Core.Models.Profile>(json);
+            var response = await client.PostAsync(Settings.PROFILES_URL + "/api/profiles", content);
+            var json = await response.Content.ReadAsStringAsync();
+            var profile = Newtonsoft.Json.JsonConvert.DeserializeObject<Core.Models.Profile>(json);
 
             //// payload for submitting an email request
-            //var emailReqJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
-            //{
-            //    Email = profile.Email,
-            //    FirstName = profile.FirstName
-            //});
-
-            // payload for submitting an email request
             var emailReqJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
             {
-                Email = email,
-                FirstName ="sowmyan"
-
+               Email = profile.Email,
+               FirstName = profile.FirstName
             });
-
-            Trace.WriteLine("Email API :" + Settings.EMAIL_URL + " , Profile API : " + Settings.PROFILES_URL);
-            Console.WriteLine("Email API :" + Settings.EMAIL_URL + " , Profile API : " + Settings.PROFILES_URL);
-
 
             var emailContent = new StringContent(emailReqJson, Encoding.UTF8, "application/json");
 
@@ -67,8 +56,8 @@ namespace Bikesharing.Campaign.Controllers
      
             
             // Confirm customer is signed up
-            //ViewBag.Confirmation = (string)profile.FirstName;
-            ViewBag.Confirmation = "sowmyan";
+            ViewBag.Confirmation = (string)profile.FirstName;
+            //ViewBag.Confirmation = "sowmyan";
             return View("Index");
         }
 

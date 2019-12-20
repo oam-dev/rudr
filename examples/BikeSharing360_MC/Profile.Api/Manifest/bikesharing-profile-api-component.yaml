@@ -1,0 +1,20 @@
+﻿apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: bikesharing-profile-api-v1
+spec:
+  workloadType: core.oam.dev/v1alpha1.Server
+  containers:
+    - name: bikesharing-profile-api
+      image: ryanmcintyre/bikesharing-profile-api:v1
+      env:
+        - name: ASPNETCORE_ENVIRONMENT
+          fromParam: aspnetcore_environment      
+      ports:
+        - protocol: TCP
+          containerPort: 80
+          name: http
+  parameters:
+    - default: Production
+      name: aspnetcore_environment
+      type: string
