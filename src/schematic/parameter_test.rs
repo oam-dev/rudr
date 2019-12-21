@@ -1,4 +1,5 @@
 use crate::schematic::parameter::*;
+use crate::workload_type::ParamMap;
 use serde_json::json;
 use std::collections::BTreeMap;
 
@@ -161,22 +162,27 @@ fn test_resolve_values() {
 
 #[test]
 fn test_resolve_value() {
-    let mut params: ResolvedVals = BTreeMap::new();
+    let mut params: ParamMap = BTreeMap::new();
     params.insert("abc".to_string(), serde_json::to_value("hello").unwrap());
-    let got = resolve_value(
+    let got = resolve_value_string(
         params.clone(),
         Some("abc".to_string()),
         Some("123".to_string()),
     );
     assert_eq!("hello".to_string(), got.unwrap());
-    let got = resolve_value(params.clone(), Some("abc".to_string()), None);
+    let got = resolve_value_string(params.clone(), Some("abc".to_string()), None);
     assert_eq!("hello".to_string(), got.unwrap());
-    let got = resolve_value(
+    let got = resolve_value_string(
         params.clone(),
         Some("xxx".to_string()),
         Some("123".to_string()),
     );
     assert_eq!("123".to_string(), got.unwrap());
+
+    assert_eq!(
+        Some(serde_json::to_value("hello").unwrap()),
+        resolve_value(params.clone(), Some("abc".to_string()), None)
+    )
 }
 
 #[test]

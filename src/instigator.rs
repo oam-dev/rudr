@@ -22,8 +22,9 @@ use crate::{
     },
     trait_manager::TraitManager,
     workload_type::{
-        self, CoreWorkloadType, ReplicatedServer, ReplicatedTask, ReplicatedWorker,
-        SingletonServer, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
+        self, CoreWorkloadType, ExtendedWorkloadType, ReplicatedServer, ReplicatedTask,
+        ReplicatedWorker, SingletonServer, SingletonTask, SingletonWorker, WorkloadMetadata,
+        WorkloadType, OAM_API_VERSION,
     },
 };
 
@@ -142,9 +143,10 @@ impl Instigator {
 
             let inst_name = component.instance_name.clone();
 
+            let workload_meta =
+                self.get_workload_meta(name.clone(), inst_name.clone(), &comp_def, &params, None);
             // Instantiate components
-            let workload =
-                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
+            let workload = self.load_workload_type(&comp_def, workload_meta)?;
             let mut status = workload.status()?;
             debug!(
                 "Sync component {}, got status {:?}",
@@ -362,13 +364,15 @@ impl Instigator {
                 self.get_new_own_ref(phase.clone(), component.clone(), owner_ref.clone())?;
 
             // Instantiate components
-            let workload = self.load_workload_type(
+            let workload_meta = self.get_workload_meta(
                 name.clone(),
                 inst_name.clone(),
                 &comp_def,
                 &params,
                 new_owner_ref.clone(),
-            )?;
+            );
+            // Instantiate components
+            let workload = self.load_workload_type(&comp_def, workload_meta)?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -548,16 +552,16 @@ impl Instigator {
         self.exec(event, Phase::Delete)
     }
 
-    fn load_workload_type(
+    fn get_workload_meta(
         &self,
         config_name: String,
         instance_name: String,
         comp: &KubeComponent,
         params: &ParamMap,
         owner_ref: Option<Vec<meta::OwnerReference>>,
-    ) -> Result<CoreWorkloadType, Error> {
+    ) -> WorkloadMetadata {
         info!("Looking up {}", config_name);
-        let meta = WorkloadMetadata {
+        WorkloadMetadata {
             name: config_name,
             instance_name,
             component_name: comp.metadata.name.clone(),
@@ -567,42 +571,64 @@ impl Instigator {
             client: self.client.clone(),
             params: params.clone(),
             owner_ref,
-        };
+        }
+    }
+
+    fn load_workload_type(
+        &self,
+        comp: &KubeComponent,
+        meta: WorkloadMetadata,
+    ) -> Result<Box<dyn WorkloadType>, Error> {
         match comp.spec.workload_type.as_str() {
             workload_type::SERVER_NAME => {
                 let rs = ReplicatedServer { meta };
-                Ok(CoreWorkloadType::ReplicatedServerType(rs))
+                let workload = CoreWorkloadType::ReplicatedServerType(rs);
+                Ok(Box::new(workload))
             }
             workload_type::SINGLETON_SERVER_NAME => {
                 let sing = SingletonServer { meta };
-                Ok(CoreWorkloadType::SingletonServerType(sing))
+                Ok(Box::new(CoreWorkloadType::SingletonServerType(sing)))
             }
             workload_type::SINGLETON_TASK_NAME => {
                 let task = SingletonTask { meta };
-                Ok(CoreWorkloadType::SingletonTaskType(task))
+                Ok(Box::new(CoreWorkloadType::SingletonTaskType(task)))
             }
             workload_type::TASK_NAME => {
                 let task = ReplicatedTask {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
-                Ok(CoreWorkloadType::ReplicatedTaskType(task))
+                Ok(Box::new(CoreWorkloadType::ReplicatedTaskType(task)))
             }
             workload_type::SINGLETON_WORKER => {
                 let wrkr = SingletonWorker { meta };
-                Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
+                Ok(Box::new(CoreWorkloadType::SingletonWorkerType(wrkr)))
             }
             workload_type::WORKER_NAME => {
                 let worker = ReplicatedWorker {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
-                Ok(CoreWorkloadType::ReplicatedWorkerType(worker))
+                Ok(Box::new(CoreWorkloadType::ReplicatedWorkerType(worker)))
             }
-            _ => Err(format_err!(
-                "workloadType {} is unknown",
-                comp.spec.workload_type
-            )),
+            workload_type::extended_workload::openfaas::OPENFAAS => {
+                let openfaas = workload_type::extended_workload::openfaas::OpenFaaS { meta };
+                let workload = ExtendedWorkloadType::OpenFaaS(openfaas);
+                Ok(Box::new(workload))
+            }
+            _ => {
+                match workload_type::extended_workload::others::Others::new(
+                    meta,
+                    comp.spec.workload_type.as_str(),
+                ) {
+                    Err(err) => Err(format_err!(
+                        "workloadType {} is unknown, {}",
+                        comp.spec.workload_type,
+                        err
+                    )),
+                    Ok(other) => Ok(Box::new(other)),
+                }
+            }
         }
     }
 
@@ -852,7 +878,16 @@ pub fn get_component_def(
         .group("core.oam.dev")
         .within(&namespace);
     let comp_def_req = component_resource.get(comp_name.as_str())?;
-    let comp_def: KubeComponent = client.request::<KubeComponent>(comp_def_req)?;
+    let comp_def: KubeComponent = match client.request::<KubeComponent>(comp_def_req) {
+        Ok(comp) => comp,
+        Err(err) => {
+            return Err(format_err!(
+                "get component {} err: {}",
+                comp_name.as_str(),
+                err
+            ))
+        }
+    };
     Ok(comp_def)
 }
 

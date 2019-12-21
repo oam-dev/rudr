@@ -1,0 +1,32 @@
+# TODO: add settings after spec was fixed
+
+apiVersion: core.oam.dev/v1alpha1
+kind: WorkloadType
+metadata:
+  name: openfaas
+  annotations:
+    version: v1.0.0
+    description: "OpenFaaS Workload"
+spec:
+  group: openfaas.com
+  version: v1alpha2
+  names:
+    kind: Function
+    singular: function
+    plural: functions
+
+---
+apiVersion: core.oam.dev/v1alpha1
+kind: WorkloadType
+metadata:
+  name: prometheus
+  annotations:
+    version: v1.0.0
+    description: "Prometheus Workload"
+spec:
+  group: monitoring.coreos.com
+  version: v1
+  names:
+    kind: Prometheus
+    singular: prometheus
+    plural: prometheuses

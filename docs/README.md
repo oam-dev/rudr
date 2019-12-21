@@ -36,7 +36,7 @@ Learn more about the main application model constructs: components (and their wo
 
 <img align="right" alt="The component schematic defines the parameters, workload type, and containers of a unit of code." src="./media/component.png" />
 
-Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [**workloads**](./concepts/workloads.md).
+Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [**workloads**](concepts/workloads.md).
 
 <br />
 

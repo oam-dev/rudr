@@ -47,6 +47,7 @@ spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
     - core.oam.dev/v1alpha1.Task
+    - openfaas.com/v1alpha2.Function
   properties: |
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

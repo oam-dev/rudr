@@ -113,6 +113,14 @@ impl WorkloadMetadata {
         }
         Ok(state)
     }
+
+    pub fn get_workload_setting(&self, key: &str) -> Option<serde_json::Value> {
+        self.definition
+            .workload_settings
+            .iter()
+            .find(|&item| item.name.eq(key))
+            .and_then(|item| item.resolve_param(self.params.clone()))
+    }
 }
 
 pub fn form_metadata(
