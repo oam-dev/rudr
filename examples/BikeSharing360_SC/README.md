@@ -1,86 +1,155 @@
-#BikeSharing360
+# BikeSharing360 with Rudr
 
-During our Visual Studio 2017 Launch event this year, Scott Hanselman presented our Dockder Tooling experiences. 
-
-This year, we built the technology stack for a fictional company named BikeSharing360, which allows users to rent bikes from one location to another.
+[BikeSharing360 for single containers](https://github.com/microsoft/BikeSharing360_SingleContainer) adapted for Rudr.
 
 BikeSharing360 is a fictitious example of a smart bike sharing system with 10,000 bikes distributed in 650 stations located throughout New York City and Seattle. Their vision is to provide a modern and personalized experience to riders and to run their business with intelligence.
 
-In this demo scenario, we built several apps for both the enterprise and the consumer (bike riders). You can find all other BikeSharing360 repos in the following locations:
+BikeSharing 360 for multiple containers can be found [here](https://github.com/Microsoft/BikeSharing360_MultiContainer).
 
-* [Mobile Apps](https://github.com/Microsoft/BikeSharing360_MobileApps)
-* [Backend Services](https://github.com/Microsoft/BikeSharing360_BackendServices)
-* [Websites](https://github.com/Microsoft/BikeSharing360_Websites)
-* [Single Container Apps](https://github.com/Microsoft/BikeSharing360_SingleContainer)
-* [Multi Container Apps](https://github.com/Microsoft/BikeSharing360_MultiContainer)
-* [Cognitive Services Kiosk App](https://github.com/Microsoft/BikeSharing360_CognitiveServicesKioskApp)
-* [Azure Bot App](https://github.com/Microsoft/BikeSharing360_BotApps)
+## Deploy and Inspect with Rudr
 
-# Bikesharing360 Single Container App
-In this repo you will find the Single Container demo where Scott opened an existing project, added docker support and published it to Azure App service, running Linux Docker containers.
+### Setting Up
 
-## Demo Prerequisites
-The Single Container demo encompasses taking an existing ASP.NET Core Web App and deploying it to Azure App Services for Linux, using container deployments. To run this demo you'll need:
+For additional help with the Setting Up steps, see the official documentation for [Installing Rudr](https://github.com/oam-dev/rudr/blob/master/docs/setup/install.md) and/or [Rudr's 'Hello World' Guide](https://github.com/oam-dev/rudr/blob/master/docs/tutorials/deploy_and_update.md).
 
-* An Azure Subscription (see below)
-* [Visual Studio 2017 RC](https://www.visualstudio.com/vs/visual-studio-2017-rc/) Choose the **".NET Core & Docker (Preview)"** Workload
-* [Docker for Windows](https://www.docker.com/products/docker#/windows) Used to run Docker Containers Locally, including the Linux containers used in this demo.
+Begin by ensuring that you are working in the proper cluster, or switch to the desired context for deployment.
+```
+$ kubectl config current-context
+my-cluster
+```
 
-The creation and publishing to an Azure App Service will be done as part of the demo.   
+Next, install rudr to the cluster using helm.
+```
+$ helm install rudr charts/rudr
+NAME: rudr
+LAST DEPLOYED: 2019-10-02 13:57:33.158655 -0600 MDT m=+5.183858344
+NAMESPACE: default
+STATUS: deployed
+NOTES:
+Rudr is a Kubernetes controller to manage Configuration CRDs.
 
-## How to sign up for Microsoft Azure
+It has been successfully installed.
+```
 
-To run this demo, you'll need an Azure account. You can:
+Again using helm, install the nginx ingress controller trait to the cluster.
+```
+$ helm install nginx-ingress stable/nginx-ingress
+NAME: nginx-ingress
+LAST DEPLOYED: 2019-10-02 13:57:57.444655 -0600 MDT m=+2.129323603
+NAMESPACE: default
+STATUS: deployed
+NOTES:
+The nginx-ingress controller has been installed.
+It may take a few minutes for the LoadBalancer IP to be available.
+You can watch the status by running 'kubectl --namespace default get services -o wide -w nginx-ingress-controller'
 
-- Open an Azure account for free [Azure subscription](https://azure.com). You get credits that can be used to try out paid Azure services. Even after the credits are used up, you can keep the account and use free Azure services and features, such as the Web Apps feature in Azure App Service.
-- [Activate Visual Studio subscriber benefits](https://www.visualstudio.com/products/visual-studio-dev-essentials-vs). Your Visual Studio subscription gives you credits every month that you can use for paid Azure services.
-- Not a Visual Studio subscriber? Get a $25 monthly Azure credit by joining [Visual Studio Dev Essentials](https://www.visualstudio.com/products/visual-studio-dev-essentials-vs).
+...
+```
 
-## Demo Steps
+### Deploy
 
-### Open and run the project within a container, making live changes
-1. Clone the before docker branch and open this repo locally using Visual Studio 2017
-2. Right Click the project and choose **Add** -> **Docker Support**
-3. F5 - or click the |> Start Debugging, with Docker as the target
-4. Open Views\Home\Index.cshtml
-5. Add some text, such as "Come see what we've got" to the end of "...throughout New York City and Seattle." 
-6. Save Index.cshtml
-7. Refresh the page in the browser
-8. Voila, you've now run a .NET Core app in a Linux container and made a change without having to rebuild or re-run the container image.
+First, apply the component schematics. In this case, we have a single component (the user interface).
+```
+$ kubectl apply -f Manifest/bikeshareing-sc-component.yaml
+componentschematic.core.oam.dev/bikesharing-sc-component-v1 created
+```
 
-### Publish to Kubernetes using Scylla
+Next, apply the application configuration. 
+```
+$ kubectl apply -f Manifest/bikeshare-sc-config.yaml
+applicationconfiguration.core.oam.dev/bikesharing-sc created
+```
 
-1.	Make sure that the scyall pre-requistes and an ingress controller like nginx installed if you want test the app     outside the cluster.
-2.  Run the following command under the Manifest folder to create the components, kubectl create -f bikesharing_components.yml
-3.  Now, run the following command under the Manifest folder to create the operational configuration, kubectl create -f bikesharing_components.yml
-4.  Run the following command to list out all of the objects created in kubernets. kubectl get componentschematic,OperationalConfiguration,pods,svc,ingress 
+### Inspect
 
-    An, e.g output shows below.
+We can look at all applied component schematics to ensure proper deployment.
+```
+$ kubectl get componentschematics
+NAME                          AGE
+bikesharing-sc-component-v1   17s
+```
 
-    NAME                                     AGE
-    componentschematic.core.hydra.io/bs-ui   16m
+Or we can view a single one in detail.
+```
+$ kubectl get componentschematic bikesharing-sc-component-v1 -o yaml
+apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  ...
+  generation: 1
+  name: bikesharing-sc-component-v1
+  namespace: default
+  resourceVersion: "979906"
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/componentschematics/bikesharing-sc-component-v1
+  uid: 80a6ab82-25b4-11ea-a462-7a73f2d3d989
+spec:
+  containers:
+  - image: wdfox/bikesharing-sc:v1
+    name: bikesharing-sc-container
+    ports:
+    - containerPort: 80
+      name: http
+      protocol: TCP
+# ... more YAML
+```
 
-    NAME                                           AGE
-    operationalconfiguration.core.hydra.io/bs-ui   16m
+Additionally, we can see all deployed configurations.
+```
+$ kubectl get configurations
+NAME             AGE
+bikesharing-sc   19m
+```
 
-    NAME                                              READY   STATUS    RESTARTS   AGE
-    pod/bs-ui-c6774c996-wvc8n                         1/1     Running   0          16m
-    pod/nginx-scylla-nginx-ingress-6889cb7886-z559g   1/1     Running   0          2d4h
-    pod/scylla-9f7549bc-w6tns                         1/1     Running   0          4d5h
+Or we can view a single configuration in detail.
+```
+$ kubectl get configuration bikesharing-sc -o yaml
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  ...
+  generation: 3
+  name: bikesharing-sc
+  namespace: default
+  resourceVersion: "150038"
+  selfLink: /apis/core.oam.dev/v1alpha1/namespaces/default/applicationconfigurations/bikesharing-sc
+  uid: 2d831590-2353-11ea-847b-1ebd1089eac0
+spec:
+  components:
+  - componentName: bikesharing-sc-component-v1
+    instanceName: bikesharing-app-v1
+    traits:
+    - name: ingress
+      parameterValues:
+      - name: hostname
+        value: oamexample.com
+      - name: path
+        value: /
+      - name: service_port
+        value: 9999
+status:
+  components:
+    bikesharing-sc-component-v1:
+      deployment/bikesharing-app-v1: running
+      ingress/bikesharing-app-v1-trait-ingress: created
+      service/bikesharing-app-v1: created
+  phase: synced
+```
 
-    NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                      AGE
-    service/bs-ui                        ClusterIP      10.0.204.135   <none>          80/TCP                       16m
-    service/kubernetes                   ClusterIP      10.0.0.1       <none>          443/TCP                      4d23h
-    service/nginx-scylla-nginx-ingress   LoadBalancer   10.0.220.196   52.177.130.21   80:32303/TCP,443:30262/TCP   2d4h
+### Viewing the Site
 
-    NAME                                     HOSTS               ADDRESS         PORTS   AGE
-    ingress.extensions/bs-ui-trait-ingress   bikes.example.com   52.177.130.21   80      16m
+Navigating to oamexample.com after mapping it to the ingress controller's external IP address (found by `kubectl get services`) should take you to the home page.
 
-Now, you should be able to access your application outside the cluster. You may need to add local host file entry to point to the external IP if you are testing from your local machine if the host is not registered in a DNS.
+![home-page](bikesharing-sc-page.png "Home Page")
+
+## Blogs posts
+
+Here's links relevant to this project:
+
+- OAM project: [official website](https://oam.dev/)
+- Open Source Blog: [OAM release announcement](https://cloudblogs.microsoft.com/opensource/2019/10/16/announcing-open-application-model/)
 
 ## Copyright and license
 * Code and documentation copyright 2016 Microsoft Corp. Code released under the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Code of Conduct 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-

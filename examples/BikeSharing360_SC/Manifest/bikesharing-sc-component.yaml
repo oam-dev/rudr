@@ -1,0 +1,18 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ComponentSchematic
+metadata:
+  name: bikesharing-sc-component-v1
+spec:
+  workloadType: core.oam.dev/v1alpha1.Server
+  containers:
+    - name: bikesharing-sc-container
+      image: wdfox/bikesharing-sc:v1
+      ports:
+        - protocol: TCP
+          containerPort: 80
+          name: http
+      resources:
+        cpu:
+          required: 0.1
+        memory:
+          required: "128"
