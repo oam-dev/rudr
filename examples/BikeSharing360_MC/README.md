@@ -64,8 +64,6 @@ Navigating to bikesharing.com after mapping it to the correct IP address (found 
 
 ## Blogs posts
 
-## TODO: find new links
-
 Here's links relevant to this project:
 
 - OAM project: [official website](https://oam.dev/)
