@@ -12,7 +12,7 @@ The component must have a workloadType combined with `GROUP/VERSION.KIND`, so th
 
 Then put the whole spec in the workloadSettings value with a name called `spec` like below.
 
-```
+```yaml
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
