@@ -80,12 +80,12 @@ Learn how to use Helm/Kustomize tools to manage your OAM .yaml filese.
 
 Here are tips and best practices for migrating exsiting Kubernetes applications to use Rudr.
 
-### [Extended Workload]
+### Extended Workloads
 
-Learn how to implement your own workload type, or import existing CRD Operator as [OAM Extended Workload](https://github.com/oam-dev/spec/blob/master/3.component_model.md#extended-workload-types) in Rudr. The current tutorial includes:
+Learn how to implement your own workload type, or import existing CRD Operator as [OAM Extended Workload Types](https://github.com/oam-dev/spec/blob/master/3.component_model.md#extended-workload-types). The current tutorial includes:
 
-1. How to run [OpenFaaS Function workload](https://github.com/openfaas/faas) as Component in Rudr.
-2. How to provision [Prometheus server](https://github.com/coreos/prometheus-operator) as Component in Rudr.
+1. How to run [OpenFaaS](./tutorials/deploy_openfaas_workload.md) function as OAM `Component`.
+2. How to provision [Prometheus](./tutorials/deploy_prometheus_workload.md) as OAM `Component`.
 
 > Note: eventually extended workloads will be moved to a separate repo under oam-dev org.
 

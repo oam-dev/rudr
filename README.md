@@ -2,11 +2,11 @@
 
 ![](https://github.com/oam-dev/rudr/workflows/Rust/badge.svg)
 
-The [Open Application Model (OAM)](https://github.com/oam-dev/spec/blob/master/1.purpose_and_goals.md) is a portable application definition which provides a platform-agnostic way to describe cloud and edge applications together with corresponding operational capabilities. OAM lets application maintainers choose where to run application (i.e. runtime) based on **application level concerns** instead of struggling with low level primitives, i.e. an "application centric infrastructure" approach. 
+[Open Application Model (OAM)](https://github.com/oam-dev/spec/blob/master/1.purpose_and_goals.md) is a portable application definition which provides a platform-agnostic way to describe cloud and edge applications together with corresponding operational capabilities. OAM endorses building an application centric infrastructure and let users choose where to run application (i.e. runtime) based on **application level concerns**.
 
-In order for this model to work, a runtime needs to "implement" [OAM spec](https://github.com/oam-dev/spec) so to expose its platform capabilities as Traits and accept corresponding workloads as Components to run.
+In order for this model to work, a runtime needs to implement [OAM spec](https://github.com/oam-dev/spec).
 
-Rudr is the reference OAM implementation for [Kubernetes](https://kubernetes.io/).
+Rudr is the reference OAM implementation for Kubernetes. 
 
 **Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec.**
 
@@ -14,30 +14,32 @@ Rudr is the reference OAM implementation for [Kubernetes](https://kubernetes.io/
 
 Get started with a [How-To](./docs/how-to/create_component_from_scratch.md) guide.
 
-## Users want to think application in terms of architecture, not of infrastructure
+## Creating cloud-native applications should not be hard
 
-Achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain as well as infrastructure details in order to understand the whole picture of the deployment.
+Users want to think application in terms of architecture, not of infrastructure. However, achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain as well as infrastructure details in order to understand the whole picture of the deployment.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
 The requirement to deeply understand the container infrastructure has introduced the following problems for application deployment and management:
 
-- It makes it difficult to model and define modern portable applications.
+- It is difficult to model and define applications in infrastructure agnostic approach.
 - It lacks manageability and discoverability for operational capabilities.
 - It is difficult to have a efficient and accurate interaction between infra operators, app operators and developers. Users are exposed to constructs outside their domain that they have to learn to accomplish day-to-day tasks.
 
 ## Rudr: an Application Centric Kubernetes powered by OAM
 
-As a set of plugins that allows OAM specifications to be implemented and deployed on Kubernetes clusters, Rudr provides a extra application centric abstraction to vanilla Kubernetes including `Component` for app developers and `Trait` for app operators. With implementation of CRD and controller, users of Rudr will still use `kubectl` to model, define and manage applications but follow the philosophy of OAM.
+As implementation of OAM specification, Rudr provides a extra application centric abstraction to vanilla Kubernetes including `Component` for app developers and `Trait` for app operators. Essentially, Rudr is a set of customized controllers for OAM concepts so users of Rudr still use `kubectl` to model, define and manage applications.
 
 ![rudr arch](./docs/media/rudr-how-it-works.png)
 
-- OAM allows app developers to focus on describing application components from their own perspectives.
 
-- OAM allows app operators to focus on generic operational capabilities instead of struggling in [infinite infrastructure level details](https://medium.com/flant-com/comparing-ingress-controllers-for-kubernetes-9b397483b46b) from various execution runtime.
+With Rudr installed, participators in application management pipeline will be able to work around application centric concerns such as "what is this application about", "what's its latency requirement", and "how to scale it" etc rather than low level infrastructure primitives. 
 
+In detail:
+- App developers focus on describing application components from their own perspectives.
+- App operators focus on generic operational capabilities instead of struggling in [infinite infrastructure level details](https://medium.com/flant-com/comparing-ingress-controllers-for-kubernetes-9b397483b46b) from various execution runtime.
+- Infra operators continue focus on Kubernetes itself.
 
-Essentially, with Rudr installed, participators in Kubernetes application management workflow will be able to work around application centric concerns such as "what is this application about", "what's its latency requirement", and "how to scale it" etc rather than low level infrastructure primitives. Meanwhile, the infra operators will continue focus on Kubernetes itself.
 
 Currently, Rudr will leverage the pre-installed traits and workload types to accomplish the task. In the upcoming releases, Rudr will provide a plugin technology to integrate any operational capability and workload type defined by any external CRD and Operator. See [Extended Workload](./docs/README.md#extended-workload).
 
