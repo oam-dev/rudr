@@ -30,7 +30,8 @@ Install the Rudr runtime and its dependencies.
 Learn how to deploy, inspect, and update a Rudr application.
 
 ## Concepts
-Learn more about the main application model constructs: components (and their workloads), traits, and application configurations.
+
+As a implementation of OAM, Rudr provides application centric abstractions to different roles in application management workflow. Learn more about the main application model abstractions: components (and their workloads), traits, and application configurations.
 
 ### [Component Schematic](./concepts/component-schematic.md)
 
@@ -64,9 +65,6 @@ Learn how an <b>application operator</b> can attach operational features to comp
 
 Learn how an <b>application operator</b> can define application boundaries by grouping components with common properties and dependencies.
 
-## [Admission Controller](https://github.com/oam-dev/admission-controller)
-
-Admission controller is used for mutating and validating OAM component, trait and application configuration spec.
 
 ## How-To's
 
@@ -82,15 +80,28 @@ Learn how to use Helm/Kustomize tools to manage your OAM .yaml filese.
 
 Here are tips and best practices for migrating exsiting Kubernetes applications to use Rudr.
 
+### [Extended Workload]
+
+Learn how to implement your own workload type, or import existing CRD Operator as [OAM Extended Workload](https://github.com/oam-dev/spec/blob/master/3.component_model.md#extended-workload-types) in Rudr. The current tutorial includes:
+
+1. How to run [OpenFaaS Function workload](https://github.com/openfaas/faas) as Component in Rudr.
+2. How to provision [Prometheus server](https://github.com/coreos/prometheus-operator) as Component in Rudr.
+
+> Note: eventually extended workloads will be moved to a separate repo under oam-dev org.
+
 ## Develop
 
 #### [Writing a Trait](./developer/writing_a_trait.md)
 
-Here's a walkthrough of the process for writing a new trait for Rudr.
+Here's a walk through of the process for writing a new trait for Rudr.
 
 #### [Debug](./developer/debug.md)
 
 These are some useful tips for troubleshooting your Rudr deployments.
+
+#### [Admission Controller](https://github.com/oam-dev/admission-controller)
+
+Admission controller is used for mutating and validating OAM component, trait and application configuration spec.
 
 ## [FAQ](./faq.md)
 

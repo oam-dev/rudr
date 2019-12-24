@@ -2,7 +2,11 @@
 
 ![](https://github.com/oam-dev/rudr/workflows/Rust/badge.svg)
 
-Rudr is an implementation of the [Open Application Model (OAM)](https://github.com/oam-dev/spec) that allows users to deploy and manage applications easily on any Kubernetes cluster with separation of concerns of application developer and operator.
+The [Open Application Model (OAM)](https://github.com/oam-dev/spec/blob/master/1.purpose_and_goals.md) is a portable application definition which provides a platform-agnostic way to describe cloud and edge applications together with corresponding operational capabilities. OAM lets application maintainers choose where to run application (i.e. runtime) based on **application level concerns** instead of struggling with low level primitives, i.e. an "application centric infrastructure" approach. 
+
+In order for this model to work, a runtime needs to "implement" [OAM spec](https://github.com/oam-dev/spec) so to expose its platform capabilities as Traits and accept corresponding workloads as Components to run.
+
+Rudr is the reference OAM implementation for [Kubernetes](https://kubernetes.io/).
 
 **Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec.**
 
@@ -10,29 +14,32 @@ Rudr is an implementation of the [Open Application Model (OAM)](https://github.c
 
 Get started with a [How-To](./docs/how-to/create_component_from_scratch.md) guide.
 
-## We believe creating cloud-native applications should not be hard
+## Users want to think application in terms of architecture, not of infrastructure
 
-Users want to focus on describing and building applications easily but achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain in order to understand the whole picture of the underlying infrastructure.
+Achieving this directly with Kubernetes is complex. At the heart of it, container orchestration platform inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain as well as infrastructure details in order to understand the whole picture of the deployment.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
 The requirement to deeply understand the container infrastructure has introduced the following problems for application deployment and management:
 
-- There is no standard definition for a cloud-native application, which makes it difficult for users looking for an easier way to modernize.
-- There is a myriad of tools and ways to accomplish tasks. On one hand, this is positive because it gives users the freedom to choose their own path. However, for users looking for an opinionated way to do things, there is an opportunity.
-- It is difficult to have a clear separation of roles between infra operators, app operators and developers. Users are exposed to constructs outside their domain that they have to learn to accomplish day-to-day tasks.
+- It makes it difficult to model and define modern portable applications.
+- It lacks manageability and discoverability for operational capabilities.
+- It is difficult to have a efficient and accurate interaction between infra operators, app operators and developers. Users are exposed to constructs outside their domain that they have to learn to accomplish day-to-day tasks.
 
-## The approach: Let's take things one step at a time
+## Rudr: an Application Centric Kubernetes powered by OAM
 
-Rudr takes an incremental approach to solving the problems. The current architecture is set of plugins for Kubernetes that allows OAM specifications to be implemented and deployed on Kubernetes clusters using native APIs (and you still use kubectl!).
+As a set of plugins that allows OAM specifications to be implemented and deployed on Kubernetes clusters, Rudr provides a extra application centric abstraction to vanilla Kubernetes including `Component` for app developers and `Trait` for app operators. With implementation of CRD and controller, users of Rudr will still use `kubectl` to model, define and manage applications but follow the philosophy of OAM.
 
 ![rudr arch](./docs/media/rudr-how-it-works.png)
 
-- This allows app developers to focus on building OAM components, app operators to focus on operational capabilities through the OAM app config, and infra operators to focus on Kubernetes.
+- OAM allows app developers to focus on describing application components from their own perspectives.
 
-- By leveraging the Open App Model, users now have a framework to define their apps on their Kubernetes clusters.
+- OAM allows app operators to focus on generic operational capabilities instead of struggling in [infinite infrastructure level details](https://medium.com/flant-com/comparing-ingress-controllers-for-kubernetes-9b397483b46b) from various execution runtime.
 
-- Currently, Rudr will leverage the defined trait to accomplish the task. This gives the freedom to use whatever underlying tool the user wants, while providing a trait that focuses on the functionality and not the technology. In the future, Rudr might provide a set of default technologies to provide the functionality desired by a trait.
+
+Essentially, with Rudr installed, participators in Kubernetes application management workflow will be able to work around application centric concerns such as "what is this application about", "what's its latency requirement", and "how to scale it" etc rather than low level infrastructure primitives. Meanwhile, the infra operators will continue focus on Kubernetes itself.
+
+Currently, Rudr will leverage the pre-installed traits and workload types to accomplish the task. In the upcoming releases, Rudr will provide a plugin technology to integrate any operational capability and workload type defined by any external CRD and Operator. See [Extended Workload](./docs/README.md#extended-workload).
 
 ## Try more things out yourself 
 
