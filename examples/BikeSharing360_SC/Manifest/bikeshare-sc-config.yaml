@@ -1,0 +1,17 @@
+apiVersion: core.oam.dev/v1alpha1
+kind: ApplicationConfiguration
+metadata:
+  name: bikesharing-sc
+spec:
+  components:
+    - componentName: bikesharing-sc-component-v1
+      instanceName: bikesharing-app-v1
+      traits:
+        - name: ingress
+          parameterValues:
+            - name: hostname
+              value: oamexample.com
+            - name: path
+              value: /
+            - name: service_port
+              value: 80
