@@ -25,7 +25,7 @@ namespace Bikesharing.Campaign.Controllers
         public async Task<IActionResult> Email(string email, string city)
         {
 
-            // payload for finding/creating a profile
+                    // payload for finding/creating a profile
             var client = new HttpClient();
             var reqJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
             {
@@ -56,9 +56,10 @@ namespace Bikesharing.Campaign.Controllers
      
             
             // Confirm customer is signed up
-            ViewBag.Confirmation = (string)profile.FirstName;
+            // ViewBag.Confirmation = (string)profile.FirstName;
             //ViewBag.Confirmation = "sowmyan";
-            return View("Index");
+           
+            return View("Confirmation");
         }
 
         public IActionResult About()

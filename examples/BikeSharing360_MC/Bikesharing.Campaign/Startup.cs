@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace Bikesharing.Campaign
@@ -33,9 +32,7 @@ namespace Bikesharing.Campaign
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
-            var redis = ConnectionMultiplexer.Connect("rudr.redis.cache.windows.net:6380,password=zvuBIxETOgMFkHXIpXEJxKFbwkfRkquMUVMadKHIawg=,ssl=True,abortConnect=False");
-            services.AddDataProtection().PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
+            services.AddMvc();           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
