@@ -111,7 +111,7 @@ impl TraitManager {
                 );
                 Ok(OAMTrait::Ingress(ing))
             }
-           traits::VOLUME_MOUNTER => {
+            traits::VOLUME_MOUNTER => {
                 let volmount = VolumeMounter::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
