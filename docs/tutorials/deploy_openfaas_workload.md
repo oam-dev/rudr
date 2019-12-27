@@ -204,10 +204,9 @@ spec:
         - name: write_debug
           value: "false"
       traits:
-        - name: manual-scaler
-          parameterValues:
-            - name: replicaCount
-              value: 2
+        - name: manual-scaler.core.oam.dev/v1alpha1
+          properties:
+            replicaCount: 2
 ```
 
 It will set OpenFaaS workload to have at least 2 replicas. After change the Application Configuration yaml file, apply it.
@@ -256,10 +255,9 @@ spec:
         - name: write_debug
           value: "false"
       traits:
-        - name: manual-scaler
-          parameterValues:
-            - name: replicaCount
-              value: 3
+        - name: manual-scaler.core.oam.dev/v1alpha1
+          properties:
+            replicaCount: 3
 ```
 
 Apply it again.

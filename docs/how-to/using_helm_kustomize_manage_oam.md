@@ -30,18 +30,14 @@ spec:
         - name: port
           value: "{{ .Values.port }}"
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port
-              value: {{ .Values.port }}
-        - name: manual-scaler
-          parameterValues:
-            - name: replicaCount
-              value: {{ .Values.replicaCount }}
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: example.com
+            path: /
+            servicePort: {{ .Values.port }}
+        - name: manual-scaler.core.oam.dev/v1alpha1
+          properties:
+            replicaCount: {{ .Values.replicaCount }}
 ```
 
 So they could be configured in `values.yaml` like below:
@@ -92,18 +88,14 @@ spec:
         - name: port
           value: "{{ .Values.service.port }}"
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port
-              value: {{ .Values.service.port }}
-        - name: manual-scaler
-          parameterValues:
-            - name: replicaCount
-              value: {{ .Values.scale.replicaCount }}
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: example.com
+            path: /
+            servicePort: {{ .Values.port }}
+        - name: manual-scaler.core.oam.dev/v1alpha1
+          properties:
+            replicaCount: {{ .Values.replicaCount }}
 ```
 
 ## Using Kustomize

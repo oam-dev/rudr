@@ -14,13 +14,9 @@ spec:
         - name: poem
           value: The Wasteland
       traits:
-        - name: autoscaler
-          parameterValues:
-            - name: maximum
-              value: 6
-            - name: minimum
-              value: 2
-            - name: cpu
-              value: 50
-            - name: memory
-              value: 50
+        - name: auto-scaler.core.oam.dev/v1alpha1
+          properties:
+            maximum : 6
+            minimum : 2
+            cpu : 50
+            memory : 50

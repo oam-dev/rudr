@@ -12,12 +12,10 @@ spec:
         - name: poem
           value: The Wasteland
       traits:
-        - name: ingress
+        - name: ingress.core.oam.dev/v1alpha1
           parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
+            hostname: example.com
+            path: /
     - componentName: alpine-task-v1
       instanceName: example-multi-component-alpine
       parameterValues:

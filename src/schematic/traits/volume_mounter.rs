@@ -2,6 +2,8 @@ use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
+use serde_json::map::Map;
+use log::{warn};
 
 use crate::schematic::{
     component::{AccessMode, Component, SharingPolicy, Volume},
@@ -19,6 +21,7 @@ pub const DEFAULT_VOLUME_SIZE: &str = "200M";
 
 /// The VolumeMounter trait provisions volumes that can
 /// be mounted by a Component.
+#[derive(Clone, Debug)]
 pub struct VolumeMounter {
     /// The app configuration name
     pub name: String,
@@ -62,6 +65,31 @@ impl VolumeMounter {
                 .and_then(|v| v.as_str())
                 .unwrap_or("")
                 .to_string(),
+        }
+    }
+    pub fn from_properties(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        properties_map: Option<&Map<String, serde_json::value::Value>>,
+        owner_ref: OwnerRefs,
+        component: Component,
+    ) -> Self {
+        let instancename = instance_name.clone();
+        VolumeMounter {
+            name,
+            component_name,
+            instance_name,
+            owner_ref,
+            component,
+            volume_name: properties_map
+                        .and_then(|map| map.get("volumeName").and_then(|p| p.as_str()))
+                        .unwrap_or_else( || { warn!("Unable to parse volumeName value for instance:{}. Setting it to default value:empty", instancename); "" } )
+                        .to_string(),
+            storage_class: properties_map
+                        .and_then(|map| map.get("storageClass").and_then(|p| p.as_str()))
+                        .unwrap_or_else( || { warn!("Unable to parse storageClass value for instance:{}. Setting it to default value:empty", instancename); "" } )
+                        .to_string(),
         }
     }
     fn labels(&self) -> BTreeMap<String, String> {
@@ -201,6 +229,9 @@ impl TraitImplementation for VolumeMounter {
 #[cfg(test)]
 mod test {
     use super::VolumeMounter;
+    use serde_json::map::Map;
+    use crate::schematic::traits::TraitBinding;
+    use serde_json::json;
     use crate::schematic::component::{
         AccessMode, Component, Container, Disk, Resources, SharingPolicy, Volume,
     };
@@ -209,6 +240,41 @@ mod test {
     #[test]
     fn test_from_params() {
         let vm = mock_volume_mounter("name", Default::default());
+        assert_eq!("really-fast", vm.storage_class);
+        assert_eq!("panda-bears", vm.volume_name);
+    }
+
+    #[test]
+    fn test_from_properties_v1alpha1() {
+        let component = Component {
+            workload_type: "Server".into(),
+            parameters: vec![],
+            containers: vec![],
+            workload_settings: vec![],
+            ..Default::default()
+        };
+        let volume_mounter_alpha1_trait = TraitBinding {
+            name : String::from("volume-mounter.core.oam.dev/v1alpha1"),
+            parameter_values: None,
+            properties: Some(json!({
+                "storageClass": "really-fast",
+                "volumeName": "panda-bears"
+            }))
+        };
+
+        let serialized = serde_json::to_string(&volume_mounter_alpha1_trait).unwrap();
+        let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
+        let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+
+        let vm = VolumeMounter::from_properties(
+            "my-volume-mount".to_string(),
+            "instance name".to_string(),
+            "component name".to_string(),
+            prop_map,
+            None,
+            component,
+        );
+
         assert_eq!("really-fast", vm.storage_class);
         assert_eq!("panda-bears", vm.volume_name);
     }

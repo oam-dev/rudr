@@ -129,14 +129,11 @@ spec:
         - name: port
           value: "9999"
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port
-              value: 9999
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: example.com
+            path: /
+            servicePort: 9999
 +     applicationScopes:
 +       - my-health-scope
 ```

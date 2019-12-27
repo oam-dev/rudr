@@ -4,6 +4,7 @@ use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 use std::collections::BTreeMap;
+use serde_json::map::Map;
 
 #[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
@@ -43,6 +44,28 @@ impl Autoscaler {
             memory: params
                 .get("memory")
                 .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+        }
+    }
+    pub fn from_properties(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        properties_map: Option<&Map<String, serde_json::value::Value>>,
+        owner_ref: OwnerRefs,
+    ) -> Self {
+        Autoscaler {
+            name,
+            component_name,
+            instance_name,
+            owner_ref,
+            minimum: properties_map
+                .and_then(|map| map.get("minimum").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+            maximum: properties_map
+                .and_then(|map| map.get("maximum").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+            cpu: properties_map
+                .and_then(|map| map.get("cpu").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+            memory: properties_map
+                .and_then(|map| map.get("memory").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
         }
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {

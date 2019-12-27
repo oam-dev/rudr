@@ -32,14 +32,11 @@ spec:
       - name: poem
         value: The Wasteland
     <b style="color:blue;">traits:</b>
-      - <b style="color:blue;">name:</b> ingress
-        parameterValues:</b>
-          - name: hostname
-            value: example.com
-          - name: path
-            value: /
-          - name: service_port
-            value: 80
+      - <b style="color:blue;">name:</b> ingress.core.oam.dev/v1alpha1
+        properties:</b>
+          hostname: example.com
+          path: /
+          servicePort: 80
 </pre>
 
 You can assign a trait to a component by specifying its **`name`** (as listed in `kubectl get traits`) and your specific **Properties** (as described by `kubectl get trait <trait-name> -o yaml`). For more on using specific traits, refer to the sections below.
@@ -86,10 +83,9 @@ None. *The manual scaler trait has no external dependencies.*
 ```yaml
 # Example manual scaler trait entry
 traits:
-  - name: manual-scaler
-    parameterValues:
-      - name: replicaCount
-        value: 3
+  - name: manual-scaler.core.oam.dev/v1alpha1
+    properties:
+      replicaCount: 3
 ```
 
 ## Autoscaler trait
@@ -122,16 +118,12 @@ $ helm install keda stable/keda
 
 ```yaml
 # Example autoscaler trait entry
-- name: autoscaler
-  parameterValues:
-    - name: maximum
-      value: 6
-    - name: minimum
-      value: 2
-    - name: cpu
-      value: 50
-    - name: memory
-      value: 50
+- name: auto-scaler.core.oam.dev/v1alpha1
+  properties:
+    maximum: 6
+    minimim: 2
+    cpu: 50
+    memory: 50
 ```
 
 ## Ingress trait
@@ -196,14 +188,11 @@ spec:
     - componentName: nginx-replicated-v1
       instanceName: example-app
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port       # <-- service_port
-              value: 80                # <-- set this to the value in the component
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: example.com
+            path: /
+            servicePort: 80            # <-- set this to the value in the component
 ```
 
 Because each component may have multiple ports, the specific port must be defined in the `ApplicationConfiguration`.
@@ -288,12 +277,10 @@ spec:
     - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volume-mounter
-          parameterValues:
-            - name: volumeName
-              value: myvol
-            - name: storageClass
-              value: default
+        - name: volume-mounter.core.oam.dev/v1alpha1
+          properties:
+            volumename: myvol
+            storageClass: default
 ```
 
 The `volume-mounter` trait ensures that a PVC is created with the given name (`myvol`) using the given storage class (`default`). Typically, the `volumeName` should match the `resources.volumes[].name` field from the `ComponentSchematic`. Thus `myvol` above will match the volume declared in the `volumes` section of `server-with-volume-v1`.

@@ -3,6 +3,8 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 use log::{debug, error};
 use std::collections::BTreeMap;
+use serde_json::map::Map;
+use serde_json::json;
 
 use crate::{
     lifecycle::Phase,
@@ -50,7 +52,55 @@ impl TraitManager {
             self.parent_params.clone(),
         )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);
+        let empty_value_ref : &serde_json::Value  = &json!("");
+        let prop_map : Option<&Map<String, serde_json::value::Value>> = binding.properties.as_ref().unwrap_or_else(|| empty_value_ref).as_object();
         match binding.name.as_str() {
+            traits::INGRESS_V1ALPHA1 => {
+                let ing = Ingress::from_properties(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.component_name.clone(),
+                    prop_map,
+                    self.owner_ref.clone(),
+                );
+                debug!("INGRESS_V1ALPHA1: {:?}", ing);
+                Ok(OAMTrait::Ingress(ing))
+            }
+            traits::VOLUME_MOUNTER_V1ALPHA1 => {
+                let volmount = VolumeMounter::from_properties(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.component_name.clone(),
+                    prop_map,
+                    self.owner_ref.clone(),
+                    self.component_schematic.clone(),
+                );
+                debug!("VOLUME_MOUNTER: {:?}", volmount);
+                Ok(OAMTrait::VolumeMounter(Box::new(volmount)))
+            }
+            traits::AUTOSCALER_V1ALPHA1 => {
+                let auto_scaler = Autoscaler::from_properties(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.component_name.clone(),
+                    prop_map,
+                    self.owner_ref.clone(),
+                );
+                debug!("Auto_scaler: {:?}", auto_scaler);
+                Ok(OAMTrait::Autoscaler(auto_scaler))
+            }
+            traits::MANUAL_SCALER_V1ALPHA1 => {
+                let scaler = ManualScaler::from_properties(
+                    self.config_name.clone(),
+                    self.instance_name.clone(),
+                    self.component.component_name.clone(),
+                    prop_map,
+                    self.owner_ref.clone(),
+                    self.workload_type.clone(),
+                );
+                debug!("Manual_scaler: {:?}", scaler);
+                Ok(OAMTrait::ManualScaler(scaler))
+            }
             traits::INGRESS => {
                 let ing = Ingress::from_params(
                     self.config_name.clone(),
@@ -61,7 +111,7 @@ impl TraitManager {
                 );
                 Ok(OAMTrait::Ingress(ing))
             }
-            traits::VOLUME_MOUNTER => {
+           traits::VOLUME_MOUNTER => {
                 let volmount = VolumeMounter::from_params(
                     self.config_name.clone(),
                     self.instance_name.clone(),
