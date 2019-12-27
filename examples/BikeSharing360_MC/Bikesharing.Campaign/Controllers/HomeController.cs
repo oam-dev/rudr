@@ -24,7 +24,6 @@ namespace Bikesharing.Campaign.Controllers
         [HttpPost("Home/Email")]
         public async Task<IActionResult> Email(string email, string city)
         {
-
                     // payload for finding/creating a profile
             var client = new HttpClient();
             var reqJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
@@ -53,12 +52,13 @@ namespace Bikesharing.Campaign.Controllers
             var emailJson = await emailResponse.Content.ReadAsStringAsync();
             dynamic emailData = Newtonsoft.Json.Linq.JObject.Parse(emailJson);
 
-     
-            
+
+
             // Confirm customer is signed up
             // ViewBag.Confirmation = (string)profile.FirstName;
-            //ViewBag.Confirmation = "sowmyan";
-           
+
+            //ViewData["Message"] = profile.FirstName;
+
             return View("Confirmation");
         }
 
@@ -85,7 +85,7 @@ namespace Bikesharing.Campaign.Controllers
             }
 
             return View();
-        }
+        }  
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";

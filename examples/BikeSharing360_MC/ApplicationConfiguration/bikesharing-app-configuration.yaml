@@ -4,7 +4,7 @@ metadata:
   name: bikesharing-app
 spec:
   components:
-    - name: bikesharing-ui-v1
+    - componentName: bikesharing-ui-v1
       instanceName: bikesharing-ui
       traits:
         - name: ingress
@@ -13,30 +13,10 @@ spec:
               value: bikesharing.com
             - name: path
               value: /
-    - name: bikesharing-email-api-v1
-      instanceName: bikesharing-email-api
-      traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: bikesharing.com
-            - name: path
-              value: /api/email
-    - name: bikesharing-feedback-api-v1
-      instanceName: bikesharing-feedback-api
-      traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: bikesharing.com
-            - name: path
-              value: /api/provide
-    - name: bikesharing-profile-api-v1
+    - componentName: bikesharing-email-api-v1
+      instanceName: bikesharing-email-api     
+    - componentName: bikesharing-feedback-api-v1
+      instanceName: bikesharing-feedback-api     
+    - componentName: bikesharing-profile-api-v1
       instanceName: bikesharing-profile-api
-      traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: bikesharing.com
-            - name: path
-              value: /api/profile
+     
