@@ -34,16 +34,16 @@ impl Autoscaler {
             owner_ref,
             minimum: params
                 .get("minimum")
-                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32))),
+                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
             maximum: params
                 .get("maximum")
-                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
             cpu: params
                 .get("cpu")
-                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
             memory: params
                 .get("memory")
-                .and_then(|p| p.as_i64().and_then(|i| Some(i as i32))),
+                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
         }
     }
     pub fn from_properties(
@@ -59,13 +59,13 @@ impl Autoscaler {
             instance_name,
             owner_ref,
             minimum: properties_map
-                .and_then(|map| map.get("minimum").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+                .and_then(|map| map.get("minimum").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
             maximum: properties_map
-                .and_then(|map| map.get("maximum").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+                .and_then(|map| map.get("maximum").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
             cpu: properties_map
-                .and_then(|map| map.get("cpu").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+                .and_then(|map| map.get("cpu").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
             memory: properties_map
-                .and_then(|map| map.get("memory").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))),
+                .and_then(|map| map.get("memory").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
         }
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {

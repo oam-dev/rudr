@@ -38,20 +38,20 @@ impl Ingress {
             owner_ref,
             svc_port: params
                 .get("service_port")
-                .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
+                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
                 .unwrap_or_else(|| params
                     .get("service_port")
-                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
-                          warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
-                        }))))
+                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
+                           warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
+                        })))
                     .unwrap_or_else(|| { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80} )
                    ),
             hostname: params
                 .get("hostname")
-                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+                .map(|p| p.as_str().unwrap_or("").to_string()),
             path: params
                 .get("path")
-                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+                .map(|p| p.as_str().unwrap_or("").to_string()),
         }
     }
     pub fn from_properties(
@@ -69,14 +69,12 @@ impl Ingress {
             component_name,
             owner_ref,
             svc_port: properties_map
-                        .and_then(|map| map.get("servicePort").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
+                        .and_then(|map| map.get("servicePort").and_then(|p| p.as_i64().map(|p64| p64 as i32))
                         ).unwrap_or_else( || { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80}),
             hostname: properties_map
-                        .and_then(|map| map.get("hostname")
-                                           .and_then(|p| Some(p.as_str().unwrap_or("").clone().to_string()))),
+                        .and_then(|map| map.get("hostname").map(|p| p.as_str().unwrap_or("").to_string())),
             path: properties_map
-                        .and_then(|map| map.get("path")
-                        .and_then(|p| Some(p.as_str().unwrap_or("").clone().to_string())))
+                        .and_then(|map| map.get("path").map(|p| p.as_str().unwrap_or("").to_string()))
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {

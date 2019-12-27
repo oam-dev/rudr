@@ -39,12 +39,12 @@ impl ManualScaler {
             workload_type,
             replica_count: params
                 .get("replicaCount")
-                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32)))
+                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
                 .unwrap_or_else(|| params
                     .get("replicaCount")
-                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
-                            warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1 
-                        }))))
+                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
+                             warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1
+                         })))
                     .unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default:1.", instancename); 1} )
                    ),
         }
@@ -65,7 +65,7 @@ impl ManualScaler {
             owner_ref,
             workload_type,
             replica_count: properties_map
-                        .and_then(|map| map.get("replicaCount").and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
+                        .and_then(|map| map.get("replicaCount").and_then(|p| p.as_i64().map(|p64| p64 as i32))
                         ).unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default value:80", instancename); 1}),
         }
     }
