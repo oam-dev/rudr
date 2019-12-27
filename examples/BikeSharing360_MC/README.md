@@ -46,16 +46,12 @@ NAME              AGE
 bikesharing-app   25s
 ```
 
-Wait for ingress to be created:
+Wait for the ingress to be created:
 
 ```
-> kubectl get ingress
-
-NAME                                     HOSTS             ADDRESS   PORTS   AGE
-bikesharing-email-api-trait-ingress      bikesharing.com             80      2s
-bikesharing-feedback-api-trait-ingress   bikesharing.com             80      2s
-bikesharing-profile-api-trait-ingress    bikesharing.com             80      1s
-bikesharing-ui-trait-ingress             bikesharing.com             80      2s
+>  kubectl get ingress
+NAME                                           HOSTS             ADDRESS   PORTS   AGE
+bikesharing-ui-trait-ingress                   bikesharing.com             80      3s             bikesharing.com             80      2s
 ```
 
 Navigating to bikesharing.com after mapping it to the correct IP address (found by `kubectl get services`) should take you to the home page.
