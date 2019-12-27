@@ -48,7 +48,6 @@ Wait for the ingress to be created:
 > kubectl get ingress                                                             
 NAME                                           HOSTS             ADDRESS   PORTS   AGE
 bikesharing-app-v1-trait-ingress               bikesharing.com             80      1s
-first-app-helloworld-python-v1-trait-ingress   rudr.hello.com              80      47h
 ```
 
 Navigating to bikesharing.com after mapping it to the correct IP address (found by `kubectl get services`) should take you to the home page.
