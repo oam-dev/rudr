@@ -8,16 +8,17 @@ Rudr is the reference OAM implementation for Kubernetes.
 
 > Note: Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the Open App Model spec.
 
-## Modeling cloud-native applications should not be hard
+## We believe creating cloud-native applications should not be hard
 
-Developers want to think in terms of application architecture, not of infrastructure. 
+Modeling, deploying and operating applications shouldn’t have to claim complex infrastructure configurations, and we hope application maintainers could think in terms of application architecture, not of infrastructure.
 
-However, achieving this directly with Kubernetes is hard. At the heart of it, container orchestration systems inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain as well as learning infrastructure details in order to understand the whole picture of the deployment.
+However, achieving this directly with Kubernetes is hard. 
+
+At the heart of it, container orchestration systems inextricably mixes application primitives with infrastructure primitives. Different roles, such as developers and operators, have to concern themselves with problems from each other's domain as well as learning infrastructure details in order to understand the whole picture of the deployment.
 
 ![K8s is hard](./docs/media/k8s_application_complexities.png)
 
 This introduced the following problems for application deployment and management:
-
 - It is difficult to model and describe applications from developers' view.
 - It lacks manageability and discoverability for operational capabilities from operators' view.
 - Both developers and operators have to work with "platform for platform" API of Kubernetes which is pretty low level and mostly designed for infra operators.
@@ -25,7 +26,6 @@ This introduced the following problems for application deployment and management
 ## An application centric Kubernetes with Rudr
 
 To solve these problems, Rudr models applications with [OAM primitives](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md) so to provide **application centric abstraction** for Kubernetes. 
-
 
 ![rudr arch](./docs/media/rudr-how-it-works-v2.png)
 
