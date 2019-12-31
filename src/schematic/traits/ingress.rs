@@ -5,11 +5,13 @@ use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOr
 use kube::client::APIClient;
 use std::collections::BTreeMap;
 use log::{warn};
+use serde_json::map::Map;
 
 /// An Ingress trait creates an ingress point to the workload type to which it is attached.
 ///
 /// In Kubernetes, this will create an Ingress and attach it to the Service of a particular
 /// component instance.
+#[derive(Clone, Debug)]
 pub struct Ingress {
     pub name: String,
     pub instance_name: String,
@@ -36,20 +38,43 @@ impl Ingress {
             owner_ref,
             svc_port: params
                 .get("service_port")
-                .and_then(|p| p.as_i64().and_then(|p64| Some(p64 as i32)))
+                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
                 .unwrap_or_else(|| params
                     .get("service_port")
-                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
-                          warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
-                        }))))
+                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
+                           warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
+                        })))
                     .unwrap_or_else(|| { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80} )
                    ),
             hostname: params
                 .get("hostname")
-                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+                .map(|p| p.as_str().unwrap_or("").to_string()),
             path: params
                 .get("path")
-                .and_then(|p| Some(p.as_str().unwrap_or("").to_string())),
+                .map(|p| p.as_str().unwrap_or("").to_string()),
+        }
+    }
+    pub fn from_properties(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        properties_map: Option<&Map<String, serde_json::value::Value>>,
+        owner_ref: OwnerRefs,
+    ) -> Self {
+        // Right now, we're relying on the higher level validation logic to validate types.
+        let instancename = instance_name.clone();
+        Ingress {
+            name,
+            instance_name,
+            component_name,
+            owner_ref,
+            svc_port: properties_map
+                        .and_then(|map| map.get("servicePort").and_then(|p| p.as_i64().map(|p64| p64 as i32))
+                        ).unwrap_or_else( || { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80}),
+            hostname: properties_map
+                        .and_then(|map| map.get("hostname").map(|p| p.as_str().unwrap_or("").to_string())),
+            path: properties_map
+                        .and_then(|map| map.get("path").map(|p| p.as_str().unwrap_or("").to_string()))
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {

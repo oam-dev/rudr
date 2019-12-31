@@ -7,6 +7,7 @@ use kube::client::APIClient;
 use log::info;
 use std::collections::BTreeMap;
 use log::{warn};
+use serde_json::map::Map;
 
 /// A manual scaler provides a way to manually scale replicable objects.
 #[derive(Clone, Debug)]
@@ -38,17 +39,36 @@ impl ManualScaler {
             workload_type,
             replica_count: params
                 .get("replicaCount")
-                .and_then(|p| p.as_i64().and_then(|i64| Some(i64 as i32)))
+                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
                 .unwrap_or_else(|| params
                     .get("replicaCount")
-                    .and_then(|p| p.as_str().and_then(|pstr| Some(pstr.parse::<i32>().unwrap_or_else(|_| { 
-                            warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1 
-                        }))))
+                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
+                             warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1
+                         })))
                     .unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default:1.", instancename); 1} )
                    ),
         }
     }
-
+    pub fn from_properties(
+        name: String,
+        instance_name: String,
+        component_name: String,
+        properties_map: Option<&Map<String, serde_json::value::Value>>,
+        owner_ref: OwnerRefs,
+        workload_type: String,
+    ) -> ManualScaler {
+        let instancename = instance_name.clone();
+        ManualScaler {
+            name,
+            instance_name,
+            component_name,
+            owner_ref,
+            workload_type,
+            replica_count: properties_map
+                        .and_then(|map| map.get("replicaCount").and_then(|p| p.as_i64().map(|p64| p64 as i32))
+                        ).unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default value:80", instancename); 1}),
+        }
+    }
     fn scale(&self, ns: &str, client: APIClient) -> TraitResult {
         // TODO: We probably need to watch for the deployment to be created. Or this might be unnecessary.
         std::thread::sleep(std::time::Duration::from_secs(5));
@@ -171,69 +191,5 @@ impl TraitImplementation for ManualScaler {
     }
     fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
         None
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
-
-    use crate::{
-        schematic::traits::{manual_scaler::ManualScaler, TraitImplementation},
-        workload_type::{SERVER_NAME, SINGLETON_SERVER_NAME, SINGLETON_TASK_NAME, TASK_NAME},
-    };
-
-    #[test]
-    fn test_manual_scaler_workload_types() {
-        let matches = vec![SERVER_NAME, TASK_NAME];
-        for m in matches {
-            assert!(ManualScaler::supports_workload_type(m));
-        }
-        let no_matches = vec![SINGLETON_TASK_NAME, SINGLETON_SERVER_NAME];
-        for m in no_matches {
-            assert!(!ManualScaler::supports_workload_type(m));
-        }
-    }
-
-    #[test]
-    fn test_scale_deployment() {
-        let first = apps::Deployment {
-            spec: Some(apps::DeploymentSpec {
-                replicas: Some(5),
-                ..Default::default()
-            }),
-            ..Default::default()
-        };
-        let ms = ManualScaler {
-            name: "name".into(),
-            instance_name: "inst_name".into(),
-            component_name: "comp_name".into(),
-            owner_ref: None,
-            replica_count: 9,
-            workload_type: SERVER_NAME.into(),
-        };
-        let second = ms.scale_deployment(first);
-        assert_eq!(Some(9), second.spec.expect("spec is required").replicas);
-    }
-
-    #[test]
-    fn test_scale_job() {
-        let first = batch::Job {
-            spec: Some(batch::JobSpec {
-                parallelism: Some(5),
-                ..Default::default()
-            }),
-            ..Default::default()
-        };
-        let ms = ManualScaler {
-            name: "name".into(),
-            instance_name: "inst_name".into(),
-            component_name: "comp_name".into(),
-            owner_ref: None,
-            replica_count: 9,
-            workload_type: TASK_NAME.into(),
-        };
-        let second = ms.scale_job(first);
-        assert_eq!(Some(9), second.spec.expect("spec is required").parallelism);
     }
 }

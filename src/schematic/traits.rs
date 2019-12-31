@@ -21,12 +21,18 @@ use std::collections::BTreeMap;
 #[cfg(test)]
 mod autoscaler_test;
 #[cfg(test)]
+mod manual_scaler_test;
+#[cfg(test)]
 mod ingress_test;
 
 pub const INGRESS: &str = "ingress";
-pub const AUTOSCALER: &str = "autoscaler";
+pub const AUTOSCALER: &str = "auto-scaler";
 pub const MANUAL_SCALER: &str = "manual-scaler";
 pub const VOLUME_MOUNTER: &str = "volume-mounter";
+pub const INGRESS_V1ALPHA1: &str = "ingress.core.oam.dev/v1alpha1";
+pub const AUTOSCALER_V1ALPHA1: &str = "auto-scaler.core.oam.dev/v1alpha1";
+pub const MANUAL_SCALER_V1ALPHA1: &str = "manual-scaler.core.oam.dev/v1alpha1";
+pub const VOLUME_MOUNTER_V1ALPHA1: &str = "volume-mounter.core.oam.dev/v1alpha1";
 pub const EMPTY: &str = "empty";
 
 /// Trait describes OAM traits.
@@ -46,6 +52,7 @@ pub struct Trait {}
 pub struct TraitBinding {
     pub name: String,
     pub parameter_values: Option<Vec<ParameterValue>>,
+    pub properties: Option<serde_json::Value>,
 }
 
 /// OAMTrait is an enumeration of the known traits.

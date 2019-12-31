@@ -108,7 +108,7 @@ You can also list the traits that are available on Rudr:
 ```console
 $ kubectl get traits
 NAME            AGE
-autoscaler      19m
+auto-scaler      19m
 ingress         19m
 manual-scaler   19m
 volume-mounter  19m
@@ -168,14 +168,11 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: example.com
-            - name: path
-              value: /
-            - name: service_port
-              value: 9999
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: example.com
+            path: /
+            servicePort: 9999
 ```
 
 This is an example of an application composed of a singular component that has an ingress trait with an address of `example.com` and a service port of `9999`. 
@@ -218,14 +215,11 @@ spec:
     - name: port
       value: "9999"
     traits:
-    - name: ingress
-      parameterValues:
-      - name: hostname
-        value: example.com
-      - name: path
-        value: /
-      - name: service_port
-        value: 9999
+      - name: ingress.core.oam.dev/v1alpha1
+        properties:
+          hostname: example.com
+          path: /
+          servicePort: 9999
 status:
   components:
     helloworld-python-v1:
@@ -283,15 +277,12 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
--             value: example.com
-+             value: oamexample.com
-            - name: path
-              value: /
-            - name: service_port
-              value: 9999
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+-           hostname: example.com
++           hostname: oam.example.com
+            path: /
+            servicePort: 9999
 ```
 
 ### Apply the changed file
@@ -330,15 +321,12 @@ spec:
       value: World
     - name: port
       value: "9999"
-    traits:
-    - name: ingress
-      parameterValues:
-      - name: hostname
-        value: oamexample.com
-      - name: path
-        value: /
-      - name: service_port
-        value: 9999
+      traits:
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: oam.example.com
+            path: /
+            servicePort: 9999
 status:
   components:
     helloworld-python-v1:
@@ -394,14 +382,11 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress
-          parameterValues:
-            - name: hostname
-              value: oamexample.com
-            - name: path
-              value: /
-            - name: service_port
-              value: 9999
+        - name: ingress.core.oam.dev/v1alpha1
+          properties:
+            hostname: oam.example.com
+            path: /
+            servicePort: 9999
 ```
 
 Apply it:
@@ -443,7 +428,7 @@ It will _not_ delete the traits and the components, they are happily waiting you
 ```console
 $ kubectl get traits,components
 NAME                                AGE
-trait.core.oam.dev/autoscaler      31m
+trait.core.oam.dev/auto-scaler      31m
 trait.core.oam.dev/empty           31m
 trait.core.oam.dev/ingress         31m
 trait.core.oam.dev/manual-scaler   31m
