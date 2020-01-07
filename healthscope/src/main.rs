@@ -80,7 +80,7 @@ fn main() -> Result<(), Error> {
                         };
                     }
                 }
-                Err(e) => error!("get health scope list err {}", e),
+                Err(e) => error!("get health scope list err {:?}", e),
             }
             cnt = (cnt + 1) % 10;
             if cnt == 0 {
@@ -308,7 +308,7 @@ fn get_health_from_component(client: &APIClient, info: ComponentInfo, namespace:
     let res: KubeComponentInstance = match client.request(req) {
         Ok(ins) => ins,
         Err(e) => {
-            error!("get component instance failed {}", e);
+            error!("get component instance failed {:?}", e);
             return "unhealthy".to_string();
         }
     };
@@ -326,7 +326,7 @@ fn time_to_aggregate(status: Option<HealthStatus>, interval: i64) -> bool {
     let last_time = match DateTime::parse_from_rfc3339(last_aggregate_time.as_str()) {
         Ok(last) => last,
         Err(e) => {
-            error!("parse last time err {}", e);
+            error!("parse last time err {:?}", e);
             return true;
         }
     };
