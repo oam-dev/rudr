@@ -104,3 +104,9 @@ impl std::str::FromStr for GroupVersionKind {
         })
     }
 }
+
+impl std::fmt::Display for GroupVersionKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}/{}.{}", self.group, self.version, self.kind)
+    }
+}

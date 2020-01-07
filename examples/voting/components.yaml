@@ -12,6 +12,7 @@ spec:
       ports:
         - containerPort: 5001
           name: http
+          protocol: TCP
       image: dockersamples/examplevotingapp_result:before
 ---
 apiVersion: core.oam.dev/v1alpha1
@@ -28,6 +29,7 @@ spec:
       ports:
         - containerPort: 5432
           name: pgsql
+          protocol: TCP
       image: postgres:9.4
 ---
 apiVersion: core.oam.dev/v1alpha1
@@ -44,6 +46,7 @@ spec:
       ports:
         - containerPort: 6379
           name: redis
+          protocol: TCP
       image: redis:alpine
 ---
 apiVersion: core.oam.dev/v1alpha1
@@ -60,6 +63,7 @@ spec:
       ports:
         - containerPort: 5000
           name: http
+          protocol: TCP
       image: dockersamples/examplevotingapp_vote:before
 ---
 apiVersion: core.oam.dev/v1alpha1

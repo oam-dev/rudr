@@ -1,6 +1,15 @@
 # Workloads
 
-The *workload type* (`workloadType`) is a field in the [component schematic](./component-schematic.md) used by the developer to direct the runtime to properly execute the given component. Workload types are container-based and distinguished by the following characteristics:
+The *workload type* (`workloadType`) is a field in the [component schematic](./component-schematic.md) used by the developer to direct the runtime to properly execute the given component. 
+
+OAM have two kinds of [workload types](https://github.com/oam-dev/spec/blob/master/3.component_model.md#workload-types).
+
+* Core workload types
+* Extended workload types
+
+## Core Workloads
+
+Core Workload types are container-based and distinguished by the following characteristics:
 
  - Whether they have a ***service endpoint***: an automatically assigned virtual IP address and DNS name addressable within the network scope to which the component belongs.
  - Whether they are ***replicable***: An application operator can increase or decrease the number of component replicas by applying and configuring traits when available.
@@ -16,6 +25,8 @@ Rudr supports all of the Open Application Model [Core Workload Types](https://gi
 |[Singleton Task](#singleton-task)|core.oam.dev/v1alpha1.SingletonTask|No|No|No
 |[Worker](#worker)|core.oam.dev/v1alpha1.Worker|No|Yes|Yes
 |[Singleton Worker](#singleton-worker)|core.oam.dev/v1alpha1.SingletonWorker|No|No|Yes
+
+Besides Core Workloads, Rudr also support Extended Workloads. Please refer to [Extended Workloads](#extended-workloads) to learn about integrating customized workload types in Rudr.
 
 Workload types are assigned to components as part of the [developer](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) role. They indicate to the [application operator](https://github.com/oam-dev/spec/blob/master/2.overview_and_terminology.md#roles-and-responsibilities) what trait(s) in the [application configuration](./application-configuration.md) that the component might require.
 
@@ -144,3 +155,23 @@ A singleton worker is a special case of the worker workload type that is limited
 ### Supported traits
 
 - [Volume Mounter](./traits.md#volume-mounter)
+
+## Extended Workloads
+
+[Extended workload types](https://github.com/oam-dev/spec/blob/master/3.component_model.md#extended-workload-types) are per runtime, meaning that each runtime may define its own extended workload types. 
+
+Extended workload types are also available in Rudr.
+
+Rudr support two approaches for integrating extended workloads for now:
+
+1. **Built-in Extended Workload**: this is a straightforward approach as you just need to tell Rudr about the spec of this extended workload by sending a Pull Request to Rudr code. The cons is it's less flexible as you will need to modify Rudr code for any further update and maintain it.
+2. **Pluggable Extended Workload**: this is the recommended approach. The idea is you can "convert" any CRD into a Extended Workload by following certain specification. No code change in Rudr is needed.
+
+### Built-in VS Pluggable
+
+Now Rudr has integrated OpenFaaS as built-in extended workload. For Pluggable Workload, we give [Prometheus](https://prometheus.io/) as an example.
+
+| Built-in Extended Workloads | Pluggable Extended Workloads|
+|---|---|
+| [OpenFaaS](../tutorials/deploy_openfaas_workload.md)  | [Prometheus](../tutorials/deploy_prometheus_workload.md)  |   |
+

@@ -1,7 +1,7 @@
 apiVersion: core.oam.dev/v1alpha1
 kind: Trait
 metadata:
-  name: autoscaler
+  name: auto-scaler
   annotations:
     version: v1.0.0
     description: "Allow workload to auto scale by CPU/Memory, this is implemented by the Kubernetes Horizontal Pod Autoscaler."
@@ -47,6 +47,7 @@ spec:
   appliesTo:
     - core.oam.dev/v1alpha1.Server
     - core.oam.dev/v1alpha1.Task
+    - openfaas.com/v1alpha2.Function
   properties: |
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

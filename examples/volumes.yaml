@@ -29,10 +29,8 @@ spec:
     - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volume-mounter
-          parameterValues:
-            - name: volumeName
-              value: myvol
-            - name: storageClass
-              value: default
+        - name: volume-mounter.core.oam.dev/v1alpha1
+          properties:
+            volumeName: myvol
+            storageClass: default
 # TODO: Add trait to bind a PVC

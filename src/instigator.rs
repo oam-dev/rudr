@@ -1,12 +1,15 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::{api::Api, api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
-use log::{debug, info, warn};
+use log::{debug, error, info, warn};
 use serde_json::json;
 use std::collections::BTreeMap;
 
+use k8s_openapi::api::core::v1::ObjectReference;
+
 use crate::schematic::variable::Variable;
 use crate::{
+    kube_event,
     lifecycle::Phase,
     schematic::{
         component::Component,
@@ -19,8 +22,9 @@ use crate::{
     },
     trait_manager::TraitManager,
     workload_type::{
-        self, CoreWorkloadType, ReplicatedServer, ReplicatedTask, ReplicatedWorker,
-        SingletonServer, SingletonTask, SingletonWorker, WorkloadMetadata, OAM_API_VERSION,
+        self, CoreWorkloadType, ExtendedWorkloadType, ReplicatedServer, ReplicatedTask,
+        ReplicatedWorker, SingletonServer, SingletonTask, SingletonWorker, WorkloadMetadata,
+        WorkloadType, OAM_API_VERSION,
     },
 };
 
@@ -70,6 +74,7 @@ pub struct Instigator {
     client: APIClient,
     //cache: Reflector<Component, Status>,
     namespace: String,
+    pub event_handler: kube_event::Event,
 }
 
 /// Alias for a Kubernetes wrapper on a component.
@@ -88,7 +93,11 @@ impl Instigator {
     /// An instigator uses the reflector as a cache of Components, and will use the API client
     /// for creating and managing the component implementation.
     pub fn new(client: kube::client::APIClient, namespace: String) -> Self {
-        Instigator { client, namespace }
+        Instigator {
+            client: client.clone(),
+            namespace: namespace.clone(),
+            event_handler: kube_event::Event::new(client, namespace),
+        }
     }
 
     pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
@@ -134,12 +143,19 @@ impl Instigator {
 
             let inst_name = component.instance_name.clone();
 
+            let workload_meta = self.get_workload_meta(
+                name.clone(),
+                inst_name.clone(),
+                &comp_def,
+                &params,
+                None,
+                "StatusCheckLoop".to_string(),
+            );
             // Instantiate components
-            let workload =
-                self.load_workload_type(name.clone(), inst_name.clone(), &comp_def, &params, None)?;
+            let workload = self.load_workload_type(&comp_def, workload_meta)?;
             let mut status = workload.status()?;
             debug!(
-                "Sync component {}, got status {:?}",
+                "StatusCheckLoop: Sync component {}, got status {:?}",
                 component.component_name.clone(),
                 status.clone()
             );
@@ -179,7 +195,7 @@ impl Instigator {
         //we won't update status if there's any update
         if has_diff || !last_components.is_empty() {
             info!(
-                "skip update status for {}, find the spec has changes to be execute",
+                "StatusCheckLoop: skip update status for {}, wait for the mainControlLoop to execute",
                 event.metadata.name.clone()
             );
             return Ok(());
@@ -191,6 +207,7 @@ impl Instigator {
                 Some(component_status),
             )),
             None,
+            "StatusCheckLoop".to_string(),
         )
     }
 
@@ -199,6 +216,7 @@ impl Instigator {
         event: OpResource,
         status: Option<OAMStatus>,
         annotation: Option<BTreeMap<String, String>>,
+        controlled_by: String,
     ) -> InstigatorResult {
         let config_resource: Api<Object<ApplicationConfiguration, OAMStatus>> =
             Api::customResource(self.client.clone(), CONFIG_CRD)
@@ -218,13 +236,20 @@ impl Instigator {
                 serde_json::to_vec(&new_event)?,
             ) {
                 Ok(o) => {
-                    debug!("Patched status {:?} for {}", o.status, o.metadata.name);
+                    debug!(
+                        "{}: Patched status {:?} for {}",
+                        controlled_by, o.status, o.metadata.name
+                    );
                     return Ok(());
                 }
                 Err(e) => {
                     if let Some(err) = e.api_error() {
                         if err.reason == "Conflict" {
-                            warn!("conflict happen to {}, retry", event.metadata.name.clone());
+                            warn!(
+                                "{}: conflict happen to {}, retry",
+                                controlled_by,
+                                event.metadata.name.clone()
+                            );
                             new_event = config_resource.get(&event.metadata.name)?;
                             continue;
                         }
@@ -350,51 +375,20 @@ impl Instigator {
             )?;
 
             let inst_name = component.instance_name.clone();
-            let new_owner_ref = match phase {
-                Phase::Add => Some(self.create_component_instance(
-                    component.component_name.clone(),
-                    inst_name.clone(),
-                    owner_ref.clone(),
-                )?),
-                Phase::Modify => {
-                    let ownref = self.component_instance_owner_reference(
-                        component.component_name.clone(),
-                        inst_name.clone(),
-                    );
-                    match ownref {
-                        Err(err) => {
-                            let e = err.to_string();
-                            if !e.contains("NotFound") {
-                                // Wrap the error to make it clear where we failed
-                                // During deletion, this might indicate that something else
-                                // remove the component instance.
-                                return Err(format_err!(
-                                    "{:?} on {}: {}",
-                                    phase.clone(),
-                                    inst_name.clone(),
-                                    e
-                                ));
-                            }
-                            Some(self.create_component_instance(
-                                component.component_name.clone(),
-                                inst_name.clone(),
-                                owner_ref.clone(),
-                            )?)
-                        }
-                        Ok(own) => Some(own),
-                    }
-                }
-                _ => None,
-            };
+            let new_owner_ref =
+                self.get_new_own_ref(phase.clone(), component.clone(), owner_ref.clone())?;
 
             // Instantiate components
-            let workload = self.load_workload_type(
+            let workload_meta = self.get_workload_meta(
                 name.clone(),
                 inst_name.clone(),
                 &comp_def,
                 &params,
                 new_owner_ref.clone(),
-            )?;
+                "MainControlLoop".to_string(),
+            );
+            // Instantiate components
+            let workload = self.load_workload_type(&comp_def, workload_meta)?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -410,7 +404,10 @@ impl Instigator {
 
             match phase {
                 Phase::Add => {
-                    info!("Adding component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Adding component {}",
+                        component.component_name.clone()
+                    );
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -419,9 +416,27 @@ impl Instigator {
                     )?;
                     workload.add()?;
                     trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)?;
+                    if let Err(err) = self.event_handler.push_event_message(
+                        kube_event::Type::Normal,
+                        kube_event::Info {
+                            action: "created".to_string(),
+                            message: format!(
+                                "component {} created",
+                                component.component_name.clone(),
+                            ),
+                            reason: "".to_string(),
+                        },
+                        get_object_ref(event.clone()),
+                    ) {
+                        error!("MainControlLoop: adding event err: {:?}", err)
+                    }
                 }
                 Phase::Modify => {
-                    info!("Modifying component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Modifying component {}",
+                        component.component_name.clone()
+                    );
+
                     workload.validate()?;
                     trait_manager.exec(
                         self.namespace.as_str(),
@@ -434,9 +449,26 @@ impl Instigator {
                         self.client.clone(),
                         Phase::Modify,
                     )?;
+                    if let Err(err) = self.event_handler.push_event_message(
+                        kube_event::Type::Normal,
+                        kube_event::Info {
+                            action: "updated".to_string(),
+                            message: format!(
+                                "component {} updated",
+                                component.component_name.clone(),
+                            ),
+                            reason: "".to_string(),
+                        },
+                        get_object_ref(event.clone()),
+                    ) {
+                        error!("MainControlLoop: adding event err {:?}", err)
+                    }
                 }
                 Phase::Delete => {
-                    info!("Deleting component {}", component.component_name.clone());
+                    info!(
+                        "MainControlLoop: Deleting component {}",
+                        component.component_name.clone()
+                    );
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
@@ -478,7 +510,10 @@ impl Instigator {
             };
             trait_manager.load_traits()?;
 
-            info!("Deleting component {}", component.component_name.clone());
+            info!(
+                "MainControlLoop: Deleting component {}",
+                component.component_name.clone()
+            );
             //The reason for this is that we do not require that traits be deployed only in-cluster.
             //For example, a trait could create an object storage bucket or work with an external API service.
             //So we want to give them a chance to react to a deletion event.
@@ -500,6 +535,17 @@ impl Instigator {
                     scope.remove(component.clone())?;
                 }
             }
+            if let Err(err) = self.event_handler.push_event_message(
+                kube_event::Type::Normal,
+                kube_event::Info {
+                    action: "deleted".to_string(),
+                    message: format!("component {} deleted", component.component_name.clone(),),
+                    reason: "".to_string(),
+                },
+                get_object_ref(event.clone()),
+            ) {
+                error!("MainControlLoop: adding event err {:?}", err)
+            }
         }
         // if no component was updated or this is an delete phase, just return without status change.
         if !component_updated || phase == Phase::Delete {
@@ -518,7 +564,12 @@ impl Instigator {
                 Some(hs)
             });
 
-        self.retry_patch_status(event, status, Some(annotation))
+        self.retry_patch_status(
+            event,
+            status,
+            Some(annotation),
+            "MainControlLoop".to_string(),
+        )
     }
 
     /// Create new Kubernetes objects based on this config.
@@ -534,16 +585,20 @@ impl Instigator {
         self.exec(event, Phase::Delete)
     }
 
-    fn load_workload_type(
+    fn get_workload_meta(
         &self,
         config_name: String,
         instance_name: String,
         comp: &KubeComponent,
         params: &ParamMap,
         owner_ref: Option<Vec<meta::OwnerReference>>,
-    ) -> Result<CoreWorkloadType, Error> {
-        info!("Looking up {}", config_name);
-        let meta = WorkloadMetadata {
+        controlled_by: String,
+    ) -> WorkloadMetadata {
+        info!(
+            "{}: Looking up workload for {} <{}>",
+            controlled_by, config_name, comp.metadata.name
+        );
+        WorkloadMetadata {
             name: config_name,
             instance_name,
             component_name: comp.metadata.name.clone(),
@@ -553,43 +608,110 @@ impl Instigator {
             client: self.client.clone(),
             params: params.clone(),
             owner_ref,
-        };
+        }
+    }
+
+    fn load_workload_type(
+        &self,
+        comp: &KubeComponent,
+        meta: WorkloadMetadata,
+    ) -> Result<Box<dyn WorkloadType>, Error> {
         match comp.spec.workload_type.as_str() {
             workload_type::SERVER_NAME => {
                 let rs = ReplicatedServer { meta };
-                Ok(CoreWorkloadType::ReplicatedServerType(rs))
+                let workload = CoreWorkloadType::ReplicatedServerType(rs);
+                Ok(Box::new(workload))
             }
             workload_type::SINGLETON_SERVER_NAME => {
                 let sing = SingletonServer { meta };
-                Ok(CoreWorkloadType::SingletonServerType(sing))
+                Ok(Box::new(CoreWorkloadType::SingletonServerType(sing)))
             }
             workload_type::SINGLETON_TASK_NAME => {
                 let task = SingletonTask { meta };
-                Ok(CoreWorkloadType::SingletonTaskType(task))
+                Ok(Box::new(CoreWorkloadType::SingletonTaskType(task)))
             }
             workload_type::TASK_NAME => {
                 let task = ReplicatedTask {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
-                Ok(CoreWorkloadType::ReplicatedTaskType(task))
+                Ok(Box::new(CoreWorkloadType::ReplicatedTaskType(task)))
             }
             workload_type::SINGLETON_WORKER => {
                 let wrkr = SingletonWorker { meta };
-                Ok(CoreWorkloadType::SingletonWorkerType(wrkr))
+                Ok(Box::new(CoreWorkloadType::SingletonWorkerType(wrkr)))
             }
             workload_type::WORKER_NAME => {
                 let worker = ReplicatedWorker {
                     meta,
                     replica_count: Some(1), // Every(1) needs Some(1) to love.
                 };
-                Ok(CoreWorkloadType::ReplicatedWorkerType(worker))
+                Ok(Box::new(CoreWorkloadType::ReplicatedWorkerType(worker)))
             }
-            _ => Err(format_err!(
-                "workloadType {} is unknown",
-                comp.spec.workload_type
-            )),
+            workload_type::extended_workload::openfaas::OPENFAAS => {
+                let openfaas = workload_type::extended_workload::openfaas::OpenFaaS { meta };
+                let workload = ExtendedWorkloadType::OpenFaaS(openfaas);
+                Ok(Box::new(workload))
+            }
+            _ => {
+                match workload_type::extended_workload::others::Others::new(
+                    meta,
+                    comp.spec.workload_type.as_str(),
+                ) {
+                    Err(err) => Err(format_err!(
+                        "workloadType {} is unknown, {}",
+                        comp.spec.workload_type,
+                        err
+                    )),
+                    Ok(other) => Ok(Box::new(other)),
+                }
+            }
         }
+    }
+
+    fn get_new_own_ref(
+        &self,
+        phase: Phase,
+        component: ComponentConfiguration,
+        owner_ref: meta::OwnerReference,
+    ) -> Result<Option<Vec<meta::OwnerReference>>, Error> {
+        let new = match phase {
+            Phase::Add => Some(self.create_component_instance(
+                component.component_name.clone(),
+                component.instance_name.clone(),
+                owner_ref.clone(),
+            )?),
+            Phase::Modify => {
+                let ownref = self.component_instance_owner_reference(
+                    component.component_name.clone(),
+                    component.instance_name.clone(),
+                );
+                match ownref {
+                    Err(err) => {
+                        let e = err.to_string();
+                        if !e.contains("NotFound") {
+                            // Wrap the error to make it clear where we failed
+                            // During deletion, this might indicate that something else
+                            // remove the component instance.
+                            return Err(format_err!(
+                                "{:?} on {}: {}",
+                                phase.clone(),
+                                component.instance_name.clone(),
+                                e
+                            ));
+                        }
+                        Some(self.create_component_instance(
+                            component.component_name.clone(),
+                            component.instance_name.clone(),
+                            owner_ref.clone(),
+                        )?)
+                    }
+                    Ok(own) => Some(own),
+                }
+            }
+            _ => None,
+        };
+        Ok(new)
     }
 
     fn delete_component_instance(
@@ -725,6 +847,18 @@ impl Instigator {
     }
 }
 
+pub fn get_object_ref(event: OpResource) -> ObjectReference {
+    ObjectReference {
+        api_version: event.types.apiVersion.clone(),
+        kind: event.types.kind.clone(),
+        name: Some(event.metadata.name.clone()),
+        field_path: None,
+        namespace: event.metadata.namespace.clone(),
+        resource_version: event.metadata.resourceVersion.clone(),
+        uid: event.metadata.uid.clone(),
+    }
+}
+
 /// combine_name combine component name with instance_name,
 /// so we won't afraid different components using same instance_name   
 pub fn combine_name(component_name: String, instance_name: String) -> String {
@@ -781,7 +915,16 @@ pub fn get_component_def(
         .group("core.oam.dev")
         .within(&namespace);
     let comp_def_req = component_resource.get(comp_name.as_str())?;
-    let comp_def: KubeComponent = client.request::<KubeComponent>(comp_def_req)?;
+    let comp_def: KubeComponent = match client.request::<KubeComponent>(comp_def_req) {
+        Ok(comp) => comp,
+        Err(err) => {
+            return Err(format_err!(
+                "get component {} err: {}",
+                comp_name.as_str(),
+                err
+            ))
+        }
+    };
     Ok(comp_def)
 }
 

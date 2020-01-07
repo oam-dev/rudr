@@ -12,7 +12,6 @@ spec:
         - name: poem
           value: The Wasteland
       traits:
-        - name: manual-scaler
-          parameterValues:
-            - name: replicaCount
-              value: 2
+        - name: manual-scaler.core.oam.dev/v1alpha1
+          properties:
+            replicaCount: 2

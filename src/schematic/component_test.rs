@@ -15,6 +15,7 @@ fn test_group_version_kind() {
 
     let failed_gvp = GroupVersionKind::from_str("not valid");
     assert!(failed_gvp.is_err());
+    assert_eq!("core.oam.dev/v1alpha1.Singleton", format!("{}", o))
 }
 
 #[test]
@@ -38,6 +39,50 @@ fn test_component_deserialize() {
 
     let gvk = GroupVersionKind::from_str(component.workload_type.as_str());
     assert!(gvk.is_ok());
+}
+
+#[test]
+fn test_extended_workload_deserialize() {
+    let data = Component::from_str(
+        r#"{
+            "workloadType": "openfaas.com/v1alpha2.Function",
+            "osType": "linux",
+            "arch": "amd64",
+            "parameters": [],
+            "containers": [],
+            "workloadSettings": [{
+               "value":{
+                 "image":"functions/nodeinfo",
+                 "name":"openfaastest"
+               },
+               "type":"object",
+               "required":true,
+               "name":"spec"
+            }]
+        }"#,
+    );
+
+    assert!(data.is_ok());
+    let component = data.unwrap();
+    assert_eq!("openfaas.com/v1alpha2.Function", component.workload_type);
+    assert_eq!(
+        component
+            .workload_settings
+            .get(0)
+            .unwrap()
+            .value
+            .as_ref()
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .get("name")
+            .unwrap(),
+        "openfaastest"
+    );
+
+    let gvk = GroupVersionKind::from_str(component.workload_type.as_str());
+    assert!(gvk.is_ok());
+    assert_eq!(gvk.unwrap().kind, "Function")
 }
 
 #[test]
@@ -195,7 +240,7 @@ fn test_container_deserialize() {
     assert_eq!(SharingPolicy::Shared, path2.sharing_policy);
     assert_eq!(AccessMode::RO, path2.access_mode);
 
-    let ext = res.extended.clone().expect("extended resources");
+    let ext = res.extended.clone().expect("extended_workload resources");
     let ext1 = ext.get(0).expect("expected a first resources");
     assert_eq!("ext.example.com/v1.MotionSensor", ext1.name);
     assert_eq!("1", ext1.required);
@@ -295,7 +340,7 @@ fn test_workload_settings_deserialize() {
                     "description": "a workload setting",
                     "type": "string",
                     "required": true,
-                    "default": "things fall apart, the center cannot hold"
+                    "value": "things fall apart, the center cannot hold"
                 },
                 {
                     "name": "setting2",
@@ -321,14 +366,14 @@ fn test_workload_settings_deserialize() {
     assert!(s1.required);
     assert_eq!(
         Some("things fall apart, the center cannot hold".into()),
-        s1.default
+        s1.value
     );
 
     assert_eq!("setting2", s2.name);
     assert_eq!(None, s2.description);
     assert_eq!(ParameterType::Boolean, s2.parameter_type);
     assert!(!s2.required);
-    assert_eq!(None, s2.default);
+    assert_eq!(None, s2.value);
     assert_eq!(Some("param1".into()), s2.from_param);
 }
 
@@ -514,9 +559,7 @@ fn test_to_volume_mounts() {
             memory: Memory {
                 required: "128".into(),
             },
-            gpu: Some(GPU {
-                required: 0.into(),
-            }),
+            gpu: Some(GPU { required: 0.into() }),
             volumes: Some(vec![
                 Volume {
                     name: "myvol".into(),

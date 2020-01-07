@@ -9,7 +9,7 @@
 </tr>
 <tr>
 <td><img alt="Application operator role" src="./media/app-operator-role.png" /></td>
-<td><b>Application operators</b> create instances of those components, assign them to <b>application configurations</b>, and designate their operational capabilities, and</td>,
+<td><b>Application operators</b> create instances of those components, assign them to <b>application configurations</b>, and designate their operational capabilities, and,</td>
 </tr>
 <tr>
 <td><img alt="Infrastructure operator role" src="./media/infra-operator-role.png" /></td>
@@ -30,13 +30,14 @@ Install the Rudr runtime and its dependencies.
 Learn how to deploy, inspect, and update a Rudr application.
 
 ## Concepts
-Learn more about the main application model constructs: components (and their workloads), traits, and application configurations.
+
+As a implementation of OAM, Rudr provides application centric abstractions to different roles in application management workflow. Learn more about the main application model abstractions: components (and their workloads), traits, and application configurations.
 
 ### [Component Schematic](./concepts/component-schematic.md)
 
 <img align="right" alt="The component schematic defines the parameters, workload type, and containers of a unit of code." src="./media/component.png" />
 
-Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [**workloads**](./concepts/workloads.md).
+Learn how a <b>developer</b> can define the functional units that may be instantiated as part of a larger distributed application and their respective [**workloads**](concepts/workloads.md).
 
 <br />
 
@@ -64,6 +65,7 @@ Learn how an <b>application operator</b> can attach operational features to comp
 
 Learn how an <b>application operator</b> can define application boundaries by grouping components with common properties and dependencies.
 
+
 ## How-To's
 
 ### [Create a component from scratch](how-to/create_component_from_scratch.md)
@@ -78,15 +80,28 @@ Learn how to use Helm/Kustomize tools to manage your OAM .yaml filese.
 
 Here are tips and best practices for migrating exsiting Kubernetes applications to use Rudr.
 
+### Extended Workloads
+
+Learn how to implement your own workload type, or import existing CRD Operator as [OAM Extended Workload Types](https://github.com/oam-dev/spec/blob/master/3.component_model.md#extended-workload-types). The current tutorial includes:
+
+1. How to run [OpenFaaS](./tutorials/deploy_openfaas_workload.md) function as OAM `Component`.
+2. How to provision [Prometheus](./tutorials/deploy_prometheus_workload.md) as OAM `Component`.
+
+> Note: eventually extended workloads will be moved to a separate repo under oam-dev org.
+
 ## Develop
 
 #### [Writing a Trait](./developer/writing_a_trait.md)
 
-Here's a walkthrough of the process for writing a new trait for Rudr.
+Here's a walk through of the process for writing a new trait for Rudr.
 
 #### [Debug](./developer/debug.md)
 
 These are some useful tips for troubleshooting your Rudr deployments.
+
+#### [Admission Controller](https://github.com/oam-dev/admission-controller)
+
+Admission controller is used for mutating and validating OAM component, trait and application configuration spec.
 
 ## [FAQ](./faq.md)
 

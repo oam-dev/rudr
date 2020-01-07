@@ -38,14 +38,11 @@ spec:
     - name: section
       value: "[fromVariable(SECTION_NUMBER)]"
     <b style="color:blue;">traits</b>:
-    - name: ingress
-      parameterValues:
-      - name: hostname
-        value: example.com
-      - name: path
-        value: /
-      - name: service_port
-        value: 80
+    - name: ingress.core.oam.dev/v1alpha1
+      properties:
+        hostname: example.com
+        path: /
+        servicePort: 80
     <b style="color: blue">applicationScopes:</b>
       - my-health-scope
 </pre>
@@ -157,14 +154,11 @@ components:
   - name: port
     value: '9999'
   traits:
-  - name: ingress
-    parameterValues:
-    - name: hostname
-      value: example.com
-    - name: path
-      value: /
-    - name: service_port
-      value: 9999
+    - name: ingress.core.oam.dev/v1alpha1
+      properties:
+        hostname: example.com
+        path: /
+        servicePort: 9999
 ```
 
 ## Traits
@@ -177,15 +171,13 @@ For each of your components, you can optionally define one or more traits. A tra
 
 ```yaml
 # Example trait entry
+
 traits:
-- name: ingress
-  parameterValues:
-  - name: hostname
-    value: example.com
-  - name: path
-    value: /
-  - name: service_port
-    value: 9999
+  - name: ingress.core.oam.dev/v1alpha1
+    properties:
+      hostname: example.com
+      path: /
+      servicePort: 9999
 ```
 
 ## Scopes

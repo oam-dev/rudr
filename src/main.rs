@@ -14,6 +14,7 @@ use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
 use rudr::instigator::{
     Instigator, COMPONENT_CRD, CONFIG_CRD, CONFIG_GROUP, CONFIG_VERSION, SCOPE_CRD, TRAIT_CRD,
 };
+use rudr::kube_event;
 use rudr::schematic::{
     component::Component, configuration::ApplicationConfiguration, OAMStatus, Status,
 };
@@ -26,8 +27,8 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
         Ok(_val) => {
             info!("Loading in-cluster config");
             incluster_config()
-        },
-        Err(_e) => load_kube_config()
+        }
+        Err(_e) => load_kube_config(),
     }
 }
 
@@ -52,6 +53,7 @@ fn main() -> Result<(), Error> {
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().expect("Load default kubeconfig");
+    info!("apiserver:{}", top_cfg.base_path);
 
     // There is probably a better way to do this than to create two clones, but there is a potential
     // thread safety issue here.
@@ -82,17 +84,19 @@ fn main() -> Result<(), Error> {
             .version(CONFIG_VERSION);
         //init all the existing objects at initiate, this should be done by informer
         let req = resource.list(&ListParams::default()).unwrap();
-        if let Ok(cfgs) = client.request::<ObjectList<KubeOpsConfig>>(req) {
-            for cfg in cfgs.items {
-                let event = WatchEvent::Added(cfg);
-                if let Err(res) = handle_event(&client, event, ns.clone()) {
-                    // Log the error and continue. In the future, should probably
-                    // re-queue data in some cases.
-                    error!("Error processing event: {:?}", res)
-                };
+        match client.request::<ObjectList<KubeOpsConfig>>(req) {
+            Ok(cfgs) => {
+                for cfg in cfgs.items {
+                    let event = WatchEvent::Added(cfg);
+                    if let Err(res) = handle_event(&client, event, ns.clone()) {
+                        // Log the error and continue. In the future, should probably
+                        // re-queue data in some cases.
+                        error!("Error processing event: {:?}", res)
+                    };
+                }
             }
+            Err(err) => error!("Error list application configs: {:?}", err),
         }
-
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =
             Informer::raw(client.clone(), resource.clone()).init()?;
@@ -179,8 +183,40 @@ fn handle_event(
 ) -> Result<(), Error> {
     let inst = Instigator::new(cli.clone(), namespace);
     match event {
-        WatchEvent::Added(o) => inst.add(o),
-        WatchEvent::Modified(o) => inst.modify(o),
+        WatchEvent::Added(o) => {
+            if let Err(err) = inst.add(o.clone()) {
+                if let Err(e) = inst.event_handler.push_event_message(
+                    kube_event::Type::Warning,
+                    kube_event::Info {
+                        action: "create".to_string(),
+                        message: format!("create config {} error", o.metadata.name.clone()),
+                        reason: format!("{}", err),
+                    },
+                    rudr::instigator::get_object_ref(o.clone()),
+                ) {
+                    log::warn!("push event message for update err {}", e)
+                }
+                return Err(err);
+            }
+            Ok(())
+        }
+        WatchEvent::Modified(o) => {
+            if let Err(err) = inst.modify(o.clone()) {
+                if let Err(e) = inst.event_handler.push_event_message(
+                    kube_event::Type::Warning,
+                    kube_event::Info {
+                        action: "update".to_string(),
+                        message: format!("update config {} error", o.metadata.name.clone()),
+                        reason: format!("{}", err),
+                    },
+                    rudr::instigator::get_object_ref(o.clone()),
+                ) {
+                    log::warn!("push event message for update err {}", e)
+                }
+                return Err(err);
+            }
+            Ok(())
+        }
         WatchEvent::Deleted(o) => inst.delete(o),
         WatchEvent::Error(ref e) => match e {
             ApiError { reason, .. } if reason == "AlreadyExists" => {

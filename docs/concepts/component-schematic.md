@@ -191,7 +191,7 @@ containers:
       - path: "/etc/run/db-data"
         fromParam: "poet"
     ports:
-      - type: tcp
+      - protocol: TCP
         containerPort: 80
         name: http
 ```
@@ -265,7 +265,7 @@ Entries to the ports section include the following fields:
 ```yaml
 # Example port entry
 ports:
-  - type: tcp
+  - protocol: TCP
     containerPort: 9999
     name: http
 ```
