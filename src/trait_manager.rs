@@ -2,9 +2,9 @@ use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 use log::{debug, error};
-use std::collections::BTreeMap;
-use serde_json::map::Map;
 use serde_json::json;
+use serde_json::map::Map;
+use std::collections::BTreeMap;
 
 use crate::{
     lifecycle::Phase,
@@ -52,8 +52,12 @@ impl TraitManager {
             self.parent_params.clone(),
         )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);
-        let empty_value_ref : &serde_json::Value  = &json!("");
-        let prop_map : Option<&Map<String, serde_json::value::Value>> = binding.properties.as_ref().unwrap_or_else(|| empty_value_ref).as_object();
+        let empty_value_ref: &serde_json::Value = &json!("");
+        let prop_map: Option<&Map<String, serde_json::value::Value>> = binding
+            .properties
+            .as_ref()
+            .unwrap_or_else(|| empty_value_ref)
+            .as_object();
         match binding.name.as_str() {
             traits::INGRESS_V1ALPHA1 => {
                 let ing = Ingress::from_properties(
@@ -158,7 +162,7 @@ impl TraitManager {
             let res = imp.exec(ns, client.clone(), phase.clone());
             if let Err(err) = res {
                 error!(
-                    "Trait phase {:?} failed for {}: {}",
+                    "Trait phase {:?} failed for {}: {:?}",
                     phase,
                     self.config_name.as_str(),
                     err

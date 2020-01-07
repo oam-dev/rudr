@@ -71,7 +71,7 @@ fn main() -> Result<(), Error> {
         Reflector::raw(client.clone(), component_resource.clone()).timeout(10);
     let reflector = component_cache.clone();
     if let Err(err) = component_cache.init() {
-        error!("Component init error: {}", err);
+        error!("Component init error: {:?}", err);
     }
 
     // Watch for configuration objects to be added, and react to those.
@@ -143,7 +143,7 @@ fn main() -> Result<(), Error> {
     // Cache all of the components.
     let component_watch = std::thread::spawn(move || loop {
         if let Err(res) = reflector.poll() {
-            error!("Component polling error: {}", res);
+            error!("Component polling error: {:?}", res);
         };
     });
     info!("Watcher is running");
@@ -247,7 +247,7 @@ fn precheck_crds(client: &APIClient) -> Result<(), failure::Error> {
         let req = RawApi::v1beta1CustomResourceDefinition()
             .get(format!("{}.core.oam.dev", crd).as_str())?;
         if let Err(e) = client.request::<CrdObj>(req) {
-            error!("Error prechecking CRDs {}: {}", crd, e);
+            error!("Error prechecking CRDs {}: {:?}", crd, e);
             return Err(failure::format_err!("Missing CRD {}", crd));
         }
     }
