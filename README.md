@@ -6,7 +6,7 @@ Rudr is an [Open Application Model (OAM)](https://github.com/oam-dev/spec/blob/m
 
 ***Note: Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the OAM spec.***
 
-## Why should I care?
+## Why Rudr?
 
 Kubernetes API resources focused on container infrastructure rather than the applications per se. Yet, application developers think in terms of application architecture, not of infrastructure
 
@@ -21,10 +21,9 @@ Kubernetes API resources focused on container infrastructure rather than the app
 
 - Developers who want to describe application from developer's view, rather than learning low level primitives.
 - Operators who want to focus on strategies of operating the application, rather than infrastructure details.
-- Kubernetes engineers who want to expose application level API to developers and operators, rather than full Kubernetes API.
-- Software distributors who want to distribute application to everywhere, regardless of the differences of runtimes.
-- Packaging tools, such as Helm and CNAB, to package self-descriptive YAML files of the application as software release
-- Platforms to define a serverless application without any infrastructure concepts.
+- Kubernetes engineers who want to define "application" in Kubernetes, or expose application level API to developers and operators, rather than full Kubernetes API.
+- PaaS engineers who want to build a serverless application platform atop Kubernetes, with minimal effort.
+- Software distributors who want to "define once, deploy everywhere", regardless of the differences of Kubernetes providers on multi-cloud.
 
 ## Get started
 
