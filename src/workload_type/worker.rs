@@ -4,6 +4,7 @@ use crate::workload_type::{
     KubeName, StatusResult, ValidationResult, WorkloadType,
 };
 use std::collections::BTreeMap;
+use log::{warn};
 
 #[derive(Clone)]
 pub struct ReplicatedWorker {
@@ -14,6 +15,14 @@ pub struct ReplicatedWorker {
 impl ReplicatedWorker {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("Worker")
+    }
+    fn add_deployment_builder(&self) -> InstigatorResult {
+        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
 }
 
@@ -27,14 +36,7 @@ impl WorkloadType for ReplicatedWorker {
     fn add(&self) -> InstigatorResult {
         //pre create config_map
         self.meta.create_config_maps("Worker")?;
-
-        DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .parameter_map(self.meta.params.clone())
-            .labels(self.labels())
-            .annotations(self.meta.annotations.clone())
-            .owner_ref(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
-
+        self.add_deployment_builder()?;
         Ok(())
     }
     fn modify(&self) -> InstigatorResult {
@@ -60,7 +62,14 @@ impl WorkloadType for ReplicatedWorker {
     fn status(&self) -> StatusResult {
         let key = "deployment/".to_string() + self.kube_name().as_str();
         let mut resources = BTreeMap::new();
-        let state = self.meta.deployment_status()?;
+        let state = self.meta.deployment_status().unwrap_or_else(|e| {
+            if e.to_string().contains("NotFound") {
+                warn!("Replicated Worker: Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                    self.meta.instance_name, self.meta.component_name);
+                self.add_deployment_builder().unwrap_or(());
+            }
+            e.to_string()
+        });
         resources.insert(key.clone(), state);
         Ok(resources)
     }
@@ -96,6 +105,14 @@ pub struct SingletonWorker {
 impl SingletonWorker {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("SingletonWorker")
+    }
+    fn add_statefulset_builder(&self) -> InstigatorResult {
+        StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
+            .parameter_map(self.meta.params.clone())
+            .labels(self.labels())
+            .annotations(self.meta.annotations.clone())
+            .owner_ref(self.meta.owner_ref.clone())
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
     }
 }
 
@@ -143,7 +160,15 @@ impl WorkloadType for SingletonWorker {
         let key = "statefulset/".to_string() + self.kube_name().as_str();
         let mut resources = BTreeMap::new();
         let state = StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .status(self.meta.client.clone(), self.meta.namespace.clone())?;
+            .status(self.meta.client.clone(), self.meta.namespace.clone())
+            .unwrap_or_else(|e| {
+                if e.to_string().contains("NotFound") {
+                    warn!("Statefulset deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                        self.meta.instance_name, self.meta.component_name);
+                    self.add_statefulset_builder().unwrap_or(());
+                }
+                e.to_string()
+            });
         resources.insert(key.clone(), state);
         Ok(resources)
     }

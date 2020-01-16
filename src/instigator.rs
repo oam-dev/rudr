@@ -142,13 +142,18 @@ impl Instigator {
             )?;
 
             let inst_name = component.instance_name.clone();
+            let owner_ref = self.component_instance_owner_reference(
+                component.component_name.clone(),
+                inst_name.clone(),
+            )?;
+            let new_owner_ref = Some(owner_ref);
 
             let workload_meta = self.get_workload_meta(
                 name.clone(),
                 inst_name.clone(),
                 &comp_def,
                 &params,
-                None,
+                new_owner_ref.clone(),
                 "StatusCheckLoop".to_string(),
             );
             // Instantiate components
@@ -177,7 +182,7 @@ impl Instigator {
                 instance_name: inst_name.clone(),
                 component: component.clone(),
                 parent_params: parent.clone(),
-                owner_ref: None,
+                owner_ref: new_owner_ref.clone(),
                 workload_type: comp_def.spec.workload_type.clone(),
                 traits: vec![], // Always starts empty.
                 component_schematic: comp_def.spec.clone(),
