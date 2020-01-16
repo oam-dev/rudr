@@ -5,6 +5,7 @@ use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
 use std::collections::BTreeMap;
 use serde_json::map::Map;
+use log::{warn};
 
 #[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
@@ -201,6 +202,10 @@ impl TraitImplementation for Autoscaler {
             match client.request::<hpa::HorizontalPodAutoscaler>(req) {
                 Ok(hpa) => hpa,
                 Err(e) => {
+                    if e.to_string().contains("NotFound") {
+                        warn!("Autoscaler not found {}. Recreating ...", e.to_string());
+                        self.add(ns, client).unwrap_or(());
+                    }
                     resource.insert(key, e.to_string());
                     return Some(resource);
                 }

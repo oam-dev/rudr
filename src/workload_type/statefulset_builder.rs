@@ -1,7 +1,6 @@
 use crate::schematic::component::Component;
 use crate::workload_type::workload_builder;
 use crate::workload_type::{InstigatorResult, ParamMap};
-use failure::Error;
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
@@ -91,16 +90,14 @@ impl StatefulsetBuilder {
         }
     }
 
-    pub fn status(self, client: APIClient, namespace: String) -> Result<String, Error> {
+    pub fn status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
         let sts: Object<_, apps::StatefulSetStatus> =
             match kube::api::Api::v1StatefulSet(client.clone())
                 .within(namespace.as_str())
                 .get_status(self.name.as_str())
             {
                 Ok(sts) => sts,
-                Err(e) => {
-                    return Ok(e.to_string());
-                }
+                Err(e) => return Err(e)
             };
         let status: apps::StatefulSetStatus = sts.status.unwrap();
         let replica = status.replicas;
