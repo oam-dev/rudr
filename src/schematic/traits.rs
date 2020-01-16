@@ -29,10 +29,10 @@ pub const INGRESS: &str = "ingress";
 pub const AUTOSCALER: &str = "auto-scaler";
 pub const MANUAL_SCALER: &str = "manual-scaler";
 pub const VOLUME_MOUNTER: &str = "volume-mounter";
-pub const INGRESS_V1ALPHA1: &str = "ingress.core.oam.dev/v1alpha1";
-pub const AUTOSCALER_V1ALPHA1: &str = "auto-scaler.core.oam.dev/v1alpha1";
-pub const MANUAL_SCALER_V1ALPHA1: &str = "manual-scaler.core.oam.dev/v1alpha1";
-pub const VOLUME_MOUNTER_V1ALPHA1: &str = "volume-mounter.core.oam.dev/v1alpha1";
+pub const INGRESS_V1ALPHA1: &str = "ingress";
+pub const AUTOSCALER_V1ALPHA1: &str = "auto-scaler";
+pub const MANUAL_SCALER_V1ALPHA1: &str = "manual-scaler";
+pub const VOLUME_MOUNTER_V1ALPHA1: &str = "volume-mounter";
 pub const EMPTY: &str = "empty";
 
 /// Trait describes OAM traits.

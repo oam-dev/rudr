@@ -175,7 +175,7 @@ fn test_ingress_defaults() {
 #[test]
 fn test_ingress_v1alpha1() {
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress.core.oam.dev/v1alpha1"),
+        name : String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "hostname": "in.example.com",
@@ -237,7 +237,7 @@ fn test_ingress_v1alpha1() {
 #[test]
 fn test_ingress_v1alpha1_invalid_service_port() {
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress.core.oam.dev/v1alpha1"),
+        name : String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "hostname": "in.example.com",
@@ -281,7 +281,7 @@ fn test_ingress_v1alpha1_invalid_service_port() {
 fn test_ingress_v1alpha_defaults() {
 
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress.core.oam.dev/v1alpha1"),
+        name : String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "servicePort": 9999

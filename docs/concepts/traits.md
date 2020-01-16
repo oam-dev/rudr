@@ -32,7 +32,7 @@ spec:
       - name: poem
         value: The Wasteland
     <b style="color:blue;">traits:</b>
-      - <b style="color:blue;">name:</b> ingress.core.oam.dev/v1alpha1
+      - <b style="color:blue;">name:</b> ingress
         properties:</b>
           hostname: example.com
           path: /
@@ -83,7 +83,7 @@ None. *The manual scaler trait has no external dependencies.*
 ```yaml
 # Example manual scaler trait entry
 traits:
-  - name: manual-scaler.core.oam.dev/v1alpha1
+  - name: manual-scaler
     properties:
       replicaCount: 3
 ```
@@ -118,7 +118,7 @@ $ helm install keda stable/keda
 
 ```yaml
 # Example autoscaler trait entry
-- name: auto-scaler.core.oam.dev/v1alpha1
+- name: auto-scaler
   properties:
     maximum: 6
     minimim: 2
@@ -188,7 +188,7 @@ spec:
     - componentName: nginx-replicated-v1
       instanceName: example-app
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: example.com
             path: /
@@ -277,7 +277,7 @@ spec:
     - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volume-mounter.core.oam.dev/v1alpha1
+        - name: volume-mounter
           properties:
             volumename: myvol
             storageClass: default

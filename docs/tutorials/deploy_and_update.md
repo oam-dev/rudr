@@ -168,7 +168,7 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: example.com
             path: /
@@ -215,7 +215,7 @@ spec:
     - name: port
       value: "9999"
     traits:
-      - name: ingress.core.oam.dev/v1alpha1
+      - name: ingress
         properties:
           hostname: example.com
           path: /
@@ -277,7 +277,7 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
 -           hostname: example.com
 +           hostname: oam.example.com
@@ -322,7 +322,7 @@ spec:
     - name: port
       value: "9999"
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: oam.example.com
             path: /
@@ -382,7 +382,7 @@ spec:
         - name: port
           value: '9999'
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: oam.example.com
             path: /

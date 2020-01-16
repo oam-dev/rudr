@@ -57,7 +57,7 @@ spec:
         - name: port
           value: "9999"
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
         properties:
           hostname: example.com
           path: /

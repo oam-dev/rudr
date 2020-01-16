@@ -71,7 +71,7 @@ fn test_manual_scaler_v1alpha1_properties() {
     };
 
     let manualscaler_alpha1_trait = TraitBinding {
-        name : String::from("manual-scaler.core.oam.dev/v1alpha1"),
+        name : String::from("manual-scaler"),
 		parameter_values: None,
         properties: Some(json!({
 		    "replicaCount": 3

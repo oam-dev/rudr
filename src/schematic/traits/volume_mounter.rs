@@ -254,7 +254,7 @@ mod test {
             ..Default::default()
         };
         let volume_mounter_alpha1_trait = TraitBinding {
-            name : String::from("volume-mounter.core.oam.dev/v1alpha1"),
+            name : String::from("volume-mounter"),
             parameter_values: None,
             properties: Some(json!({
                 "storageClass": "really-fast",

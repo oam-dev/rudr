@@ -204,7 +204,7 @@ spec:
         - name: write_debug
           value: "false"
       traits:
-        - name: manual-scaler.core.oam.dev/v1alpha1
+        - name: manual-scaler
           properties:
             replicaCount: 2
 ```
@@ -255,7 +255,7 @@ spec:
         - name: write_debug
           value: "false"
       traits:
-        - name: manual-scaler.core.oam.dev/v1alpha1
+        - name: manual-scaler
           properties:
             replicaCount: 3
 ```

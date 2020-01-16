@@ -29,7 +29,7 @@ spec:
     - componentName: server-with-volume-v1
       instanceName: example-server-with-volume
       traits:
-        - name: volume-mounter.core.oam.dev/v1alpha1
+        - name: volume-mounter
           properties:
             volumeName: myvol
             storageClass: default

@@ -7,7 +7,7 @@ spec:
     - componentName: alpine-singleton-worker-v1
       instanceName: singleton-nginx-app
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           parameterValues:
             hostname: example.com
             path: /

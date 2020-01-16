@@ -12,7 +12,7 @@ spec:
         - name: poem
           value: The Wasteland
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           parameterValues:
             hostname: example.com
             path: /

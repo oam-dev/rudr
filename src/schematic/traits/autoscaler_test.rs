@@ -144,7 +144,7 @@ fn test_autoscaler_multi_metrics_resource() {
 #[test]
 fn test_autoscaler_v1alpha1_cpu() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler.core.oam.dev/v1alpha1"),
+        name : String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "cpu": 42,
@@ -188,7 +188,7 @@ fn test_autoscaler_v1alpha1_cpu() {
 #[test]
 fn test_autoscaler_v1alpha1_memory() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler.core.oam.dev/v1alpha1"),
+        name : String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "memory": 50,
@@ -232,7 +232,7 @@ fn test_autoscaler_v1alpha1_memory() {
 #[test]
 fn test_autoscaler_v1alpha1_multi_metrics_resource() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler.core.oam.dev/v1alpha1"),
+        name : String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "cpu": 42,
