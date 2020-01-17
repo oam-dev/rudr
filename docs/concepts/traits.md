@@ -94,11 +94,9 @@ Autoscaler trait is used autoscale components with replicable workloads. This is
 
 ### Installation
 
-To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`. We recommend using the [Kubernetes-based Event Driven Autoscaling](https://hub.helm.sh/charts/kedacore/keda-edge) (KEDA) controller:
+To use the autoscaler trait, you must install a controller for Kubernetes `HorizontalPodAutoscaler`.
 
-```console
-$ helm install keda stable/keda
-```
+We recommend using the [Kubernetes-based Event Driven Autoscaling](https://hub.helm.sh/charts/kedacore/keda-edge) (KEDA) controller. You can learn how to install it in our [installation docs](https://github.com/oam-dev/rudr/blob/master/docs/setup/install.md#autoscaler).
 
 ### Supported workload types
 
