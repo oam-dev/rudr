@@ -21,34 +21,6 @@ pub struct ManualScaler {
 }
 
 impl ManualScaler {
-    pub fn from_params(
-        name: String,
-        instance_name: String,
-        component_name: String,
-        params: ParamMap,
-        owner_ref: OwnerRefs,
-        workload_type: String,
-    ) -> ManualScaler {
-        log::debug!("params: {:?}", &params);
-        let instancename = instance_name.clone();
-        ManualScaler {
-            name,
-            instance_name,
-            component_name,
-            owner_ref,
-            workload_type,
-            replica_count: params
-                .get("replicaCount")
-                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
-                .unwrap_or_else(|| params
-                    .get("replicaCount")
-                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
-                             warn!("replicaCount value is provided as string instead of 'int' for the instance:{}. Setting it to default:1.", instancename); 1
-                         })))
-                    .unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default:1.", instancename); 1} )
-                   ),
-        }
-    }
     pub fn from_properties(
         name: String,
         instance_name: String,
