@@ -25,10 +25,6 @@ mod manual_scaler_test;
 #[cfg(test)]
 mod ingress_test;
 
-pub const INGRESS: &str = "ingress";
-pub const AUTOSCALER: &str = "auto-scaler";
-pub const MANUAL_SCALER: &str = "manual-scaler";
-pub const VOLUME_MOUNTER: &str = "volume-mounter";
 pub const INGRESS_V1ALPHA1: &str = "ingress";
 pub const AUTOSCALER_V1ALPHA1: &str = "auto-scaler";
 pub const MANUAL_SCALER_V1ALPHA1: &str = "manual-scaler";
