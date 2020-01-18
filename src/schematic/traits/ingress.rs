@@ -22,38 +22,6 @@ pub struct Ingress {
     pub owner_ref: OwnerRefs,
 }
 impl Ingress {
-    pub fn from_params(
-        name: String,
-        instance_name: String,
-        component_name: String,
-        params: ParamMap,
-        owner_ref: OwnerRefs,
-    ) -> Self {
-        // Right now, we're relying on the higher level validation logic to validate types.
-        let instancename = instance_name.clone();
-        Ingress {
-            name,
-            instance_name,
-            component_name,
-            owner_ref,
-            svc_port: params
-                .get("service_port")
-                .and_then(|p| p.as_i64().map(|p64| p64 as i32))
-                .unwrap_or_else(|| params
-                    .get("service_port")
-                    .and_then(|p| p.as_str().map(|pstr| pstr.parse::<i32>().unwrap_or_else(|_| {
-                           warn!("service_port value is provided as string instead of 'int' for the instance:{}. Setting it to default value:80.", instancename); 80
-                        })))
-                    .unwrap_or_else(|| { warn!("Unable to parse service_port value for instance:{}. Setting it to default value:80", instancename); 80} )
-                   ),
-            hostname: params
-                .get("hostname")
-                .map(|p| p.as_str().unwrap_or("").to_string()),
-            path: params
-                .get("path")
-                .map(|p| p.as_str().unwrap_or("").to_string()),
-        }
-    }
     pub fn from_properties(
         name: String,
         instance_name: String,

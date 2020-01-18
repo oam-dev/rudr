@@ -15,14 +15,14 @@ spec:
     - componentName: voting-frontend-v1
       instanceName: voter-fe
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
           hostname: voting.example.com
           path: /
     - componentName: voting-admin-v1
       instanceName: voter-admin
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
           hostname: admin.example.com
           path: /

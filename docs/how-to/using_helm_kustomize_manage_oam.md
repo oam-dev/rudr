@@ -30,12 +30,12 @@ spec:
         - name: port
           value: "{{ .Values.port }}"
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: example.com
             path: /
             servicePort: {{ .Values.port }}
-        - name: manual-scaler.core.oam.dev/v1alpha1
+        - name: manual-scaler
           properties:
             replicaCount: {{ .Values.replicaCount }}
 ```
@@ -88,12 +88,12 @@ spec:
         - name: port
           value: "{{ .Values.service.port }}"
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           properties:
             hostname: example.com
             path: /
             servicePort: {{ .Values.port }}
-        - name: manual-scaler.core.oam.dev/v1alpha1
+        - name: manual-scaler
           properties:
             replicaCount: {{ .Values.replicaCount }}
 ```

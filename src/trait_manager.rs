@@ -105,48 +105,6 @@ impl TraitManager {
                 debug!("Manual_scaler: {:?}", scaler);
                 Ok(OAMTrait::ManualScaler(scaler))
             }
-            traits::INGRESS => {
-                let ing = Ingress::from_params(
-                    self.config_name.clone(),
-                    self.instance_name.clone(),
-                    self.component.component_name.clone(),
-                    trait_values,
-                    self.owner_ref.clone(),
-                );
-                Ok(OAMTrait::Ingress(ing))
-            }
-            traits::VOLUME_MOUNTER => {
-                let volmount = VolumeMounter::from_params(
-                    self.config_name.clone(),
-                    self.instance_name.clone(),
-                    self.component.component_name.clone(),
-                    trait_values,
-                    self.owner_ref.clone(),
-                    self.component_schematic.clone(),
-                );
-                Ok(OAMTrait::VolumeMounter(Box::new(volmount)))
-            }
-            traits::AUTOSCALER => {
-                let auto = Autoscaler::from_params(
-                    self.config_name.clone(),
-                    self.instance_name.clone(),
-                    self.component.component_name.clone(),
-                    trait_values,
-                    self.owner_ref.clone(),
-                );
-                Ok(OAMTrait::Autoscaler(auto))
-            }
-            traits::MANUAL_SCALER => {
-                let scaler = ManualScaler::from_params(
-                    self.config_name.clone(),
-                    self.instance_name.clone(),
-                    self.component.component_name.clone(),
-                    trait_values,
-                    self.owner_ref.clone(),
-                    self.workload_type.clone(),
-                );
-                Ok(OAMTrait::ManualScaler(scaler))
-            }
             // Empty is a debugging tool for checking whether the traits system is functioning independently of
             // its environment.
             traits::EMPTY => {

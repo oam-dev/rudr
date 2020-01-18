@@ -38,7 +38,7 @@ spec:
     - name: section
       value: "[fromVariable(SECTION_NUMBER)]"
     <b style="color:blue;">traits</b>:
-    - name: ingress.core.oam.dev/v1alpha1
+    - name: ingress
       properties:
         hostname: example.com
         path: /
@@ -154,7 +154,7 @@ components:
   - name: port
     value: '9999'
   traits:
-    - name: ingress.core.oam.dev/v1alpha1
+    - name: ingress
       properties:
         hostname: example.com
         path: /
@@ -173,7 +173,7 @@ For each of your components, you can optionally define one or more traits. A tra
 # Example trait entry
 
 traits:
-  - name: ingress.core.oam.dev/v1alpha1
+  - name: ingress
     properties:
       hostname: example.com
       path: /

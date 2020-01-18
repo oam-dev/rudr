@@ -41,32 +41,6 @@ pub struct VolumeMounter {
 }
 
 impl VolumeMounter {
-    pub fn from_params(
-        name: String,
-        instance_name: String,
-        component_name: String,
-        params: ParamMap,
-        owner_ref: OwnerRefs,
-        component: Component,
-    ) -> Self {
-        VolumeMounter {
-            name,
-            component_name,
-            instance_name,
-            owner_ref,
-            component,
-            volume_name: params
-                .get("volumeName")
-                .and_then(|v| v.as_str())
-                .unwrap_or("")
-                .to_string(),
-            storage_class: params
-                .get("storageClass")
-                .and_then(|v| v.as_str())
-                .unwrap_or("")
-                .to_string(),
-        }
-    }
     pub fn from_properties(
         name: String,
         instance_name: String,
@@ -237,12 +211,6 @@ mod test {
     };
 
     use crate::workload_type::ParamMap;
-    #[test]
-    fn test_from_params() {
-        let vm = mock_volume_mounter("name", Default::default());
-        assert_eq!("really-fast", vm.storage_class);
-        assert_eq!("panda-bears", vm.volume_name);
-    }
 
     #[test]
     fn test_from_properties_v1alpha1() {
@@ -254,7 +222,7 @@ mod test {
             ..Default::default()
         };
         let volume_mounter_alpha1_trait = TraitBinding {
-            name : String::from("volume-mounter.core.oam.dev/v1alpha1"),
+            name : String::from("volume-mounter"),
             parameter_values: None,
             properties: Some(json!({
                 "storageClass": "really-fast",
@@ -279,37 +247,6 @@ mod test {
         assert_eq!("panda-bears", vm.volume_name);
     }
 
-    #[test]
-    fn test_to_pvc() {
-        let component = Component {
-            workload_type: "Server".into(),
-            parameters: vec![],
-            containers: vec![],
-            workload_settings: vec![],
-            ..Default::default()
-        };
-        let pvc = mock_volume_mounter("name", component).to_pvc();
-
-        assert_eq!(
-            "panda-bears",
-            pvc.metadata.expect("metadata").name.expect("name")
-        )
-    }
-
-    #[test]
-    fn test_find_volume() {
-        let component = Component {
-            workload_type: "Server".into(),
-            parameters: vec![],
-            containers: vec![mock_container("test")],
-            workload_settings: vec![],
-            ..Default::default()
-        };
-        let vm = mock_volume_mounter("test", component);
-        let volume = vm.find_volume().expect("found volume");
-        assert_eq!("panda-bears".to_string(), volume.name);
-    }
-
     fn mock_container(name: &str) -> Container {
         Container {
             name: name.to_string(),
@@ -328,18 +265,5 @@ mod test {
             },
             ..Default::default()
         }
-    }
-    fn mock_volume_mounter(name: &str, component: Component) -> VolumeMounter {
-        let mut params = ParamMap::new();
-        params.insert("storageClass".into(), serde_json::json!("really-fast"));
-        params.insert("volumeName".into(), serde_json::json!("panda-bears"));
-        VolumeMounter::from_params(
-            name.to_string(),
-            "instance name".to_string(),
-            "component name".to_string(),
-            params,
-            None,
-            component,
-        )
     }
 }

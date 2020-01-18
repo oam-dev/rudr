@@ -7,7 +7,7 @@ spec:
     - componentName: nginx-singleton-v1
       instanceName: multi-singleton-1
       traits:
-        - name: ingress.core.oam.dev/v1alpha1
+        - name: ingress
           parameterValues:
             hostname: example.com
             path: /

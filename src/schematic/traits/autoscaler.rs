@@ -21,32 +21,6 @@ pub struct Autoscaler {
 }
 
 impl Autoscaler {
-    pub fn from_params(
-        name: String,
-        instance_name: String,
-        component_name: String,
-        params: ParamMap,
-        owner_ref: OwnerRefs,
-    ) -> Self {
-        Autoscaler {
-            name,
-            component_name,
-            instance_name,
-            owner_ref,
-            minimum: params
-                .get("minimum")
-                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
-            maximum: params
-                .get("maximum")
-                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
-            cpu: params
-                .get("cpu")
-                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
-            memory: params
-                .get("memory")
-                .and_then(|p| p.as_i64().map(|i64| i64 as i32)),
-        }
-    }
     pub fn from_properties(
         name: String,
         instance_name: String,
