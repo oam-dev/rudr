@@ -51,6 +51,10 @@ impl WorkloadMetadata {
             "oam.dev/instance-name".to_string(),
             self.instance_name.clone(),
         );
+        labels.insert(
+            "component.kubernetes.io".to_string(),
+            self.component_name.to_string(),
+        );
         labels
     }
     pub fn select_labels(&self) -> BTreeMap<String, String> {

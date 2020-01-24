@@ -27,6 +27,8 @@ use crate::{
         WorkloadType, OAM_API_VERSION,
     },
 };
+use k8s_openapi::api::core::v1::{Pod, PodList};
+use kube::api::ListParams;
 
 pub const CONFIG_GROUP: &str = "core.oam.dev";
 pub const CONFIG_VERSION: &str = "v1alpha1";
@@ -36,6 +38,7 @@ pub const COMPONENT_CRD: &str = "componentschematics";
 pub const TRAIT_CRD: &str = "traits";
 pub const SCOPE_CRD: &str = "scopes";
 pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
+pub const MAX_PODLIST_SIZE: u32 = 10;
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
@@ -190,7 +193,25 @@ impl Instigator {
                     status.insert(key, state);
                 }
             };
+            let pod_list_params = ListParams {
+                field_selector: None,
+                include_uninitialized: false,
+                label_selector: Some("component.kubernetes.io=".to_owned() + component.component_name.as_str()),
+                timeout: None
+            };
+
+            let req = RawApi::v1Pod().list(&pod_list_params)?;
+
+            match self.client.request::<PodList>(req) {
+                Ok(pods) => {
+                    for pod in pods.items {
+                        self.check_container_statuses_for_pod(pod, &mut status);
+                    }
+                }
+                Err(e) => error!("get pod list err {}", e),
+            }
             component_status.insert(component.component_name.clone(), status.clone());
+
         }
         //we won't update status if there's any update
         if has_diff || !last_components.is_empty() {
@@ -209,6 +230,59 @@ impl Instigator {
             None,
             "StatusCheckLoop".to_string(),
         )
+    }
+
+/// Check both pod and its containers' statuses, add failure reasons and messages
+/// to cfg's status field
+    pub fn check_container_statuses_for_pod(
+        &self,
+        pod: Pod,
+        pod_status_map: &mut BTreeMap<String, String>
+    ) {
+        // unbox pod and container options
+        if let Some(pod_status) = pod.status {
+            if let Some(container_statuses) = pod_status.container_statuses {
+                for container_status in container_statuses {
+                    if !container_status.ready {
+                        if let Some(container_state) = container_status.state {
+                            let mut reason_message: String = String::new();
+
+                            if let Some(terminated) = container_state.terminated {
+                                if let Some(reason) = terminated.reason {
+                                    reason_message.push_str("Reason: ".as_ref());
+                                    reason_message.push_str(reason.as_ref());
+                                }
+                                if let Some(message) = terminated.message {
+                                    reason_message.push_str("message: ".as_ref());
+                                    reason_message.push_str(message.as_ref());
+                                }
+                            }
+
+                            if let Some(waiting) = container_state.waiting {
+                                if let Some(reason) = waiting.reason {
+                                    reason_message.push_str("Reason: ".as_ref());
+                                    reason_message.push_str(reason.as_ref());
+                                }
+                                if let Some(message) = waiting.message {
+                                    reason_message.push_str("message: ".as_ref());
+                                    reason_message.push_str(message.as_ref());
+                                }
+                            }
+
+                            if !reason_message.is_empty() {
+                                if let Some(metadata) = pod.metadata.clone() {
+                                    if let Some(name) = metadata.name {
+                                        pod_status_map.insert("pod/".to_string() + &name, reason_message);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
     pub fn retry_patch_status(
