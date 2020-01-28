@@ -107,7 +107,7 @@ metadata:
 
 A component must declare its associated [workload type](https://github.com/oam-dev/spec/blob/master/3.component_model.md#workload-types), which is an indicator to the runtime as to how the developer intends for this component to be executed. 
 
-**See the [Workload types](../how-to/workloads.md) topic guide for more on choosing a workload type for your component.**
+**See the [Workload types](../concepts/workloads.md) topic guide for more on choosing a workload type for your component.**
 
 [Here's an example](../../examples/helloworld-python-component.yaml) declaration of the component workload type:
 
