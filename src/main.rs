@@ -1,3 +1,4 @@
+use chrono::Local;
 use clap::{App, Arg};
 use env_logger;
 use failure::{format_err, Error};
@@ -7,6 +8,7 @@ use hyper::{Body, Method, Response, Server, StatusCode};
 use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, Reflector, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config, ApiError};
 use log::{debug, error, info};
+use std::io::Write;
 
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1beta1::{
     CustomResourceDefinitionSpec as CrdSpec, CustomResourceDefinitionStatus as CrdStatus,
@@ -36,6 +38,22 @@ type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
 
 fn main() -> Result<(), Error> {
+    let env = env_logger::Env::default().filter_or(env_logger::DEFAULT_FILTER_ENV, "trace");
+    env_logger::Builder::from_env(env)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "{} {} [{}:{}:{}] {}",
+                Local::now().format("%Y-%m-%d %H:%M:%S"),
+                record.level(),
+                record.module_path().unwrap_or("<unnamed>"),
+                record.file().unwrap_or("<unknown>"),
+                record.line().unwrap_or(0),
+                &record.args()
+            )
+        })
+        .init();
+
     let flags = App::new("rudr")
         .version(env!("CARGO_PKG_VERSION"))
         .arg(
@@ -48,7 +66,6 @@ fn main() -> Result<(), Error> {
         .get_matches();
     let metrics_addr = "0.0.0.0".to_owned() + flags.value_of("metrics-addr").unwrap();
 
-    env_logger::init();
     info!("starting server");
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
