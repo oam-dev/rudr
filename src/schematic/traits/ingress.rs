@@ -1,11 +1,10 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
-use crate::workload_type::ParamMap;
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
 use kube::client::APIClient;
-use std::collections::BTreeMap;
-use log::{warn};
+use log::warn;
 use serde_json::map::Map;
+use std::collections::BTreeMap;
 
 /// An Ingress trait creates an ingress point to the workload type to which it is attached.
 ///
