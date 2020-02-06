@@ -34,7 +34,7 @@ pub const CONFIG_VERSION: &str = "v1alpha1";
 pub const CONFIG_CRD: &str = "applicationconfigurations";
 pub const COMPONENT_CRD: &str = "componentschematics";
 pub const TRAIT_CRD: &str = "traits";
-pub const SCOPE_CRD: &str = "scopes";
+pub const SCOPE_CRD: &str = "applicationscopes";
 pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return

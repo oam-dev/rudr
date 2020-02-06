@@ -16,4 +16,4 @@ spec:
     singular: trait
     kind: Trait
     shortNames:
-    - trait
+      - trait
