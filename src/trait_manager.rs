@@ -11,7 +11,7 @@ use crate::{
     schematic::{
         component::Component,
         configuration::ComponentConfiguration,
-        parameter::{resolve_values, ParameterValue},
+        parameter::ParameterValue,
         traits::{
             self, Autoscaler, Empty, Ingress, ManualScaler, OAMTrait, TraitBinding, VolumeMounter,
         },
@@ -47,10 +47,6 @@ impl TraitManager {
         Ok(())
     }
     fn load_trait(&self, binding: &TraitBinding) -> Result<OAMTrait, failure::Error> {
-        let trait_values = resolve_values(
-            binding.parameter_values.clone().unwrap_or_else(|| vec![]),
-            self.parent_params.clone(),
-        )?;
         debug!("Trait binding params: {:?}", &binding.parameter_values);
         let empty_value_ref: &serde_json::Value = &json!("");
         let prop_map: Option<&Map<String, serde_json::value::Value>> = binding

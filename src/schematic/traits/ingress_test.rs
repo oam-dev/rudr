@@ -1,8 +1,6 @@
 use crate::schematic::traits::*;
-use crate::workload_type::ParamMap;
 use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use serde_json::json;
-use std::collections::BTreeMap;
 use serde_json::map::Map;
 
 #[test]
@@ -43,18 +41,19 @@ fn test_ingress_defaults() {
 #[test]
 fn test_ingress_v1alpha1() {
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress"),
+        name: String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "hostname": "in.example.com",
             "path": "/path",
             "servicePort": 9999
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&ingress_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
 
     let ig = Ingress::from_properties(
         "my-ingress".into(),
@@ -105,18 +104,19 @@ fn test_ingress_v1alpha1() {
 #[test]
 fn test_ingress_v1alpha1_invalid_service_port() {
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress"),
+        name: String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "hostname": "in.example.com",
             "path": "/path",
             "servicePort": 8080.01
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&ingress_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
     let ig = Ingress::from_properties(
         "my-ingress".into(),
         "squid".into(),
@@ -147,18 +147,18 @@ fn test_ingress_v1alpha1_invalid_service_port() {
 
 #[test]
 fn test_ingress_v1alpha_defaults() {
-
     let ingress_alpha1_trait = TraitBinding {
-        name : String::from("ingress"),
+        name: String::from("ingress"),
         parameter_values: None,
         properties: Some(json!({
             "servicePort": 9999
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&ingress_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
 
     let ig = Ingress::from_properties(
         "my-ingress".into(),
