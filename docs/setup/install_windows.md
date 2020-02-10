@@ -16,11 +16,6 @@ Installing necessary software packages on Windows is made easier with the packag
 
         minikube start --vm-driver hyperv --hyperv-virtual-switch <Name of virtual switch> --v=7 --kubernetes-version v1.17.0
 
-    Enable the Ingress addon, which we will use later as an implementation of traits. For more on traits, view a [Conceptual Overview](https://github.com/oam-dev/rudr/blob/master/docs/concepts/traits.md).
-
-        minikube addons enable ingress
-
-
     Verify the installation is working properly with: 
 
         kubectl get pods -n kube-system
