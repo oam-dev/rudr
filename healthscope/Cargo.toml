@@ -10,7 +10,6 @@ edition = "2018"
 kube = { version = "0.25.0", features = ["openapi"] }
 k8s-openapi = { version = "0.7.1", features = ["v1_15"] }
 serde = "1.0"
-serde_derive = "1.0"
 serde_json = "1.0"
 failure = "0.1.5"
 futures = "0.3.4"
@@ -21,3 +20,4 @@ hyper = "0.13"
 clap = "~2.33"
 chrono = "0.4"
 rudr = { path = '../' }
+tokio = "0.2.11"
