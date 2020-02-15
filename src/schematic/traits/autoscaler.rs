@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
@@ -114,8 +115,9 @@ impl Autoscaler {
     }
 }
 
+#[async_trait]
 impl TraitImplementation for Autoscaler {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
         let scaler = self.to_horizontal_pod_autoscaler();
         let (req, _) = hpa::HorizontalPodAutoscaler::create_namespaced_horizontal_pod_autoscaler(
             ns,
@@ -125,14 +127,14 @@ impl TraitImplementation for Autoscaler {
 
         // Deserialize into a Value b/c the response from Kubernetes is not
         // deserializing into an hpa::HorizontalPodAutoscaler correctly.
-        let res = client.request::<serde_json::Value>(req)?;
+        let res = client.request::<serde_json::Value>(req).await?;
         println!(
             "Autoscaler: {}",
             serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string())
         );
         Ok(())
     }
-    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
         let scaler = self.to_horizontal_pod_autoscaler();
 
         let values = serde_json::to_value(&scaler)?;
@@ -145,27 +147,27 @@ impl TraitImplementation for Autoscaler {
 
         // Deserialize into a Value b/c the response from Kubernetes is not
         // deserializing into an hpa::HorizontalPodAutoscaler correctly.
-        let res = client.request::<serde_json::Value>(req)?;
+        let res = client.request::<serde_json::Value>(req).await?;
         println!(
             "Autoscaler modified: {}",
             serde_json::to_string_pretty(&res).unwrap_or_else(|e| e.to_string())
         );
         Ok(())
     }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) = hpa::HorizontalPodAutoscaler::delete_namespaced_horizontal_pod_autoscaler(
             self.kube_name().as_str(),
             ns,
             Default::default(),
         )?;
-        client.request::<serde_json::Value>(req)?;
+        client.request::<serde_json::Value>(req).await?;
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
-    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         let mut resource = BTreeMap::new();
         let key = "horizontalpodautoscaler/".to_string() + self.kube_name().as_str();
         let (req, _) =
@@ -181,12 +183,12 @@ impl TraitImplementation for Autoscaler {
                 }
             };
         let resp: hpa::HorizontalPodAutoscaler =
-            match client.request::<hpa::HorizontalPodAutoscaler>(req) {
+            match client.request::<hpa::HorizontalPodAutoscaler>(req).await {
                 Ok(hpa) => hpa,
                 Err(e) => {
                     if e.to_string().contains("NotFound") {
                         warn!("Autoscaler not found {}. Recreating ...", e.to_string());
-                        self.add(ns, client).unwrap_or(());
+                        self.add(ns, client).await.unwrap_or(());
                     }
                     resource.insert(key, e.to_string());
                     return Some(resource);

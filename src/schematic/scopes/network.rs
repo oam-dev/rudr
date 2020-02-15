@@ -49,20 +49,20 @@ impl Network {
     pub fn scope_type(&self) -> String {
         String::from(NETWORK_SCOPE)
     }
-    pub fn create(&self, _owner: meta::OwnerReference) -> Result<(), Error> {
+    pub async fn create(&self, _owner: meta::OwnerReference) -> Result<(), Error> {
         Err(format_err!("network scope create not implemented"))
     }
-    pub fn modify(&self) -> Result<(), Error> {
+    pub async fn modify(&self) -> Result<(), Error> {
         Err(format_err!("network scope modify not implemented"))
     }
     /// could let OwnerReference delete
-    pub fn delete(&self) -> Result<(), Error> {
+    pub async fn delete(&self) -> Result<(), Error> {
         Err(format_err!("network scope delete not implemented"))
     }
-    pub fn add(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
+    pub async fn add(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
         Err(format_err!("network scope add component not implemented"))
     }
-    pub fn remove(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
+    pub async fn remove(&self, _spec: ComponentConfiguration) -> Result<(), Error> {
         Err(format_err!(
             "network scope remove component not implemented"
         ))
@@ -77,10 +77,10 @@ mod test {
     use kube::config::Configuration;
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
 
     #[test]

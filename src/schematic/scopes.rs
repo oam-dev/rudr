@@ -45,38 +45,38 @@ impl OAMScope {
         }
     }
     /// create will create a real scope instance
-    pub fn create(&self, owner: meta::OwnerReference) -> Result<(), Error> {
+    pub async fn create(&self, owner: meta::OwnerReference) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.create(convert_owner_ref(owner.clone())),
-            OAMScope::Network(n) => n.create(owner.clone()),
+            OAMScope::Health(h) => h.create(convert_owner_ref(owner.clone())).await,
+            OAMScope::Network(n) => n.create(owner.clone()).await,
         }
     }
     /// modify will modify the scope instance
-    pub fn modify(&self) -> Result<(), Error> {
+    pub async fn modify(&self) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.modify(),
-            OAMScope::Network(n) => n.modify(),
+            OAMScope::Health(h) => h.modify().await,
+            OAMScope::Network(n) => n.modify().await,
         }
     }
     /// delete will delete the scope instance, we can depend on OwnerReference if only k8s objects were created
-    pub fn delete(&self) -> Result<(), Error> {
+    pub async fn delete(&self) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.delete(),
-            OAMScope::Network(n) => n.delete(),
+            OAMScope::Health(h) => h.delete().await,
+            OAMScope::Network(n) => n.delete().await,
         }
     }
     /// add will add a component to this scope
-    pub fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+    pub async fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.add(spec),
-            OAMScope::Network(n) => n.add(spec),
+            OAMScope::Health(h) => h.add(spec).await,
+            OAMScope::Network(n) => n.add(spec).await,
         }
     }
     /// remove will remove component from this scope
-    pub fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+    pub async fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.remove(spec),
-            OAMScope::Network(n) => n.remove(spec),
+            OAMScope::Health(h) => h.remove(spec).await,
+            OAMScope::Network(n) => n.remove(spec).await,
         }
     }
 }

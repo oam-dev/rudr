@@ -90,11 +90,12 @@ impl StatefulsetBuilder {
         }
     }
 
-    pub fn status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
+    pub async fn status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
         let sts: Object<_, apps::StatefulSetStatus> =
             match kube::api::Api::v1StatefulSet(client.clone())
                 .within(namespace.as_str())
                 .get_status(self.name.as_str())
+                .await
             {
                 Ok(sts) => sts,
                 Err(e) => return Err(e)
@@ -109,28 +110,28 @@ impl StatefulsetBuilder {
         Ok(state)
     }
 
-    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let statefulset = self.to_statefulset();
         match phase {
             "modify" => {
                 let pp = kube::api::PatchParams::default();
                 kube::api::Api::v1StatefulSet(client)
                     .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&statefulset)?)?;
+                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&statefulset)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
                 kube::api::Api::v1StatefulSet(client)
                     .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp)?;
+                    .delete(self.name.as_str(), &pp).await?;
                 Ok(())
             }
             _ => {
                 let pp = kube::api::PostParams::default();
                 kube::api::Api::v1StatefulSet(client)
                     .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&statefulset)?)?;
+                    .create(&pp, serde_json::to_vec(&statefulset)?).await?;
                 Ok(())
             }
         }

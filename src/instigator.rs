@@ -100,7 +100,7 @@ impl Instigator {
         }
     }
 
-    pub fn sync_status(&self, event: OpResource) -> InstigatorResult {
+    pub async fn sync_status(&self, event: OpResource) -> InstigatorResult {
         let mut component_status = BTreeMap::new();
         let name = event.metadata.name.clone();
         let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
@@ -111,7 +111,7 @@ impl Instigator {
                 self.namespace.clone(),
                 component.component_name.clone(),
                 self.client.clone(),
-            )?;
+            ).await?;
 
             let new_record = &ComponentRecord {
                 version: comp_def.clone().metadata.resourceVersion.unwrap(),
@@ -145,7 +145,7 @@ impl Instigator {
             let owner_ref = self.component_instance_owner_reference(
                 component.component_name.clone(),
                 inst_name.clone(),
-            )?;
+            ).await?;
             let new_owner_ref = Some(owner_ref);
 
             let workload_meta = self.get_workload_meta(
@@ -158,7 +158,7 @@ impl Instigator {
             );
             // Instantiate components
             let workload = self.load_workload_type(&comp_def, workload_meta)?;
-            let mut status = workload.status()?;
+            let mut status = workload.status().await?;
             debug!(
                 "StatusCheckLoop: Sync component {}, got status {:?}",
                 component.component_name.clone(),
@@ -175,7 +175,7 @@ impl Instigator {
                 component.component_name.clone(),
                 inst_name.clone(),
                 health_state,
-            )?;
+            ).await?;
             // Load all of the traits related to this component.
             let mut trait_manager = TraitManager {
                 config_name: name.clone(),
@@ -189,7 +189,7 @@ impl Instigator {
             };
             trait_manager.load_traits()?;
             if let Some(trait_status) =
-                trait_manager.status(self.namespace.as_str(), self.client.clone())
+                trait_manager.status(self.namespace.as_str(), self.client.clone()).await
             {
                 for (key, state) in trait_status {
                     status.insert(key, state);
@@ -213,10 +213,10 @@ impl Instigator {
             )),
             None,
             "StatusCheckLoop".to_string(),
-        )
+        ).await
     }
 
-    pub fn retry_patch_status(
+    pub async fn retry_patch_status(
         &self,
         event: OpResource,
         status: Option<OAMStatus>,
@@ -239,7 +239,7 @@ impl Instigator {
                 &event.metadata.name,
                 &patch_params,
                 serde_json::to_vec(&new_event)?,
-            ) {
+            ).await {
                 Ok(o) => {
                     debug!(
                         "{}: Patched status {:?} for {}",
@@ -248,14 +248,18 @@ impl Instigator {
                     return Ok(());
                 }
                 Err(e) => {
-                    if let Some(err) = e.api_error() {
+                    let api_err = match e {
+                        kube::Error::Api(ref err) => Some(err),
+                        _ => None,
+                    };
+                    if let Some(err) = api_err {
                         if err.reason == "Conflict" {
                             warn!(
                                 "{}: conflict happen to {}, retry",
                                 controlled_by,
                                 event.metadata.name.clone()
                             );
-                            new_event = config_resource.get(&event.metadata.name)?;
+                            new_event = config_resource.get(&event.metadata.name).await?;
                             continue;
                         }
                     }
@@ -267,7 +271,7 @@ impl Instigator {
 
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
-    fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
+    async fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
         let name = event.metadata.name.clone();
         let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
@@ -282,17 +286,17 @@ impl Instigator {
             match phase {
                 Phase::Add => {
                     for sc in scopes.iter() {
-                        sc.create(owner_ref.clone())?;
+                        sc.create(owner_ref.clone()).await?;
                     }
                 }
                 Phase::Modify => {
                     for sc in scopes.iter() {
-                        sc.modify()?;
+                        sc.modify().await?;
                     }
                 }
                 Phase::Delete => {
                     for sc in scopes.iter() {
-                        sc.delete()?;
+                        sc.delete().await?;
                     }
                 }
                 _ => {
@@ -319,7 +323,7 @@ impl Instigator {
                 self.namespace.clone(),
                 component.component_name.clone(),
                 self.client.clone(),
-            )?;
+            ).await?;
             //check last components in every component loop
             let new_record = &ComponentRecord {
                 version: comp_def.clone().metadata.resourceVersion.unwrap(),
@@ -347,7 +351,8 @@ impl Instigator {
                 .unwrap_or_else(|| vec![])
             {
                 let scopes =
-                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())?;
+                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())
+                    .await?;
                 for scope in scopes.iter() {
                     if !scope.allow_overlap() {
                         if scope_overlap.get(&scope.scope_type()).is_some() {
@@ -359,7 +364,7 @@ impl Instigator {
                         }
                         scope_overlap.insert(scope.scope_type(), true);
                     }
-                    scope.add(component.clone())?;
+                    scope.add(component.clone()).await?;
                 }
             }
 
@@ -381,7 +386,8 @@ impl Instigator {
 
             let inst_name = component.instance_name.clone();
             let new_owner_ref =
-                self.get_new_own_ref(phase.clone(), component.clone(), owner_ref.clone())?;
+                self.get_new_own_ref(phase.clone(), component.clone(), owner_ref.clone())
+                .await?;
 
             // Instantiate components
             let workload_meta = self.get_workload_meta(
@@ -413,14 +419,15 @@ impl Instigator {
                         "MainControlLoop: Adding component {}",
                         component.component_name.clone()
                     );
-                    workload.validate()?;
+                    workload.validate().await?;
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreAdd,
-                    )?;
-                    workload.add()?;
-                    trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)?;
+                    ).await?;
+                    workload.add().await?;
+                    trait_manager.exec(self.namespace.as_str(), self.client.clone(), Phase::Add)
+                        .await?;
                     if let Err(err) = self.event_handler.push_event_message(
                         kube_event::Type::Normal,
                         kube_event::Info {
@@ -432,7 +439,7 @@ impl Instigator {
                             reason: "".to_string(),
                         },
                         get_object_ref(event.clone()),
-                    ) {
+                    ).await {
                         error!("MainControlLoop: adding event err: {:?}", err)
                     }
                 }
@@ -442,18 +449,18 @@ impl Instigator {
                         component.component_name.clone()
                     );
 
-                    workload.validate()?;
+                    workload.validate().await?;
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreModify,
-                    )?;
-                    workload.modify()?;
+                    ).await?;
+                    workload.modify().await?;
                     trait_manager.exec(
                         self.namespace.as_str(),
                         self.client.clone(),
                         Phase::Modify,
-                    )?;
+                    ).await?;
                     if let Err(err) = self.event_handler.push_event_message(
                         kube_event::Type::Normal,
                         kube_event::Info {
@@ -465,7 +472,7 @@ impl Instigator {
                             reason: "".to_string(),
                         },
                         get_object_ref(event.clone()),
-                    ) {
+                    ).await {
                         error!("MainControlLoop: adding event err {:?}", err)
                     }
                 }
@@ -478,7 +485,7 @@ impl Instigator {
                         self.namespace.as_str(),
                         self.client.clone(),
                         Phase::PreDelete,
-                    )?;
+                    ).await?;
                     // we leave owner reference to do delete work, so we don't need to invoke delete function here.
                 }
                 _ => {
@@ -498,7 +505,7 @@ impl Instigator {
                 self.namespace.clone(),
                 component.component_name.clone(),
                 self.client.clone(),
-            )?;
+            ).await?;
             // Resolve variables/parameters
             let parent = get_variable_values(event.spec.variables.clone());
             let inst_name = component.instance_name.clone();
@@ -526,18 +533,20 @@ impl Instigator {
                 self.namespace.as_str(),
                 self.client.clone(),
                 Phase::PreDelete,
-            )?;
+            ).await?;
             //delete component instance and let owner_reference to delete real resource
-            self.delete_component_instance(component.component_name.clone(), inst_name.clone())?;
+            self.delete_component_instance(component.component_name.clone(), inst_name.clone())
+                .await?;
             for sc in &component
                 .application_scopes
                 .clone()
                 .unwrap_or_else(|| vec![])
             {
                 let scopes =
-                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())?;
+                    get_scope_instance(sc.clone(), self.namespace.clone(), self.client.clone())
+                    .await?;
                 for scope in scopes.iter() {
-                    scope.remove(component.clone())?;
+                    scope.remove(component.clone()).await?;
                 }
             }
             if let Err(err) = self.event_handler.push_event_message(
@@ -548,7 +557,7 @@ impl Instigator {
                     reason: "".to_string(),
                 },
                 get_object_ref(event.clone()),
-            ) {
+            ).await {
                 error!("MainControlLoop: adding event err {:?}", err)
             }
         }
@@ -574,20 +583,20 @@ impl Instigator {
             status,
             Some(annotation),
             "MainControlLoop".to_string(),
-        )
+        ).await
     }
 
     /// Create new Kubernetes objects based on this config.
-    pub fn add(&self, event: OpResource) -> InstigatorResult {
-        self.exec(event, Phase::Add)
+    pub async fn add(&self, event: OpResource) -> InstigatorResult {
+        self.exec(event, Phase::Add).await
     }
     /// Modify existing Kubernetes objects based on config and workload type.
-    pub fn modify(&self, event: OpResource) -> InstigatorResult {
-        self.exec(event, Phase::Modify)
+    pub async fn modify(&self, event: OpResource) -> InstigatorResult {
+        self.exec(event, Phase::Modify).await
     }
     /// Delete the Kubernetes objects associated with this config.
-    pub fn delete(&self, event: OpResource) -> InstigatorResult {
-        self.exec(event, Phase::Delete)
+    pub async fn delete(&self, event: OpResource) -> InstigatorResult {
+        self.exec(event, Phase::Delete).await
     }
 
     fn get_workload_meta(
@@ -674,7 +683,7 @@ impl Instigator {
         }
     }
 
-    fn get_new_own_ref(
+    async fn get_new_own_ref(
         &self,
         phase: Phase,
         component: ComponentConfiguration,
@@ -685,12 +694,12 @@ impl Instigator {
                 component.component_name.clone(),
                 component.instance_name.clone(),
                 owner_ref.clone(),
-            )?),
+            ).await?),
             Phase::Modify => {
                 let ownref = self.component_instance_owner_reference(
                     component.component_name.clone(),
                     component.instance_name.clone(),
-                );
+                ).await;
                 match ownref {
                     Err(err) => {
                         let e = err.to_string();
@@ -709,7 +718,7 @@ impl Instigator {
                             component.component_name.clone(),
                             component.instance_name.clone(),
                             owner_ref.clone(),
-                        )?)
+                        ).await?)
                     }
                     Ok(own) => Some(own),
                 }
@@ -719,7 +728,7 @@ impl Instigator {
         Ok(new)
     }
 
-    fn delete_component_instance(
+    async fn delete_component_instance(
         &self,
         component_name: String,
         instance_name: String,
@@ -731,7 +740,7 @@ impl Instigator {
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let req = crd_req.delete(name.as_str(), &pp)?;
-        if let Err(e) = self.client.request_status::<KubeComponentInstance>(req) {
+        if let Err(e) = self.client.request_status::<KubeComponentInstance>(req).await {
             if e.to_string().contains("NotFound") {
                 return Ok(());
             }
@@ -740,7 +749,7 @@ impl Instigator {
         Ok(())
     }
 
-    fn create_component_instance(
+    async fn create_component_instance(
         &self,
         component_name: String,
         instance_name: String,
@@ -772,13 +781,17 @@ impl Instigator {
         });
 
         let req = crd_req.create(&pp, serde_json::to_vec(&comp_inst)?)?;
-        let res: KubeComponentInstance = match self.client.request(req) {
+        let res: KubeComponentInstance = match self.client.request(req).await {
             Ok(res) => res,
             Err(e) => {
-                if let Some(api_err) = e.api_error() {
+                let api_err = match e {
+                    kube::Error::Api(ref err) => Some(err),
+                    _ => None
+                };
+                if let Some(api_err) = api_err {
                     if api_err.reason == "AlreadyExists" {
                         let req = crd_req.get(name.as_str())?;
-                        self.client.request(req)?
+                        self.client.request(req).await?
                     } else {
                         return Err(e.into());
                     }
@@ -804,7 +817,7 @@ impl Instigator {
         Ok(vec![new_owner])
     }
 
-    fn component_instance_owner_reference(
+    async fn component_instance_owner_reference(
         &self,
         component_name: String,
         instance_name: String,
@@ -815,7 +828,7 @@ impl Instigator {
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let req = crd_req.get(name.as_str())?;
-        let res: KubeComponentInstance = self.client.request(req)?;
+        let res: KubeComponentInstance = self.client.request(req).await?;
 
         let owner = meta::OwnerReference {
             api_version: OAM_API_VERSION.into(),
@@ -828,7 +841,7 @@ impl Instigator {
         Ok(vec![owner])
     }
 
-    fn component_instance_set_status(
+    async fn component_instance_set_status(
         &self,
         component_name: String,
         instance_name: String,
@@ -840,14 +853,14 @@ impl Instigator {
             .version(CONFIG_VERSION)
             .within(self.namespace.as_str());
         let req = crd_req.get(name.as_str())?;
-        let mut res: KubeComponentInstance = self.client.request(req)?;
+        let mut res: KubeComponentInstance = self.client.request(req).await?;
         res.status = Some(status);
         let req = crd_req.patch(
             name.as_str(),
             &PatchParams::default(),
             serde_json::to_vec(&res)?,
         )?;
-        let _: KubeComponentInstance = self.client.request(req)?;
+        let _: KubeComponentInstance = self.client.request(req).await?;
         Ok(())
     }
 }
@@ -910,7 +923,7 @@ pub fn check_diff(old: Option<ComponentRecord>, new: &ComponentRecord) -> bool {
     }
 }
 
-pub fn get_component_def(
+pub async fn get_component_def(
     namespace: String,
     comp_name: String,
     client: APIClient,
@@ -920,7 +933,7 @@ pub fn get_component_def(
         .group("core.oam.dev")
         .within(&namespace);
     let comp_def_req = component_resource.get(comp_name.as_str())?;
-    let comp_def: KubeComponent = match client.request::<KubeComponent>(comp_def_req) {
+    let comp_def: KubeComponent = match client.request::<KubeComponent>(comp_def_req).await {
         Ok(comp) => comp,
         Err(err) => {
             return Err(format_err!(
@@ -1024,7 +1037,7 @@ fn load_scope_by_type(
 type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
 
 //get_scope_instance load scope instance by load AppConfig object
-fn get_scope_instance(
+async fn get_scope_instance(
     name: String,
     ns: String,
     client: APIClient,
@@ -1036,7 +1049,7 @@ fn get_scope_instance(
         .version(CONFIG_VERSION);
     //init all the existing objects at initiate, this should be done by informer
     let req = resource.get(name.as_str())?;
-    let cfg = client.request::<KubeOpsConfig>(req)?;
+    let cfg = client.request::<KubeOpsConfig>(req).await?;
     for scope_binding in cfg.spec.scopes.clone().unwrap_or_else(|| vec![]).iter() {
         let param = scope_binding
             .parameter_values

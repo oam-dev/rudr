@@ -15,18 +15,18 @@ fn test_autoscaler_workload_types() {
     assert!(!Autoscaler::supports_workload_type(SINGLETON_SERVER_NAME));
 }
 
-#[test]
-fn test_traits_exec() {
+#[tokio::test]
+async fn test_traits_exec() {
     let emptytrait = OAMTrait::Empty(Empty {});
     match emptytrait {
-        OAMTrait::Empty(empty) => assert!(empty.exec("test", mock_client(), Phase::Add).is_ok()),
+        OAMTrait::Empty(empty) => assert!(empty.exec("test", mock_client(), Phase::Add).await.is_ok()),
         _ => panic!("Should be empty"),
     }
 }
 
 fn mock_client() -> APIClient {
-    APIClient::new(Configuration {
-        base_path: ".".into(),
-        client: reqwest::Client::new(),
-    })
+    APIClient::new(Configuration::new(
+        ".".into(),
+        reqwest::Client::new(),
+    ))
 }

@@ -1,8 +1,10 @@
+use async_trait::async_trait;
 use crate::workload_type::statefulset_builder::StatefulsetBuilder;
 use crate::workload_type::{
     workload_builder::DeploymentBuilder, workload_builder::WorkloadMetadata, InstigatorResult,
     KubeName, StatusResult, ValidationResult, WorkloadType,
 };
+use futures::future::TryFutureExt;
 use std::collections::BTreeMap;
 use log::{warn};
 
@@ -16,13 +18,14 @@ impl ReplicatedWorker {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("Worker")
     }
-    fn add_deployment_builder(&self) -> InstigatorResult {
+    async fn add_deployment_builder(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
 }
 
@@ -32,14 +35,15 @@ impl KubeName for ReplicatedWorker {
     }
 }
 
+#[async_trait]
 impl WorkloadType for ReplicatedWorker {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("Worker")?;
-        self.add_deployment_builder()?;
+        self.meta.create_config_maps("Worker").await?;
+        self.add_deployment_builder().await?;
         Ok(())
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
@@ -50,31 +54,31 @@ impl WorkloadType for ReplicatedWorker {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )
+            ).await
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let key = "deployment/".to_string() + self.kube_name().as_str();
         let mut resources = BTreeMap::new();
-        let state = self.meta.deployment_status().unwrap_or_else(|e| {
+        let state = self.meta.deployment_status().or_else(|e| async move {
             if e.to_string().contains("NotFound") {
                 warn!("Replicated Worker: Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
                     self.meta.instance_name, self.meta.component_name);
-                self.add_deployment_builder().unwrap_or(());
+                self.add_deployment_builder().await.unwrap_or(());
             }
-            e.to_string()
-        });
+            Ok::<_, kube::Error>(e.to_string())
+        }).await?;
         resources.insert(key.clone(), state);
         Ok(resources)
     }
 
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         validate_worker(&self.meta)
     }
 }
@@ -106,13 +110,14 @@ impl SingletonWorker {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("SingletonWorker")
     }
-    fn add_statefulset_builder(&self) -> InstigatorResult {
+    async fn add_statefulset_builder(&self) -> InstigatorResult {
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
 }
 
@@ -122,21 +127,22 @@ impl KubeName for SingletonWorker {
     }
 }
 
+#[async_trait]
 impl WorkloadType for SingletonWorker {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("SingletonWorker")?;
+        self.meta.create_config_maps("SingletonWorker").await?;
 
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
-            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")?;
+            .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add").await?;
 
         Ok(())
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
@@ -147,32 +153,32 @@ impl WorkloadType for SingletonWorker {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )
+            ).await
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let key = "statefulset/".to_string() + self.kube_name().as_str();
         let mut resources = BTreeMap::new();
         let state = StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .status(self.meta.client.clone(), self.meta.namespace.clone())
-            .unwrap_or_else(|e| {
+            .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
                     warn!("Statefulset deployment not found for instance_name:{} component_name:{}. Recreating it...", 
                         self.meta.instance_name, self.meta.component_name);
-                    self.add_statefulset_builder().unwrap_or(());
+                    self.add_statefulset_builder().await.unwrap_or(());
                 }
-                e.to_string()
-            });
+                Ok::<_, kube::Error>(e.to_string())
+            }).await?;
         resources.insert(key.clone(), state);
         Ok(resources)
     }
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         validate_worker(&self.meta)
     }
 }
@@ -239,8 +245,8 @@ mod test {
         }
     }
 
-    #[test]
-    fn test_singleton_worker_validate() {
+    #[tokio::test]
+    async fn test_singleton_worker_validate() {
         let cli = APIClient::new(mock_kube_config());
         let base_worker = SingletonWorker {
             meta: WorkloadMetadata {
@@ -272,11 +278,11 @@ mod test {
                 ],
                 ..Default::default()
             });
-            assert!(wrkr.validate().is_err())
+            assert!(wrkr.validate().await.is_err())
         }
         {
             let wrkr = base_worker.clone();
-            assert!(wrkr.validate().is_ok())
+            assert!(wrkr.validate().await.is_ok())
         }
     }
 
@@ -303,8 +309,8 @@ mod test {
         assert_eq!("workerinst", wrkr.kube_name().as_str());
     }
 
-    #[test]
-    fn test_replicated_worker_validate() {
+    #[tokio::test]
+    async fn test_replicated_worker_validate() {
         let cli = APIClient::new(mock_kube_config());
         let base_worker = ReplicatedWorker {
             replica_count: Some(132),
@@ -337,11 +343,11 @@ mod test {
                 ],
                 ..Default::default()
             });
-            assert!(wrkr.validate().is_err())
+            assert!(wrkr.validate().await.is_err())
         }
         {
             let wrkr = base_worker.clone();
-            assert!(wrkr.validate().is_ok())
+            assert!(wrkr.validate().await.is_ok())
         }
     }
 
@@ -373,9 +379,9 @@ mod test {
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
 }

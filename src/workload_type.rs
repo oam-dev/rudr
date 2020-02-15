@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use failure::Error;
 use log::info;
 use std::collections::BTreeMap;
@@ -56,27 +57,28 @@ pub trait KubeName {
 /// WorkloadType describes one of the available workload types.
 ///
 /// An implementation of a workload type must be able to add, modify, and delete itself.
-pub trait WorkloadType {
+#[async_trait]
+pub trait WorkloadType: Send + Sync {
     /// Add is responsible for installing the workload type into the cluster.
-    fn add(&self) -> InstigatorResult;
+    async fn add(&self) -> InstigatorResult;
     /// Modify is responsible for upgrading an existing workload type.
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         Err(format_err!("Not implemented"))
     }
     /// Delete is responsible for deleting an existing workload type from the cluster.BTreeMap
     ///
     /// In the present implementation, most deletion logic relies upon Kubernetes' owner
     /// references, so there is no assurance that a deletion will be called for a workload.
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         info!("Workload deleted");
         Ok(())
     }
     /// Status returns the currently recorded status for the workload type
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         Err(format_err!("Not implemented"))
     }
     /// Validate a worker's configuration before adding or modifying.
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         Ok(())
     }
 }
@@ -90,55 +92,56 @@ pub enum CoreWorkloadType {
     SingletonWorkerType(SingletonWorker),
 }
 
+#[async_trait]
 impl WorkloadType for CoreWorkloadType {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.add(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.add(),
-            CoreWorkloadType::SingletonTaskType(task) => task.add(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.add(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.add(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.add(),
+            CoreWorkloadType::SingletonServerType(sing) => sing.add().await,
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.add().await,
+            CoreWorkloadType::SingletonTaskType(task) => task.add().await,
+            CoreWorkloadType::ReplicatedTaskType(task) => task.add().await,
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.add().await,
+            CoreWorkloadType::SingletonWorkerType(task) => task.add().await,
         }
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.modify(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.modify(),
-            CoreWorkloadType::SingletonTaskType(task) => task.modify(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.modify(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.modify(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.modify(),
+            CoreWorkloadType::SingletonServerType(sing) => sing.modify().await,
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.modify().await,
+            CoreWorkloadType::SingletonTaskType(task) => task.modify().await,
+            CoreWorkloadType::ReplicatedTaskType(task) => task.modify().await,
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.modify().await,
+            CoreWorkloadType::SingletonWorkerType(task) => task.modify().await,
         }
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.delete(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.delete(),
-            CoreWorkloadType::SingletonTaskType(task) => task.delete(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.delete(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.delete(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.delete(),
+            CoreWorkloadType::SingletonServerType(sing) => sing.delete().await,
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.delete().await,
+            CoreWorkloadType::SingletonTaskType(task) => task.delete().await,
+            CoreWorkloadType::ReplicatedTaskType(task) => task.delete().await,
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.delete().await,
+            CoreWorkloadType::SingletonWorkerType(task) => task.delete().await,
         }
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.status(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.status(),
-            CoreWorkloadType::SingletonTaskType(task) => task.status(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.status(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.status(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.status(),
+            CoreWorkloadType::SingletonServerType(sing) => sing.status().await,
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.status().await,
+            CoreWorkloadType::SingletonTaskType(task) => task.status().await,
+            CoreWorkloadType::ReplicatedTaskType(task) => task.status().await,
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.status().await,
+            CoreWorkloadType::SingletonWorkerType(task) => task.status().await,
         }
     }
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         match self {
-            CoreWorkloadType::SingletonServerType(sing) => sing.validate(),
-            CoreWorkloadType::ReplicatedServerType(repl) => repl.validate(),
-            CoreWorkloadType::SingletonTaskType(task) => task.validate(),
-            CoreWorkloadType::ReplicatedTaskType(task) => task.validate(),
-            CoreWorkloadType::ReplicatedWorkerType(task) => task.validate(),
-            CoreWorkloadType::SingletonWorkerType(task) => task.validate(),
+            CoreWorkloadType::SingletonServerType(sing) => sing.validate().await,
+            CoreWorkloadType::ReplicatedServerType(repl) => repl.validate().await,
+            CoreWorkloadType::SingletonTaskType(task) => task.validate().await,
+            CoreWorkloadType::ReplicatedTaskType(task) => task.validate().await,
+            CoreWorkloadType::ReplicatedWorkerType(task) => task.validate().await,
+            CoreWorkloadType::SingletonWorkerType(task) => task.validate().await,
         }
     }
 }
@@ -148,35 +151,36 @@ pub enum ExtendedWorkloadType {
     Others(extended_workload::others::Others),
 }
 
+#[async_trait]
 impl WorkloadType for ExtendedWorkloadType {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         match self {
-            ExtendedWorkloadType::OpenFaaS(faas) => faas.add(),
-            ExtendedWorkloadType::Others(other) => other.add(),
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.add().await,
+            ExtendedWorkloadType::Others(other) => other.add().await,
         }
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         match self {
-            ExtendedWorkloadType::OpenFaaS(faas) => faas.modify(),
-            ExtendedWorkloadType::Others(other) => other.modify(),
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.modify().await,
+            ExtendedWorkloadType::Others(other) => other.modify().await,
         }
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         match self {
-            ExtendedWorkloadType::OpenFaaS(faas) => faas.delete(),
-            ExtendedWorkloadType::Others(other) => other.delete(),
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.delete().await,
+            ExtendedWorkloadType::Others(other) => other.delete().await,
         }
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         match self {
-            ExtendedWorkloadType::OpenFaaS(faas) => faas.status(),
-            ExtendedWorkloadType::Others(other) => other.status(),
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.status().await,
+            ExtendedWorkloadType::Others(other) => other.status().await,
         }
     }
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         match self {
-            ExtendedWorkloadType::OpenFaaS(faas) => faas.validate(),
-            ExtendedWorkloadType::Others(other) => other.validate(),
+            ExtendedWorkloadType::OpenFaaS(faas) => faas.validate().await,
+            ExtendedWorkloadType::Others(other) => other.validate().await,
         }
     }
 }

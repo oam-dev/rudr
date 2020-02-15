@@ -110,10 +110,10 @@ impl TraitManager {
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }
-    pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> Result<(), Error> {
+    pub async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> Result<(), Error> {
         for imp in &self.traits {
             // At the moment, we don't return an error if a trait fails.
-            let res = imp.exec(ns, client.clone(), phase.clone());
+            let res = imp.exec(ns, client.clone(), phase.clone()).await;
             if let Err(err) = res {
                 error!(
                     "Trait phase {:?} failed for {}: {:?}",
@@ -125,10 +125,10 @@ impl TraitManager {
         }
         Ok(())
     }
-    pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    pub async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         let mut all_status = BTreeMap::new();
         for imp in &self.traits {
-            if let Some(status) = imp.status(ns, client.clone()) {
+            if let Some(status) = imp.status(ns, client.clone()).await {
                 for (name, state) in status {
                     //we don't need to worry about name conflict as K8s wouldn't allow this happen in the same namespace.
                     all_status.insert(name, state);

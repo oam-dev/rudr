@@ -73,7 +73,7 @@ impl WorkloadMetadata {
             Some(self.labels(workload_type)),
         )
     }
-    pub fn create_config_maps(&self, workload_type: &str) -> InstigatorResult {
+    pub async fn create_config_maps(&self, workload_type: &str) -> InstigatorResult {
         let config_maps = self.to_config_maps(workload_type);
         if !config_maps.is_empty() {
             log::debug!("start to create {} config_maps", config_maps.len());
@@ -84,16 +84,17 @@ impl WorkloadMetadata {
                 config,
                 Default::default(),
             )?;
-            self.client.request::<api::ConfigMap>(req)?;
+            self.client.request::<api::ConfigMap>(req).await?;
         }
         Ok(())
     }
 
-    pub fn deployment_status(&self) -> Result<String, kube::Error> {
+    pub async fn deployment_status(&self) -> Result<String, kube::Error> {
         let deploy: Object<_, apps::DeploymentStatus> =
             match kube::api::Api::v1Deployment(self.client.clone())
                 .within(self.namespace.as_str())
                 .get_status(self.kube_name().as_str())
+                .await
             {
                 Ok(deploy) => deploy,
                 Err(e) => return Err(e),
@@ -221,28 +222,28 @@ impl DeploymentBuilder {
         }
     }
 
-    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let deployment = self.to_deployment();
         match phase {
             "modify" => {
                 let pp = kube::api::PatchParams::default();
                 kube::api::Api::v1Deployment(client)
                     .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&deployment)?)?;
+                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&deployment)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
                 kube::api::Api::v1Deployment(client)
                     .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp)?;
+                    .delete(self.name.as_str(), &pp).await?;
                 Ok(())
             }
             _ => {
                 let pp = kube::api::PostParams::default();
                 kube::api::Api::v1Deployment(client)
                     .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&deployment)?)?;
+                    .create(&pp, serde_json::to_vec(&deployment)?).await?;
                 Ok(())
             }
         }
@@ -346,10 +347,11 @@ impl JobBuilder {
         }
     }
 
-    pub fn get_status(self, client: APIClient, namespace: String) -> String {
+    pub async fn get_status(self, client: APIClient, namespace: String) -> String {
         let job: Object<_, batchapi::JobStatus> = match kube::api::Api::v1Job(client)
             .within(namespace.as_str())
             .get_status(self.name.as_str())
+            .await
         {
             Ok(job) => job,
             Err(e) => return e.to_string(),
@@ -370,7 +372,7 @@ impl JobBuilder {
         "succeeded".to_string()
     }
 
-    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
         match phase {
             "modify" => {
@@ -378,14 +380,14 @@ impl JobBuilder {
                 let pp = kube::api::PatchParams::default();
                 kube::api::Api::v1Job(client)
                     .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?)?;
+                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
                 kube::api::Api::v1Job(client)
                     .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp)?;
+                    .delete(self.name.as_str(), &pp).await?;
                 Ok(())
             }
             _ => {
@@ -397,12 +399,12 @@ impl JobBuilder {
                         config,
                         Default::default(),
                     )?;
-                    client.request::<api::ConfigMap>(req)?;
+                    client.request::<api::ConfigMap>(req).await?;
                 }
                 let pp = kube::api::PostParams::default();
                 kube::api::Api::v1Job(client)
                     .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&job)?)?;
+                    .create(&pp, serde_json::to_vec(&job)?).await?;
                 Ok(())
             }
         }
@@ -456,10 +458,11 @@ impl ServiceBuilder {
             })
         })
     }
-    pub fn get_status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
+    pub async fn get_status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
         match kube::api::Api::v1Service(client)
             .within(namespace.as_str())
             .get_status(self.name.as_str())
+            .await
         {
             Ok(status) => {
                 let svc_status: Object<api::ServiceSpec, api::ServiceStatus> = status;
@@ -471,7 +474,7 @@ impl ServiceBuilder {
             Err(e) => Err(e),
         }
     }
-    pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
         match self.to_service() {
             Some(svc) => {
                 log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
@@ -480,21 +483,21 @@ impl ServiceBuilder {
                         let pp = PatchParams::default();
                         kube::api::Api::v1Service(client)
                             .within(namespace.as_str())
-                            .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?)?;
+                            .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?).await?;
                         Ok(())
                     }
                     "delete" => {
                         let pp = DeleteParams::default();
                         kube::api::Api::v1Service(client)
                             .within(namespace.as_str())
-                            .delete(self.name.as_str(), &pp)?;
+                            .delete(self.name.as_str(), &pp).await?;
                         Ok(())
                     }
                     _ => {
                         let pp = PostParams::default();
                         kube::api::Api::v1Service(client)
                             .within(namespace.as_str())
-                            .create(&pp, serde_json::to_vec(&svc)?)?;
+                            .create(&pp, serde_json::to_vec(&svc)?).await?;
                         Ok(())
                     }
                 }
@@ -797,9 +800,9 @@ mod test {
         }])
     }
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
 }

@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::schematic::GroupVersionKind;
 use crate::workload_type::{
     InstigatorResult, StatusResult, ValidationResult, WorkloadMetadata, WorkloadType,
@@ -71,8 +72,9 @@ fn form_plural(word: &str) -> String {
     newword + "s"
 }
 
+#[async_trait]
 impl WorkloadType for Others {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         let crd_resource = RawApi::customResource(
             form_plural(self.gvk.kind.clone().to_lowercase().as_str()).as_str(),
         )
@@ -81,10 +83,10 @@ impl WorkloadType for Others {
         .within(self.meta.namespace.as_str());
         let object = self.get_object();
         let crd_req = crd_resource.create(&PostParams::default(), serde_json::to_vec(&object)?)?;
-        let _: serde_json::Value = self.meta.client.request(crd_req)?;
+        let _: serde_json::Value = self.meta.client.request(crd_req).await?;
         Ok(())
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         let crd_resource = RawApi::customResource(
             form_plural(self.gvk.kind.clone().to_lowercase().as_str()).as_str(),
         )
@@ -97,17 +99,17 @@ impl WorkloadType for Others {
             &PatchParams::default(),
             serde_json::to_vec(&object)?,
         )?;
-        let _: serde_json::Value = self.meta.client.request(crd_req)?;
+        let _: serde_json::Value = self.meta.client.request(crd_req).await?;
         Ok(())
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         Ok(())
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         // TODO: how to implement status while we don't know the spec?
         Ok(BTreeMap::new())
     }
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         Ok(())
     }
 }
@@ -145,10 +147,10 @@ mod test {
                     }],
                     ..Default::default()
                 },
-                client: APIClient::new(Configuration {
-                    base_path: ".".into(),
-                    client: reqwest::Client::new(),
-                }),
+                client: APIClient::new(Configuration::new(
+                    ".".into(),
+                    reqwest::Client::new(),
+                )),
                 params: BTreeMap::new(),
                 owner_ref: None,
                 annotations: None,

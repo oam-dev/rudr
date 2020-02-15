@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::schematic::traits::{util::*, TraitImplementation};
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
@@ -92,14 +93,16 @@ impl Ingress {
         format!("{}-trait-ingress", self.instance_name)
     }
 }
+
+#[async_trait]
 impl TraitImplementation for Ingress {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
-        client.request::<ext::Ingress>(req)?;
+        client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let values = serde_json::to_value(&ingress)?;
         let (req, _) = ext::Ingress::patch_namespaced_ingress(
@@ -108,16 +111,16 @@ impl TraitImplementation for Ingress {
             &meta::Patch::StrategicMerge(values),
             Default::default(),
         )?;
-        client.request::<ext::Ingress>(req)?;
+        client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) =
             ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
-        client.request::<ext::Ingress>(req)?;
+        client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         let mut resource = BTreeMap::new();
         let key = "ingress/".to_string() + self.kube_name().as_str();
         let (req, _) = match ext::Ingress::read_namespaced_ingress_status(
@@ -131,12 +134,12 @@ impl TraitImplementation for Ingress {
                 return Some(resource);
             }
         };
-        let ingress = match client.request::<ext::Ingress>(req) {
+        let ingress = match client.request::<ext::Ingress>(req).await {
             Ok(ingress) => ingress,
             Err(e) => {
                 if e.to_string().contains("NotFound") {
                     warn!("Ingress not found {}. Recreating ...", e.to_string());
-                    self.add(ns, client).unwrap_or(());
+                    self.add(ns, client).await.unwrap_or(());
                 }
                 resource.insert(key.clone(), e.to_string());
                 return Some(resource);

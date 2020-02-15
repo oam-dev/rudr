@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::extended_workload::openfaas::KubeFaaS;
 use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
@@ -41,7 +42,7 @@ impl ManualScaler {
                         ).unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default value:80", instancename); 1}),
         }
     }
-    fn scale(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn scale(&self, ns: &str, client: APIClient) -> TraitResult {
         // TODO: We probably need to watch for the deployment to be created. Or this might be unnecessary.
         std::thread::sleep(std::time::Duration::from_secs(5));
 
@@ -55,7 +56,7 @@ impl ManualScaler {
                     ns,
                     Default::default(),
                 )?;
-                let res = client.request(req);
+                let res = client.request(req).await;
                 if let Ok(original) = res {
                     let dep = self.scale_deployment(original);
 
@@ -65,7 +66,7 @@ impl ManualScaler {
                         &dep,
                         Default::default(),
                     )?;
-                    client.request::<apps::Deployment>(req2)?;
+                    client.request::<apps::Deployment>(req2).await?;
                 }
                 Ok(())
             }
@@ -76,7 +77,7 @@ impl ManualScaler {
                     ns,
                     Default::default(),
                 )?;
-                if let Ok(original) = client.request(jobreq) {
+                if let Ok(original) = client.request(jobreq).await {
                     let new_job = self.scale_job(original);
                     let (req2, _) = batch::Job::replace_namespaced_job(
                         self.instance_name.as_str(),
@@ -84,7 +85,7 @@ impl ManualScaler {
                         &new_job,
                         Default::default(),
                     )?;
-                    client.request::<batch::Job>(req2)?;
+                    client.request::<batch::Job>(req2).await?;
                 };
                 Ok(())
             }
@@ -95,7 +96,7 @@ impl ManualScaler {
                     .group("openfaas.com")
                     .within(ns);
                 let faas_req = faas_resource.get(self.instance_name.clone().as_str())?;
-                let mut openfaas: KubeFaaS = client.request(faas_req)?;
+                let mut openfaas: KubeFaaS = client.request(faas_req).await?;
                 let mut labels = openfaas.metadata.labels.clone();
                 labels.insert(
                     "com.openfaas.scale.min".to_string(),
@@ -107,7 +108,7 @@ impl ManualScaler {
                     &PatchParams::default(),
                     serde_json::to_vec(&openfaas)?,
                 )?;
-                let openfaas: KubeFaaS = client.request(faas_req)?;
+                let openfaas: KubeFaaS = client.request(faas_req).await?;
                 info!(
                     "openfass function {} was scaled to {}",
                     openfaas.metadata.name,
@@ -150,21 +151,22 @@ impl ManualScaler {
     }
 }
 
+#[async_trait]
 impl TraitImplementation for ManualScaler {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
-        self.scale(ns, client)
+    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+        self.scale(ns, client).await
     }
-    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
-        self.scale(ns, client)
+    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+        self.scale(ns, client).await
     }
-    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
-    fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
         None
     }
 }

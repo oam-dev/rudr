@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::schematic::parameter::resolve_value;
 use crate::workload_type::{
     InstigatorResult, StatusResult, ValidationResult, WorkloadMetadata, WorkloadType,
@@ -197,8 +198,9 @@ fn convert_owner_ref(own: Vec<meta::OwnerReference>) -> Vec<kube::api::OwnerRefe
     own_ref
 }
 
+#[async_trait]
 impl WorkloadType for OpenFaaS {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         let faas_resource = RawApi::customResource("functions")
             .version("v1alpha2")
             .group("openfaas.com")
@@ -206,11 +208,11 @@ impl WorkloadType for OpenFaaS {
         let kubefaas = self.get_kube_faas()?;
         let faas_req =
             faas_resource.create(&PostParams::default(), serde_json::to_vec(&kubefaas)?)?;
-        let openfaas: KubeFaaS = self.meta.client.request(faas_req)?;
+        let openfaas: KubeFaaS = self.meta.client.request(faas_req).await?;
         info!("openfass function {} was created", openfaas.metadata.name);
         Ok(())
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         let faas_resource = RawApi::customResource("functions")
             .version("v1alpha2")
             .group("openfaas.com")
@@ -221,17 +223,17 @@ impl WorkloadType for OpenFaaS {
             &PatchParams::default(),
             serde_json::to_vec(&kubefaas)?,
         )?;
-        let openfaas: KubeFaaS = self.meta.client.request(faas_req)?;
+        let openfaas: KubeFaaS = self.meta.client.request(faas_req).await?;
         info!("openfass function {} was modified", openfaas.metadata.name);
         Ok(())
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         Ok(())
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         Ok(BTreeMap::new())
     }
-    fn validate(&self) -> ValidationResult {
+    async fn validate(&self) -> ValidationResult {
         Ok(())
     }
 }
@@ -287,10 +289,10 @@ mod test {
                     }],
                     ..Default::default()
                 },
-                client: APIClient::new(Configuration {
-                    base_path: ".".into(),
-                    client: reqwest::Client::new(),
-                }),
+                client: APIClient::new(Configuration::new(
+                    ".".into(),
+                    reqwest::Client::new(),
+                )),
                 params,
                 owner_ref: None,
                 annotations: None,

@@ -4,7 +4,6 @@ use env_logger;
 use failure::{format_err, Error};
 use futures::task::{current, Task};
 use futures::{future, Async};
-use hyper::rt::Future;
 use hyper::service::{service_fn, service_fn_ok};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
 use kube::api::{ListParams, ObjectList, RawApi};

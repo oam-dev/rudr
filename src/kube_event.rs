@@ -77,7 +77,7 @@ impl Event {
             source: None,
         }
     }
-    pub fn push_event_message(
+    pub async fn push_event_message(
         &self,
         type_: Type,
         info: Info,
@@ -94,7 +94,7 @@ impl Event {
             self.reporting_instance.clone(),
         );
         self.event_handle
-            .create(&PostParams::default(), serde_json::to_vec(&event)?)?;
+            .create(&PostParams::default(), serde_json::to_vec(&event)?).await?;
         Ok(())
     }
 }

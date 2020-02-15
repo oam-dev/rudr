@@ -134,7 +134,7 @@ impl Health {
     pub fn scope_type(&self) -> String {
         String::from(HEALTH_SCOPE)
     }
-    pub fn create(&self, owner: kube::api::OwnerReference) -> Result<(), Error> {
+    pub async fn create(&self, owner: kube::api::OwnerReference) -> Result<(), Error> {
         let pp = kube::api::PostParams::default();
         let mut owners = vec![];
         owners.insert(0, owner);
@@ -168,10 +168,14 @@ impl Health {
         let err = self
             .client
             .request::<HealthScopeObject>(req)
+            .await
             .err()
             .and_then(|e| {
-                let exist = e
-                    .api_error()
+                let api_err = match e {
+                    kube::Error::Api(ref err) => Some(err),
+                    _ => None
+                };
+                let exist = api_err
                     .and_then(|api_err| {
                         if api_err.reason.eq("AlreadyExists") {
                             return Some(());
@@ -190,15 +194,15 @@ impl Health {
         info!("health scope {} created", self.name.clone());
         Ok(())
     }
-    pub fn modify(&self) -> Result<(), Error> {
+    pub async fn modify(&self) -> Result<(), Error> {
         Err(format_err!("health scope modify not implemented"))
     }
     /// let OwnerReference delete
-    pub fn delete(&self) -> Result<(), Error> {
+    pub async fn delete(&self) -> Result<(), Error> {
         Ok(())
     }
-    pub fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
-        let mut obj = self.get_obj()?;
+    pub async fn add(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        let mut obj = self.get_obj().await?;
         let mut components = self.remove_one(spec.clone(), obj.status.clone());
         components.insert(
             components.len(),
@@ -217,25 +221,25 @@ impl Health {
             spec.component_name.clone(),
             self.name.clone()
         );
-        self.patch_obj(obj)
+        self.patch_obj(obj).await
     }
-    pub fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
-        let mut obj = self.get_obj()?;
+    pub async fn remove(&self, spec: ComponentConfiguration) -> Result<(), Error> {
+        let mut obj = self.get_obj().await?;
         let components = self.remove_one(spec.clone(), obj.status.clone());
         obj.status = Some(HealthStatus {
             components: Some(components),
             ..Default::default()
         });
-        self.patch_obj(obj)
+        self.patch_obj(obj).await
     }
 
-    pub fn get_obj(&self) -> Result<HealthScopeObject, Error> {
+    pub async fn get_obj(&self) -> Result<HealthScopeObject, Error> {
         let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
             .version(HEALTH_SCOPE_VERSION)
             .group(HEALTH_SCOPE_GROUP)
             .within(self.namespace.as_str());
         let req = healthscope_resource.get(self.name.as_str())?;
-        Ok(self.client.request::<HealthScopeObject>(req)?)
+        Ok(self.client.request::<HealthScopeObject>(req).await?)
     }
     fn remove_one(
         &self,
@@ -253,14 +257,14 @@ impl Health {
         }
         components
     }
-    fn patch_obj(&self, obj: HealthScopeObject) -> Result<(), Error> {
+    async fn patch_obj(&self, obj: HealthScopeObject) -> Result<(), Error> {
         let pp = kube::api::PatchParams::default();
         let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
             .version(HEALTH_SCOPE_VERSION)
             .group(HEALTH_SCOPE_GROUP)
             .within(self.namespace.as_str());
         let req = healthscope_resource.patch(self.name.as_str(), &pp, serde_json::to_vec(&obj)?)?;
-        self.client.request::<HealthScopeObject>(req)?;
+        self.client.request::<HealthScopeObject>(req).await?;
         Ok(())
     }
 }
@@ -273,10 +277,10 @@ mod test {
     use kube::config::Configuration;
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
     #[test]
     fn test_create_health() {

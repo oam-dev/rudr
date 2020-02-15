@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
@@ -128,25 +129,26 @@ impl VolumeMounter {
     }
 }
 
+#[async_trait]
 impl TraitImplementation for VolumeMounter {
     /// Make sure the PVC is created before the Pod.
     /// This won't make a difference most of the time, but on fast disk provisioning operations
     /// this may help a little.
-    fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
         let pvc = self.to_pvc();
         let (req, _) = core::PersistentVolumeClaim::create_namespaced_persistent_volume_claim(
             ns,
             &pvc,
             Default::default(),
         )?;
-        client.request::<core::PersistentVolumeClaim>(req)?;
+        client.request::<core::PersistentVolumeClaim>(req).await?;
         Ok(())
     }
     /// There is nothing to do on the add phase for this trait
-    fn add(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn add(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
-    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
         let pvc = self.to_pvc();
         let values = serde_json::to_value(&pvc)?;
         let (req, _) = core::PersistentVolumeClaim::patch_namespaced_persistent_volume_claim(
@@ -155,19 +157,19 @@ impl TraitImplementation for VolumeMounter {
             &meta::Patch::StrategicMerge(values),
             Default::default(),
         )?;
-        client.request::<core::PersistentVolumeClaim>(req)?;
+        client.request::<core::PersistentVolumeClaim>(req).await?;
         Ok(())
     }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
         let (req, _) = core::PersistentVolumeClaim::delete_namespaced_persistent_volume_claim(
             self.volume_name.as_str(),
             ns,
             Default::default(),
         )?;
-        client.request::<core::PersistentVolumeClaim>(req)?;
+        client.request::<core::PersistentVolumeClaim>(req).await?;
         Ok(())
     }
-    fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         let pvc_name = self.volume_name.as_str();
         let key = format!("persistentvolumeclaim/{}", pvc_name);
         let mut resource = BTreeMap::new();
@@ -182,7 +184,7 @@ impl TraitImplementation for VolumeMounter {
         }
 
         let (raw_req, _) = req.unwrap();
-        match client.request::<core::PersistentVolumeClaim>(raw_req) {
+        match client.request::<core::PersistentVolumeClaim>(raw_req).await {
             Ok(pvc) => {
                 resource.insert(
                     key,

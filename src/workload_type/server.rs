@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+use futures::future::TryFutureExt;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 
@@ -19,20 +21,22 @@ impl ReplicatedServer {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("Service")
     }
-    fn add_deployment_builder(&self) -> InstigatorResult {
+    async fn add_deployment_builder(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
-    fn add_service_builder(&self) -> InstigatorResult {
+    async fn add_service_builder(&self) -> InstigatorResult {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
             .select_labels(self.meta.select_labels())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
 }
 
@@ -66,14 +70,15 @@ impl KubeName for ReplicatedServer {
     }
 }
 
+#[async_trait]
 impl WorkloadType for ReplicatedServer {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("Service")?;
-        self.add_deployment_builder()?;
-        self.add_service_builder()
+        self.meta.create_config_maps("Service").await?;
+        self.add_deployment_builder().await?;
+        self.add_service_builder().await
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         //TODO update config_map
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
@@ -84,7 +89,7 @@ impl WorkloadType for ReplicatedServer {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )?;
+            ).await?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
@@ -94,46 +99,47 @@ impl WorkloadType for ReplicatedServer {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )
+            ).await
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         DeploymentBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )?;
+        ).await?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let mut resources = BTreeMap::new();
 
         let key = "deployment/".to_string() + self.kube_name().as_str();
-        let state = self.meta.deployment_status().unwrap_or_else(|e| {
+        let state = self.meta.deployment_status().
+            or_else(|e| async move {
             if e.to_string().contains("NotFound") {
                 warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
                     self.meta.instance_name, self.meta.component_name);
-                self.add_deployment_builder().unwrap_or(());
+                self.add_deployment_builder().await.unwrap_or(());
             }
-            e.to_string()
-        });
+            Ok::<_, kube::Error>(e.to_string())
+        }).await?;
         resources.insert(key.clone(), state);
 
         let svc_key = "service/".to_string() + self.kube_name().as_str();
         let svc_status = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .get_status(self.meta.client.clone(), self.meta.namespace.clone());
-        let svc_state = svc_status.unwrap_or_else( |e| {
+        let svc_state = svc_status.or_else(|e| async move {
             if e.to_string().contains("NotFound") {
                 warn!("Service not found for instance_name:{} component_name:{}. Recreating it.", 
                     self.meta.instance_name, self.meta.component_name);
-                self.add_service_builder().unwrap_or(());
+                self.add_service_builder().await.unwrap_or(());
             }
-            e.to_string()
-            });
+            Ok::<_, kube::Error>(e.to_string())
+        }).await?;
         resources.insert(svc_key.clone(), svc_state);
 
         Ok(resources)
@@ -150,20 +156,22 @@ impl SingletonServer {
     fn labels(&self) -> BTreeMap<String, String> {
         self.meta.labels("SingletonServer")
     }
-    fn add_statefulset_deployment_builder(&self) -> InstigatorResult {
+    async fn add_statefulset_deployment_builder(&self) -> InstigatorResult {
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
             .annotations(self.meta.annotations.clone())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
-    fn add_service_builder(&self) -> InstigatorResult {
+    async fn add_service_builder(&self) -> InstigatorResult {
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .labels(self.labels())
             .select_labels(self.meta.select_labels())
             .owner_ref(self.meta.owner_ref.clone())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
 }
 
@@ -173,66 +181,67 @@ impl KubeName for SingletonServer {
     }
 }
 
+#[async_trait]
 impl WorkloadType for SingletonServer {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         //pre create config_map
-        self.meta.create_config_maps("singleton-service")?;
+        self.meta.create_config_maps("singleton-service").await?;
 
         // Create deployment
-        self.add_statefulset_deployment_builder()?;
+        self.add_statefulset_deployment_builder().await?;
 
         // Create service
-        self.add_service_builder()
+        self.add_service_builder().await
     }
 
     //TODO: because pod upgrade have many restrictions and very complicated, so we don't support now.
     //User should delete and create a new SingletonServer to solve this.
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         Err(format_err!(
             "we don't support SingletonServer {} modify",
             self.kube_name(),
         ))
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )?;
+        ).await?;
 
         ServiceBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let mut resources = BTreeMap::new();
 
         let key = "statefulset/".to_string() + self.kube_name().as_str();
         let state = StatefulsetBuilder::new(self.kube_name(), self.meta.definition.clone())
             .status(self.meta.client.clone(), self.meta.namespace.clone())
-            .unwrap_or_else(|e| {
+            .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
                     warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
                         self.meta.instance_name, self.meta.component_name);
-                    self.add_statefulset_deployment_builder().unwrap_or(());
+                    self.add_statefulset_deployment_builder().await.unwrap_or(());
                 }
-                e.to_string()
-            });
+                Ok::<_, kube::Error>(e.to_string())
+            }).await?;
         resources.insert(key.clone(), state);
 
         let svc_key = "service/".to_string() + self.kube_name().as_str();
         let svc_state : String = ServiceBuilder::new(self.kube_name(), self.meta.definition.clone())
             .get_status(self.meta.client.clone(), self.meta.namespace.clone())
-            .unwrap_or_else( |e| {
+            .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
                     warn!("Statefulset not found for instance_name:{} component_name:{}. Recreating it.", 
                         self.meta.instance_name, self.meta.component_name);
-                    self.add_service_builder().unwrap_or(());
+                    self.add_service_builder().await.unwrap_or(());
                 }
-                e.to_string()
-            });
+                Ok::<_, kube::Error>(e.to_string())
+            }).await?;
         resources.insert(svc_key.clone(), svc_state);
 
         Ok(resources)
@@ -301,10 +310,10 @@ mod test {
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
 
     #[test]

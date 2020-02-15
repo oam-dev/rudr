@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::lifecycle::Phase;
 use crate::schematic::parameter::ParameterValue;
 use kube::client::APIClient;
@@ -64,22 +65,22 @@ pub enum OAMTrait {
     Empty(Empty),
 }
 impl OAMTrait {
-    pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+    pub async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match self {
-            OAMTrait::Autoscaler(a) => a.exec(ns, client, phase),
-            OAMTrait::Ingress(i) => i.exec(ns, client, phase),
-            OAMTrait::ManualScaler(m) => m.exec(ns, client, phase),
-            OAMTrait::VolumeMounter(v) => v.exec(ns, client, phase),
-            OAMTrait::Empty(e) => e.exec(ns, client, phase),
+            OAMTrait::Autoscaler(a) => a.exec(ns, client, phase).await,
+            OAMTrait::Ingress(i) => i.exec(ns, client, phase).await,
+            OAMTrait::ManualScaler(m) => m.exec(ns, client, phase).await,
+            OAMTrait::VolumeMounter(v) => v.exec(ns, client, phase).await,
+            OAMTrait::Empty(e) => e.exec(ns, client, phase).await,
         }
     }
-    pub fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    pub async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
         match self {
-            OAMTrait::Autoscaler(a) => a.status(ns, client),
-            OAMTrait::Ingress(i) => i.status(ns, client),
-            OAMTrait::ManualScaler(m) => m.status(ns, client),
-            OAMTrait::Empty(e) => e.status(ns, client),
-            OAMTrait::VolumeMounter(v) => v.status(ns, client),
+            OAMTrait::Autoscaler(a) => a.status(ns, client).await,
+            OAMTrait::Ingress(i) => i.status(ns, client).await,
+            OAMTrait::ManualScaler(m) => m.status(ns, client).await,
+            OAMTrait::Empty(e) => e.status(ns, client).await,
+            OAMTrait::VolumeMounter(v) => v.status(ns, client).await,
         }
     }
 }
@@ -87,22 +88,23 @@ impl OAMTrait {
 /// A TraitImplementation is an implementation of an OAM Trait.
 ///
 /// For example, Ingress is an implementation of an OAM Trait.
-pub trait TraitImplementation {
-    fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+#[async_trait]
+pub trait TraitImplementation: Sync {
+    async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
         match phase {
-            Phase::Add => self.add(ns, client),
-            Phase::Modify => self.modify(ns, client),
-            Phase::Delete => self.delete(ns, client),
-            Phase::PreAdd => self.pre_add(ns, client),
-            Phase::PreModify => self.pre_modify(ns, client),
-            Phase::PreDelete => self.pre_delete(ns, client),
+            Phase::Add => self.add(ns, client).await,
+            Phase::Modify => self.modify(ns, client).await,
+            Phase::Delete => self.delete(ns, client).await,
+            Phase::PreAdd => self.pre_add(ns, client).await,
+            Phase::PreModify => self.pre_modify(ns, client).await,
+            Phase::PreDelete => self.pre_delete(ns, client).await,
         }
     }
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult;
-    fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: APIClient) -> TraitResult;
+    async fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Err(format_err!("Trait updates not implemented for this type"))
     }
-    fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
         // Often, owner references mean you don't need to do anything here.
         // But if we invoke this delete function standalone, that means we hope to delete this sub resource actively.
         Err(format_err!("Trait delete not implemented for this type"))
@@ -111,16 +113,16 @@ pub trait TraitImplementation {
         info!("Support {} by default", name);
         true
     }
-    fn pre_add(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_add(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
-    fn pre_modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
-    fn pre_delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
         Ok(())
     }
-    fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
         None
     }
 }

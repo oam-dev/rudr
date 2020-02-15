@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::workload_type::{
     workload_builder::{JobBuilder, WorkloadMetadata},
     InstigatorResult, KubeName, StatusResult, WorkloadType,
@@ -24,8 +25,9 @@ impl ReplicatedTask {
     }
 }
 
+#[async_trait]
 impl WorkloadType for ReplicatedTask {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
@@ -34,8 +36,9 @@ impl WorkloadType for ReplicatedTask {
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
@@ -47,20 +50,20 @@ impl WorkloadType for ReplicatedTask {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )
+            ).await
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let mut resources = BTreeMap::new();
         let key = "job/".to_string() + self.kube_name().as_str();
         let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone()).await;
         resources.insert(key.clone(), state);
 
         Ok(resources)
@@ -83,8 +86,10 @@ impl SingletonTask {
         self.meta.labels("SingletonTask")
     }
 }
+
+#[async_trait]
 impl WorkloadType for SingletonTask {
-    fn add(&self) -> InstigatorResult {
+    async fn add(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
@@ -92,8 +97,9 @@ impl WorkloadType for SingletonTask {
             .owner_ref(self.meta.owner_ref.clone())
             .restart_policy("Never".to_string())
             .do_request(self.meta.client.clone(), self.meta.namespace.clone(), "add")
+            .await
     }
-    fn modify(&self) -> InstigatorResult {
+    async fn modify(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone())
             .parameter_map(self.meta.params.clone())
             .labels(self.labels())
@@ -104,20 +110,20 @@ impl WorkloadType for SingletonTask {
                 self.meta.client.clone(),
                 self.meta.namespace.clone(),
                 "modify",
-            )
+            ).await
     }
-    fn delete(&self) -> InstigatorResult {
+    async fn delete(&self) -> InstigatorResult {
         JobBuilder::new(self.kube_name(), self.meta.definition.clone()).do_request(
             self.meta.client.clone(),
             self.meta.namespace.clone(),
             "delete",
-        )
+        ).await
     }
-    fn status(&self) -> StatusResult {
+    async fn status(&self) -> StatusResult {
         let mut resources = BTreeMap::new();
         let key = "job/".to_string() + self.kube_name().as_str();
         let state = JobBuilder::new(self.kube_name(), self.meta.definition.clone())
-            .get_status(self.meta.client.clone(), self.meta.namespace.clone());
+            .get_status(self.meta.client.clone(), self.meta.namespace.clone()).await;
         resources.insert(key.clone(), state);
 
         Ok(resources)
@@ -183,10 +189,10 @@ mod test {
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Configuration {
-        Configuration {
-            base_path: ".".into(),
-            client: reqwest::Client::new(),
-        }
+        Configuration::new(
+            ".".into(),
+            reqwest::Client::new(),
+        )
     }
 
 }
