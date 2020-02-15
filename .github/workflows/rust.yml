@@ -8,12 +8,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: Install latest Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
       - name: Env check
         run: rustc --version
       - name: Build
-        run: cargo build --verbose
+        uses: actions-rs/cargo@v1
+        with:
+            command: build
+            args: --verbose
       - name: Run tests
-        run: cargo test --verbose
+        uses: actions-rs/cargo@v1
+        with:
+            command: test
+            args: --verbose
       - uses: engineerd/setup-kind@v0.1.0
       - uses: engineerd/configurator@v0.0.1
         with:
