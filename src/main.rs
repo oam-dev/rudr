@@ -21,7 +21,6 @@ use rudr::kube_event;
 use rudr::schematic::{
     configuration::ApplicationConfiguration, OAMStatus,
 };
-use tokio::runtime;
 
 const DEFAULT_NAMESPACE: &str = "default";
 
@@ -149,6 +148,16 @@ async fn main() -> Result<(), Error> {
         }
     });
 
+    let health_server = tokio::spawn(async move {
+        let addr = metrics_addr.parse().unwrap();
+        info!("Health server is running on {}", addr);
+        let make_svc =
+            make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(handle_health)) });
+        Server::bind(&addr)
+            .serve(make_svc)
+            .map_err(|e| eprintln!("health server error: {}", e))
+    });
+    let _ = health_server.await.unwrap();
     sync_status.await.expect("status syncer crashed");
     configuration_watch.await.unwrap()
 }
