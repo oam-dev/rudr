@@ -96,6 +96,7 @@ async fn main() -> Result<(), Error> {
         Server::bind(&addr)
             .serve(make_svc)
             .map_err(|e| eprintln!("server error: {}", e))
+            .await
     });
 
     let server2 = tokio::spawn(async move {
@@ -106,6 +107,7 @@ async fn main() -> Result<(), Error> {
         Server::bind(&addr)
             .serve(make_svc)
             .map_err(|e| eprintln!("health server error: {}", e))
+            .await
     });
 
     let _ = future::join3(server1, server2, health_scope_watch).await;

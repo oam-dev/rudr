@@ -126,11 +126,11 @@ async fn main() -> Result<(), Error> {
 
     // Sync status will periodically sync all the configuration status from their workload.
     let sync_status = tokio::spawn(async move {
+        let ns =
+            std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
+        let cfg_watch = kubeconfig().await.expect("Load default kubeconfig");
+        let client = APIClient::new(cfg_watch.clone());
         loop {
-            let ns =
-                std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
-            let cfg_watch = kubeconfig().await.expect("Load default kubeconfig");
-            let client = APIClient::new(cfg_watch.clone());
             let resource = RawApi::customResource(CONFIG_CRD)
                 .within(ns.as_str())
                 .group(CONFIG_GROUP)
@@ -156,6 +156,7 @@ async fn main() -> Result<(), Error> {
         Server::bind(&addr)
             .serve(make_svc)
             .map_err(|e| eprintln!("health server error: {}", e))
+            .await
     });
     let _ = health_server.await.unwrap();
     sync_status.await.expect("status syncer crashed");
