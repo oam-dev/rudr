@@ -144,7 +144,7 @@ async fn main() -> Result<(), Error> {
                     };
                 }
             }
-            std::thread::sleep(std::time::Duration::from_secs(10));
+            tokio::time::delay_for(std::time::Duration::from_secs(10)).await;
         }
     });
 

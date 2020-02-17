@@ -84,7 +84,7 @@ async fn main() -> Result<(), Error> {
                 debug!("health scope aggregate loop running...");
             }
             //FIXME: we could change this to use an informer if we have a runtime controller queue
-            std::thread::sleep(std::time::Duration::from_secs(5));
+            tokio::time::delay_for(std::time::Duration::from_secs(5)).await;
         }
     });
 
