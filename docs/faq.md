@@ -15,7 +15,9 @@ In the OAM model, a `ComponentSchematic` describes a developer's view of a micro
 
 ## How does this compare to Knative?
 
-We do not believe we are trying to solve the same problem as Knative.
+Rudr implements core workload types defined by OAM spec on Kubernetes platform, and also provides necessary utilities for implementing extension workloads/traits. In this sense, Knative is a promising implementation candidate for "serverless workload type" and "scale to zero" trait in Rudr. See [related issue](https://github.com/oam-dev/rudr/issues/534) for more information.
+
+Essentially, the OAM spec defines a set of concepts/rules to makes it easier for different components from different parties to compose as an application. For example, a developer could easily deploy an application composed by a Knative Serving instance consumes a AWS RDS instance by simply defining two components in OAM world.
 
 ## Can I use Open Application Model/Rudr to deploy existing applications?
 
