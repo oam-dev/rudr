@@ -398,7 +398,7 @@ applicationconfiguration.core.oam.dev/first-app configured
 
 You could check the applied yaml again by yourself. You should find the component name has been changed.
 
-FInally, get the application URL by running these commands:
+Finally, get the application URL by running these commands:
 
 ```
 export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v2,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
