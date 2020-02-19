@@ -181,7 +181,7 @@ To install this application configuration, use `kubectl`:
 
 ```console
 $ kubectl apply -f examples/first-app-config.yaml
-configuration.core.oam.dev/first-app created
+applicationconfiguration.core.oam.dev/first-app created
 ```
 
 You'll need to wait for a minute or two for it to fully deploy. Behind the scenes, Rudr is creating all the necessary objects.
@@ -189,10 +189,10 @@ You'll need to wait for a minute or two for it to fully deploy. Behind the scene
 Once it is fully deployed, you can see your configuration:
 
 ```console
-$ kubectl get configurations
+$ kubectl get applicationconfigurations
 NAME        AGE
 first-app   4m23s
-$ kubectl get configuration first-app -o yaml
+$ kubectl get applicationconfiguration first-app -o yaml
 apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
@@ -237,13 +237,12 @@ Let's use `port-forward` to help us get the application URL by running these com
 
 ```
 export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v1,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
-echo "Visit http://127.0.0.1:9999 to use your application"
 kubectl port-forward $POD_NAME 9999:9999
 ```
 
 `kubectl port-forward` command will block and serve your requests.
 
-You will get the following output:
+Visit http://127.0.0.1:9999 to use your application. You will get the following output:
 
 ```
 Hello Rudr!
@@ -299,7 +298,7 @@ applicationconfiguration.core.oam.dev/first-app configured
 Then check the applied yaml first:
 
 ```console
-$ kubectl get configuration first-app -o yaml
+$ kubectl get applicationconfiguration first-app -o yaml
 apiVersion: core.oam.dev/v1alpha1
 kind: ApplicationConfiguration
 metadata:
@@ -342,11 +341,10 @@ Again, get the application URL by running these commands:
 
 ```
 export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v1,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
-echo "Visit http://127.0.0.1:9999 to use your application"
 kubectl port-forward $POD_NAME 9999:9999
 ```
 
-Let's visit the web app again and find the following result:
+Let's visit the web app again on http://127.0.0.1:9999 and find the following result:
 
 ```
 Hello World!
@@ -400,10 +398,16 @@ applicationconfiguration.core.oam.dev/first-app configured
 
 You could check the applied yaml again by yourself. You should find the component name has been changed.
 
-Let's visit the website directly:
+Finally, get the application URL by running these commands:
 
-```console
-$ curl oamexample.com
+```
+export POD_NAME=$(kubectl get pods -l "oam.dev/instance-name=first-app-helloworld-python-v2,app.kubernetes.io/name=first-app" -o jsonpath="{.items[0].metadata.name}")
+kubectl port-forward $POD_NAME 9999:9999
+```
+
+Let's visit the web app one more time on http://127.0.0.1:9999 and find the following result:
+
+```
 Goodbye World!
 ```
 
@@ -417,8 +421,8 @@ This could be easier as the developer only need to care about component update w
 You can delete your configurations easily with `kubectl`:
 
 ```console
-$ kubectl delete configuration first-app
-configuration.core.oam.dev "first-app" deleted
+$ kubectl delete applicationconfiguration first-app
+applicationconfiguration.core.oam.dev "first-app" deleted
 ```
 
 That will delete your application and all associated resources.
