@@ -2,9 +2,11 @@
 
 ## Prerequisites
 
-Installing necessary software packages on Windows is made easier with the package manager [Chocolatey](https://chocolatey.org/).
+Rudr has two dependencies, `kubectl` and `Helm 3`.
 
-1. Rudr has two dependencies we must install, Kubectl and Helm. To create our local Kubernetes cluster and install Kubectl we can use Minikube. Install via Chocolatey by running the following commands in an Administrator shell:
+Installing necessary software packages on Windows is made easier with the package manager [Chocolatey](https://chocolatey.org/). Rudr has tw
+
+1. To create our local development environment we will use Minikube. Install via Chocolatey by running the following commands in an Administrator shell:
 
         choco install minikube
 
@@ -35,9 +37,7 @@ Installing necessary software packages on Windows is made easier with the packag
 
 > Note: In its current version, Rudr will only listen for events in one namespace. This will change in the future. For now, though, you must install Rudr into the namespace into which you will deploy Rudr apps. You may install Rudr multiple times on the same cluster as long as you deploy to a different namespace each time.
  
-> Tip: As there are some breaking changes (such as Configuration => ApplicationConfiguration, Component => ComponentSchematic). 
- 
-> Tip: As there are some breaking changes, if you reinstall Rudr, make sure your old CRDs are deleted. You must do this with `kubectl delete crd`.
+> Tip: As there are some breaking changes, such as Configuration => ApplicationConfiguration, Component => ComponentSchematic, if you reinstall Rudr make sure your old CRDs are deleted. You must do this with `kubectl delete crd -l app.kubernetes.io/part-of=core.oam.dev`.
 
 In an Administrator shell, run:
 
@@ -48,7 +48,7 @@ In an Administrator shell, run:
 
 To upgrade Rudr, typically you only need to use Helm.
 
-> Tip: During the Alpha and Beta phase of Rudr, we recommend also deleting your CRDs manually. You must do this with `kubectl delete crd`.
+> Tip: During the Alpha and Beta phase of Rudr, we recommend also deleting your CRDs manually. You must do this with `kubectl delete crd -l app.kubernetes.io/part-of=core.oam.devkubectl delete crd`.
 
 ```console
 helm upgrade rudr charts/rudr
