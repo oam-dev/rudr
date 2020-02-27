@@ -119,6 +119,7 @@ fn main() -> Result<(), Error> {
             }
         }
     });
+    info!("ApplicationConfiguration watcher is running");
 
     // Sync status will periodically sync all the configuration status from their workload.
     let sync_status = std::thread::spawn(move || {
