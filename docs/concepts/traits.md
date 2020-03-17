@@ -119,7 +119,7 @@ We recommend using the [Kubernetes-based Event Driven Autoscaling](https://hub.h
 - name: auto-scaler
   properties:
     maximum: 6
-    minimim: 2
+    minimum: 2
     cpu: 50
     memory: 50
 ```
@@ -148,7 +148,7 @@ $ helm install nginx-ingress stable/nginx-ingress
 | Name | Description | Allowable values | Required | Default |
 | :-- | :--| :-- | :-- | :-- |
 | **hostname** | Host name for the ingress. | string | &#9745; |
-| **service_port** | Port number on the service to bind to the ingress. | int. See notes below. | &#9745; | 
+| **servicePort** | Port number on the service to bind to the ingress. | int. See notes below. | &#9745; | 
 | **path** | Path to expose. | string | | `/`
 
 To find your service port, you can do one of two things:
