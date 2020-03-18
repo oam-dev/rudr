@@ -5,7 +5,7 @@ use failure::{format_err, Error};
 use hyper::rt::Future;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Response, Server, StatusCode};
-use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, Reflector, WatchEvent};
+use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, WatchEvent};
 use kube::{client::APIClient, config::incluster_config, config::load_kube_config, ApiError};
 use log::{debug, error, info};
 use std::io::Write;
@@ -18,7 +18,7 @@ use rudr::instigator::{
 };
 use rudr::kube_event;
 use rudr::schematic::{
-    component::Component, configuration::ApplicationConfiguration, OAMStatus, Status,
+    configuration::ApplicationConfiguration, OAMStatus,
 };
 
 const DEFAULT_NAMESPACE: &str = "default";
@@ -34,7 +34,6 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
     }
 }
 
-type KubeComponent = Object<Component, Status>;
 type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
 
 fn main() -> Result<(), Error> {
@@ -79,18 +78,6 @@ fn main() -> Result<(), Error> {
 
     precheck_crds(&client)?;
 
-    let component_resource = RawApi::customResource(COMPONENT_CRD)
-        .within(top_ns.as_str())
-        .group(CONFIG_GROUP)
-        .version(CONFIG_VERSION);
-
-    let component_cache: Reflector<KubeComponent> =
-        Reflector::raw(client.clone(), component_resource.clone()).timeout(10);
-    let reflector = component_cache.clone();
-    if let Err(err) = component_cache.init() {
-        error!("Component init error: {:?}", err);
-    }
-
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = std::thread::spawn(move || {
         let ns = top_ns.clone();
@@ -132,6 +119,7 @@ fn main() -> Result<(), Error> {
             }
         }
     });
+    info!("ApplicationConfiguration watcher is running");
 
     // Sync status will periodically sync all the configuration status from their workload.
     let sync_status = std::thread::spawn(move || {
@@ -157,14 +145,6 @@ fn main() -> Result<(), Error> {
         }
     });
 
-    // Cache all of the components.
-    let component_watch = std::thread::spawn(move || loop {
-        if let Err(res) = reflector.poll() {
-            error!("Component polling error: {:?}", res);
-        };
-    });
-    info!("Watcher is running");
-
     std::thread::spawn(move || {
         let addr = metrics_addr.parse().unwrap();
         info!("Health server is running on {}", addr);
@@ -188,7 +168,6 @@ fn main() -> Result<(), Error> {
     .join()
     .unwrap();
     sync_status.join().expect("status syncer crashed");
-    component_watch.join().expect("component watcher crashed");
     configuration_watch.join().unwrap()
 }
 
