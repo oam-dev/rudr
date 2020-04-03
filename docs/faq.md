@@ -9,7 +9,7 @@
 
 Open Application Model is designed to introduce separation of concerns (SoC) into Kubernetes.
 
-In Kubernetes today, developer information is freely intermingled with operator information. We wanted to create a way to distinguish between these two rolls so that developers could deliver an artifact that describes their microservice, and operators could apply another artifact that configures and instantiates that microservice.
+In Kubernetes today, developer information is freely intermingled with operator information. We wanted to create a way to distinguish between these two roles so that developers could deliver an artifact that describes their microservice, and operators could apply another artifact that configures and instantiates that microservice.
 
 In the OAM model, a `ComponentSchematic` describes a developer's view of a microservice, and an `ApplicationConfiguration` describes an application operator's view of how a component is deployed into the cluster.
 
