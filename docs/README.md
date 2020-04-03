@@ -1,6 +1,6 @@
 # Rudr documentation
 
-*Rudr* is the Kubernetes reference implementation of the [Open Application Model](https://github.com/oam-dev/spec) (OAM) specification, a team-centric standard for building cloud-native apps, where:
+*Rudr* is the Kubernetes reference implementation of the [Open Application Model (OAM) 1.0.0-alpha1](https://github.com/oam-dev/spec/releases/tag/v1.0.0-alpha.1) (OAM) specification, a team-centric standard for building cloud-native apps, where:
 
 <table border=0 rules=none>
 <tr>
