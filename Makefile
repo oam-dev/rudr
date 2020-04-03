@@ -37,9 +37,10 @@ kind-e2e:
 	make build && \
 	docker build -t $(REPO):$(GIT_VERSION) -f Dockerfile.e2e target/ && \
 	kind load docker-image $(REPO):$(GIT_VERSION) \
-		|| echo >&2 "kind not installed or error loading image: $(REPO):$(GIT_VERSION)" && \
+		|| { echo >&2 "kind not installed or error loading image: $(REPO):$(GIT_VERSION)"; exit 1; } && \
 	helm version && \
-	helm install rudr ./charts/rudr --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait && \
+	helm install rudr ./charts/rudr --set image.repository=$(REPO) --set image.tag=$(GIT_VERSION) --set image.pullPolicy=IfNotPresent --wait \
+		|| { echo >&2 "helm install timeout"; kubectl logs `kubectl get pods -l "app.kubernetes.io/name=rudr,app.kubernetes.io/instance=rudr" -o jsonpath="{.items[0].metadata.name}"`; exit 1; } && \
 	kubectl get trait && \
 	kubectl apply -f examples/components.yaml && \
 	kubectl get componentschematics && \

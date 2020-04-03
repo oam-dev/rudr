@@ -9,13 +9,15 @@
 
 Open Application Model is designed to introduce separation of concerns (SoC) into Kubernetes.
 
-In Kubernetes today, developer information is freely intermingled with operator information. We wanted to create a way to distinguish between these two rolls so that developers could deliver an artifact that describes their microservice, and operators could apply another artifact that configures and instantiates that microservice.
+In Kubernetes today, developer information is freely intermingled with operator information. We wanted to create a way to distinguish between these two roles so that developers could deliver an artifact that describes their microservice, and operators could apply another artifact that configures and instantiates that microservice.
 
 In the OAM model, a `ComponentSchematic` describes a developer's view of a microservice, and an `ApplicationConfiguration` describes an application operator's view of how a component is deployed into the cluster.
 
 ## How does this compare to Knative?
 
-We do not believe we are trying to solve the same problem as Knative.
+Rudr implements core workload types defined by OAM spec on Kubernetes platform, and also provides necessary utilities for implementing extension workloads/traits. In this sense, Knative is a promising implementation candidate for "serverless workload type" and "scale to zero" trait in Rudr. See [related issue](https://github.com/oam-dev/rudr/issues/534) for more information.
+
+Essentially, the OAM spec defines a set of concepts/rules to makes it easier for different components from different parties to compose as an application. For example, a developer could easily deploy an application composed by a Knative Serving instance consumes a AWS RDS instance by simply defining two components in OAM world.
 
 ## Can I use Open Application Model/Rudr to deploy existing applications?
 

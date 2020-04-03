@@ -1,11 +1,11 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
-use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
+use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
-use std::collections::BTreeMap;
+use log::warn;
 use serde_json::map::Map;
-use log::{warn};
+use std::collections::BTreeMap;
 
 #[derive(Clone, Debug)]
 /// Autoscaler provides autoscaling via a Kubernetes HorizontalPodAutoscaler.
@@ -33,14 +33,22 @@ impl Autoscaler {
             component_name,
             instance_name,
             owner_ref,
-            minimum: properties_map
-                .and_then(|map| map.get("minimum").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
-            maximum: properties_map
-                .and_then(|map| map.get("maximum").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
-            cpu: properties_map
-                .and_then(|map| map.get("cpu").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
-            memory: properties_map
-                .and_then(|map| map.get("memory").and_then(|p| p.as_i64().map(|i64| i64 as i32))),
+            minimum: properties_map.and_then(|map| {
+                map.get("minimum")
+                    .and_then(|p| p.as_i64().map(|i64| i64 as i32))
+            }),
+            maximum: properties_map.and_then(|map| {
+                map.get("maximum")
+                    .and_then(|p| p.as_i64().map(|i64| i64 as i32))
+            }),
+            cpu: properties_map.and_then(|map| {
+                map.get("cpu")
+                    .and_then(|p| p.as_i64().map(|i64| i64 as i32))
+            }),
+            memory: properties_map.and_then(|map| {
+                map.get("memory")
+                    .and_then(|p| p.as_i64().map(|i64| i64 as i32))
+            }),
         }
     }
     pub fn to_horizontal_pod_autoscaler(&self) -> hpa::HorizontalPodAutoscaler {

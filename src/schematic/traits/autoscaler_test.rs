@@ -1,7 +1,5 @@
 use crate::schematic::traits::*;
-use crate::workload_type::ParamMap;
 use serde_json::json;
-use std::collections::BTreeMap;
 use serde_json::map::Map;
 
 #[test]
@@ -28,18 +26,19 @@ fn test_autoscaler_defaults() {
 #[test]
 fn test_autoscaler_v1alpha1_cpu() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler"),
+        name: String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "cpu": 42,
             "minimum": 6,
             "maximum": 7
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&autoscaler_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
 
     let autoscaler = Autoscaler::from_properties(
         "release".into(),
@@ -72,18 +71,19 @@ fn test_autoscaler_v1alpha1_cpu() {
 #[test]
 fn test_autoscaler_v1alpha1_memory() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler"),
+        name: String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "memory": 50,
             "minimum": 6,
             "maximum": 7
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&autoscaler_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
 
     let autoscaler = Autoscaler::from_properties(
         "release".into(),
@@ -116,19 +116,20 @@ fn test_autoscaler_v1alpha1_memory() {
 #[test]
 fn test_autoscaler_v1alpha1_multi_metrics_resource() {
     let autoscaler_alpha1_trait = TraitBinding {
-        name : String::from("auto-scaler"),
+        name: String::from("auto-scaler"),
         parameter_values: None,
         properties: Some(json!({
             "cpu": 42,
             "memory": 50,
             "minimum": 6,
             "maximum": 7
-        }))
+        })),
     };
 
     let serialized = serde_json::to_string(&autoscaler_alpha1_trait).unwrap();
     let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-    let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+    let prop_map: Option<&Map<String, serde_json::value::Value>> =
+        deserialized_trait.properties.as_ref().unwrap().as_object();
 
     let autoscaler = Autoscaler::from_properties(
         "release".into(),

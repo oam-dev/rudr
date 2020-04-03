@@ -96,7 +96,7 @@ impl WorkloadMetadata {
                 .get_status(self.kube_name().as_str())
             {
                 Ok(deploy) => deploy,
-                Err(e) => return Err(e)
+                Err(e) => return Err(e),
             };
         let status: apps::DeploymentStatus = deploy.status.unwrap();
         let replica = status.replicas.unwrap_or(0);
@@ -466,9 +466,9 @@ impl ServiceBuilder {
                 if let Some(_state) = svc_status.status {
                     return Ok("created".to_string());
                 }
-                return Ok("not existed".to_string());
+                Ok("not existed".to_string())
             }
-            Err(e) => return Err(e),
+            Err(e) => Err(e),
         }
     }
     pub fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {

@@ -2,15 +2,14 @@ use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
 use kube::client::APIClient;
+use log::warn;
 use serde_json::map::Map;
-use log::{warn};
 
 use crate::schematic::{
     component::{AccessMode, Component, SharingPolicy, Volume},
     traits::util::{OwnerRefs, TraitResult},
     traits::TraitImplementation,
 };
-use crate::workload_type::ParamMap;
 
 use std::collections::BTreeMap;
 
@@ -203,14 +202,12 @@ impl TraitImplementation for VolumeMounter {
 #[cfg(test)]
 mod test {
     use super::VolumeMounter;
-    use serde_json::map::Map;
-    use crate::schematic::traits::TraitBinding;
-    use serde_json::json;
     use crate::schematic::component::{
         AccessMode, Component, Container, Disk, Resources, SharingPolicy, Volume,
     };
-
-    use crate::workload_type::ParamMap;
+    use crate::schematic::traits::TraitBinding;
+    use serde_json::json;
+    use serde_json::map::Map;
 
     #[test]
     fn test_from_properties_v1alpha1() {
@@ -222,17 +219,18 @@ mod test {
             ..Default::default()
         };
         let volume_mounter_alpha1_trait = TraitBinding {
-            name : String::from("volume-mounter"),
+            name: String::from("volume-mounter"),
             parameter_values: None,
             properties: Some(json!({
                 "storageClass": "really-fast",
                 "volumeName": "panda-bears"
-            }))
+            })),
         };
 
         let serialized = serde_json::to_string(&volume_mounter_alpha1_trait).unwrap();
         let deserialized_trait: TraitBinding = serde_json::from_str(&serialized).unwrap();
-        let prop_map : Option<&Map<String, serde_json::value::Value>> = deserialized_trait.properties.as_ref().unwrap().as_object();
+        let prop_map: Option<&Map<String, serde_json::value::Value>> =
+            deserialized_trait.properties.as_ref().unwrap().as_object();
 
         let vm = VolumeMounter::from_properties(
             "my-volume-mount".to_string(),

@@ -1,13 +1,13 @@
 use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::extended_workload::openfaas::KubeFaaS;
-use crate::workload_type::{ParamMap, SERVER_NAME, TASK_NAME, WORKER_NAME};
+use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
 use kube::api::{PatchParams, RawApi};
 use kube::client::APIClient;
 use log::info;
-use std::collections::BTreeMap;
-use log::{warn};
+use log::warn;
 use serde_json::map::Map;
+use std::collections::BTreeMap;
 
 /// A manual scaler provides a way to manually scale replicable objects.
 #[derive(Clone, Debug)]
@@ -97,7 +97,10 @@ impl ManualScaler {
                 let faas_req = faas_resource.get(self.instance_name.clone().as_str())?;
                 let mut openfaas: KubeFaaS = client.request(faas_req)?;
                 let mut labels = openfaas.metadata.labels.clone();
-                labels.insert("com.openfaas.scale.min".to_string(),self.replica_count.to_string());
+                labels.insert(
+                    "com.openfaas.scale.min".to_string(),
+                    self.replica_count.to_string(),
+                );
                 openfaas.metadata.labels = labels;
                 let faas_req = faas_resource.patch(
                     self.instance_name.clone().as_str(),

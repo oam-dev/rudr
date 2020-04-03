@@ -16,4 +16,4 @@ spec:
     singular: componentinstance
     kind: ComponentInstance
     shortNames:
-    - compinst
+      - compinst
