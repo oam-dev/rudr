@@ -320,12 +320,12 @@ spec:
       value: World
     - name: port
       value: "9999"
-      traits:
-        - name: ingress
-          properties:
-            hostname: oam.example.com
-            path: /
-            servicePort: 9999
+    traits:
+      - name: ingress
+        properties:
+          hostname: oam.example.com
+          path: /
+          servicePort: 9999
 status:
   components:
     helloworld-python-v1:
