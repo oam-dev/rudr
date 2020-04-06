@@ -2,9 +2,9 @@
 
 ![](https://github.com/oam-dev/rudr/workflows/Rust/badge.svg)
 
-Rudr is an [Open Application Model (OAM)](https://github.com/oam-dev/spec) implementation for Kubernetes. 
+Rudr is an implementation of the [Open Application Model (OAM) 1.0.0-alpha1](https://github.com/oam-dev/spec/releases/tag/v1.0.0-alpha.1) for Kubernetes. 
 
-***Note: Rudr is currently in alpha. It may reflect the API or features we are vetting before inclusion into the OAM spec.***
+***Note: Rudr is a reference implementation for the initial working draft of the OAM specification. It does not reflect the most recent version of the OAM specification.***
 
 ## Why Rudr?
 
