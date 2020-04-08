@@ -97,7 +97,15 @@ spec:
           "type": "string",
           "description": "Path to expose.",
           "default": "/"
-        }
+        },
+        "tls_hosts": {
+          "type": "string",
+          "description": "Host names for TLS certificate."
+        },
+        "tls_secret_name": {
+          "type": "string",
+          "description": "TLS's secret name in Kubernetes."
+        },
       }
     }
 

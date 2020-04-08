@@ -19,6 +19,8 @@ pub struct Ingress {
     pub hostname: Option<String>,
     pub path: Option<String>,
     pub owner_ref: OwnerRefs,
+    pub tls_hosts: Option<Vec<String>>,
+    pub tls_secret_name: Option<String>,
 }
 impl Ingress {
     pub fn from_properties(
@@ -41,7 +43,11 @@ impl Ingress {
             hostname: properties_map
                         .and_then(|map| map.get("hostname").map(|p| p.as_str().unwrap_or("").to_string())),
             path: properties_map
-                        .and_then(|map| map.get("path").map(|p| p.as_str().unwrap_or("").to_string()))
+                        .and_then(|map| map.get("path").map(|p| p.as_str().unwrap_or("").to_string())),
+            tls_hosts: properties_map
+                        .and_then(|map| map.get("tlsHosts").map(|p| p.as_str().unwrap_or("").split(",").map(|p| p.to_string()).collect())),
+            tls_secret_name: properties_map
+                        .and_then(|map| map.get("tlsSecretName").map(|p| p.as_str().unwrap_or("").to_string())),
         }
     }
     pub fn to_ext_ingress(&self) -> ext::Ingress {
@@ -70,6 +76,13 @@ impl Ingress {
                         }],
                     }),
                 }]),
+                tls: match self.tls_secret_name {
+                    None => Some(vec![]),
+                    _ => Some(vec![ext::IngressTLS {
+                        hosts: self.tls_hosts.clone(),
+                        secret_name: self.tls_secret_name.clone(),
+                    }])
+                },
                 ..Default::default()
             }),
             ..Default::default()
