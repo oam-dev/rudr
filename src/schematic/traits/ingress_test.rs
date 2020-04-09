@@ -13,6 +13,8 @@ fn test_ingress_defaults() {
         hostname: None,
         path: None,
         owner_ref: None,
+        tls_hosts: None,
+        tls_secret_name: None,
     };
 
     let king = ig.to_ext_ingress();
@@ -36,6 +38,14 @@ fn test_ingress_defaults() {
             .expect("path required")
             .path
     );
+    
+    let tls_vec = king.spec
+        .as_ref()
+        .expect("spec required")
+        .tls
+        .as_ref()
+        .expect("tls expected");
+    assert_eq!(0, tls_vec.len());
 }
 
 #[test]
@@ -46,7 +56,9 @@ fn test_ingress_v1alpha1() {
         properties: Some(json!({
             "hostname": "in.example.com",
             "path": "/path",
-            "servicePort": 9999
+            "servicePort": 9999,
+            "tlsHosts": "x.example.com,y.example.com,z.example.com",
+            "tlsSecretName": "my_secret",
         })),
     };
 
@@ -99,6 +111,19 @@ fn test_ingress_v1alpha1() {
     );
     assert_eq!("squid", path.backend.service_name.as_str());
     assert_eq!(IntOrString::Int(9999), path.backend.service_port);
+
+    let tls = spec
+        .tls
+        .as_ref()
+        .expect("tls expected")
+        .get(0)
+        .expect("one tls expected");
+    assert_eq!("my_secret", tls.secret_name.as_ref().expect("secret expected"));
+    let tls_hosts = tls.hosts.as_ref().expect("hosts are expected");
+    assert_eq!(3, tls_hosts.len());
+    assert_eq!("x.example.com", tls_hosts.get(0).expect("host is expected"));
+    assert_eq!("y.example.com", tls_hosts.get(1).expect("host is expected"));
+    assert_eq!("z.example.com", tls_hosts.get(2).expect("host is expected"));
 }
 
 #[test]
