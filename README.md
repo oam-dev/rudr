@@ -4,6 +4,8 @@
 
 Rudr is an implementation of the [Open Application Model (OAM) 1.0.0-alpha1](https://github.com/oam-dev/spec/releases/tag/v1.0.0-alpha.1) for Kubernetes. 
 
+For latest release of OAM ([1.0.0-alpha.2](https://github.com/oam-dev/spec/releases/tag/v1.0.0-alpha.2)), please check [Crossplane OAM](https://github.com/oam-dev/crossplane-oam-sample) as the reference Kubernetes implementation. Further details about OAM and Crossplane collaboration will be announced soon.
+
 ***Note: Rudr is a reference implementation for the initial working draft of the OAM specification. It does not reflect the most recent version of the OAM specification.***
 
 ## Why Rudr?
