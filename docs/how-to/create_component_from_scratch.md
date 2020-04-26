@@ -123,7 +123,7 @@ docker push oamdev/helloworld-python:v2
 
 Change the component with a new name.
 
-```yaml
+```diff
 apiVersion: core.oam.dev/v1alpha1
 kind: ComponentSchematic
 metadata:
