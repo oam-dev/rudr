@@ -783,6 +783,6 @@ mod test {
     }
 
     fn mock_kube_config() -> Config {
-        Config::new(".".parse().unwrap())
+        Config::new("http://localhost".parse().unwrap())
     }
 }

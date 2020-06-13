@@ -28,7 +28,7 @@ fn test_component_configuration() {
 fn test_application_configuration() {
     // Test that an application configuration deserializes correctly.
 
-    let conf: ApplicationConfiguration = serde_json::from_str(
+    let conf: ApplicationConfigurationSpec = serde_json::from_str(
         r#"{
             "variables": [
                 {
@@ -40,5 +40,5 @@ fn test_application_configuration() {
     )
     .expect("JSON must parse");
 
-    assert!(conf.spec.variables.is_some());
+    assert!(conf.variables.is_some());
 }

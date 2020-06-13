@@ -310,7 +310,7 @@ mod test {
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
     fn mock_kube_config() -> Config {
-        Config::new(".".parse().unwrap())
+        Config::new("http://localhost".parse().unwrap())
     }
 
     #[test]
