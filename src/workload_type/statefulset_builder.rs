@@ -4,8 +4,7 @@ use crate::workload_type::{InstigatorResult, ParamMap};
 use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::Object;
-use kube::client::APIClient;
+use kube::client::Client;
 use std::collections::BTreeMap;
 
 /// StatefulsetBuilder builds new Singleton Server and Singleton worker use StatefulSet of K8s
@@ -90,17 +89,10 @@ impl StatefulsetBuilder {
         }
     }
 
-    pub async fn status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
-        let sts: Object<_, apps::StatefulSetStatus> =
-            match kube::api::Api::v1StatefulSet(client.clone())
-                .within(namespace.as_str())
-                .get_status(self.name.as_str())
-                .await
-            {
-                Ok(sts) => sts,
-                Err(e) => return Err(e)
-            };
-        let status: apps::StatefulSetStatus = sts.status.unwrap();
+    pub async fn status(self, client: Client, namespace: String) -> Result<String, kube::Error> {
+        let api = kube::api::Api::namespaced(client, &namespace);
+        let sts: apps::StatefulSet = api.get_status(&self.name).await?;
+        let status = sts.status.unwrap();
         let replica = status.replicas;
         let available_replicas = status.ready_replicas.unwrap_or(0);
         let mut state = "updating".to_string();
@@ -110,28 +102,23 @@ impl StatefulsetBuilder {
         Ok(state)
     }
 
-    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: Client, namespace: String, phase: &str) -> InstigatorResult {
         let statefulset = self.to_statefulset();
+        let api: kube::api::Api<apps::StatefulSet> = kube::api::Api::namespaced(client, &namespace);
         match phase {
             "modify" => {
                 let pp = kube::api::PatchParams::default();
-                kube::api::Api::v1StatefulSet(client)
-                    .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&statefulset)?).await?;
+                api.patch_status(&self.name, &pp, serde_json::to_vec(&statefulset)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
-                kube::api::Api::v1StatefulSet(client)
-                    .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp).await?;
+                api.delete(&self.name, &pp).await?;
                 Ok(())
             }
             _ => {
                 let pp = kube::api::PostParams::default();
-                kube::api::Api::v1StatefulSet(client)
-                    .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&statefulset)?).await?;
+                api.replace_status(&self.name, &pp, serde_json::to_vec(&statefulset)?).await?;
                 Ok(())
             }
         }

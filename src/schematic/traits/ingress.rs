@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use crate::schematic::traits::{util::*, TraitImplementation};
 use k8s_openapi::api::extensions::v1beta1 as ext;
 use k8s_openapi::apimachinery::pkg::{apis::meta::v1 as meta, util::intstr::IntOrString};
-use kube::client::APIClient;
+use kube::client::Client;
 use log::warn;
 use serde_json::map::Map;
 use std::collections::BTreeMap;
@@ -96,13 +96,13 @@ impl Ingress {
 
 #[async_trait]
 impl TraitImplementation for Ingress {
-    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: Client) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let (req, _) = ext::Ingress::create_namespaced_ingress(ns, &ingress, Default::default())?;
         client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: Client) -> TraitResult {
         let ingress = self.to_ext_ingress();
         let values = serde_json::to_value(&ingress)?;
         let (req, _) = ext::Ingress::patch_namespaced_ingress(
@@ -114,13 +114,13 @@ impl TraitImplementation for Ingress {
         client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: Client) -> TraitResult {
         let (req, _) =
             ext::Ingress::delete_namespaced_ingress(self.name.as_str(), ns, Default::default())?;
         client.request::<ext::Ingress>(req).await?;
         Ok(())
     }
-    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: Client) -> Option<BTreeMap<String, String>> {
         let mut resource = BTreeMap::new();
         let key = "ingress/".to_string() + self.kube_name().as_str();
         let (req, _) = match ext::Ingress::read_namespaced_ingress_status(

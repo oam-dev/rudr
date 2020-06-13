@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use k8s_openapi::api::core::v1 as core;
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::client::APIClient;
+use kube::client::Client;
 use log::warn;
 use serde_json::map::Map;
 
@@ -134,7 +134,7 @@ impl TraitImplementation for VolumeMounter {
     /// Make sure the PVC is created before the Pod.
     /// This won't make a difference most of the time, but on fast disk provisioning operations
     /// this may help a little.
-    async fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn pre_add(&self, ns: &str, client: Client) -> TraitResult {
         let pvc = self.to_pvc();
         let (req, _) = core::PersistentVolumeClaim::create_namespaced_persistent_volume_claim(
             ns,
@@ -145,10 +145,10 @@ impl TraitImplementation for VolumeMounter {
         Ok(())
     }
     /// There is nothing to do on the add phase for this trait
-    async fn add(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn add(&self, _ns: &str, _client: Client) -> TraitResult {
         Ok(())
     }
-    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: Client) -> TraitResult {
         let pvc = self.to_pvc();
         let values = serde_json::to_value(&pvc)?;
         let (req, _) = core::PersistentVolumeClaim::patch_namespaced_persistent_volume_claim(
@@ -160,7 +160,7 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req).await?;
         Ok(())
     }
-    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: Client) -> TraitResult {
         let (req, _) = core::PersistentVolumeClaim::delete_namespaced_persistent_volume_claim(
             self.volume_name.as_str(),
             ns,
@@ -169,7 +169,7 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req).await?;
         Ok(())
     }
-    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: Client) -> Option<BTreeMap<String, String>> {
         let pvc_name = self.volume_name.as_str();
         let key = format!("persistentvolumeclaim/{}", pvc_name);
         let mut resource = BTreeMap::new();

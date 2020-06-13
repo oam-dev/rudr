@@ -4,8 +4,7 @@ use crate::workload_type::{
     InstigatorResult, StatusResult, ValidationResult, WorkloadMetadata, WorkloadType,
 };
 use failure::{format_err, Error};
-use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{Object, ObjectMeta, PatchParams, PostParams, RawApi, TypeMeta};
+use kube::api::{Object, ObjectMeta, PatchParams, PostParams, CustomResource, TypeMeta};
 use log::info;
 use std::collections::BTreeMap;
 
@@ -153,11 +152,11 @@ impl OpenFaaS {
 
         let mut kube_faas = KubeFaaS {
             types: TypeMeta {
-                apiVersion: Some("openfaas.com/v1alpha2".to_string()),
-                kind: Some("Function".to_string()),
+                api_version: "openfaas.com/v1alpha2".to_string(),
+                kind: "Function".to_string(),
             },
             metadata: ObjectMeta {
-                name: self.meta.instance_name.clone(),
+                name: Some(self.meta.instance_name.clone()),
                 ..Default::default()
             },
             spec: FunctionSpec {
@@ -170,53 +169,33 @@ impl OpenFaaS {
             status: None,
         };
         if self.meta.owner_ref.is_some() {
-            kube_faas.metadata.ownerReferences =
-                convert_owner_ref(self.meta.owner_ref.clone().unwrap());
+            kube_faas.metadata.owner_references = self.meta.owner_ref.clone();
         }
         Ok(kube_faas)
     }
 }
 
-fn convert_owner_ref(own: Vec<meta::OwnerReference>) -> Vec<kube::api::OwnerReference> {
-    let mut own_ref = vec![];
-    if own.is_empty() {
-        return own_ref;
-    }
-    for o in own.iter() {
-        own_ref.insert(
-            own_ref.len(),
-            kube::api::OwnerReference {
-                apiVersion: o.api_version.clone(),
-                kind: o.kind.clone(),
-                name: o.name.clone(),
-                uid: o.uid.clone(),
-                blockOwnerDeletion: o.block_owner_deletion.unwrap_or_else(|| false),
-                controller: o.controller.unwrap_or_else(|| false),
-            },
-        );
-    }
-    own_ref
-}
-
 #[async_trait]
 impl WorkloadType for OpenFaaS {
     async fn add(&self) -> InstigatorResult {
-        let faas_resource = RawApi::customResource("functions")
+        let faas_resource = CustomResource::kind("functions")
             .version("v1alpha2")
             .group("openfaas.com")
-            .within(self.meta.namespace.as_str());
+            .within(self.meta.namespace.as_str())
+            .into_resource();
         let kubefaas = self.get_kube_faas()?;
         let faas_req =
             faas_resource.create(&PostParams::default(), serde_json::to_vec(&kubefaas)?)?;
         let openfaas: KubeFaaS = self.meta.client.request(faas_req).await?;
-        info!("openfass function {} was created", openfaas.metadata.name);
+        info!("openfass function {} was created", openfaas.metadata.name.unwrap());
         Ok(())
     }
     async fn modify(&self) -> InstigatorResult {
-        let faas_resource = RawApi::customResource("functions")
+        let faas_resource = CustomResource::kind("functions")
             .version("v1alpha2")
             .group("openfaas.com")
-            .within(self.meta.namespace.as_str());
+            .within(self.meta.namespace.as_str())
+            .into_resource();
         let kubefaas = self.get_kube_faas()?;
         let faas_req = faas_resource.patch(
             self.meta.instance_name.clone().as_str(),
@@ -224,7 +203,7 @@ impl WorkloadType for OpenFaaS {
             serde_json::to_vec(&kubefaas)?,
         )?;
         let openfaas: KubeFaaS = self.meta.client.request(faas_req).await?;
-        info!("openfass function {} was modified", openfaas.metadata.name);
+        info!("openfass function {} was modified", openfaas.metadata.name.unwrap());
         Ok(())
     }
     async fn delete(&self) -> InstigatorResult {
@@ -244,8 +223,8 @@ mod test {
     use crate::schematic::parameter::ParameterType;
     use crate::workload_type::extended_workload::openfaas::OpenFaaS;
     use crate::workload_type::{ParamMap, WorkloadMetadata};
-    use kube::client::APIClient;
-    use kube::config::Configuration;
+    use kube::client::Client;
+    use kube::config::Config;
     use serde_json::json;
     use std::collections::BTreeMap;
 
@@ -289,9 +268,8 @@ mod test {
                     }],
                     ..Default::default()
                 },
-                client: APIClient::new(Configuration::new(
-                    ".".into(),
-                    reqwest::Client::new(),
+                client: Client::new(Config::new(
+                    ".".parse().unwrap()
                 )),
                 params,
                 owner_ref: None,

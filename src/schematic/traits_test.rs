@@ -1,7 +1,7 @@
 use crate::lifecycle::Phase;
 use crate::schematic::traits::*;
 use crate::workload_type::{SERVER_NAME, SINGLETON_SERVER_NAME};
-use kube::{client::APIClient, config::Configuration};
+use kube::{client::Client, config::Config};
 
 #[test]
 fn test_ingress_workload_types() {
@@ -24,9 +24,8 @@ async fn test_traits_exec() {
     }
 }
 
-fn mock_client() -> APIClient {
-    APIClient::new(Configuration::new(
-        ".".into(),
-        reqwest::Client::new(),
+fn mock_client() -> Client {
+    Client::new(Config::new(
+        ".".parse().unwrap(),
     ))
 }

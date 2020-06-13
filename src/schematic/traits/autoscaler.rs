@@ -3,7 +3,7 @@ use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::autoscaling::v2beta1 as hpa;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::client::APIClient;
+use kube::client::Client;
 use log::warn;
 use serde_json::map::Map;
 use std::collections::BTreeMap;
@@ -117,7 +117,7 @@ impl Autoscaler {
 
 #[async_trait]
 impl TraitImplementation for Autoscaler {
-    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: Client) -> TraitResult {
         let scaler = self.to_horizontal_pod_autoscaler();
         let (req, _) = hpa::HorizontalPodAutoscaler::create_namespaced_horizontal_pod_autoscaler(
             ns,
@@ -134,7 +134,7 @@ impl TraitImplementation for Autoscaler {
         );
         Ok(())
     }
-    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: Client) -> TraitResult {
         let scaler = self.to_horizontal_pod_autoscaler();
 
         let values = serde_json::to_value(&scaler)?;
@@ -154,7 +154,7 @@ impl TraitImplementation for Autoscaler {
         );
         Ok(())
     }
-    async fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn delete(&self, ns: &str, client: Client) -> TraitResult {
         let (req, _) = hpa::HorizontalPodAutoscaler::delete_namespaced_horizontal_pod_autoscaler(
             self.kube_name().as_str(),
             ns,
@@ -167,7 +167,7 @@ impl TraitImplementation for Autoscaler {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
-    async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, ns: &str, client: Client) -> Option<BTreeMap<String, String>> {
         let mut resource = BTreeMap::new();
         let key = "horizontalpodautoscaler/".to_string() + self.kube_name().as_str();
         let (req, _) =

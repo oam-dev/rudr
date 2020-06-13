@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use crate::lifecycle::Phase;
 use crate::schematic::parameter::ParameterValue;
-use kube::client::APIClient;
+use kube::client::Client;
 use log::info;
 
 // Re-exports
@@ -65,7 +65,7 @@ pub enum OAMTrait {
     Empty(Empty),
 }
 impl OAMTrait {
-    pub async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+    pub async fn exec(&self, ns: &str, client: Client, phase: Phase) -> TraitResult {
         match self {
             OAMTrait::Autoscaler(a) => a.exec(ns, client, phase).await,
             OAMTrait::Ingress(i) => i.exec(ns, client, phase).await,
@@ -74,7 +74,7 @@ impl OAMTrait {
             OAMTrait::Empty(e) => e.exec(ns, client, phase).await,
         }
     }
-    pub async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    pub async fn status(&self, ns: &str, client: Client) -> Option<BTreeMap<String, String>> {
         match self {
             OAMTrait::Autoscaler(a) => a.status(ns, client).await,
             OAMTrait::Ingress(i) => i.status(ns, client).await,
@@ -90,7 +90,7 @@ impl OAMTrait {
 /// For example, Ingress is an implementation of an OAM Trait.
 #[async_trait]
 pub trait TraitImplementation: Sync {
-    async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+    async fn exec(&self, ns: &str, client: Client, phase: Phase) -> TraitResult {
         match phase {
             Phase::Add => self.add(ns, client).await,
             Phase::Modify => self.modify(ns, client).await,
@@ -100,11 +100,11 @@ pub trait TraitImplementation: Sync {
             Phase::PreDelete => self.pre_delete(ns, client).await,
         }
     }
-    async fn add(&self, ns: &str, client: APIClient) -> TraitResult;
-    async fn modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: Client) -> TraitResult;
+    async fn modify(&self, _ns: &str, _client: Client) -> TraitResult {
         Err(format_err!("Trait updates not implemented for this type"))
     }
-    async fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn delete(&self, _ns: &str, _client: Client) -> TraitResult {
         // Often, owner references mean you don't need to do anything here.
         // But if we invoke this delete function standalone, that means we hope to delete this sub resource actively.
         Err(format_err!("Trait delete not implemented for this type"))
@@ -113,16 +113,16 @@ pub trait TraitImplementation: Sync {
         info!("Support {} by default", name);
         true
     }
-    async fn pre_add(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_add(&self, _ns: &str, _client: Client) -> TraitResult {
         Ok(())
     }
-    async fn pre_modify(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_modify(&self, _ns: &str, _client: Client) -> TraitResult {
         Ok(())
     }
-    async fn pre_delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn pre_delete(&self, _ns: &str, _client: Client) -> TraitResult {
         Ok(())
     }
-    async fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, _ns: &str, _client: Client) -> Option<BTreeMap<String, String>> {
         None
     }
 }

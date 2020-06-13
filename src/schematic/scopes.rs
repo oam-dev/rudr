@@ -20,17 +20,6 @@ pub enum OAMScope {
     Network(Network),
 }
 
-fn convert_owner_ref(owner: meta::OwnerReference) -> kube::api::OwnerReference {
-    kube::api::OwnerReference {
-        controller: owner.controller.unwrap_or(false),
-        blockOwnerDeletion: owner.block_owner_deletion.unwrap_or(false),
-        name: owner.name,
-        apiVersion: owner.api_version,
-        kind: owner.kind,
-        uid: owner.uid,
-    }
-}
-
 impl OAMScope {
     pub fn allow_overlap(&self) -> bool {
         match self {
@@ -47,7 +36,7 @@ impl OAMScope {
     /// create will create a real scope instance
     pub async fn create(&self, owner: meta::OwnerReference) -> Result<(), Error> {
         match self {
-            OAMScope::Health(h) => h.create(convert_owner_ref(owner.clone())).await,
+            OAMScope::Health(h) => h.create(owner.clone()).await,
             OAMScope::Network(n) => n.create(owner.clone()).await,
         }
     }

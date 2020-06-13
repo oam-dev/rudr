@@ -1,6 +1,6 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::{api::Api, api::Object, api::PatchParams, api::RawApi, api::Void, client::APIClient};
+use kube::{api::Object, api::PatchParams, api::CustomResource, api::NotUsed, client::Client};
 use log::{debug, error, info, warn};
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -39,7 +39,7 @@ pub const COMPONENT_RECORD_ANNOTATION: &str = "component_record_annotation";
 
 /// Type alias for the results that all instantiation operations return
 pub type InstigatorResult = Result<(), Error>;
-pub type OpResource = Object<ApplicationConfiguration, OAMStatus>;
+pub type OpResource = ApplicationConfiguration;
 type ParamMap = BTreeMap<String, serde_json::Value>;
 
 /// This error is returned when a component cannot be found.
@@ -71,14 +71,14 @@ pub struct ComponentNotFoundError {
 /// - Delete
 #[derive(Clone)]
 pub struct Instigator {
-    client: APIClient,
+    client: Client,
     //cache: Reflector<Component, Status>,
     namespace: String,
     pub event_handler: kube_event::Event,
 }
 
 /// Alias for a Kubernetes wrapper on a component.
-type KubeComponent = Object<Component, Void>;
+type KubeComponent = Object<Component, NotUsed>;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ComponentRecord {
@@ -92,7 +92,7 @@ impl Instigator {
     ///
     /// An instigator uses the reflector as a cache of Components, and will use the API client
     /// for creating and managing the component implementation.
-    pub fn new(client: kube::client::APIClient, namespace: String) -> Self {
+    pub fn new(client: kube::client::Client, namespace: String) -> Self {
         Instigator {
             client: client.clone(),
             namespace: namespace.clone(),
@@ -102,8 +102,10 @@ impl Instigator {
 
     pub async fn sync_status(&self, event: OpResource) -> InstigatorResult {
         let mut component_status = BTreeMap::new();
-        let name = event.metadata.name.clone();
-        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
+        let name = event.metadata.name.clone().unwrap();
+        let record_ann = event.metadata.annotations
+            .as_ref()
+            .and_then(|annotations| annotations.get(COMPONENT_RECORD_ANNOTATION));
         let mut last_components = get_record_annotation(record_ann)?;
         let mut has_diff = false;
         for component in event.clone().spec.components.unwrap_or_else(|| vec![]) {
@@ -114,7 +116,7 @@ impl Instigator {
             ).await?;
 
             let new_record = &ComponentRecord {
-                version: comp_def.clone().metadata.resourceVersion.unwrap(),
+                version: comp_def.clone().metadata.resource_version.unwrap(),
                 config: component.clone(),
             };
             let record = last_components
@@ -201,7 +203,7 @@ impl Instigator {
         if has_diff || !last_components.is_empty() {
             info!(
                 "StatusCheckLoop: skip update status for {}, wait for the mainControlLoop to execute",
-                event.metadata.name.clone()
+                event.metadata.name.clone().unwrap()
             );
             return Ok(());
         }
@@ -223,27 +225,22 @@ impl Instigator {
         annotation: Option<BTreeMap<String, String>>,
         controlled_by: String,
     ) -> InstigatorResult {
-        let config_resource: Api<Object<ApplicationConfiguration, OAMStatus>> =
-            Api::customResource(self.client.clone(), CONFIG_CRD)
-                .version(CONFIG_VERSION)
-                .group(CONFIG_GROUP)
-                .within(&self.namespace);
+        let config_resource: kube::Api<ApplicationConfiguration> = kube::Api::namespaced(self.client.clone(), &self.namespace);
         let mut new_event = event.clone();
         loop {
             new_event.status = status.clone();
-            if let Some(newann) = annotation.clone() {
-                new_event.metadata.annotations = newann;
-            }
+            new_event.metadata.annotations = annotation.clone();
+            let name = event.metadata.name.clone().unwrap();
             let patch_params = PatchParams::default();
             match config_resource.patch(
-                &event.metadata.name,
+                &name,
                 &patch_params,
                 serde_json::to_vec(&new_event)?,
             ).await {
                 Ok(o) => {
                     debug!(
                         "{}: Patched status {:?} for {}",
-                        controlled_by, o.status, o.metadata.name
+                        controlled_by, o.status, o.metadata.name.unwrap()
                     );
                     return Ok(());
                 }
@@ -257,9 +254,9 @@ impl Instigator {
                             warn!(
                                 "{}: conflict happen to {}, retry",
                                 controlled_by,
-                                event.metadata.name.clone()
+                                name,
                             );
-                            new_event = config_resource.get(&event.metadata.name).await?;
+                            new_event = config_resource.get(&name).await?;
                             continue;
                         }
                     }
@@ -272,7 +269,7 @@ impl Instigator {
     /// The workhorse for Instigator.
     /// This will execute only Add, Modify, and Delete phases.
     async fn exec(&self, event: OpResource, mut phase: Phase) -> InstigatorResult {
-        let name = event.metadata.name.clone();
+        let name = event.metadata.name.clone().unwrap();
         let variables = event.spec.variables.clone().unwrap_or_else(|| vec![]);
         let owner_ref = config_owner_reference(name.clone(), event.metadata.uid.clone())?;
         if event.spec.scopes.is_some() {
@@ -280,7 +277,7 @@ impl Instigator {
                 self.client.clone(),
                 self.namespace.clone(),
                 name.clone(),
-                event.spec.clone(),
+                event.clone(),
                 variables.clone(),
             )?;
             match phase {
@@ -311,7 +308,9 @@ impl Instigator {
             return Ok(());
         }
 
-        let record_ann = event.metadata.annotations.get(COMPONENT_RECORD_ANNOTATION);
+        let record_ann = event.metadata.annotations
+            .as_ref()
+            .and_then(|annotations| annotations.get(COMPONENT_RECORD_ANNOTATION));
         let mut last_components = get_record_annotation(record_ann)?;
         let mut new_components: BTreeMap<String, ComponentRecord> = BTreeMap::new();
         let mut component_updated = false;
@@ -326,7 +325,7 @@ impl Instigator {
             ).await?;
             //check last components in every component loop
             let new_record = &ComponentRecord {
-                version: comp_def.clone().metadata.resourceVersion.unwrap(),
+                version: comp_def.clone().metadata.resource_version.unwrap(),
                 config: component.clone(),
             };
             //remove the component in last and add to new, when we finish the component loop mentioned in event,
@@ -568,7 +567,9 @@ impl Instigator {
 
         let new_record = serde_json::to_string(&new_components)?;
         let mut annotation = event.metadata.annotations.clone();
-        annotation.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
+        if let Some(ref mut annotations) = annotation {
+            annotations.insert(COMPONENT_RECORD_ANNOTATION.to_string(), new_record);
+        }
         let default_status = Some(OAMStatus::new(Some(phase.to_string()), None));
         let status = event
             .status
@@ -581,7 +582,7 @@ impl Instigator {
         self.retry_patch_status(
             event,
             status,
-            Some(annotation),
+            annotation,
             "MainControlLoop".to_string(),
         ).await
     }
@@ -610,13 +611,13 @@ impl Instigator {
     ) -> WorkloadMetadata {
         info!(
             "{}: Looking up workload for {} <{}>",
-            controlled_by, config_name, comp.metadata.name
+            controlled_by, config_name, comp.metadata.name.clone().unwrap()
         );
         WorkloadMetadata {
             name: config_name,
             instance_name,
-            component_name: comp.metadata.name.clone(),
-            annotations: Some(comp.metadata.annotations.clone()),
+            component_name: comp.metadata.name.clone().unwrap(),
+            annotations: comp.metadata.annotations.clone(),
             namespace: self.namespace.clone(),
             definition: comp.spec.clone(),
             client: self.client.clone(),
@@ -735,10 +736,11 @@ impl Instigator {
     ) -> InstigatorResult {
         let name = combine_name(component_name, instance_name);
         let pp = kube::api::DeleteParams::default();
-        let crd_req = RawApi::customResource("componentinstances")
+        let crd_req = CustomResource::kind("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = crd_req.delete(name.as_str(), &pp)?;
         if let Err(e) = self.client.request_status::<KubeComponentInstance>(req).await {
             if e.to_string().contains("NotFound") {
@@ -757,10 +759,11 @@ impl Instigator {
     ) -> Result<Vec<meta::OwnerReference>, Error> {
         let name = combine_name(component_name, instance_name);
         let pp = kube::api::PostParams::default();
-        let crd_req = RawApi::customResource("componentinstances")
+        let crd_req = CustomResource::kind("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let comp_inst = json!({
             "apiVersion": OAM_API_VERSION,
             "kind": "ComponentInstance",
@@ -823,10 +826,11 @@ impl Instigator {
         instance_name: String,
     ) -> Result<Vec<meta::OwnerReference>, Error> {
         let name = combine_name(component_name, instance_name);
-        let crd_req = RawApi::customResource("componentinstances")
+        let crd_req = CustomResource::kind("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = crd_req.get(name.as_str())?;
         let res: KubeComponentInstance = self.client.request(req).await?;
 
@@ -836,7 +840,7 @@ impl Instigator {
             uid: res.metadata.uid.unwrap(),
             controller: Some(true),
             block_owner_deletion: Some(true),
-            name: res.metadata.name,
+            name: res.metadata.name.unwrap(),
         };
         Ok(vec![owner])
     }
@@ -848,10 +852,11 @@ impl Instigator {
         status: String,
     ) -> Result<(), Error> {
         let name = combine_name(component_name, instance_name);
-        let crd_req = RawApi::customResource("componentinstances")
+        let crd_req = CustomResource::kind("componentinstances")
             .group(CONFIG_GROUP)
             .version(CONFIG_VERSION)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = crd_req.get(name.as_str())?;
         let mut res: KubeComponentInstance = self.client.request(req).await?;
         res.status = Some(status);
@@ -867,18 +872,18 @@ impl Instigator {
 
 pub fn get_object_ref(event: OpResource) -> ObjectReference {
     ObjectReference {
-        api_version: event.types.apiVersion.clone(),
-        kind: event.types.kind.clone(),
-        name: Some(event.metadata.name.clone()),
+        api_version: Some(event.api_version.clone()),
+        kind: Some(event.kind.clone()),
+        name: event.metadata.name.clone(),
         field_path: None,
         namespace: event.metadata.namespace.clone(),
-        resource_version: event.metadata.resourceVersion.clone(),
+        resource_version: event.metadata.resource_version.clone(),
         uid: event.metadata.uid.clone(),
     }
 }
 
 /// combine_name combine component name with instance_name,
-/// so we won't afraid different components using same instance_name   
+/// so we won't afraid different components using same instance_name
 pub fn combine_name(component_name: String, instance_name: String) -> String {
     component_name + "-" + instance_name.as_str()
 }
@@ -926,12 +931,13 @@ pub fn check_diff(old: Option<ComponentRecord>, new: &ComponentRecord) -> bool {
 pub async fn get_component_def(
     namespace: String,
     comp_name: String,
-    client: APIClient,
+    client: Client,
 ) -> Result<KubeComponent, Error> {
-    let component_resource = RawApi::customResource(COMPONENT_CRD)
+    let component_resource = CustomResource::kind(COMPONENT_CRD)
         .version("v1alpha1")
         .group("core.oam.dev")
-        .within(&namespace);
+        .within(&namespace)
+        .into_resource();
     let comp_def_req = component_resource.get(comp_name.as_str())?;
     let comp_def: KubeComponent = match client.request::<KubeComponent>(comp_def_req).await {
         Ok(comp) => comp,
@@ -953,14 +959,14 @@ pub fn get_values(values: Option<Vec<ParameterValue>>) -> Vec<ParameterValue> {
 /// Load application scopes from scope_bindings
 /// check if there is not allowed overlap
 pub fn load_scopes(
-    client: APIClient,
+    client: Client,
     namespace: String,
     instance_name: String,
     spec: ApplicationConfiguration,
     variables: Vec<Variable>,
 ) -> Result<Vec<OAMScope>, failure::Error> {
     let mut scopes: Vec<OAMScope> = vec![];
-    for scope_binding in spec.scopes.iter() {
+    for scope_binding in spec.spec.scopes.iter() {
         for sc in scope_binding.iter() {
             let param = sc
                 .parameter_values
@@ -990,7 +996,7 @@ pub fn load_scopes(
 // load_scope should load scope from k8s crd
 // NOTE: this is a temporary solution just return core scope here
 fn load_scope(
-    client: APIClient,
+    client: Client,
     namespace: String,
     instance_name: String,
     binding: &ScopeBinding,
@@ -1007,7 +1013,7 @@ fn load_scope(
 }
 
 fn load_scope_by_type(
-    client: APIClient,
+    client: Client,
     namespace: String,
     instance_name: String,
     scope_type: &str,
@@ -1040,29 +1046,30 @@ type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
 async fn get_scope_instance(
     name: String,
     ns: String,
-    client: APIClient,
+    client: Client,
 ) -> Result<Vec<OAMScope>, failure::Error> {
     let mut scopes = vec![];
-    let resource = RawApi::customResource(CONFIG_CRD)
+    let resource = CustomResource::kind(CONFIG_CRD)
         .within(ns.as_str())
         .group(CONFIG_GROUP)
-        .version(CONFIG_VERSION);
+        .version(CONFIG_VERSION)
+        .into_resource();
     //init all the existing objects at initiate, this should be done by informer
     let req = resource.get(name.as_str())?;
     let cfg = client.request::<KubeOpsConfig>(req).await?;
-    for scope_binding in cfg.spec.scopes.clone().unwrap_or_else(|| vec![]).iter() {
+    for scope_binding in cfg.spec.spec.scopes.clone().unwrap_or_else(|| vec![]).iter() {
         let param = scope_binding
             .parameter_values
             .clone()
             .map(|values| {
-                resolve_variables(values, cfg.spec.variables.clone().unwrap_or_else(|| vec![]))
+                resolve_variables(values, cfg.spec.spec.variables.clone().unwrap_or_else(|| vec![]))
             })
             .unwrap_or_else(|| Ok(vec![]))
             .unwrap();
         let scope = load_scope(
             client.clone(),
             ns.clone(),
-            cfg.metadata.name.clone(),
+            cfg.metadata.name.clone().unwrap(),
             scope_binding,
             param,
         )?;

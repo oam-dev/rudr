@@ -121,7 +121,7 @@ impl WorkloadType for ReplicatedServer {
         let state = self.meta.deployment_status().
             or_else(|e| async move {
             if e.to_string().contains("NotFound") {
-                warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...",
                     self.meta.instance_name, self.meta.component_name);
                 self.add_deployment_builder().await.unwrap_or(());
             }
@@ -134,7 +134,7 @@ impl WorkloadType for ReplicatedServer {
             .get_status(self.meta.client.clone(), self.meta.namespace.clone());
         let svc_state = svc_status.or_else(|e| async move {
             if e.to_string().contains("NotFound") {
-                warn!("Service not found for instance_name:{} component_name:{}. Recreating it.", 
+                warn!("Service not found for instance_name:{} component_name:{}. Recreating it.",
                     self.meta.instance_name, self.meta.component_name);
                 self.add_service_builder().await.unwrap_or(());
             }
@@ -223,7 +223,7 @@ impl WorkloadType for SingletonServer {
             .status(self.meta.client.clone(), self.meta.namespace.clone())
             .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
-                    warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                    warn!("Deployment not found for instance_name:{} component_name:{}. Recreating it...",
                         self.meta.instance_name, self.meta.component_name);
                     self.add_statefulset_deployment_builder().await.unwrap_or(());
                 }
@@ -236,7 +236,7 @@ impl WorkloadType for SingletonServer {
             .get_status(self.meta.client.clone(), self.meta.namespace.clone())
             .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
-                    warn!("Statefulset not found for instance_name:{} component_name:{}. Recreating it.", 
+                    warn!("Statefulset not found for instance_name:{} component_name:{}. Recreating it.",
                         self.meta.instance_name, self.meta.component_name);
                     self.add_service_builder().await.unwrap_or(());
                 }
@@ -250,7 +250,7 @@ impl WorkloadType for SingletonServer {
 
 #[cfg(test)]
 mod test {
-    use kube::{client::APIClient, config::Configuration};
+    use kube::{client::Client, config::Config};
 
     use crate::schematic::component::Component;
     use crate::workload_type::{server::*, KubeName, WorkloadMetadata};
@@ -259,7 +259,7 @@ mod test {
 
     #[test]
     fn test_singleton_service_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
 
         let sing = SingletonServer {
             meta: WorkloadMetadata {
@@ -286,7 +286,7 @@ mod test {
 
     #[test]
     fn test_replicated_service_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
 
         let rs = ReplicatedServer {
             meta: WorkloadMetadata {
@@ -309,11 +309,8 @@ mod test {
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
 
     #[test]

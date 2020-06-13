@@ -68,7 +68,7 @@ impl WorkloadType for ReplicatedWorker {
         let mut resources = BTreeMap::new();
         let state = self.meta.deployment_status().or_else(|e| async move {
             if e.to_string().contains("NotFound") {
-                warn!("Replicated Worker: Deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                warn!("Replicated Worker: Deployment not found for instance_name:{} component_name:{}. Recreating it...",
                     self.meta.instance_name, self.meta.component_name);
                 self.add_deployment_builder().await.unwrap_or(());
             }
@@ -169,7 +169,7 @@ impl WorkloadType for SingletonWorker {
             .status(self.meta.client.clone(), self.meta.namespace.clone())
             .or_else(|e| async move {
                 if e.to_string().contains("NotFound") {
-                    warn!("Statefulset deployment not found for instance_name:{} component_name:{}. Recreating it...", 
+                    warn!("Statefulset deployment not found for instance_name:{} component_name:{}. Recreating it...",
                         self.meta.instance_name, self.meta.component_name);
                     self.add_statefulset_builder().await.unwrap_or(());
                 }
@@ -185,7 +185,7 @@ impl WorkloadType for SingletonWorker {
 
 #[cfg(test)]
 mod test {
-    use kube::{client::APIClient, config::Configuration};
+    use kube::{client::Client, config::Config};
 
     use crate::schematic::component::{Component, Container, Port};
     use crate::workload_type::{worker::*, workload_builder::WorkloadMetadata, KubeName};
@@ -206,7 +206,7 @@ mod test {
                     },
                     annotations: None,
                     params: BTreeMap::new(),
-                    client: APIClient::new(mock_kube_config()),
+                    client: Client::new(mock_kube_config()),
                     owner_ref: None,
                 },
                 replica_count: Some(1),
@@ -230,7 +230,7 @@ mod test {
                     definition: Default::default(),
                     annotations: None,
                     params: BTreeMap::new(),
-                    client: APIClient::new(mock_kube_config()),
+                    client: Client::new(mock_kube_config()),
                     owner_ref: None,
                 },
             };
@@ -247,7 +247,7 @@ mod test {
 
     #[tokio::test]
     async fn test_singleton_worker_validate() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
         let base_worker = SingletonWorker {
             meta: WorkloadMetadata {
                 name: "mytask".into(),
@@ -288,7 +288,7 @@ mod test {
 
     #[test]
     fn test_singleton_worker_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
 
         let wrkr = SingletonWorker {
             meta: WorkloadMetadata {
@@ -311,7 +311,7 @@ mod test {
 
     #[tokio::test]
     async fn test_replicated_worker_validate() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
         let base_worker = ReplicatedWorker {
             replica_count: Some(132),
             meta: WorkloadMetadata {
@@ -353,7 +353,7 @@ mod test {
 
     #[test]
     fn test_replicated_worker_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
         let mut annotations = BTreeMap::new();
         annotations.insert("annotation1".to_string(), "value".to_string());
 
@@ -378,10 +378,7 @@ mod test {
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
 }

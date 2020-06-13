@@ -1,4 +1,5 @@
-use crate::schematic::{parameter::ParameterValue, traits::TraitBinding, variable::Variable};
+use kube_derive::CustomResource;
+use crate::schematic::{parameter::ParameterValue, traits::TraitBinding, variable::Variable, OAMStatus};
 
 /// Configuration creates an instance of a specified component, and attaches configuration to it.
 ///
@@ -24,9 +25,12 @@ pub struct ComponentConfiguration {
 ///
 /// An ApplicationConfiguration can describe one or more components, a collection
 /// of related parameters, and the associated traits and scopes.
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(CustomResource, Serialize, Deserialize, Clone, Debug)]
+#[kube(group = "core.oam.dev", version = "v1alpha1", namespaced)]
+#[kube(apiextensions = "v1beta1")]
+#[kube(status = "OAMStatus")]
 #[serde(rename_all = "camelCase")]
-pub struct ApplicationConfiguration {
+pub struct ApplicationConfigurationSpec {
     pub variables: Option<Vec<Variable>>,
     pub scopes: Option<Vec<ScopeBinding>>,
     pub components: Option<Vec<ComponentConfiguration>>,

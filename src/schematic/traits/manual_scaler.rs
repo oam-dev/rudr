@@ -3,8 +3,8 @@ use crate::schematic::traits::{util::*, TraitImplementation};
 use crate::workload_type::extended_workload::openfaas::KubeFaaS;
 use crate::workload_type::{SERVER_NAME, TASK_NAME, WORKER_NAME};
 use k8s_openapi::api::{apps::v1 as apps, batch::v1 as batch};
-use kube::api::{PatchParams, RawApi};
-use kube::client::APIClient;
+use kube::api::{PatchParams, CustomResource};
+use kube::client::Client;
 use log::info;
 use log::warn;
 use serde_json::map::Map;
@@ -42,7 +42,7 @@ impl ManualScaler {
                         ).unwrap_or_else( || { warn!("Unable to parse replicaCount value for instance:{}. Setting it to default value:80", instancename); 1}),
         }
     }
-    async fn scale(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn scale(&self, ns: &str, client: Client) -> TraitResult {
         // TODO: We probably need to watch for the deployment to be created. Or this might be unnecessary.
         std::thread::sleep(std::time::Duration::from_secs(5));
 
@@ -91,17 +91,20 @@ impl ManualScaler {
             }
             crate::workload_type::extended_workload::openfaas::OPENFAAS => {
                 // Scale openfaas workload
-                let faas_resource = RawApi::customResource("functions")
+                let faas_resource = CustomResource::kind("functions")
                     .version("v1alpha2")
                     .group("openfaas.com")
-                    .within(ns);
+                    .within(ns)
+                    .into_resource();
                 let faas_req = faas_resource.get(self.instance_name.clone().as_str())?;
                 let mut openfaas: KubeFaaS = client.request(faas_req).await?;
                 let mut labels = openfaas.metadata.labels.clone();
-                labels.insert(
-                    "com.openfaas.scale.min".to_string(),
-                    self.replica_count.to_string(),
-                );
+                if let Some(ref mut labels) = labels {
+                    labels.insert(
+                        "com.openfaas.scale.min".to_string(),
+                        self.replica_count.to_string(),
+                    );
+                }
                 openfaas.metadata.labels = labels;
                 let faas_req = faas_resource.patch(
                     self.instance_name.clone().as_str(),
@@ -111,7 +114,7 @@ impl ManualScaler {
                 let openfaas: KubeFaaS = client.request(faas_req).await?;
                 info!(
                     "openfass function {} was scaled to {}",
-                    openfaas.metadata.name,
+                    openfaas.metadata.name.unwrap_or("unknown".to_string()),
                     self.replica_count.to_string(),
                 );
                 Ok(())
@@ -153,20 +156,20 @@ impl ManualScaler {
 
 #[async_trait]
 impl TraitImplementation for ManualScaler {
-    async fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn add(&self, ns: &str, client: Client) -> TraitResult {
         self.scale(ns, client).await
     }
-    async fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    async fn modify(&self, ns: &str, client: Client) -> TraitResult {
         self.scale(ns, client).await
     }
-    async fn delete(&self, _ns: &str, _client: APIClient) -> TraitResult {
+    async fn delete(&self, _ns: &str, _client: Client) -> TraitResult {
         Ok(())
     }
     fn supports_workload_type(name: &str) -> bool {
         // Only support replicated service and task right now.
         name == SERVER_NAME || name == TASK_NAME || name == WORKER_NAME
     }
-    async fn status(&self, _ns: &str, _client: APIClient) -> Option<BTreeMap<String, String>> {
+    async fn status(&self, _ns: &str, _client: Client) -> Option<BTreeMap<String, String>> {
         None
     }
 }

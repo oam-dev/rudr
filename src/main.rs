@@ -4,9 +4,11 @@ use env_logger;
 use failure::{format_err, Error};
 use futures::StreamExt;
 use futures::future::TryFutureExt;
+use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
-use kube::api::{Informer, ListParams, Object, ObjectList, RawApi, WatchEvent};
-use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
+use kube::api::{ListParams, Object, ObjectList, CustomResource, WatchEvent};
+use kube::runtime::Informer;
+use kube::client::Client;
 use log::{debug, error, info};
 use std::convert::Infallible;
 use std::io::Write;
@@ -24,18 +26,18 @@ use rudr::schematic::{
 
 const DEFAULT_NAMESPACE: &str = "default";
 
-async fn kubeconfig() -> kube::Result<kube::config::Configuration> {
+async fn kubeconfig() -> kube::Result<kube::config::Config> {
     // If env var is set, use in cluster config
     match std::env::var("KUBERNETES_PORT") {
         Ok(_val) => {
             info!("Loading in-cluster config");
-            incluster_config()
+            kube::config::Config::from_cluster_env()
         }
-        Err(_e) => load_kube_config().await,
+        Err(_e) => kube::config::Config::infer().await,
     }
 }
 
-type KubeOpsConfig = Object<ApplicationConfiguration, OAMStatus>;
+type KubeOpsConfig = ApplicationConfiguration;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -71,23 +73,24 @@ async fn main() -> Result<(), Error> {
 
     let top_ns = std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
     let top_cfg = kubeconfig().await.expect("Load default kubeconfig");
-    info!("apiserver:{}", top_cfg.base_path);
+    info!("apiserver:{}", top_cfg.cluster_url);
 
     // There is probably a better way to do this than to create two clones, but there is a potential
     // thread safety issue here.
     let cfg_watch = top_cfg.clone();
-    let client = APIClient::new(top_cfg);
+    let client = Client::new(top_cfg);
 
     precheck_crds(&client).await?;
 
     // Watch for configuration objects to be added, and react to those.
     let configuration_watch = tokio::spawn(async move {
         let ns = top_ns.clone();
-        let client = APIClient::new(cfg_watch.clone());
-        let resource = RawApi::customResource(CONFIG_CRD)
+        let client = Client::new(cfg_watch.clone());
+        let resource = CustomResource::kind(CONFIG_CRD)
             .within(ns.as_str())
             .group(CONFIG_GROUP)
-            .version(CONFIG_VERSION);
+            .version(CONFIG_VERSION)
+            .into_resource();
         //init all the existing objects at initiate, this should be done by informer
         let req = resource.list(&ListParams::default()).unwrap();
         match client.request::<ObjectList<KubeOpsConfig>>(req).await {
@@ -105,7 +108,7 @@ async fn main() -> Result<(), Error> {
         }
         // This listens for new items, and then processes them as they come in.
         let informer: Informer<KubeOpsConfig> =
-            Informer::raw(client.clone(), resource.clone()).init().await?;
+            Informer::new(kube::Api::all(client.clone()));
         loop {
             let mut events = informer.poll().await?.boxed();
             debug!("loop");
@@ -129,12 +132,13 @@ async fn main() -> Result<(), Error> {
         let ns =
             std::env::var("KUBERNETES_NAMESPACE").unwrap_or_else(|_| DEFAULT_NAMESPACE.into());
         let cfg_watch = kubeconfig().await.expect("Load default kubeconfig");
-        let client = APIClient::new(cfg_watch.clone());
+        let client = Client::new(cfg_watch.clone());
         loop {
-            let resource = RawApi::customResource(CONFIG_CRD)
+            let resource = CustomResource::kind(CONFIG_CRD)
                 .within(ns.as_str())
                 .group(CONFIG_GROUP)
-                .version(CONFIG_VERSION);
+                .version(CONFIG_VERSION)
+                .into_resource();
             //get all the configuration object and sync status
             let req = resource.list(&ListParams::default()).unwrap();
             if let Ok(cfgs) = client.request::<ObjectList<KubeOpsConfig>>(req).await {
@@ -178,7 +182,7 @@ async fn handle_health(_req: Request<Body>) -> Result<Response<Body>, Infallible
 
 /// This takes an event off the stream and delegates it to the instigator, calling the correct verb.
 async fn handle_event(
-    cli: &APIClient,
+    cli: &Client,
     event: WatchEvent<KubeOpsConfig>,
     namespace: String,
 ) -> Result<(), Error> {
@@ -190,7 +194,7 @@ async fn handle_event(
                     kube_event::Type::Warning,
                     kube_event::Info {
                         action: "create".to_string(),
-                        message: format!("create config {} error", o.metadata.name.clone()),
+                        message: format!("create config {} error", o.metadata.name.clone().unwrap()),
                         reason: format!("{}", err),
                     },
                     rudr::instigator::get_object_ref(o.clone()),
@@ -207,7 +211,7 @@ async fn handle_event(
                     kube_event::Type::Warning,
                     kube_event::Info {
                         action: "update".to_string(),
-                        message: format!("update config {} error", o.metadata.name.clone()),
+                        message: format!("update config {} error", o.metadata.name.clone().unwrap()),
                         reason: format!("{}", err),
                     },
                     rudr::instigator::get_object_ref(o.clone()),
@@ -220,7 +224,7 @@ async fn handle_event(
         }
         WatchEvent::Deleted(o) => inst.delete(o).await,
         WatchEvent::Error(ref e) => match e {
-            kube::ErrorResponse { reason, .. } if reason == "AlreadyExists" => {
+            kube::error::ErrorResponse { reason, .. } if reason == "AlreadyExists" => {
                 // TODO: The configuration watch code above (lines: [71:108]) appears
                 // to create k8s resources initially and then poll for events.
                 //
@@ -233,24 +237,28 @@ async fn handle_event(
             }
             _ => Err(format_err!("APIError: {:?}", e)),
         },
+        _ => Ok(())
     }
 }
 
-async fn sync_status(cli: &APIClient, event: KubeOpsConfig, namespace: String) -> Result<(), Error> {
+async fn sync_status(cli: &Client, event: KubeOpsConfig, namespace: String) -> Result<(), Error> {
     let inst = Instigator::new(cli.clone(), namespace);
     inst.sync_status(event).await
 }
 
 type CrdObj = Object<CrdSpec, CrdStatus>;
-async fn precheck_crds(client: &APIClient) -> Result<(), failure::Error> {
+async fn precheck_crds(client: &Client) -> Result<(), failure::Error> {
     let crds = vec![CONFIG_CRD, TRAIT_CRD, COMPONENT_CRD, SCOPE_CRD];
     for crd in crds.iter() {
-        let req = RawApi::v1beta1CustomResourceDefinition()
+        // FIXME: not sure how to do this
+        /*
+        let req = CustomResourceDefinition()
             .get(format!("{}.core.oam.dev", crd).as_str())?;
         if let Err(e) = client.request::<CrdObj>(req).await {
             error!("Error prechecking CRDs {}: {:?}", crd, e);
             return Err(failure::format_err!("Missing CRD {}", crd));
         }
+        */
     }
     Ok(())
 }

@@ -4,7 +4,7 @@ use crate::workload_type::{
     InstigatorResult, StatusResult, ValidationResult, WorkloadMetadata, WorkloadType,
 };
 use failure::{format_err, Error};
-use kube::api::{PatchParams, PostParams, RawApi};
+use kube::api::{PatchParams, PostParams, CustomResource};
 use serde_json::json;
 use std::collections::BTreeMap;
 
@@ -15,7 +15,7 @@ pub struct Others {
 
 impl Others {
     pub fn new(meta: WorkloadMetadata, type_: &str) -> Result<Self, Error> {
-        let gvk: GroupVersionKind = std::str::FromStr::from_str(type_)?;
+        let gvk: GroupVersionKind = type_.parse()?;
         if meta
             .definition
             .workload_settings
@@ -75,24 +75,27 @@ fn form_plural(word: &str) -> String {
 #[async_trait]
 impl WorkloadType for Others {
     async fn add(&self) -> InstigatorResult {
-        let crd_resource = RawApi::customResource(
+        let crd_resource = CustomResource::kind(
             form_plural(self.gvk.kind.clone().to_lowercase().as_str()).as_str(),
         )
         .version(self.gvk.version.as_str())
         .group(self.gvk.group.as_str())
-        .within(self.meta.namespace.as_str());
+        .within(self.meta.namespace.as_str())
+        .into_resource();
         let object = self.get_object();
         let crd_req = crd_resource.create(&PostParams::default(), serde_json::to_vec(&object)?)?;
         let _: serde_json::Value = self.meta.client.request(crd_req).await?;
         Ok(())
     }
+
     async fn modify(&self) -> InstigatorResult {
-        let crd_resource = RawApi::customResource(
+        let crd_resource = CustomResource::kind(
             form_plural(self.gvk.kind.clone().to_lowercase().as_str()).as_str(),
         )
         .version(self.gvk.version.as_str())
         .group(self.gvk.group.as_str())
-        .within(self.meta.namespace.as_str());
+        .within(self.meta.namespace.as_str())
+        .into_resource();
         let object = self.get_object();
         let crd_req = crd_resource.patch(
             self.meta.instance_name.clone().as_str(),
@@ -102,13 +105,16 @@ impl WorkloadType for Others {
         let _: serde_json::Value = self.meta.client.request(crd_req).await?;
         Ok(())
     }
+
     async fn delete(&self) -> InstigatorResult {
         Ok(())
     }
+
     async fn status(&self) -> StatusResult {
         // TODO: how to implement status while we don't know the spec?
         Ok(BTreeMap::new())
     }
+
     async fn validate(&self) -> ValidationResult {
         Ok(())
     }
@@ -120,8 +126,8 @@ mod test {
     use crate::schematic::parameter::ParameterType;
     use crate::workload_type::extended_workload::others::{form_plural, Others};
     use crate::workload_type::WorkloadMetadata;
-    use kube::client::APIClient;
-    use kube::config::Configuration;
+    use kube::client::Client;
+    use kube::config::Config;
     use serde_json::json;
     use std::collections::BTreeMap;
 
@@ -147,9 +153,8 @@ mod test {
                     }],
                     ..Default::default()
                 },
-                client: APIClient::new(Configuration::new(
-                    ".".into(),
-                    reqwest::Client::new(),
+                client: Client::new(Config::new(
+                    ".".parse().unwrap(),
                 )),
                 params: BTreeMap::new(),
                 owner_ref: None,

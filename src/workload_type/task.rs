@@ -132,7 +132,7 @@ impl WorkloadType for SingletonTask {
 
 #[cfg(test)]
 mod test {
-    use kube::{client::APIClient, config::Configuration};
+    use kube::{client::Client, config::Config};
 
     use crate::schematic::component::Component;
     use crate::workload_type::{task::*, workload_builder::WorkloadMetadata, KubeName};
@@ -141,7 +141,7 @@ mod test {
 
     #[test]
     fn test_singleton_task_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
 
         let task = SingletonTask {
             meta: WorkloadMetadata {
@@ -164,7 +164,7 @@ mod test {
 
     #[test]
     fn test_replicated_task_kube_name() {
-        let cli = APIClient::new(mock_kube_config());
+        let cli = Client::new(mock_kube_config());
 
         let task = ReplicatedTask {
             meta: WorkloadMetadata {
@@ -188,11 +188,8 @@ mod test {
     }
 
     /// This mock builds a KubeConfig that will not be able to make any requests.
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
 
 }

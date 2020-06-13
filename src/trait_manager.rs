@@ -1,6 +1,6 @@
 use failure::Error;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::client::APIClient;
+use kube::client::Client;
 use log::{debug, error};
 use serde_json::json;
 use serde_json::map::Map;
@@ -110,7 +110,7 @@ impl TraitManager {
             _ => Err(format_err!("unknown trait {}", binding.name)),
         }
     }
-    pub async fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> Result<(), Error> {
+    pub async fn exec(&self, ns: &str, client: Client, phase: Phase) -> Result<(), Error> {
         for imp in &self.traits {
             // At the moment, we don't return an error if a trait fails.
             let res = imp.exec(ns, client.clone(), phase.clone()).await;
@@ -125,7 +125,7 @@ impl TraitManager {
         }
         Ok(())
     }
-    pub async fn status(&self, ns: &str, client: APIClient) -> Option<BTreeMap<String, String>> {
+    pub async fn status(&self, ns: &str, client: Client) -> Option<BTreeMap<String, String>> {
         let mut all_status = BTreeMap::new();
         for imp in &self.traits {
             if let Some(status) = imp.status(ns, client.clone()).await {

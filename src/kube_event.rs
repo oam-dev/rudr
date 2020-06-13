@@ -1,6 +1,6 @@
 use failure::Error;
-use k8s_openapi::api::core::v1::ObjectReference;
-use kube::{api::Api, api::PostParams, client::APIClient};
+use k8s_openapi::api::core::v1::{Event as v1Event, ObjectReference};
+use kube::{api::Api, api::PostParams, client::Client};
 use std::fmt;
 
 pub enum Type {
@@ -18,11 +18,11 @@ impl fmt::Display for Type {
 
 #[derive(Clone)]
 pub struct Event {
-    pub client: APIClient,
+    pub client: Client,
     pub namespace: String,
     pub reporting_component: Option<String>, // Name of the controller that emitted this Event,e.g. "oam.dev/rudr"
     pub reporting_instance: Option<String>,  //ID of the controller instance
-    pub event_handle: Api<kube::api::v1Event>,
+    pub event_handle: Api<v1Event>,
 }
 
 pub struct Info {
@@ -32,13 +32,13 @@ pub struct Info {
 }
 
 impl Event {
-    pub fn new(client: APIClient, namespace: String) -> Self {
+    pub fn new(client: Client, namespace: String) -> Self {
         Event {
             client: client.clone(),
             namespace: namespace.clone(),
             reporting_component: None,
             reporting_instance: None,
-            event_handle: Api::v1Event(client).within(namespace.as_str()),
+            event_handle: Api::namespaced(client, &namespace),
         }
     }
     fn make_event(
@@ -49,29 +49,29 @@ impl Event {
         involved_object: ObjectReference,
         reporting_component: Option<String>,
         reporting_instance: Option<String>,
-    ) -> kube::api::v1Event {
+    ) -> v1Event {
         let name = format!(
             "{}.{:x}",
             involved_object.name.clone().unwrap(),
             now.timestamp_nanos(),
         );
-        kube::api::v1Event {
+        v1Event {
             metadata: kube::api::ObjectMeta {
-                name,
+                name: Some(name),
                 namespace: Some(namespace.clone()),
                 ..Default::default()
             },
-            involvedObject: involved_object,
-            reportingComponent: reporting_component.unwrap_or_else(|| "".to_string()),
-            reportingInstance: reporting_instance.unwrap_or_else(|| "".to_string()),
-            message: info.message,
-            reason: info.reason,
-            count: 1,
-            type_: type_.to_string(),
+            involved_object: involved_object,
+            reporting_component: Some(reporting_component.unwrap_or_else(|| "".to_string())),
+            reporting_instance: Some(reporting_instance.unwrap_or_else(|| "".to_string())),
+            message: Some(info.message),
+            reason: Some(info.reason),
+            count: Some(1),
+            type_: Some(type_.to_string()),
             action: Some(info.action),
-            eventTime: None,
-            firstTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
-            lastTimestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
+            event_time: None,
+            first_timestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
+            last_timestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(now)),
             related: None,
             series: None,
             source: None,
@@ -94,7 +94,7 @@ impl Event {
             self.reporting_instance.clone(),
         );
         self.event_handle
-            .create(&PostParams::default(), serde_json::to_vec(&event)?).await?;
+            .create(&PostParams::default(), &event).await?;
         Ok(())
     }
 }
@@ -123,9 +123,9 @@ fn test_make_event() {
         None,
         None,
     );
-    assert_eq!(ev.count, 1);
+    assert_eq!(ev.count.unwrap(), 1);
     assert_eq!(
-        ev.metadata.name,
+        ev.metadata.name.unwrap(),
         format!("test.{:x}", now.timestamp_nanos())
     );
     assert_eq!(ev.action, Some("ac".to_string()))

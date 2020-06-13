@@ -4,7 +4,8 @@ use crate::schematic::parameter::{
 };
 use crate::schematic::scopes::HEALTH_SCOPE;
 use failure::Error;
-use kube::{api::RawApi, client::APIClient};
+use kube::{api::CustomResource, client::Client};
+use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
 use log::info;
 
 pub const HEALTH_SCOPE_CRD: &str = "healthscopes";
@@ -52,7 +53,7 @@ pub type HealthScopeObject = kube::api::Object<HealthScope, HealthStatus>;
 /// Health scope is defined as https://github.com/oam-dev/spec/blob/master/4.application_scopes.md#health-scope
 #[derive(Clone)]
 pub struct Health {
-    client: APIClient,
+    client: Client,
     namespace: String,
     pub name: String,
     pub allow_component_overlap: bool,
@@ -70,7 +71,7 @@ impl Health {
     pub fn from_params(
         name: String,
         namespace: String,
-        client: APIClient,
+        client: Client,
         params: Vec<ParameterValue>,
     ) -> Result<Self, Error> {
         let probe_method = match extract_string_params("probe-method", params.clone()) {
@@ -134,7 +135,7 @@ impl Health {
     pub fn scope_type(&self) -> String {
         String::from(HEALTH_SCOPE)
     }
-    pub async fn create(&self, owner: kube::api::OwnerReference) -> Result<(), Error> {
+    pub async fn create(&self, owner: OwnerReference) -> Result<(), Error> {
         let pp = kube::api::PostParams::default();
         let mut owners = vec![];
         owners.insert(0, owner);
@@ -150,20 +151,21 @@ impl Health {
                 required_healthy_components: self.required_healthy_components.clone(),
             },
             types: kube::api::TypeMeta {
-                apiVersion: Some(HEALTH_SCOPE_GROUP.to_string() + "/" + HEALTH_SCOPE_VERSION),
-                kind: Some(HEALTH_SCOPE_KIND.to_string()),
+                api_version: HEALTH_SCOPE_GROUP.to_string() + "/" + HEALTH_SCOPE_VERSION,
+                kind: HEALTH_SCOPE_KIND.to_string(),
             },
             metadata: kube::api::ObjectMeta {
-                name: self.name.clone(),
-                ownerReferences: owners,
+                name: Some(self.name.clone()),
+                owner_references: Some(owners),
                 ..Default::default()
             },
             status: None,
         };
-        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+        let healthscope_resource = CustomResource::kind(HEALTH_SCOPE_CRD)
             .version(HEALTH_SCOPE_VERSION)
             .group(HEALTH_SCOPE_GROUP)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = healthscope_resource.create(&pp, serde_json::to_vec(&scope)?)?;
         let err = self
             .client
@@ -234,10 +236,11 @@ impl Health {
     }
 
     pub async fn get_obj(&self) -> Result<HealthScopeObject, Error> {
-        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+        let healthscope_resource = CustomResource::kind(HEALTH_SCOPE_CRD)
             .version(HEALTH_SCOPE_VERSION)
             .group(HEALTH_SCOPE_GROUP)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = healthscope_resource.get(self.name.as_str())?;
         Ok(self.client.request::<HealthScopeObject>(req).await?)
     }
@@ -259,10 +262,11 @@ impl Health {
     }
     async fn patch_obj(&self, obj: HealthScopeObject) -> Result<(), Error> {
         let pp = kube::api::PatchParams::default();
-        let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+        let healthscope_resource = CustomResource::kind(HEALTH_SCOPE_CRD)
             .version(HEALTH_SCOPE_VERSION)
             .group(HEALTH_SCOPE_GROUP)
-            .within(self.namespace.as_str());
+            .within(self.namespace.as_str())
+            .into_resource();
         let req = healthscope_resource.patch(self.name.as_str(), &pp, serde_json::to_vec(&obj)?)?;
         self.client.request::<HealthScopeObject>(req).await?;
         Ok(())
@@ -273,14 +277,11 @@ impl Health {
 mod test {
     use crate::schematic::parameter::ParameterValue;
     use crate::schematic::scopes::{health::Health, HEALTH_SCOPE};
-    use kube::client::APIClient;
-    use kube::config::Configuration;
+    use kube::client::Client;
+    use kube::config::Config;
     /// This mock builds a KubeConfig that will not be able to make any requests.
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
     #[test]
     fn test_create_health() {
@@ -332,7 +333,7 @@ mod test {
         let net = Health::from_params(
             "test-health".to_string(),
             "namespace".to_string(),
-            APIClient::new(mock_kube_config()),
+            Client::new(mock_kube_config()),
             params,
         )
         .unwrap();

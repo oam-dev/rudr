@@ -40,5 +40,5 @@ fn test_application_configuration() {
     )
     .expect("JSON must parse");
 
-    assert!(conf.variables.is_some());
+    assert!(conf.spec.variables.is_some());
 }

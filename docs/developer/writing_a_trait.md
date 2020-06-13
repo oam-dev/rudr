@@ -68,7 +68,7 @@ pub struct VolumeMounter {
     pub owner_ref: OwnerRefs,
     /// The component that we are attaching to
     pub component: Component,
-    /// The name 
+    /// The name
     pub volume_name: String,
     /// The name of the storage class to which this will derive a PVC
     pub storage_class: String,
@@ -109,7 +109,7 @@ pub enum OAMTrait {
     Empty(Empty),
 }
 impl OAMTrait {
-    pub fn exec(&self, ns: &str, client: APIClient, phase: Phase) -> TraitResult {
+    pub fn exec(&self, ns: &str, client: Client, phase: Phase) -> TraitResult {
         match self {
             OAMTrait::Autoscaler(a) => a.exec(ns, client, phase),
             OAMTrait::Ingress(i) => i.exec(ns, client, phase),
@@ -240,7 +240,7 @@ In this part, we need to write an `impl TraitImplementation for VolumeMounter`:
 
 ```rust
 impl TraitImplementation for VolumeMounter {
-    fn add(&self, ns: &str, client: APIClient) -> TraitResult {
+    fn add(&self, ns: &str, client: Client) -> TraitResult {
         let pvc = self.to_pvc();
         let (req, _) = core::PersistentVolumeClaim::create_namespaced_persistent_volume_claim(
             ns,
@@ -250,7 +250,7 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req)?;
         Ok(())
     }
-    fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
+    fn modify(&self, ns: &str, client: Client) -> TraitResult {
         let pvc = self.to_pvc();
         let values = serde_json::to_value(&pvc)?;
         let (req, _) = core::PersistentVolumeClaim::patch_namespaced_persistent_volume_claim(
@@ -262,7 +262,7 @@ impl TraitImplementation for VolumeMounter {
         client.request::<core::PersistentVolumeClaim>(req)?;
         Ok(())
     }
-    fn delete(&self, ns: &str, client: APIClient) -> TraitResult {
+    fn delete(&self, ns: &str, client: Client) -> TraitResult {
         let (req, _) = core::PersistentVolumeClaim::delete_namespaced_persistent_volume_claim(
             self.volume_name.as_str(),
             ns,

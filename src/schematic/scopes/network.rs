@@ -5,11 +5,11 @@ use crate::schematic::parameter::{extract_string_params, ParameterValue};
 use crate::schematic::scopes::NETWORK_SCOPE;
 use failure::{format_err, Error};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::client::APIClient;
+use kube::client::Client;
 
 #[derive(Clone)]
 pub struct Network {
-    client: APIClient,
+    client: Client,
     namespace: String,
     pub name: String,
     pub allow_component_overlap: bool,
@@ -22,7 +22,7 @@ impl Network {
     pub fn from_params(
         name: String,
         namespace: String,
-        client: APIClient,
+        client: Client,
         params: Vec<ParameterValue>,
     ) -> Result<Self, Error> {
         let network_id = match extract_string_params("network-id", params.clone()) {
@@ -73,14 +73,11 @@ impl Network {
 mod test {
     use crate::schematic::parameter::ParameterValue;
     use crate::schematic::scopes::{Network, NETWORK_SCOPE};
-    use kube::client::APIClient;
-    use kube::config::Configuration;
+    use kube::client::Client;
+    use kube::config::Config;
     /// This mock builds a KubeConfig that will not be able to make any requests.
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
 
     #[test]
@@ -105,7 +102,7 @@ mod test {
         let net = Network::from_params(
             "test-net".to_string(),
             "namespace".to_string(),
-            APIClient::new(mock_kube_config()),
+            Client::new(mock_kube_config()),
             params,
         )
         .unwrap();

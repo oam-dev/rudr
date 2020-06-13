@@ -5,8 +5,8 @@ use failure::{format_err, Error};
 use futures::future::{self, TryFutureExt};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
-use kube::api::{ListParams, ObjectList, RawApi};
-use kube::{client::APIClient, config::incluster_config, config::load_kube_config};
+use kube::api::{ListParams, ObjectList, Resource};
+use kube::{client::Client, config::incluster_config, config::load_kube_config};
 use log::{debug, error, info};
 use rudr::instigator::{combine_name, CONFIG_GROUP, CONFIG_VERSION};
 use rudr::schematic::component_instance::KubeComponentInstance;
@@ -59,11 +59,11 @@ async fn main() -> Result<(), Error> {
 
     let health_scope_watch = tokio::spawn(async move {
         let ns = top_ns.clone();
-        let healthscope_resource = RawApi::customResource("healthscopes")
+        let healthscope_resource = Resource::customResource("healthscopes")
             .version("v1alpha1")
             .group("core.oam.dev")
             .within(ns.as_str());
-        let client = APIClient::new(cfg_watch);
+        let client = Client::new(cfg_watch);
         let mut cnt = 0;
         loop {
             let req = healthscope_resource.list(&ListParams::default()).unwrap();
@@ -157,9 +157,9 @@ async fn request_health(instance_name: String) -> Result<String, Error> {
         cfg.base_path.clone(),
         instance_name
     );
-    let client = &(APIClient::new(cfg));
+    let client = &(Client::new(cfg));
     println!("client namespace {}", namespace.clone());
-    let healthscope_resource = RawApi::customResource("healthscopes")
+    let healthscope_resource = Resource::customResource("healthscopes")
         .version("v1alpha1")
         .group("core.oam.dev")
         .within(namespace.as_str());
@@ -181,7 +181,7 @@ async fn request_health(instance_name: String) -> Result<String, Error> {
 }
 
 async fn aggregate_component_health(
-    client: &APIClient,
+    client: &Client,
     mut event: HealthScopeObject,
     namespace: String,
 ) -> Result<(), Error> {
@@ -212,7 +212,7 @@ async fn aggregate_component_health(
                 last_aggregate_timestamp: Some(Utc::now().to_rfc3339()),
             });
             let pp = kube::api::PatchParams::default();
-            let healthscope_resource = RawApi::customResource(HEALTH_SCOPE_CRD)
+            let healthscope_resource = Resource::customResource(HEALTH_SCOPE_CRD)
                 .version(HEALTH_SCOPE_VERSION)
                 .group(HEALTH_SCOPE_GROUP)
                 .within(namespace.as_str());
@@ -232,9 +232,9 @@ async fn aggregate_component_health(
     }
 }
 
-async fn get_health_from_component(client: &APIClient, info: ComponentInfo, namespace: String) -> String {
+async fn get_health_from_component(client: &Client, info: ComponentInfo, namespace: String) -> String {
     let name = combine_name(info.name, info.instance_name);
-    let crd_req = RawApi::customResource("componentinstances")
+    let crd_req = Resource::customResource("componentinstances")
         .group(CONFIG_GROUP)
         .version(CONFIG_VERSION)
         .within(namespace.as_str());

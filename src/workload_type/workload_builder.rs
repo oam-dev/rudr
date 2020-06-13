@@ -2,8 +2,8 @@ use k8s_openapi::api::apps::v1 as apps;
 use k8s_openapi::api::batch::v1 as batchapi;
 use k8s_openapi::api::core::v1 as api;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1 as meta;
-use kube::api::{DeleteParams, Object, PatchParams, PostParams};
-use kube::client::APIClient;
+use kube::api::{DeleteParams, PatchParams, PostParams};
+use kube::client::Client;
 use log::info;
 use std::collections::BTreeMap;
 
@@ -27,7 +27,7 @@ pub struct WorkloadMetadata {
     /// Definition is the definition of the component.
     pub definition: Component,
     /// Client is the Kubernetes API client
-    pub client: APIClient,
+    pub client: Client,
     /// Params contains a map of parameters that were supplied for this workload
     pub params: ParamMap,
     /// Owner Ref is the Kubernetes owner reference
@@ -90,9 +90,8 @@ impl WorkloadMetadata {
     }
 
     pub async fn deployment_status(&self) -> Result<String, kube::Error> {
-        let deploy: Object<_, apps::DeploymentStatus> =
-            match kube::api::Api::v1Deployment(self.client.clone())
-                .within(self.namespace.as_str())
+        let deploy: apps::Deployment =
+            match kube::api::Api::namespaced(self.client.clone(), &self.namespace)
                 .get_status(self.kube_name().as_str())
                 .await
             {
@@ -222,28 +221,23 @@ impl DeploymentBuilder {
         }
     }
 
-    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: Client, namespace: String, phase: &str) -> InstigatorResult {
         let deployment = self.to_deployment();
+        let api: kube::api::Api<apps::Deployment> = kube::api::Api::namespaced(client.clone(), &namespace);
         match phase {
             "modify" => {
                 let pp = kube::api::PatchParams::default();
-                kube::api::Api::v1Deployment(client)
-                    .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&deployment)?).await?;
+                api.patch(self.name.as_str(), &pp, serde_json::to_vec(&deployment)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
-                kube::api::Api::v1Deployment(client)
-                    .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp).await?;
+                api.delete(self.name.as_str(), &pp).await?;
                 Ok(())
             }
             _ => {
                 let pp = kube::api::PostParams::default();
-                kube::api::Api::v1Deployment(client)
-                    .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&deployment)?).await?;
+                api.create(&pp, &deployment).await?;
                 Ok(())
             }
         }
@@ -347,9 +341,8 @@ impl JobBuilder {
         }
     }
 
-    pub async fn get_status(self, client: APIClient, namespace: String) -> String {
-        let job: Object<_, batchapi::JobStatus> = match kube::api::Api::v1Job(client)
-            .within(namespace.as_str())
+    pub async fn get_status(self, client: Client, namespace: String) -> String {
+        let job: batchapi::Job = match kube::api::Api::namespaced(client.clone(), &namespace)
             .get_status(self.name.as_str())
             .await
         {
@@ -372,22 +365,19 @@ impl JobBuilder {
         "succeeded".to_string()
     }
 
-    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: Client, namespace: String, phase: &str) -> InstigatorResult {
         let job = self.to_job();
+        let api: kube::api::Api<batchapi::Job> = kube::api::Api::namespaced(client.clone(), &namespace);
         match phase {
             "modify" => {
                 //TODO support modify config_map
                 let pp = kube::api::PatchParams::default();
-                kube::api::Api::v1Job(client)
-                    .within(namespace.as_str())
-                    .patch(self.name.as_str(), &pp, serde_json::to_vec(&job)?).await?;
+                api.patch(&self.name, &pp, serde_json::to_vec(&job)?).await?;
                 Ok(())
             }
             "delete" => {
                 let pp = kube::api::DeleteParams::default();
-                kube::api::Api::v1Job(client)
-                    .within(namespace.as_str())
-                    .delete(self.name.as_str(), &pp).await?;
+                api.delete(&self.name, &pp).await?;
                 Ok(())
             }
             _ => {
@@ -402,9 +392,7 @@ impl JobBuilder {
                     client.request::<api::ConfigMap>(req).await?;
                 }
                 let pp = kube::api::PostParams::default();
-                kube::api::Api::v1Job(client)
-                    .within(namespace.as_str())
-                    .create(&pp, serde_json::to_vec(&job)?).await?;
+                api.create(&pp, &job).await?;
                 Ok(())
             }
         }
@@ -458,14 +446,13 @@ impl ServiceBuilder {
             })
         })
     }
-    pub async fn get_status(self, client: APIClient, namespace: String) -> Result<String, kube::Error> {
-        match kube::api::Api::v1Service(client)
-            .within(namespace.as_str())
+    pub async fn get_status(self, client: Client, namespace: String) -> Result<String, kube::Error> {
+        match kube::api::Api::namespaced(client.clone(), &namespace)
             .get_status(self.name.as_str())
             .await
         {
             Ok(status) => {
-                let svc_status: Object<api::ServiceSpec, api::ServiceStatus> = status;
+                let svc_status: api::Service = status;
                 if let Some(_state) = svc_status.status {
                     return Ok("created".to_string());
                 }
@@ -474,30 +461,25 @@ impl ServiceBuilder {
             Err(e) => Err(e),
         }
     }
-    pub async fn do_request(self, client: APIClient, namespace: String, phase: &str) -> InstigatorResult {
+    pub async fn do_request(self, client: Client, namespace: String, phase: &str) -> InstigatorResult {
+        let api: kube::api::Api<api::Service> = kube::api::Api::namespaced(client.clone(), &namespace);
         match self.to_service() {
             Some(svc) => {
                 log::debug!("Service:\n{}", serde_json::to_string_pretty(&svc).unwrap());
                 match phase {
                     "modify" => {
                         let pp = PatchParams::default();
-                        kube::api::Api::v1Service(client)
-                            .within(namespace.as_str())
-                            .patch(self.name.as_str(), &pp, serde_json::to_vec(&svc.spec)?).await?;
+                        api.patch(&self.name, &pp, serde_json::to_vec(&svc.spec)?).await?;
                         Ok(())
                     }
                     "delete" => {
                         let pp = DeleteParams::default();
-                        kube::api::Api::v1Service(client)
-                            .within(namespace.as_str())
-                            .delete(self.name.as_str(), &pp).await?;
+                        api.delete(&self.name, &pp).await?;
                         Ok(())
                     }
                     _ => {
                         let pp = PostParams::default();
-                        kube::api::Api::v1Service(client)
-                            .within(namespace.as_str())
-                            .create(&pp, serde_json::to_vec(&svc)?).await?;
+                        api.create(&pp, &svc).await?;
                         Ok(())
                     }
                 }
@@ -516,7 +498,7 @@ mod test {
     use crate::schematic::component::{Component, Container, Port, PortProtocol};
     use crate::workload_type::workload_builder::*;
     use k8s_openapi::apimachinery::pkg::apis::meta::v1::OwnerReference;
-    use kube::config::Configuration;
+    use kube::config::Config;
 
     #[test]
     fn test_workload_metadata() {
@@ -525,7 +507,7 @@ mod test {
             component_name: "component_name".into(),
             instance_name: "instance name".into(),
             namespace: "namespace".into(),
-            client: APIClient::new(mock_kube_config()),
+            client: Client::new(mock_kube_config()),
             annotations: None,
             params: BTreeMap::new(),
             definition: skeleton_component(),
@@ -799,10 +781,8 @@ mod test {
             ..Default::default()
         }])
     }
-    fn mock_kube_config() -> Configuration {
-        Configuration::new(
-            ".".into(),
-            reqwest::Client::new(),
-        )
+
+    fn mock_kube_config() -> Config {
+        Config::new(".".parse().unwrap())
     }
 }
