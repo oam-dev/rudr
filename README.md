@@ -10,7 +10,7 @@ For latest release of OAM ([1.0.0-alpha.2](https://github.com/oam-dev/spec/relea
 
 ## Why Rudr?
 
-Kubernetes API resources focused on container infrastructure rather than the applications per se. Yet, application developers think in terms of application architecture, not of infrastructure
+Kubernetes API resources focused on container infrastructure rather than the applications per se. Yet, application developers think in terms of application architecture, not of infrastructure.
 
 **Rudr provides application level primitives for Kubernetes that enable:**
 
