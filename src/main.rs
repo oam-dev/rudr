@@ -30,7 +30,10 @@ fn kubeconfig() -> kube::Result<kube::config::Configuration> {
             info!("Loading in-cluster config");
             incluster_config()
         }
-        Err(_e) => load_kube_config(),
+        Err(_e) => {
+            info!("Loading k8s client config");
+            load_kube_config()
+        },
     }
 }
 

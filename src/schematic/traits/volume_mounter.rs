@@ -74,16 +74,14 @@ impl VolumeMounter {
         labels
     }
     /// Conver the volume mounter data to a PersistentVolumeClaim
-    pub fn to_pvc(&self) -> core::PersistentVolumeClaim {
-        let attach_to = self.find_volume();
+    pub fn to_pvc(&self) -> Option<core::PersistentVolumeClaim> {
+        let attach_to = self.find_volume()?;
         let size = Quantity(
-            attach_to
-                .and_then(|v| v.disk.as_ref().and_then(|d| Some(d.required.clone())))
-                .unwrap_or_else(|| DEFAULT_VOLUME_SIZE.to_string()),
-        );
+            attach_to.disk.as_ref().and_then(|d| Some(d.required.clone()))
+            .unwrap_or_else(|| DEFAULT_VOLUME_SIZE.to_string()));
         let mut reqs = BTreeMap::new();
         reqs.insert("storage".to_string(), size);
-        core::PersistentVolumeClaim {
+        Some(core::PersistentVolumeClaim {
             metadata: Some(meta::ObjectMeta {
                 name: Some(self.volume_name.clone()),
                 labels: Some(self.labels()),
@@ -100,28 +98,25 @@ impl VolumeMounter {
                 ..Default::default()
             }),
             ..Default::default()
-        }
+        })
     }
-    fn mount_policy(&self, volume: Option<&Volume>) -> String {
-        volume
-            .and_then(|vol| {
-                Some(match vol.access_mode {
-                    AccessMode::RO => "ReadOnlyMany",
-                    AccessMode::RW => match vol.sharing_policy {
-                        SharingPolicy::Shared => "ReadWriteMany",
-                        _ => "ReadWriteOnce",
-                    },
-                })
-            })
-            .unwrap_or("ReadWriteOnce")
-            .to_string()
+    fn mount_policy(&self, volume: &Volume) -> String {
+        match volume.access_mode {
+            AccessMode::RO => "ReadOnlyMany",
+            AccessMode::RW => match volume.sharing_policy {
+                SharingPolicy::Shared => "ReadWriteMany",
+                _ => "ReadWriteOnce",
+            },
+        }
+        .to_string()
     }
 
-    /// Locate the volume that this mounter is supposed to attach
+    /// Locate the volume that this mounter is supposed to attach that is not ephemeral
     fn find_volume(&self) -> Option<&Volume> {
         self.component.containers.iter().find_map(|c| {
             c.resources.volumes.as_ref().and_then(|vols| {
                 vols.iter()
+                    .filter(|v| !v.disk.as_ref().unwrap().ephemeral)
                     .find(|v| self.volume_name.eq_ignore_ascii_case(v.name.as_str()))
             })
         })
@@ -133,7 +128,13 @@ impl TraitImplementation for VolumeMounter {
     /// This won't make a difference most of the time, but on fast disk provisioning operations
     /// this may help a little.
     fn pre_add(&self, ns: &str, client: APIClient) -> TraitResult {
-        let pvc = self.to_pvc();
+        let pvc = match self.to_pvc() {
+            Some(pvc) => pvc,
+            None => {
+                warn!("Skip creating PVC in component {} as we can't find volume", self.component_name);
+                return Ok(())
+            }
+        };
         let (req, _) = core::PersistentVolumeClaim::create_namespaced_persistent_volume_claim(
             ns,
             &pvc,
@@ -147,7 +148,15 @@ impl TraitImplementation for VolumeMounter {
         Ok(())
     }
     fn modify(&self, ns: &str, client: APIClient) -> TraitResult {
-        let pvc = self.to_pvc();
+        let pvc = match self.to_pvc() {
+            Some(pvc) => pvc,
+            // TODO: Delete the previous PVC?
+            None => {
+                warn!("Skip create PVC in component {} as we can't find volume {} during update",
+                      self.component_name, self.volume_name);
+                return Ok(())
+            }
+        };
         let values = serde_json::to_value(&pvc)?;
         let (req, _) = core::PersistentVolumeClaim::patch_namespaced_persistent_volume_claim(
             self.volume_name.as_str(),
